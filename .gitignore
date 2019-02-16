@@ -1,0 +1,8 @@
+.env
+*.DS_Store
+*.json
+*.csv
+*.idea
+__pycache__
+*.pyc
+test.py
