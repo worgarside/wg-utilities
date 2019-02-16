@@ -5,7 +5,7 @@ with open('README.md', 'r') as f:
 
 setup(
     name='wg_utilities',
-    version='0.2.2',
+    version='0.3.0',
     author='Will Garside',
     author_email='worgarside@gmail.com',
     description='Utilities for the using in personal projects.',
@@ -18,5 +18,5 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
-    install_requires=['requests']
+    install_requires=['requests', 'httplib2', 'google-api-python-client']
 )
