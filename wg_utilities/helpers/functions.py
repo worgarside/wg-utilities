@@ -9,7 +9,10 @@ from googleapiclient.errors import HttpError
 from typing import Callable, Union
 
 
-def pb_notify(m: str = None, t: str = None, token: str = None):
+def pb_notify(m: str = None, t: str = None, token: str = None, print_flag: bool = False):
+    if print_flag:
+        print(m)
+
     if not m:
         warn('Notification message not set.')
 
@@ -43,21 +46,23 @@ def output(m: str = ''):
         print(e)
 
 
-def get_envfile(abs_file_path: str, project_name: str):
+def get_proj_dirs(abs_file_path: str, project_name: str):
     """Returns the path to the project's envfile
 
     :param abs_file_path: The path to the source file - should be `path.abspath(__file__)`
     :param project_name: Name of the project
-    :return: File path to .env
+    :return: Root project directory, secret files directory, and env file path
     """
     curr_file_dir, _ = path.split(abs_file_path)
     project_dir = curr_file_dir[:curr_file_dir.find(project_name) + len(project_name)] + '/'
-    envfile = f'{project_dir}secret_files/.env'
+    secret_files_dir = f'{project_dir}secret_files/'
+    env_file = f'{secret_files_dir}.env'
 
-    if not path.isfile(envfile):
-        raise FileNotFoundError(f'Unable to find {envfile}')
+    for loc in [project_dir, secret_files_dir, env_file]:
+        if not path.exists(loc):
+            raise ValueError(f'Unable to find {loc}')
 
-    return envfile
+    return project_dir, secret_files_dir, env_file
 
 
 def exponential_backoff(func: Callable, max_retries: int = 10, retriable_exceptions: tuple = RETRIABLE_EXCEPTIONS,
