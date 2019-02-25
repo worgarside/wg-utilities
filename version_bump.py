@@ -55,6 +55,9 @@ def new_version(latest_version):
 
 
 def create_release_branch(old, new):
+    print(f'Bumping version from {old} to {new}')
+    
+    _run_cmd('git push --all origin')
     _run_cmd(f'git flow release start {new}')
 
     with open('setup.py', 'r') as f:
