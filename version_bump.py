@@ -73,7 +73,7 @@ def create_release_branch(old, new):
 
     _run_cmd(f'git add setup.py')
     _run_cmd(f'git commit -m "vb {new}"')
-    _run_cmd(f'git tag -a {new} -m ""')
+    # _run_cmd(f'git tag -a {new} -m ""')
     _run_cmd(f'git flow release finish {new}')
     _run_cmd(f'git push')
     _run_cmd(f'git push --tags')
@@ -92,6 +92,7 @@ if __name__ == '__main__':
     except KeyError:
         raise KeyError(f"'{args.bump}' is not a valid bump type")
 
+    _run_cmd(f'git push --tags')
     lv = get_latest_version()
 
     create_release_branch(lv, new_version(lv))
