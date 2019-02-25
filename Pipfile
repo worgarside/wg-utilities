@@ -11,3 +11,11 @@ google-api-python-client = "*"
 
 [requires]
 python_version = "3.7"
+
+[scripts]
+major-release = "python version_bump.py --bump major"
+minor-release = "python version_bump.py --bump minor"
+patch-release = "python version_bump.py --bump patch"
+
+build = "python setup.py sdist bdist_wheel"
+deploy = "twine upload dist/*"
