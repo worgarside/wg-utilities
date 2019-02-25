@@ -73,11 +73,9 @@ def create_release_branch(old, new):
 
     _run_cmd(f'git add setup.py')
     _run_cmd(f'git commit -m "vb {new}"')
-    # _run_cmd(f'git tag -a {new} -m ""')
-    _run_cmd(f'git flow release finish {new}')
-    _run_cmd(f'git push')
-    _run_cmd(f'git push --tags')
-    _run_cmd(f'git push origin master:master')
+    _run_cmd(f'git tag -a {new} -m ""')
+    _run_cmd(f'git flow release finish -n {new}')
+    _run_cmd(f'git push --all')
     _run_cmd(f'pipenv run build')
     _run_cmd(f'pipenv run deploy')
 
