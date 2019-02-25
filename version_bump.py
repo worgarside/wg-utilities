@@ -1,7 +1,9 @@
-from re import match, compile
-from subprocess import Popen, PIPE
-import argparse
 from enum import Enum
+from re import match, compile
+
+import argparse
+from platform import system
+from subprocess import Popen, PIPE
 
 VERSION_REGEX = r'(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)'
 PATTERN = compile(r'''((?:[^\s"']|"[^"]*"|'[^']*')+)''')
@@ -68,7 +70,8 @@ def create_release_branch(old, new):
 
     _run_cmd(f'git add setup.py')
     _run_cmd(f'git commit -m "vb {new}"')
-    _run_cmd(f'git tag -a {new} -m ""')
+    if not system() == 'Windows':
+        _run_cmd(f'git tag -a {new} -m ""')
     _run_cmd(f'git flow release finish {new}')
     _run_cmd(f'git push')
     _run_cmd(f'git push --tags')
