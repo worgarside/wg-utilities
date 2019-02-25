@@ -30,7 +30,7 @@ def get_latest_version():
 
     output, error = p.communicate()
 
-    if error and not error.decode('utf-8').strip() == 'From git@github.com:worgarside/wg-utilities.git':
+    if error and not error.decode('utf-8').strip() == 'From ssh://git@github.com/worgarside/wg-utilities.git':
         exit(error.decode('utf-8'))
 
     tags = [line.split('\t')[1].replace('refs/tags/', '') for line in output.decode('utf-8').split('\n')
