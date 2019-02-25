@@ -73,8 +73,7 @@ def create_release_branch(old, new):
 
     _run_cmd(f'git add setup.py')
     _run_cmd(f'git commit -m "vb {new}"')
-    if not system() == 'Windows':
-        _run_cmd(f'git tag -a {new} -m ""')
+    _run_cmd(f'git tag -a {new} -m ""')
     _run_cmd(f'git flow release finish {new}')
     _run_cmd(f'git push')
     _run_cmd(f'git push --tags')
