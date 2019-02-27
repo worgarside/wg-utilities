@@ -6,3 +6,6 @@
 __pycache__
 *.pyc
 test.py
+build
+dist
+wg_utilities.egg-info
