@@ -2,43 +2,12 @@ from os import path, system as os_system
 from platform import system as plat_system
 from random import random
 from typing import Callable, Union
-from warnings import warn
 
 from googleapiclient.errors import HttpError
-from requests import post
 from sys import stdout
 from time import sleep
 
 from wg_utilities.references.constants import RETRIABLE_EXCEPTIONS, RETRIABLE_STATUS_CODES, OS
-
-
-def pb_notify(m: str = None, t: str = None, token: str = None, print_flag: bool = False):
-    if print_flag:
-        print(m)
-
-    if not m:
-        warn('Notification message not set.')
-
-    if not t:
-        warn('Notification title not set.')
-
-    if not token:
-        raise TypeError('PushBullet token not set, unable to send message.')
-
-    post(
-        'https://api.pushbullet.com/v2/pushes',
-        headers={
-            'Access-Token': token,
-            'Content-Type': 'application/json'
-        },
-        json={
-            'body': m,
-            'title': t,
-            'type': 'note'
-        }
-    )
-
-    return True
 
 
 def output(m: str = ''):
