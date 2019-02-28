@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
     name='wg_utilities',
-    version='0.4.1',
+    version='0.5.3',
     author='Will Garside',
     author_email='worgarside@gmail.com',
     description='Utilities for the using in personal projects.',
