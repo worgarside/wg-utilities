@@ -64,7 +64,7 @@ def create_release_branch(old, new):
     version_line_num, version_line_content = [(index, line) for index, line in enumerate(setup_file) if
                                               line.strip().lower().startswith('version=')][0]
 
-    setup_file[version_line_num] = version_line_content.replace(old, new)
+    setup_file[version_line_num] = f"    version='{new}',\n"
 
     with open('setup.py', 'w') as f:
         f.writelines(setup_file)
