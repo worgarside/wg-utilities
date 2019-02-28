@@ -1,12 +1,15 @@
-from requests import post
-from warnings import warn
-from os import path
-from sys import stdout
-from wg_utilities.references.constants import RETRIABLE_EXCEPTIONS, RETRIABLE_STATUS_CODES
+from os import path, system as os_system
+from platform import system as plat_system
 from random import random
-from time import sleep
-from googleapiclient.errors import HttpError
 from typing import Callable, Union
+from warnings import warn
+
+from googleapiclient.errors import HttpError
+from requests import post
+from sys import stdout
+from time import sleep
+
+from wg_utilities.references.constants import RETRIABLE_EXCEPTIONS, RETRIABLE_STATUS_CODES, OS
 
 
 def pb_notify(m: str = None, t: str = None, token: str = None, print_flag: bool = False):
@@ -86,3 +89,7 @@ def exponential_backoff(func: Callable, max_retries: int = 10, retriable_excepti
             sleep_seconds = min(random() * (2 ** retry), max_backoff)
             output('Sleeping {:f} seconds and then retrying...'.format(sleep_seconds)) if output_flag else None
             sleep(sleep_seconds)
+
+
+def clear_screen():
+    os_system('cls') if plat_system() == OS.WINDOWS else os_system('clear')
