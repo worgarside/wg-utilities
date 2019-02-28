@@ -1,8 +1,6 @@
+import argparse
 from enum import Enum
 from re import match, compile
-
-import argparse
-from platform import system
 from subprocess import Popen, PIPE
 
 VERSION_REGEX = r'(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)'
@@ -60,7 +58,7 @@ def create_release_branch(old, new):
     _run_cmd('git push --all origin')
     _run_cmd(f'git flow release start {new}')
 
-    with open('setup.py', 'r') as f:
+    with open('setup.py') as f:
         setup_file = f.readlines()
 
     version_line_num, version_line_content = [(index, line) for index, line in enumerate(setup_file) if
