@@ -8,7 +8,7 @@ setup(
     version='0.6.0',
     author='Will Garside',
     author_email='worgarside@gmail.com',
-    description='Utilities for the using in personal projects.',
+    description='Utilities for using in personal projects.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/worgarside/wg-utilities',
