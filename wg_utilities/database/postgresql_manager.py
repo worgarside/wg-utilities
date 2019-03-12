@@ -12,6 +12,6 @@ class PostgreSQLManager(Database):
         try:
             self.conn = psql_connect(url)
         except TypeError:
-            exit(f'Invalid URL passed to DB Manager: {url}')
+            exit('Invalid URL passed to DB Manager: {}'.format(url))
         self.commit()
         self.cur = self.conn.cursor()

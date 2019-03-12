@@ -90,7 +90,7 @@ class Database(object):
                 self.commit()
             except Exception as err:
                 if not self.error_state:
-                    print(f'Unable to commit before closing: {err}')
+                    print('Unable to commit before closing: {}'.format(err))
             self.conn.close()
             if not self.error_state:
                 print('Connection closed.')
