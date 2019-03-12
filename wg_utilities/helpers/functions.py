@@ -27,12 +27,12 @@ def get_proj_dirs(abs_file_path: str, project_name: str):
     """
     curr_file_dir, _ = path.split(abs_file_path)
     project_dir = curr_file_dir[:curr_file_dir.find(project_name) + len(project_name)] + '/'
-    secret_files_dir = f'{project_dir}secret_files/'
-    env_file = f'{secret_files_dir}.env'
+    secret_files_dir = '{}secret_files/'.format(project_dir)
+    env_file = '{}.env'.format(secret_files_dir)
 
     for loc in [project_dir, secret_files_dir, env_file]:
         if not path.exists(loc):
-            raise ValueError(f'Unable to find {loc}')
+            raise ValueError('Unable to find {}'.format(loc))
 
     return project_dir, secret_files_dir, env_file
 
