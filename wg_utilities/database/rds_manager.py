@@ -59,10 +59,10 @@ class RDSManager(Database):
 
     def _validate(self, *args, **kwargs):
         if args:
-            warn(f'Unexpected arguments passed to database: {args}', ParameterWarning)
+            warn('Unexpected arguments passed to database: {}'.format(args), ParameterWarning)
 
         if kwargs:
-            warn(f'Unexpected arguments passed to database: {kwargs}', ParameterWarning)
+            warn('Unexpected arguments passed to database: {}'.format(kwargs), ParameterWarning)
 
         missing_params = []
         for k, v in self.ssh_creds.items():
@@ -75,12 +75,12 @@ class RDSManager(Database):
 
         if missing_params:
             self.error_state = True
-            raise TypeError(f'Database instance missing params: {missing_params}')
+            raise TypeError('Database instance missing params: {}'.format(missing_params))
 
         if not path.isfile(self.ssh_creds['pkey_path']):
             self.error_state = True
-            raise IOError(f"{self.ssh_creds['pkey_path']} is not a valid file."
-                          f" Make sure you have provided the absolute path")
+            raise IOError('{} is not a valid file. Make sure you have provided the absolute path'
+                          .format(self.ssh_creds['pkey_path']))
 
     def _open_ssh_tunnel(self):
         connection_success = False
