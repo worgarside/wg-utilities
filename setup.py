@@ -18,5 +18,5 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
-    install_requires=['requests', 'httplib2', 'google-api-python-client', 'sqlalchemy']
+    install_requires=['requests', 'httplib2', 'google-api-python-client', 'sqlalchemy', 'pandas']
 )
