@@ -59,8 +59,8 @@ class Database(object):
         self.required_creds = {}
 
         if self.stubbed:
-            print(f'\033[31mWarning: Connection to \033[1m{self.db_name}\033[31m is stubbed.'
-                  f' No data will be affected.\033[0m')
+            print('\033[31mWarning: Connection to \033[1m{}\033[31m is stubbed. '
+                  'No data will be affected.\033[0m'.format(self.db_name))
 
         self.setup()
         self.validate_setup()
@@ -81,12 +81,12 @@ class Database(object):
 
         if missing_params:
             self.error_state = True
-            raise TypeError(f"Database instance missing params: {missing_params}")
+            raise TypeError('Database instance missing params: {}'.format(missing_params))
 
         if self.pkey_path and not path.isfile(self.pkey_path):
             self.error_state = True
-            raise IOError(f"{self.pkey_path} is not a valid file."
-                          f" Make sure you have provided the absolute path")
+            raise IOError("{} is not a valid file. "
+                          "Make sure you have provided the absolute path".format(self.pkey_path))
 
     def query(self, sql: str, commit: bool = True):
         """Executes a query passed in by using the DatabaseManager object
@@ -161,17 +161,17 @@ class Database(object):
             return
 
         if if_exists not in {None, 'fail', 'replace', 'append'}:
-            warn(f"Parameter if_exists has invalid value: {if_exists}. "
-                 f"Should be one of {{None, 'fail', 'replace', 'append'}}")
+            warn('Parameter if_exists has invalid value: {}. '
+                 'Should be one of {{None, \'fail\', \'replace\', \'append\'}}'.format(if_exists))
             if_exists = None
 
-        if type(method) == str and not method == 'multi':
-            warn(f"Parameter method has invalid value: {method}. Should be one of {{None, 'multi', callable}}")
+        if isinstance(method, str) and not method == 'multi':
+            warn("Parameter method has invalid value: {}. Should be one of {{None, 'multi', callable}}".format(method))
             method = None
 
         engine = create_engine(
             URL(
-                drivername=f'{self.dialect}+{self.driver}',
+                drivername='{}+{}'.format(self.dialect, self.driver),
                 username=self.db_user,
                 password=self.db_password,
                 host=self.db_host,
@@ -214,4 +214,4 @@ class Database(object):
         if self.server:
             self.server = None
         if not silent:
-            print(f"{self.db_name if self.db_name else 'Database'} disconnected.")
+            print('{} disconnected.'.format(self.db_name if self.db_name else 'Database'))
