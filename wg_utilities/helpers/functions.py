@@ -21,7 +21,7 @@ def log(db_creds=None, db_obj=None, script=None, description=None, text_content=
     if not (db_creds or db_obj.conn):
         raise ValueError('Unable to log. No database arguments passed.')
 
-    if not (description and (text_content or json_content or numeric_content or boolean_content is not None)):
+    if not (description or text_content or json_content or numeric_content or boolean_content is not None):
         raise ValueError('No content passed to logger. No entry made.')
 
     db_obj = PostgreSQLManager(**db_creds) if not db_obj else db_obj
