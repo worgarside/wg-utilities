@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from json import dumps
 from os import path
@@ -19,7 +18,6 @@ from wg_utilities.references.constants import RETRIABLE_EXCEPTIONS, RETRIABLE_ST
 
 def log(db_creds=None, db_obj=None, script=None, description=None, text_content=None, json_content: dict = None,
         numeric_content=None, boolean_content=None):
-
     if not (db_creds or db_obj.conn):
         raise ValueError('Unable to log. No database arguments passed.')
 
@@ -31,22 +29,24 @@ def log(db_creds=None, db_obj=None, script=None, description=None, text_content=
     if bool(db_obj.conn.closed):
         db_obj.connect_to_db()
 
-    query = f"""INSERT INTO darillium.public.logs (source,
-                                                   timestamp,
-                                                   script,
-                                                   description,
-                                                   text_content,
-                                                   json_content,
-                                                   numeric_content,
-                                                   boolean_content)
-                VALUES ('{gethostname()}',
-                        TIMESTAMP '{datetime.now()}',
-                        '{script}',
-                        '{description}',
-                        '{text_content}',
-                        '{dumps(json_content)}',
-                        {numeric_content},
-                        {boolean_content})"""
+    query = """INSERT INTO darillium.public.logs (source,
+                                   timestamp,
+                                   script,
+                                   description,
+                                   text_content,
+                                   json_content,
+                                   numeric_content,
+                                   boolean_content)
+    VALUES ('{}', TIMESTAMP '{}', '{}', '{}', '{}', '{}', {}, {})""".format(
+        gethostname(),
+        datetime.now(),
+        script,
+        description,
+        text_content,
+        dumps(json_content),
+        numeric_content,
+        boolean_content
+    )
 
     db_obj.query(query)
 
