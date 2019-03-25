@@ -2,6 +2,7 @@ import argparse
 from enum import Enum
 from re import match, compile
 from subprocess import Popen, PIPE
+from distutils.version import StrictVersion
 
 VERSION_REGEX = r'(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)'
 PATTERN = compile(r'''((?:[^\s"']|"[^"]*"|'[^']*')+)''')
@@ -37,8 +38,9 @@ def get_latest_version():
             if 'refs/tags' in line and not line.endswith('^{}')]
 
     releases = [tag for tag in tags if match(VERSION_REGEX, tag)]
+    releases.sort(key=StrictVersion)
 
-    return sorted(releases, reverse=True)[0]
+    return releases[-1]
 
 
 def new_version(latest_version):
@@ -54,7 +56,7 @@ def new_version(latest_version):
 
 def create_release_branch(old, new):
     print(f'Bumping version from {old} to {new}')
-    
+
     _run_cmd('git push --all origin')
     _run_cmd(f'git flow release start {new}')
 
@@ -64,7 +66,7 @@ def create_release_branch(old, new):
     version_line_num, version_line_content = [(index, line) for index, line in enumerate(setup_file) if
                                               line.strip().lower().startswith('version=')][0]
 
-    setup_file[version_line_num] = f"    version='{new}',\n"
+    setup_file[version_line_num] = version_line_content.replace(old, new)
 
     with open('setup.py', 'w') as f:
         f.writelines(setup_file)
@@ -74,6 +76,7 @@ def create_release_branch(old, new):
     _run_cmd(f'git tag -a {new} -m ""')
     _run_cmd(f'git flow release finish -n {new}')
     _run_cmd(f'git push --all')
+    _run_cmd(f'pipenv run clean')
     _run_cmd(f'pipenv run build')
     _run_cmd(f'pipenv run deploy')
 
