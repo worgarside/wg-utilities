@@ -131,8 +131,8 @@ class Database(object):
         if self.stubbed:
             return DataFrame()
 
-        df: DataFrame = read_sql_query(stmt, self.conn, index_col=index_col, coerce_float=coerce_float, params=params,
-                                       parse_dates=parse_dates, chunksize=chunksize)
+        df = read_sql_query(stmt, self.conn, index_col=index_col, coerce_float=coerce_float, params=params,
+                            parse_dates=parse_dates, chunksize=chunksize)
         return df
 
     def df_to_table(self, df: DataFrame, name: str, schema: str = None, if_exists: str = 'fail', index: bool = True,
