@@ -1,13 +1,54 @@
-from os import path, system as os_system
+
+from datetime import datetime
+from json import dumps
+from os import path
+from os import system as os_system
 from platform import system as plat_system
 from random import random
+from socket import gethostname
+from sys import stdout
+from time import sleep
 from typing import Callable, Union
 
 from googleapiclient.errors import HttpError
-from sys import stdout
-from time import sleep
 
-from wg_utilities.references.constants import RETRIABLE_EXCEPTIONS, RETRIABLE_STATUS_CODES, OS
+from wg_utilities.database.postgresql_manager import PostgreSQLManager
+from wg_utilities.references.constants import OS
+from wg_utilities.references.constants import RETRIABLE_EXCEPTIONS, RETRIABLE_STATUS_CODES
+
+
+def log(db_creds=None, db_obj=None, script=None, description=None, text_content=None, json_content: dict = None,
+        numeric_content=None, boolean_content=None):
+
+    if not (db_creds or db_obj.conn):
+        raise ValueError('Unable to log. No database arguments passed.')
+
+    if not (description and (text_content or json_content or numeric_content or boolean_content is not None)):
+        raise ValueError('No content passed to logger. No entry made.')
+
+    db_obj = PostgreSQLManager(**db_creds) if not db_obj else db_obj
+
+    if bool(db_obj.conn.closed):
+        db_obj.connect_to_db()
+
+    query = f"""INSERT INTO darillium.public.logs (source,
+                                                   timestamp,
+                                                   script,
+                                                   description,
+                                                   text_content,
+                                                   json_content,
+                                                   numeric_content,
+                                                   boolean_content)
+                VALUES ('{gethostname()}',
+                        TIMESTAMP '{datetime.now()}',
+                        '{script}',
+                        '{description}',
+                        '{text_content}',
+                        '{dumps(json_content)}',
+                        {numeric_content},
+                        {boolean_content})"""
+
+    db_obj.query(query)
 
 
 def output(m: str = ''):
