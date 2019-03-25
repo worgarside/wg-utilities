@@ -1,23 +1,19 @@
-<<<<<<< Updated upstream
-from os import path, system as os_system
-from platform import system as plat_system
-from random import random
-=======
+
 from datetime import datetime
 from json import dumps
 from os import path
+from os import system as os_system
+from platform import system as plat_system
 from random import random
 from socket import gethostname
 from sys import stdout
 from time import sleep
->>>>>>> Stashed changes
 from typing import Callable, Union
-from warnings import warn
 
 from googleapiclient.errors import HttpError
-from requests import post
 
 from wg_utilities.database.postgresql_manager import PostgreSQLManager
+from wg_utilities.references.constants import OS
 from wg_utilities.references.constants import RETRIABLE_EXCEPTIONS, RETRIABLE_STATUS_CODES
 
 
@@ -53,12 +49,6 @@ def log(db_creds=None, db_obj=None, script=None, description=None, text_content=
                         {boolean_content})"""
 
     db_obj.query(query)
-
-from googleapiclient.errors import HttpError
-from sys import stdout
-from time import sleep
-
-from wg_utilities.references.constants import RETRIABLE_EXCEPTIONS, RETRIABLE_STATUS_CODES, OS
 
 
 def output(m: str = ''):
