@@ -37,12 +37,12 @@ def log(db_creds=None, db_obj=None, script=None, description=None, text_content=
                                    json_content,
                                    numeric_content,
                                    boolean_content)
-    VALUES ('{}', TIMESTAMP '{}', '{}', '{}', '{}', {}, {}, {})""".format(
+    VALUES ('{}', TIMESTAMP '{}', {}, {}, {}, {}, {}, {})""".format(
         gethostname(),
         datetime.now(),
-        script if script is not None else 'NULL',
-        description if description is not None else 'NULL',
-        text_content if text_content is not None else 'NULL',
+        "'{}'".format(script) if script is not None else 'NULL',
+        "'{}'".format(description) if description is not None else 'NULL',
+        "'{}'".format(text_content) if text_content is not None else 'NULL',
         "'{}'".format(dumps(json_content)) if json_content is not None else 'NULL',
         numeric_content if numeric_content is not None else 'NULL',
         boolean_content if boolean_content is not None else 'NULL'
