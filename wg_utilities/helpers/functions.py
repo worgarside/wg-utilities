@@ -40,10 +40,10 @@ def log(db_creds=None, db_obj=None, script=None, description=None, text_content=
     VALUES ('{}', TIMESTAMP '{}', '{}', '{}', '{}', '{}', {}, {})""".format(
         gethostname(),
         datetime.now(),
-        script,
-        description,
-        text_content,
-        dumps(json_content),
+        script if script is not None else 'NULL',
+        description if description is not None else 'NULL',
+        text_content if text_content is not None else 'NULL',
+        dumps(json_content) if json_content is not None else 'NULL',
         numeric_content if numeric_content is not None else 'NULL',
         boolean_content if boolean_content is not None else 'NULL'
     )
