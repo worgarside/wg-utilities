@@ -44,8 +44,8 @@ def log(db_creds=None, db_obj=None, script=None, description=None, text_content=
         description,
         text_content,
         dumps(json_content),
-        numeric_content,
-        boolean_content
+        numeric_content if numeric_content is not None else 'NULL',
+        boolean_content if boolean_content is not None else 'NULL'
     )
 
     db_obj.query(query)
