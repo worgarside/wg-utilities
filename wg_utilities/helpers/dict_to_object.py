@@ -11,7 +11,7 @@ class DictToObject:
     """Simple class to convert a dictionary to an object for more formal constants"""
 
     def __init__(self, d):
-        self.json_obj: dict = d
+        self.json_obj = d
 
         for k, v in d.items():
             if isinstance(v, (list, tuple)):
