@@ -7,9 +7,6 @@ name = "pypi"
 requests = "*"
 google-api-python-client = "*"
 httplib2 = "*"
-psycopg2 = "*"
-sqlalchemy = "*"
-pandas = "*"
 
 [dev-packages]
 
