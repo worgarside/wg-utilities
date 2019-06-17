@@ -11,44 +11,43 @@ from typing import Callable, Union
 
 from googleapiclient.errors import HttpError
 
-from wg_utilities.database.postgresql_manager import PostgreSQLManager
 from wg_utilities.references.constants import OS
 from wg_utilities.references.constants import RETRIABLE_EXCEPTIONS, RETRIABLE_STATUS_CODES
 
 
-def log(db_creds=None, db_obj=None, script=None, description=None, text_content=None, json_content: dict = None,
-        numeric_content=None, boolean_content=None):
-    if not (db_creds or db_obj.conn):
-        raise ValueError('Unable to log. No database arguments passed.')
-
-    if not (description or text_content or json_content or numeric_content or boolean_content is not None):
-        raise ValueError('No content passed to logger. No entry made.')
-
-    db_obj = PostgreSQLManager(**db_creds) if not db_obj else db_obj
-
-    if bool(db_obj.conn.closed):
-        db_obj.connect_to_db()
-
-    query = """INSERT INTO darillium.public.logs (source,
-                                   timestamp,
-                                   script,
-                                   description,
-                                   text_content,
-                                   json_content,
-                                   numeric_content,
-                                   boolean_content)
-    VALUES ('{}', TIMESTAMP '{}', {}, {}, {}, {}, {}, {})""".format(
-        gethostname(),
-        datetime.now(),
-        "'{}'".format(script) if script is not None else 'NULL',
-        "'{}'".format(description) if description is not None else 'NULL',
-        "'{}'".format(text_content) if text_content is not None else 'NULL',
-        "'{}'".format(dumps(json_content)) if json_content is not None else 'NULL',
-        numeric_content if numeric_content is not None else 'NULL',
-        boolean_content if boolean_content is not None else 'NULL'
-    )
-
-    db_obj.query(query)
+# def log(db_creds=None, db_obj=None, script=None, description=None, text_content=None, json_content: dict = None,
+#         numeric_content=None, boolean_content=None):
+#     if not (db_creds or db_obj.conn):
+#         raise ValueError('Unable to log. No database arguments passed.')
+#
+#     if not (description or text_content or json_content or numeric_content or boolean_content is not None):
+#         raise ValueError('No content passed to logger. No entry made.')
+#
+#     db_obj = PostgreSQLManager(**db_creds) if not db_obj else db_obj
+#
+#     if bool(db_obj.conn.closed):
+#         db_obj.connect_to_db()
+#
+#     query = """INSERT INTO darillium.public.logs (source,
+#                                    timestamp,
+#                                    script,
+#                                    description,
+#                                    text_content,
+#                                    json_content,
+#                                    numeric_content,
+#                                    boolean_content)
+#     VALUES ('{}', TIMESTAMP '{}', {}, {}, {}, {}, {}, {})""".format(
+#         gethostname(),
+#         datetime.now(),
+#         "'{}'".format(script) if script is not None else 'NULL',
+#         "'{}'".format(description) if description is not None else 'NULL',
+#         "'{}'".format(text_content) if text_content is not None else 'NULL',
+#         "'{}'".format(dumps(json_content)) if json_content is not None else 'NULL',
+#         numeric_content if numeric_content is not None else 'NULL',
+#         boolean_content if boolean_content is not None else 'NULL'
+#     )
+#
+#     db_obj.query(query)
 
 
 def output(m: str = ''):
