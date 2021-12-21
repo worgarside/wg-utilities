@@ -21,5 +21,5 @@ if __name__ == "__main__":
             "License :: OSI Approved :: MIT License",
             "Operating System :: OS Independent",
         ],
-        install_requires=[],
+        install_requires=["requests>=2.26.0", "google-auth-oauthlib>=0.4.6"],
     )
