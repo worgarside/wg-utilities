@@ -4,7 +4,7 @@ from copy import deepcopy
 from datetime import datetime
 from enum import Enum, auto
 from json import dump, load, dumps
-from logging import getLogger, DEBUG, StreamHandler, Formatter
+from logging import getLogger, DEBUG, StreamHandler
 from os import remove, getenv
 from os.path import join, isfile
 from sys import stdout
@@ -16,16 +16,13 @@ from google_auth_oauthlib.flow import Flow
 from requests import get
 
 from wg_utilities.functions import user_data_dir, force_mkdir
+from wg_utilities.loggers import FORMATTER
 
 SH = StreamHandler(stdout)
-
-FORMATTER = Formatter(
-    "%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s", "%Y-%m-%d %H:%M:%S"
-)
 SH.setFormatter(FORMATTER)
 LOGGER = getLogger(__name__)
-LOGGER.addHandler(SH)
 LOGGER.setLevel(DEBUG)
+LOGGER.addHandler(SH)
 
 LOCAL_MEDIA_DIRECTORY = getenv(
     "LOCAL_MEDIA_DIRECTORY", user_data_dir(file_name="media_downloads")
