@@ -3,7 +3,7 @@ from logging import Formatter, getLogger, DEBUG, StreamHandler
 from sys import stdout
 
 from .epd7in5_v2 import EPD_WIDTH, EPD_HEIGHT
-from .epdconfig import TEST_MODE
+from .epdconfig import TEST_MODE, implementation
 
 _FORMATTER = Formatter(
     "%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s", "%Y-%m-%d %H:%M:%S"
