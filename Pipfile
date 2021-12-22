@@ -11,6 +11,9 @@ pre-commit = "*"
 [packages]
 google-auth-oauthlib = "*"
 requests = "*"
+spidev = { version = "*", sys_platform = "== 'linux'" }
+"rpi.gpio" = { version = "*", sys_platform = "== 'linux'" }
+"jetson.gpio" = { version = "*", sys_platform = "== 'linux'" }
 
 [requires]
 python_version = "3.9"
