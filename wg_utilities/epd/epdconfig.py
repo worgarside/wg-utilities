@@ -167,7 +167,7 @@ try:
             setattr(modules[__name__], func, getattr(implementation, func))
 
     TEST_MODE = False
-except RuntimeError:
+except (RuntimeError, ImportError):
 
     # pylint: disable=too-few-public-methods
     class FakeImplementation:
