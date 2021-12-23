@@ -128,9 +128,9 @@ def main():
 
     create_release_branch(latest_version, get_new_version(bump_type, latest_version))
 
-    run_cmd("pipenv run clean", exit_on_error=False)
-    run_cmd("pipenv run build")
-    run_cmd("pipenv run deploy")
+    run_cmd("rm -r build dist wg_utilities.egg-info", exit_on_error=False)
+    run_cmd(f"python {SETUP_PY_PATH} sdist bdist_wheel")
+    # run_cmd("twine upload dist/*")
 
 
 if __name__ == "__main__":
