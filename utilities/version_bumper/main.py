@@ -16,8 +16,7 @@ add_stream_handler(LOGGER)
 
 VERSION_REGEX = r"(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)"
 
-SETUP_PY_PATH = join(
-    "",
+SETUP_PY_PATH = sep + join(
     *abspath(__file__).split(sep)[
         0 : abspath(__file__).split(sep).index("wg-utilities") + 1
     ],
