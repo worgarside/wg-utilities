@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser
 from enum import Enum
+from os import chdir
 from os.path import abspath, sep, join
 from re import match
 from packaging.version import parse as parse_version
@@ -16,12 +17,20 @@ add_stream_handler(LOGGER)
 
 VERSION_REGEX = r"(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)"
 
-SETUP_PY_PATH = sep + join(
-    *abspath(__file__).split(sep)[
+PROJECT_ROOT = sep.join(
+    abspath(__file__).split(sep)[
         0 : abspath(__file__).split(sep).index("wg-utilities") + 1
     ],
-    "setup.py",
 )
+
+SETUP_PY_PATH = sep.join(
+    [
+        PROJECT_ROOT,
+        "setup.py",
+    ]
+)
+
+chdir(PROJECT_ROOT)
 
 
 class Bump(Enum):
