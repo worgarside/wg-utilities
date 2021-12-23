@@ -15,13 +15,6 @@ add_stream_handler(LOGGER)
 VERSION_REGEX = r"(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)"
 PATTERN = compile(r"""((?:[^\s"']|"[^"]*"|'[^']*')+)""")
 
-ALLOWED_CMD_ERRORS = {
-    "Everything up-to-date",
-    "From git@github.com:worgarside/wg-utilities.git",
-    "From ssh://git@github.com/worgarside/wg-utilities.git",
-    "To github.com:worgarside/wg-utilities.git",
-}
-
 SETUP_PY_PATH = sep.join(
     [
         x
@@ -39,18 +32,17 @@ class Bump(Enum):
     PATCH = 2
 
 
-def run_cmd(cmd):
+def run_cmd(cmd, exit_on_error=True):
     LOGGER.debug("Running command `%s`", cmd)
 
-    output, error = Popen(
-        PATTERN.split(cmd)[1::2], stdout=PIPE, stderr=PIPE
-    ).communicate()
+    process = Popen(PATTERN.split(cmd)[1::2], stdout=PIPE, stderr=PIPE)
 
-    if (
-        error_msg := error.decode("utf-8").strip()
-    ) and error_msg not in ALLOWED_CMD_ERRORS:
+    output, error = process.communicate()
+
+    if process.returncode != 0:
         LOGGER.error(error.decode("utf-8").strip())
-        exit(1)
+        if exit_on_error:
+            exit(process.returncode)
 
     return output.decode("utf-8").strip(), error.decode("utf-8").strip()
 
@@ -62,21 +54,11 @@ def get_latest_version():
         str: the latest release number (x.y.z)
     """
 
-    output, error = Popen(
-        ["git", "ls-remote", "--tags"], stdout=PIPE, stderr=PIPE
-    ).communicate()
-
-    if (
-        error
-        and (error_msg := error.decode("utf-8").strip())
-        and error_msg not in ALLOWED_CMD_ERRORS
-    ):
-        LOGGER.error(error.decode("utf-8").strip())
-        exit(1)
+    output, _ = run_cmd("git ls-remote --tags")
 
     tags = [
         line.split("\t")[1].replace("refs/tags/", "")
-        for line in output.decode("utf-8").split("\n")
+        for line in output.split("\n")
         if "refs/tags" in line and not line.endswith("^{}")
     ]
 
@@ -101,7 +83,7 @@ def new_version(latest_version):
 
 
 def create_release_branch(old, new):
-    print(f"Bumping version from {old} to {new}")
+    LOGGER.info(f"Bumping version from {old} to {new}")
 
     run_cmd("git push --all origin")
     run_cmd(f"git flow release start {new}")
