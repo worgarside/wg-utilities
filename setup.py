@@ -3,15 +3,14 @@
 from setuptools import setup, find_packages
 from os.path import sep, abspath, join
 
-PROJECT_ROOT = sep.join(
-    abspath(__file__).split(sep)[
+PROJECT_ROOT = join(
+    *abspath(__file__).split(sep)[
         0 : abspath(__file__).split(sep).index("wg-utilities") + 1
     ]
-    + ["setup.py"]
 )
 
 if __name__ == "__main__":
-    with open(join([PROJECT_ROOT, "README.md"]), encoding="utf-8") as f:
+    with open(join(PROJECT_ROOT, "README.md"), encoding="utf-8") as f:
         long_description = f.read()
 
     setup(

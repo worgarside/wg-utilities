@@ -2,7 +2,7 @@
 
 from argparse import ArgumentParser
 from enum import Enum
-from os.path import abspath, sep
+from os.path import abspath, sep, join
 from re import match
 from distutils.version import StrictVersion
 from logging import getLogger, DEBUG
@@ -16,11 +16,11 @@ add_stream_handler(LOGGER)
 
 VERSION_REGEX = r"(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)"
 
-SETUP_PY_PATH = sep.join(
-    abspath(__file__).split(sep)[
+SETUP_PY_PATH = join(
+    *abspath(__file__).split(sep)[
         0 : abspath(__file__).split(sep).index("wg-utilities") + 1
-    ]
-    + ["setup.py"]
+    ],
+    "setup.py",
 )
 
 
