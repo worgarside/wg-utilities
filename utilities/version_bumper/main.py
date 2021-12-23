@@ -128,7 +128,7 @@ def main():
 
     create_release_branch(latest_version, get_new_version(bump_type, latest_version))
 
-    run_cmd("pipenv run clean")
+    run_cmd("pipenv run clean", exit_on_error=False)
     run_cmd("pipenv run build")
     run_cmd("pipenv run deploy")
 
