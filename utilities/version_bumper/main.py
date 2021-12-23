@@ -2,9 +2,9 @@
 
 from argparse import ArgumentParser
 from enum import Enum
-from os.path import abspath, sep
+from os.path import abspath, sep, join
 from re import match
-from distutils.version import StrictVersion
+from packaging.version import parse as parse_version
 from logging import getLogger, DEBUG
 
 from wg_utilities.functions import run_cmd
@@ -16,11 +16,11 @@ add_stream_handler(LOGGER)
 
 VERSION_REGEX = r"(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)"
 
-SETUP_PY_PATH = sep.join(
-    abspath(__file__).split(sep)[
+SETUP_PY_PATH = sep + join(
+    *abspath(__file__).split(sep)[
         0 : abspath(__file__).split(sep).index("wg-utilities") + 1
-    ]
-    + ["setup.py"]
+    ],
+    "setup.py",
 )
 
 
@@ -48,7 +48,7 @@ def get_latest_version():
     ]
 
     releases = sorted(
-        filter(lambda tag: match(VERSION_REGEX, tag), tags), key=StrictVersion
+        filter(lambda tag: match(VERSION_REGEX, tag), tags), key=parse_version
     )
 
     return releases[-1]
@@ -104,6 +104,7 @@ def create_release_branch(old, new):
 
     run_cmd(f"git add {SETUP_PY_PATH}")
     run_cmd(f'git commit -m "VB {new}"')
+    run_cmd(f"git push --set-upstream origin release/{new}")
     run_cmd(f'git tag -a {new} -m ""')
     run_cmd(f"git flow release finish -n {new}")
     run_cmd("git push --all")
@@ -128,9 +129,9 @@ def main():
 
     create_release_branch(latest_version, get_new_version(bump_type, latest_version))
 
-    run_cmd("pipenv run clean")
-    run_cmd("pipenv run build")
-    run_cmd("pipenv run deploy")
+    run_cmd("rm -r build dist wg_utilities.egg-info", exit_on_error=False)
+    run_cmd(f"python {SETUP_PY_PATH} sdist bdist_wheel")
+    run_cmd("twine upload dist/*")
 
 
 if __name__ == "__main__":

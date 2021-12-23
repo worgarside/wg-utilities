@@ -31,9 +31,12 @@ def run_cmd(cmd, exit_on_error=True):
     with Popen(COMMAND_PATTERN.split(cmd)[1::2], stdout=PIPE, stderr=PIPE) as process:
         output, error = process.communicate()
 
-        if process.returncode != 0:
-            LOGGER.error(error.decode("utf-8").strip())
-            if exit_on_error:
-                sys_exit(process.returncode)
+        error = error.decode("utf-8").strip()
 
-    return output.decode("utf-8").strip(), error.decode("utf-8").strip()
+        if process.returncode != 0:
+            if exit_on_error:
+                raise RuntimeError(error)
+
+            LOGGER.error(error)
+
+    return output.decode("utf-8").strip(), error

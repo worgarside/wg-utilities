@@ -1,14 +1,22 @@
 """Setup/config file for the package"""
-from setuptools import setup, find_packages
 
+from setuptools import setup, find_packages
+from os.path import sep, abspath, join
+
+PROJECT_ROOT = sep + join(
+    "",
+    *abspath(__file__).split(sep)[
+        0 : abspath(__file__).split(sep).index("wg-utilities") + 1
+    ]
+)
 
 if __name__ == "__main__":
-    with open("README.md", encoding="utf-8") as f:
+    with open(join(PROJECT_ROOT, "README.md"), encoding="utf-8") as f:
         long_description = f.read()
 
     setup(
         name="wg_utilities",
-        version="0.1.1",
+        version="1.0.0",
         author="Will Garside",
         author_email="worgarside@gmail.com",
         description="Generic utilities for use across all personal projects",
