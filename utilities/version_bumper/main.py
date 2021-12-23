@@ -19,6 +19,7 @@ ALLOWED_CMD_ERRORS = {
     "Everything up-to-date",
     "From git@github.com:worgarside/wg-utilities.git",
     "From ssh://git@github.com/worgarside/wg-utilities.git",
+    "To github.com:worgarside/wg-utilities.git",
 }
 
 SETUP_PY_PATH = sep.join(
