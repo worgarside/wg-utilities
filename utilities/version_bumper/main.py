@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from enum import Enum
 from os.path import abspath, sep, join
 from re import match
-from distutils.version import StrictVersion
+from packaging.version import parse as parse_version
 from logging import getLogger, DEBUG
 
 from wg_utilities.functions import run_cmd
@@ -48,7 +48,7 @@ def get_latest_version():
     ]
 
     releases = sorted(
-        filter(lambda tag: match(VERSION_REGEX, tag), tags), key=StrictVersion
+        filter(lambda tag: match(VERSION_REGEX, tag), tags), key=parse_version
     )
 
     return releases[-1]
