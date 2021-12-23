@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     setup(
         name="wg_utilities",
-        version="1.0.0",
+        version="2.0.0",
         author="Will Garside",
         author_email="worgarside@gmail.com",
         description="Generic utilities for use across all personal projects",
