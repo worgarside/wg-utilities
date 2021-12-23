@@ -4,6 +4,7 @@ from setuptools import setup, find_packages
 from os.path import sep, abspath, join
 
 PROJECT_ROOT = join(
+    "",
     *abspath(__file__).split(sep)[
         0 : abspath(__file__).split(sep).index("wg-utilities") + 1
     ]
