@@ -130,7 +130,7 @@ def main():
 
     run_cmd("rm -r build dist wg_utilities.egg-info", exit_on_error=False)
     run_cmd(f"python {SETUP_PY_PATH} sdist bdist_wheel")
-    # run_cmd("twine upload dist/*")
+    run_cmd("twine upload dist/*")
 
 
 if __name__ == "__main__":
