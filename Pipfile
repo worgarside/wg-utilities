@@ -17,3 +17,11 @@ spidev = { version = "*", sys_platform = "== 'linux'" }
 
 [requires]
 python_version = "3.9"
+
+[scripts]
+major-release = "python utilities/version_bumper/main.py --bump major"
+minor-release = "python utilities/version_bumper/main.py --bump minor"
+patch-release = "python utilities/version_bumper/main.py --bump patch"
+build = "python setup.py sdist bdist_wheel"
+deploy = "twine upload dist/*"
+clean = "rm -r build dist wg_utilities.egg-info"

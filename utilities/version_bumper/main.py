@@ -1,0 +1,137 @@
+"""Script for creating (and deploying) a new version of WGUtils"""
+
+from argparse import ArgumentParser
+from enum import Enum
+from os.path import abspath, sep
+from re import match
+from distutils.version import StrictVersion
+from logging import getLogger, DEBUG
+
+from wg_utilities.functions import run_cmd
+from wg_utilities.loggers import add_stream_handler
+
+LOGGER = getLogger(__name__)
+LOGGER.setLevel(DEBUG)
+add_stream_handler(LOGGER)
+
+VERSION_REGEX = r"(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)"
+
+SETUP_PY_PATH = sep.join(
+    abspath(__file__).split(sep)[
+        0 : abspath(__file__).split(sep).index("wg-utilities") + 1
+    ]
+    + ["setup.py"]
+)
+
+
+class Bump(Enum):
+    """Enum for different version bump types"""
+
+    MAJOR = 0
+    MINOR = 1
+    PATCH = 2
+
+
+def get_latest_version():
+    """Gets the latest release number (x.y.z) from GitHub
+
+    Returns:
+        str: the latest release number (x.y.z)
+    """
+
+    output, _ = run_cmd("git ls-remote --tags")
+
+    tags = [
+        line.split("\t")[1].replace("refs/tags/", "")
+        for line in output.split("\n")
+        if "refs/tags" in line and not line.endswith("^{}")
+    ]
+
+    releases = sorted(
+        filter(lambda tag: match(VERSION_REGEX, tag), tags), key=StrictVersion
+    )
+
+    return releases[-1]
+
+
+def get_new_version(bump_type, latest_version):
+    """Builds a new version number
+
+    Args:
+        bump_type (Bump): the type of bump we're executing
+        latest_version (str): the latest version, found from GitHub
+
+    Returns:
+        str: the new version number (x.y.z)
+    """
+
+    version_digits = latest_version.split(".")
+
+    version_digits[bump_type.value] = str(int(version_digits[bump_type.value]) + 1)
+
+    for digit in range(bump_type.value + 1, len(version_digits)):
+        version_digits[digit] = "0"
+
+    return ".".join(version_digits)
+
+
+def create_release_branch(old, new):
+    """Creates (and completes!) a release branch with the new release number
+
+    Args:
+        old (str): the old release number (x.y.z)
+        new (str): the new release number (x.y.z)
+    """
+
+    LOGGER.info("Bumping version from %s to %s", old, new)
+
+    run_cmd("git push --all origin")
+    run_cmd(f"git flow release start {new}")
+
+    with open(SETUP_PY_PATH, encoding="UTF-8") as f:
+        setup_file = f.readlines()
+
+    version_line_num, version_line_content = [
+        (index, line)
+        for index, line in enumerate(setup_file)
+        if line.strip().lower().startswith("version=")
+    ][0]
+
+    setup_file[version_line_num] = version_line_content.replace(old, new)
+
+    with open(SETUP_PY_PATH, "w", encoding="UTF-8") as f:
+        f.writelines(setup_file)
+
+    run_cmd(f"git add {SETUP_PY_PATH}")
+    run_cmd(f'git commit -m "VB {new}"')
+    run_cmd(f'git tag -a {new} -m ""')
+    run_cmd(f"git flow release finish -n {new}")
+    run_cmd("git push --all")
+
+
+def main():
+    """Main function for this script"""
+    parser = ArgumentParser()
+    parser.add_argument("--bump")
+    args = parser.parse_args()
+
+    try:
+        args.bump = args.bump.upper()
+        bump_type = Bump[args.bump]
+    except AttributeError as exc:
+        raise AttributeError("Argument 'bump' missing") from exc
+    except KeyError as exc:
+        raise KeyError(f"'{args.bump}' is not a valid bump type") from exc
+
+    run_cmd("git push --tags")
+    latest_version = get_latest_version()
+
+    create_release_branch(latest_version, get_new_version(bump_type, latest_version))
+
+    run_cmd("pipenv run clean")
+    run_cmd("pipenv run build")
+    run_cmd("pipenv run deploy")
+
+
+if __name__ == "__main__":
+    main()
