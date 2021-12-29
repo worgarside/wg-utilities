@@ -35,5 +35,6 @@ if __name__ == "__main__":
             "spidev>=3.5; sys_platform == 'linux'",
             "rpi.gpio>=0.7.0; sys_platform == 'linux'",
             "jetson.gpio>=2.0; sys_platform == 'linux'",
+            "spotipy~=2.19.0",
         ],
     )

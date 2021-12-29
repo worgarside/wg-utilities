@@ -15,6 +15,7 @@ requests = "*"
 spidev = { version = "*", sys_platform = "== 'linux'" }
 "rpi.gpio" = { version = "*", sys_platform = "== 'linux'" }
 "jetson.gpio" = { version = "*", sys_platform = "== 'linux'" }
+spotipy = "*"
 
 [requires]
 python_version = "3.9"
