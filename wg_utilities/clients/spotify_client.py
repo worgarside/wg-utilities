@@ -1,8 +1,9 @@
 """Custom client for interacting with Spotify's Web API"""
+from datetime import datetime, timedelta
 from enum import Enum
 from json import dumps
-
-from requests import get
+from re import sub
+from requests import get, Response
 
 from spotipy import SpotifyOAuth
 
@@ -274,6 +275,7 @@ class SpotifyClient:
     """
 
     BASE_URL = "https://api.spotify.com/v1"
+    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
     def __init__(
         self,
@@ -287,8 +289,11 @@ class SpotifyClient:
             client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri
         )
 
-        self._playlists = None
         self._current_user = None
+
+        self._albums = None
+        self._playlists = None
+        self._tracks = None
 
     def _get(self, url, params=None):
         """Wrapper for get requests which covers authentication, URL parsing, etc etc
@@ -302,7 +307,7 @@ class SpotifyClient:
             Response: the response from the HTTP request
         """
 
-        if not url.startswith(("http", "https")):
+        if url.startswith("/"):
             url = f"{self.BASE_URL}{url}"
 
         res = get(
@@ -319,7 +324,9 @@ class SpotifyClient:
 
         return res
 
-    def get_items_from_url(self, url, params=None, hard_limit=1000000):
+    def get_items_from_url(
+        self, url, params=None, *, hard_limit=1000000, limit_func=None
+    ):
         """Retrieve a list of items from a given URL, including pagination
 
         Args:
@@ -327,24 +334,38 @@ class SpotifyClient:
             params (dict): any params to pass with the API request
             hard_limit (int): a hard limit to apply to the number of items returned (as
              opposed to the "soft" limit of 50 imposed by the API)
+            limit_func (Callable): a function which is used to evaluate each item in
+             turn: if it returns False, the item is added to the output list; if it
+             returns True then the iteration stops and the list is returned as-is
 
         Returns:
             list: a list of dicts representing the Spotify items
         """
 
         params = params or {}
-        if "limit" not in params:
-            params["limit"] = 50
+        params["limit"] = min(50, hard_limit)
 
-        res = self._get(url, params=params)
-
-        items = res.json().get("items", [])
+        items = []
+        res = Response()
+        # pylint: disable=protected-access
+        res._content = dumps({"next": url}).encode()  # noqa
 
         while (next_url := res.json().get("next")) and len(items) < hard_limit:
-            res = self._get(next_url, params=params)
-            items.extend(res.json().get("items", []))
+            params["limit"] = min(50, hard_limit - len(items))
+            # remove hardcoded limit from next URL in favour of JSON param version
+            next_url = sub(r"limit=\d{1,2}&?", "", next_url).rstrip("?&")
 
-        return items[:hard_limit]
+            res = self._get(next_url, params=params)
+            if limit_func is None:
+                items.extend(res.json().get("items", []))
+            else:
+                for item in res.json().get("items", []):
+                    if limit_func(item):
+                        return items
+
+                    items.append(item)
+
+        return items
 
     @property
     def access_token(self):
@@ -353,6 +374,21 @@ class SpotifyClient:
             str: the web API access token
         """
         return self.oauth_manager.get_access_token(as_dict=False)
+
+    @property
+    def albums(self):
+        """
+        Returns:
+            list: a list of albums owned by the current user
+        """
+
+        if not self._albums:
+            self._albums = [
+                Album(item.get("album", {}), self)
+                for item in self.get_items_from_url("/me/albums")
+            ]
+
+        return self._albums
 
     @property
     def playlists(self):
@@ -368,6 +404,21 @@ class SpotifyClient:
             ]
 
         return self._playlists
+
+    @property
+    def tracks(self):
+        """
+        Returns:
+            list: a list of tracks owned by the current user
+        """
+
+        if not self._tracks:
+            self._tracks = [
+                Track(item.get("track", {}), self)
+                for item in self.get_items_from_url("/me/tracks")
+            ]
+
+        return self._tracks
 
     def get_playlists_by_name(self, name, return_all=False):
         """Gets Playlist instance(s) which have the given name
@@ -448,6 +499,29 @@ class SpotifyClient:
         """
 
         return Track(self._get(f"/tracks/{id_}").json(), self)
+
+    def get_recently_liked_tracks(self, track_limit=100, *, day_limit=None):
+        """Gets a list of songs which were liked by the current user in the past N days
+
+        Args:
+            track_limit (int): the number of tracks to return
+            day_limit (int): the number of days (N) to go back in time for
+
+        Returns:
+            list: a list of Track instances
+        """
+
+        kwargs = {"hard_limit": track_limit}
+
+        if day_limit is not None:
+            kwargs["limit_func"] = lambda item: datetime.strptime(
+                item["added_at"], self.DATETIME_FORMAT
+            ) < datetime.utcnow() - timedelta(days=day_limit)
+
+        return [
+            Track(item.get("track", {}), self)
+            for item in self.get_items_from_url("/me/tracks", **kwargs)
+        ]
 
     @property
     def current_user(self):
