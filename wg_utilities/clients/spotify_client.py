@@ -2,10 +2,17 @@
 from datetime import datetime, timedelta
 from enum import Enum
 from json import dumps
+from logging import getLogger, DEBUG
 from re import sub
-from requests import get, Response
 
+from requests import get, Response, post
 from spotipy import SpotifyOAuth
+
+from wg_utilities.loggers import add_stream_handler
+
+LOGGER = getLogger(__name__)
+LOGGER.setLevel(DEBUG)
+add_stream_handler(LOGGER)
 
 
 class AlbumType(Enum):
@@ -24,11 +31,13 @@ class SpotifyEntity:
          entity
         spotify_client (SpotifyClient): a Spotify client, usually the one which
          retrieved this entity from the API
+        metadata (dict): any extra metadata about this entity
     """
 
-    def __init__(self, json, spotify_client=None):
+    def __init__(self, json, spotify_client=None, metadata=None):
         self.json = json
         self._spotify_client = spotify_client
+        self.metadata = metadata or {}
 
     @property
     def pretty_json(self):
@@ -69,6 +78,15 @@ class SpotifyEntity:
             str: the name of the entity
         """
         return self.json.get("name")
+
+    @property
+    def uri(self):
+        """
+        Returns:
+            str: the Spotify URI of this entity
+        """
+
+        return self.json.get("uri", f"spotify:{type(self).__name__.lower()}:{self.id}")
 
     def __gt__(self, other):
         return self.name.lower() > other.name.lower()
@@ -236,6 +254,9 @@ class Playlist(SpotifyEntity):
 
         return User(self.json.get("owner", {}))
 
+    def __contains__(self, track):
+        return track.id in [track.id for track in self.tracks]
+
     def __gt__(self, other):
         if self.name.lower() == other.name.lower():
             if self.owner.id == self._spotify_client.current_user.id:
@@ -270,6 +291,7 @@ class SpotifyClient:
         client_id (str): the application's client ID
         client_secret (str): the application's client secret
         redirect_uri (str): the redirect URI for the applications
+        scope (list): either a list of scopes or comma separated string of scopes.
         oauth_manager (SpotifyOAuth): an already-instantiated OAuth manager which
          provides authentication for all API interactions
     """
@@ -277,17 +299,46 @@ class SpotifyClient:
     BASE_URL = "https://api.spotify.com/v1"
     DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
+    ALL_SCOPES = [
+        "ugc-image-upload",
+        "user-read-recently-played",
+        "user-top-read",
+        "user-read-playback-position",
+        "user-read-playback-state",
+        "user-modify-playback-state",
+        "user-read-currently-playing",
+        "app-remote-control",
+        "streaming",
+        "playlist-modify-public",
+        "playlist-modify-private",
+        "playlist-read-private",
+        "playlist-read-collaborative",
+        "user-follow-modify",
+        "user-follow-read",
+        "user-library-modify",
+        "user-library-read",
+        "user-read-email",
+        "user-read-private",
+    ]
+
     def __init__(
         self,
         *,
         client_id=None,
         client_secret=None,
         redirect_uri="http://localhost:8080",
+        scope=None,
         oauth_manager=None,
+        log_requests=False,
     ):
         self.oauth_manager = oauth_manager or SpotifyOAuth(
-            client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri
+            client_id=client_id,
+            client_secret=client_secret,
+            redirect_uri=redirect_uri,
+            scope=scope,
         )
+        self.log_requests = log_requests
+        self.api_call_count = 0
 
         self._current_user = None
 
@@ -296,7 +347,7 @@ class SpotifyClient:
         self._tracks = None
 
     def _get(self, url, params=None):
-        """Wrapper for get requests which covers authentication, URL parsing, etc etc
+        """Wrapper for GET requests which covers authentication, URL parsing, etc etc
 
         Args:
             url (str): the URL path to the endpoint (not necessarily including the
@@ -310,6 +361,11 @@ class SpotifyClient:
         if url.startswith("/"):
             url = f"{self.BASE_URL}{url}"
 
+        if self.log_requests:
+            LOGGER.debug("GET %s with params %s", url, dumps(params or {}, default=str))
+
+        self.api_call_count += 1
+
         res = get(
             url,
             headers={
@@ -318,6 +374,39 @@ class SpotifyClient:
                 "Host": "api.spotify.com",
             },
             params=params or {},
+        )
+
+        res.raise_for_status()
+
+        return res
+
+    def _post(self, url, json=None):
+        """Wrapper for POST requests which covers authentication, URL parsing, etc etc
+
+        Args:
+            url (str): the URL path to the endpoint (not necessarily including the
+             base URL)
+            json (dict): the data to be passed in the HTTP request
+
+        Returns:
+            Response: the response from the HTTP request
+        """
+
+        if url.startswith("/"):
+            url = f"{self.BASE_URL}{url}"
+
+        if self.log_requests:
+            LOGGER.debug("POST %s with data %s", url, dumps(json or {}, default=str))
+
+        self.api_call_count += 1
+
+        res = post(
+            url,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.access_token}",
+            },
+            json=json or {},
         )
 
         res.raise_for_status()
@@ -420,6 +509,18 @@ class SpotifyClient:
 
         return self._tracks
 
+    @property
+    def current_user(self):
+        """Gets the current user's info
+
+        Returns:
+            User: an instance of the current Spotify user
+        """
+        if not self._current_user:
+            self._current_user = User(self._get(f"{self.BASE_URL}/me").json())
+
+        return self._current_user
+
     def get_playlists_by_name(self, name, return_all=False):
         """Gets Playlist instance(s) which have the given name
 
@@ -519,18 +620,25 @@ class SpotifyClient:
             ) < datetime.utcnow() - timedelta(days=day_limit)
 
         return [
-            Track(item.get("track", {}), self)
+            Track(item.get("track", {}), self, metadata={"liked_at": item["added_at"]})
             for item in self.get_items_from_url("/me/tracks", **kwargs)
         ]
 
-    @property
-    def current_user(self):
-        """Gets the current user's info
+    def add_tracks_to_playlist(self, tracks, playlist):
+        """Add one or more tracks to a playlist
+
+        Args:
+            tracks (list): a list of Track instances to be added to the given playlist
+            playlist (Playlist): the playlist being updated
 
         Returns:
-            User: an instance of the current Spotify user
+            Response: the response from the web API
         """
-        if not self._current_user:
-            self._current_user = User(self._get(f"{self.BASE_URL}/me").json())
 
-        return self._current_user
+        res = self._post(
+            f"/playlists/{playlist.id}/tracks", json={"uris": [t.uri for t in tracks]}
+        )
+
+        res.raise_for_status()
+
+        return res
