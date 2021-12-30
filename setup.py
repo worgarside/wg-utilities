@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     setup(
         name="wg_utilities",
-        version="2.0.3",
+        version="2.1.0",
         author="Will Garside",
         author_email="worgarside@gmail.com",
         description="Generic utilities for use across all personal projects",
@@ -35,5 +35,6 @@ if __name__ == "__main__":
             "spidev>=3.5; sys_platform == 'linux'",
             "rpi.gpio>=0.7.0; sys_platform == 'linux'",
             "jetson.gpio>=2.0; sys_platform == 'linux'",
+            "spotipy~=2.19.0",
         ],
     )

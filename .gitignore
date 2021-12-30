@@ -15,6 +15,7 @@
 *.xml
 *.txt
 test.py
+sandbox.py
 
 
 *.tmp
