@@ -671,3 +671,11 @@ class SpotifyClient:
             Track(item.get("track", {}), self, metadata={"liked_at": item["added_at"]})
             for item in self.get_items_from_url("/me/tracks", **kwargs)
         ]
+
+    def reset_properties(self):
+        """Resets all list properties"""
+
+        self._current_user = None
+        self._albums = None
+        self._playlists = None
+        self._tracks = None
