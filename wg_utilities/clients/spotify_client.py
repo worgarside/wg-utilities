@@ -524,6 +524,51 @@ class SpotifyClient:
 
         return self._current_user
 
+    def add_tracks_to_playlist(self, tracks, playlist):
+        """Add one or more tracks to a playlist
+
+        Args:
+            tracks (list): a list of Track instances to be added to the given playlist
+            playlist (Playlist): the playlist being updated
+
+        Returns:
+            Response: the response from the web API
+        """
+
+        res = self._post(
+            f"/playlists/{playlist.id}/tracks", json={"uris": [t.uri for t in tracks]}
+        )
+
+        res.raise_for_status()
+
+        return res
+
+    def create_playlist(self, name, description="", public=False, collaborative=False):
+        """Create a new playlist under the current user's account
+
+        Args:
+            name (str): the name of the new playlist
+            description (str): the description of the new playlist
+            public (bool): determines if the playlist is publicly accessible
+            collaborative (bool): allows other people to add tracks when True
+
+        Returns:
+            Playlist: an instance of the Playlist class containing the new playlist's
+             metadata
+        """
+
+        res = self._post(
+            f"/users/{self.current_user.id}/playlists",
+            {
+                "name": name,
+                "description": description,
+                "public": public,
+                "collaborative": collaborative,
+            },
+        )
+
+        return Playlist(res.json(), self)
+
     def get_playlists_by_name(self, name, return_all=False):
         """Gets Playlist instance(s) which have the given name
 
@@ -626,22 +671,3 @@ class SpotifyClient:
             Track(item.get("track", {}), self, metadata={"liked_at": item["added_at"]})
             for item in self.get_items_from_url("/me/tracks", **kwargs)
         ]
-
-    def add_tracks_to_playlist(self, tracks, playlist):
-        """Add one or more tracks to a playlist
-
-        Args:
-            tracks (list): a list of Track instances to be added to the given playlist
-            playlist (Playlist): the playlist being updated
-
-        Returns:
-            Response: the response from the web API
-        """
-
-        res = self._post(
-            f"/playlists/{playlist.id}/tracks", json={"uris": [t.uri for t in tracks]}
-        )
-
-        res.raise_for_status()
-
-        return res
