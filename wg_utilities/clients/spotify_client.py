@@ -6,7 +6,7 @@ from logging import getLogger, DEBUG
 from re import sub
 
 from requests import get, Response, post
-from spotipy import SpotifyOAuth
+from spotipy import SpotifyOAuth, CacheFileHandler
 
 from wg_utilities.loggers import add_stream_handler
 
@@ -294,6 +294,7 @@ class SpotifyClient:
         scope (list): either a list of scopes or comma separated string of scopes.
         oauth_manager (SpotifyOAuth): an already-instantiated OAuth manager which
          provides authentication for all API interactions
+        creds_cache_path (str): path at which to save cached credentials
     """
 
     BASE_URL = "https://api.spotify.com/v1"
@@ -330,12 +331,14 @@ class SpotifyClient:
         scope=None,
         oauth_manager=None,
         log_requests=False,
+        creds_cache_path=None,
     ):
         self.oauth_manager = oauth_manager or SpotifyOAuth(
             client_id=client_id,
             client_secret=client_secret,
             redirect_uri=redirect_uri,
             scope=scope,
+            cache_handler=CacheFileHandler(cache_path=creds_cache_path),
         )
         self.log_requests = log_requests
         self.api_call_count = 0
