@@ -1,7 +1,7 @@
 """Setup/config file for the package"""
 
-from setuptools import setup, find_packages
 from os.path import sep, abspath, join
+from setuptools import setup, find_packages
 
 PROJECT_ROOT = sep + join(
     "",

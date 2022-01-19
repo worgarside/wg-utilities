@@ -3,10 +3,10 @@
 from argparse import ArgumentParser
 from enum import Enum
 from os import chdir
-from os.path import abspath, sep, join
+from os.path import abspath, sep
 from re import match
-from packaging.version import parse as parse_version
 from logging import getLogger, DEBUG
+from packaging.version import parse as parse_version
 
 from wg_utilities.functions import run_cmd
 from wg_utilities.loggers import add_stream_handler
