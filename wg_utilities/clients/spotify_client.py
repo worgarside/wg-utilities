@@ -117,6 +117,7 @@ class Track(SpotifyEntity):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._artists = None
+        self._audio_features = None
 
     @property
     def album(self):
@@ -141,6 +142,27 @@ class Track(SpotifyEntity):
             ]
 
         return self._artists
+
+    @property
+    def audio_features(self):
+        """
+        Returns:
+            dict: the JSON response from the Spotify /audio-features endpoint
+        """
+        if not self._audio_features:
+            self._audio_features = self._spotify_client.get_json_response(
+                f"/audio-features/{self.id}"
+            )
+
+        return self._audio_features
+
+    @property
+    def tempo(self):
+        """
+        Returns:
+            float: the tempo of the track, in BPM
+        """
+        return self.audio_features.get("tempo")
 
 
 class Artist(SpotifyEntity):
@@ -458,6 +480,17 @@ class SpotifyClient:
                     items.append(item)
 
         return items
+
+    def get_json_response(self, url):
+        """Gets a simple JSON object from a URL
+
+        Args:
+            url (str): the API endpoint to GET
+
+        Returns:
+            dict: the JSON from the response
+        """
+        return self._get(url).json()
 
     @property
     def access_token(self):
