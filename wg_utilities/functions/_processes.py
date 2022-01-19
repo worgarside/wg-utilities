@@ -3,7 +3,6 @@
 from logging import getLogger, DEBUG
 from re import compile as compile_regex
 from subprocess import Popen, PIPE
-from sys import exit as sys_exit
 
 from wg_utilities.loggers import add_stream_handler
 
@@ -24,6 +23,9 @@ def run_cmd(cmd, exit_on_error=True):
     Returns:
         str: the output of the command
         str: the error from the command, if it errored
+
+    Raises:
+        RuntimeError: if the command has a non-zero exit code
     """
 
     LOGGER.debug("Running command `%s`", cmd)

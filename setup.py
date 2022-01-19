@@ -1,7 +1,7 @@
 """Setup/config file for the package"""
 
-from setuptools import setup, find_packages
 from os.path import sep, abspath, join
+from setuptools import setup, find_packages
 
 PROJECT_ROOT = sep + join(
     "",
@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     setup(
         name="wg_utilities",
-        version="2.3.0",
+        version="2.4.0",
         author="Will Garside",
         author_email="worgarside@gmail.com",
         description="Generic utilities for use across all personal projects",
