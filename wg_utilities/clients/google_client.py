@@ -347,6 +347,10 @@ class GoogleClient:
 
         Returns:
             Credentials: authorized credentials for use in creating a session
+
+        Raises:
+            EOFError: when no data is successfully returned for the auth code (usually
+             when running the script automatically)
         """
 
         try:
@@ -376,7 +380,15 @@ class GoogleClient:
             auth_url, _ = flow.authorization_url()
             LOGGER.debug("Opening %s", auth_url)
             open_browser(auth_url)
-            code = input("Enter the authorization code: ")
+            try:
+                code = input("Enter the authorization code: ")
+            except EOFError:
+                if not (code := getenv("GOOGLE_AUTH_CODE")):
+                    LOGGER.critical(
+                        "Unable to retrieve auth code from environment variables"
+                    )
+                    raise
+
             flow.fetch_token(code=code)
 
             self.credentials = {
