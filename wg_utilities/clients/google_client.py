@@ -351,6 +351,7 @@ class GoogleClient:
         Raises:
             EOFError: when no data is successfully returned for the auth code (usually
              when running the script automatically)
+            ValueError: same as above, but if the EOFError isn't raised
         """
 
         try:
@@ -381,13 +382,19 @@ class GoogleClient:
             LOGGER.debug("Opening %s", auth_url)
             open_browser(auth_url)
             try:
-                code = input("Enter the authorization code: ")
+                code = input("Enter the authorization code: ") or getenv(
+                    "GOOGLE_AUTH_CODE"
+                )
             except EOFError:
                 if not (code := getenv("GOOGLE_AUTH_CODE")):
                     LOGGER.critical(
-                        "Unable to retrieve auth code from environment variables"
+                        "Unable to retrieve auth code from environment variables "
+                        "post-EOFError"
                     )
                     raise
+
+            if not code:
+                raise ValueError("No auth code provided")
 
             flow.fetch_token(code=code)
 
