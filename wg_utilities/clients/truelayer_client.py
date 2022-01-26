@@ -71,6 +71,9 @@ class TrueLayerEntity:
          retrieved this entity from the API
     """
 
+    # Default value
+    BALANCE_FIELDS = ()
+
     def __init__(self, json, truelayer_client=None):
         self.json = json
         self._truelayer_client = truelayer_client
@@ -112,16 +115,33 @@ class TrueLayerEntity:
         self._payment_due = balance_result.get("payment_due")
         self._payment_due_date = balance_result.get("payment_due_date")
 
+    def _get_balance_property(self, prop_name):
+        """Gets a value for a balance-specific property, updating the values if
+         necessary (i.e. if they don't already exist). This also has a check to see if
+         property is relevant for the given entity type and if not it just returns None
+
+        Args:
+            prop_name (str): the name of the property
+
+        Returns:
+            str: the value of the balance property
+        """
+
+        if prop_name not in self.BALANCE_FIELDS:
+            return None
+
+        if (instance_attr := getattr(self, f"_{prop_name}")) is None:
+            self.update_balance_values()
+
+        return instance_attr
+
     @property
     def available_balance(self):
         """
         Returns:
             float: the amount of money available to the bank account holder
         """
-        if not self._available_balance:
-            self.update_balance_values()
-
-        return self._available_balance
+        return self._get_balance_property("available_balance")
 
     @property
     def current_balance(self):
@@ -130,10 +150,7 @@ class TrueLayerEntity:
             float: the total amount of money in the account, including pending
              transactions
         """
-        if not self._current_balance:
-            self.update_balance_values()
-
-        return self._current_balance
+        return self._get_balance_property("current_balance")
 
     @property
     def overdraft(self):
@@ -141,10 +158,7 @@ class TrueLayerEntity:
         Returns:
             float: the overdraft limit of the account
         """
-        if not self._overdraft:
-            self.update_balance_values()
-
-        return self._overdraft
+        return self._get_balance_property("overdraft")
 
     @property
     def credit_limit(self):
@@ -152,10 +166,7 @@ class TrueLayerEntity:
         Returns:
             float: the credit limit available to the customer
         """
-        if not self._credit_limit:
-            self.update_balance_values()
-
-        return self._credit_limit
+        return self._get_balance_property("credit_limit")
 
     @property
     def last_statement_balance(self):
@@ -163,10 +174,7 @@ class TrueLayerEntity:
         Returns:
             float: the balance on the last statement
         """
-        if not self._last_statement_balance:
-            self.update_balance_values()
-
-        return self._last_statement_balance
+        return self._get_balance_property("last_statement_balance")
 
     @property
     def last_statement_date(self):
@@ -174,10 +182,7 @@ class TrueLayerEntity:
         Returns:
             date: the date the last statement was issued on
         """
-        if not self._last_statement_date:
-            self.update_balance_values()
-
-        return self._last_statement_date
+        return self._get_balance_property("last_statement_date")
 
     @property
     def payment_due(self):
@@ -185,10 +190,7 @@ class TrueLayerEntity:
         Returns:
             float: the amount of any due payment
         """
-        if not self._payment_due:
-            self.update_balance_values()
-
-        return self._payment_due
+        return self._get_balance_property("payment_due")
 
     @property
     def payment_due_date(self):
@@ -196,10 +198,7 @@ class TrueLayerEntity:
         Returns:
             date: the date on which the next payment is due
         """
-        if not self._payment_due_date:
-            self.update_balance_values()
-
-        return self._payment_due_date
+        return self._get_balance_property("payment_due_date")
 
     @property
     def pretty_json(self):
@@ -231,7 +230,6 @@ class TrueLayerEntity:
         Returns:
             str: the unique ID for this entity
         """
-
         return self.json.get("account_id")
 
     @property
@@ -403,6 +401,8 @@ class Transaction:
 class Account(TrueLayerEntity):
     """Class for managing individual bank accounts"""
 
+    BALANCE_FIELDS = ("available_balance", "current_balance", "overdraft")
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -480,6 +480,16 @@ class Account(TrueLayerEntity):
 
 class Card(TrueLayerEntity):
     """Class for managing individual cards"""
+
+    BALANCE_FIELDS = (
+        "available_balance",
+        "current_balance",
+        "credit_limit",
+        "last_statement_balance",
+        "last_statement_date",
+        "payment_due",
+        "payment_due_date",
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
