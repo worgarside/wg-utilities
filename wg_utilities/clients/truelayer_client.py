@@ -698,6 +698,29 @@ class TrueLayerClient:
             **res.json(),
         }
 
+    def authenticate_against_bank(self, code):
+        """Allows first-time (or repeated) authentication against the given bank
+
+        Args:
+            code (str): the authorization code returned form the TrueLayer console
+             auth flow
+        """
+
+        res = post(
+            self.ACCESS_TOKEN_ENDPOINT,
+            data={
+                "grant_type": "authorization_code",
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+                "redirect_uri": self.redirect_uri,
+                "code": code,
+            },
+        )
+
+        res.raise_for_status()
+
+        self.credentials = res.json()
+
     @property
     def authentication_link(self):
         """
@@ -750,20 +773,7 @@ class TrueLayerClient:
             if not code:
                 raise ValueError("No auth code provided")
 
-            res = post(
-                self.ACCESS_TOKEN_ENDPOINT,
-                data={
-                    "grant_type": "authorization_code",
-                    "client_id": self.client_id,
-                    "client_secret": self.client_secret,
-                    "redirect_uri": self.redirect_uri,
-                    "code": code,
-                },
-            )
-
-            res.raise_for_status()
-
-            self.credentials = res.json()
+            self.authenticate_against_bank(code)
 
         if self.access_token_has_expired:
             self.refresh_access_token()
