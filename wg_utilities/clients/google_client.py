@@ -4,10 +4,9 @@ from copy import deepcopy
 from datetime import datetime
 from enum import Enum, auto
 from json import dump, load, dumps
-from logging import getLogger, DEBUG, StreamHandler
+from logging import getLogger, DEBUG
 from os import remove, getenv
 from os.path import join, isfile
-from sys import stdout
 from webbrowser import open as open_browser
 
 from google.auth.transport.requests import AuthorizedSession
@@ -16,13 +15,11 @@ from google_auth_oauthlib.flow import Flow
 from requests import get
 
 from wg_utilities.functions import user_data_dir, force_mkdir
-from wg_utilities.loggers import FORMATTER
+from wg_utilities.loggers import add_stream_handler
 
-SH = StreamHandler(stdout)
-SH.setFormatter(FORMATTER)
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-LOGGER.addHandler(SH)
+add_stream_handler(LOGGER)
 
 LOCAL_MEDIA_DIRECTORY = getenv(
     "LOCAL_MEDIA_DIRECTORY", user_data_dir(file_name="media_downloads")
@@ -217,6 +214,8 @@ class GoogleClient:
     Args:
         project (str): the name of the project which this client is being used for
         scopes (list): a list of scopes the client can be given
+        client_id_json_path (str): the path to the `client_id.json` file downloaded
+         from Google's API Console
     """
 
     DEFAULT_PARAMS = {
