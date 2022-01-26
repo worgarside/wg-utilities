@@ -162,10 +162,10 @@ class TrueLayerEntity:
         if prop_name not in self.BALANCE_FIELDS:
             return None
 
-        if (instance_attr := getattr(self, f"_{prop_name}")) is None:
+        if getattr(self, f"_{prop_name}") is None:
             self.update_balance_values()
 
-        return instance_attr
+        return getattr(self, f"_{prop_name}")
 
     @property
     def available_balance(self):
