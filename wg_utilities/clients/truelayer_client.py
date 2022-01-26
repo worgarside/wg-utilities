@@ -287,6 +287,9 @@ class TrueLayerEntity:
         """
         return self.json.get("provider", {}).get("logo_uri")
 
+    def __str__(self):
+        return f"{self.display_name} | {self.provider_name}"
+
 
 class Transaction:
     """Class for individual transactions for data manipulation etc.
@@ -331,7 +334,12 @@ class Transaction:
         Returns:
             datetime: the timestamp this transaction was made at
         """
-        return datetime.strptime(self.json.get("timestamp"), "%Y-%m-%dT%H:%M:%S.%fZ")
+        try:
+            return datetime.strptime(
+                self.json.get("timestamp"), "%Y-%m-%dT%H:%M:%S.%fZ"
+            )
+        except ValueError:
+            return datetime.strptime(self.json.get("timestamp"), "%Y-%m-%dT%H:%M:%SZ")
 
     @property
     def description(self):
@@ -436,6 +444,9 @@ class Transaction:
             str: the account name of the debtor, if the tx is inbound
         """
         return self.json.get("meta", {}).get("debtor_account_name")
+
+    def __str__(self):
+        return f"{self.description} | {self.amount} | {self.merchant_name}"
 
 
 class Account(TrueLayerEntity):
