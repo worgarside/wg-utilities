@@ -216,6 +216,7 @@ class GoogleClient:
         scopes (list): a list of scopes the client can be given
         client_id_json_path (str): the path to the `client_id.json` file downloaded
          from Google's API Console
+        creds_cache_path (str): file path for where to cache credentials
     """
 
     DEFAULT_PARAMS = {
@@ -223,10 +224,13 @@ class GoogleClient:
     }
     CREDS_FILE_PATH = user_data_dir(file_name="google_api_creds.json")
 
-    def __init__(self, project, scopes=None, client_id_json_path=None):
+    def __init__(
+        self, project, scopes=None, client_id_json_path=None, creds_cache_path=None
+    ):
         self.project = project
         self.scopes = scopes or []
         self.client_id_json_path = client_id_json_path
+        self.creds_cache_path = creds_cache_path or self.CREDS_FILE_PATH
 
         if not scopes:
             LOGGER.warning(
@@ -276,7 +280,7 @@ class GoogleClient:
     def delete_creds_file(self):
         """Delete the local creds file"""
         try:
-            remove(self.CREDS_FILE_PATH)
+            remove(self.creds_cache_path)
         except FileNotFoundError:
             pass
 
@@ -355,7 +359,7 @@ class GoogleClient:
 
         try:
             with open(
-                force_mkdir(self.CREDS_FILE_PATH, path_is_file=True), encoding="UTF-8"
+                force_mkdir(self.creds_cache_path, path_is_file=True), encoding="UTF-8"
             ) as fin:
                 self._all_credentials_json = load(fin)
         except FileNotFoundError:
@@ -420,13 +424,13 @@ class GoogleClient:
         self._all_credentials_json[self.project] = value
 
         with open(
-            force_mkdir(self.CREDS_FILE_PATH, path_is_file=True), "w", encoding="UTF-8"
+            force_mkdir(self.creds_cache_path, path_is_file=True), "w", encoding="UTF-8"
         ) as fout:
             dump(self._all_credentials_json, fout)
 
     @property
     def session(self):
-        """Uses the Credentials object to sign into an authorized Google API session
+        """Uses the Credentials object to sign in to an authorized Google API session
 
         Returns:
             AuthorizedSession: an active, authorized Google API session

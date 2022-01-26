@@ -567,6 +567,7 @@ class TrueLayerClient:
         access_token_expiry_threshold (int): the number of seconds to subtract from
          the access token's expiry when checking its expiry status
         log_requests (bool): flag for choosing if to log all requests made
+        creds_cache_path (str): file path for where to cache credentials
     """
 
     BASE_URL = "https://api.truelayer.com"
@@ -582,6 +583,7 @@ class TrueLayerClient:
         redirect_uri="https://console.truelayer.com/redirect-page",
         access_token_expiry_threshold=60,
         log_requests=False,
+        creds_cache_path=None,
     ):
         self.client_id = client_id
         self.client_secret = client_secret
@@ -589,6 +591,7 @@ class TrueLayerClient:
         self.redirect_uri = redirect_uri
         self.access_token_expiry_threshold = access_token_expiry_threshold
         self.log_requests = log_requests
+        self.creds_cache_path = creds_cache_path or self.CREDS_FILE_PATH
 
         self.auth_code_env_var = f"TRUELAYER_{self.bank.name}_AUTH_CODE"
 
@@ -806,7 +809,7 @@ class TrueLayerClient:
         """
 
         try:
-            with open(self.CREDS_FILE_PATH, encoding="UTF-8") as fin:
+            with open(self.creds_cache_path, encoding="UTF-8") as fin:
                 self._credentials = (
                     load(fin).get(self.client_id, {}).get(self.bank.name)
                 )
@@ -847,7 +850,7 @@ class TrueLayerClient:
 
         try:
             with open(
-                force_mkdir(self.CREDS_FILE_PATH, path_is_file=True), encoding="UTF-8"
+                force_mkdir(self.creds_cache_path, path_is_file=True), encoding="UTF-8"
             ) as fin:
                 all_credentials = load(fin)
         except FileNotFoundError:
@@ -857,7 +860,7 @@ class TrueLayerClient:
             self.bank.name
         ] = self._credentials
 
-        with open(self.CREDS_FILE_PATH, "w", encoding="UTF-8") as fout:
+        with open(self.creds_cache_path, "w", encoding="UTF-8") as fout:
             dump(all_credentials, fout)
 
     @property
