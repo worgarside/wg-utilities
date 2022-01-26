@@ -789,7 +789,7 @@ class TrueLayerClient:
             str: the authentication link, including the client ID
         """
         # pylint: disable=line-too-long
-        return f"https://auth.truelayer.com/?response_type=code&client_id={self.client_id}&scope=info%20accounts%20balance%20cards%20transactions%20direct_debits%20standing_orders%20offline_access&redirect_uri=https://console.truelayer.com/redirect-page&providers=uk-ob-all%20uk-oauth-all"  # noqa
+        return f"https://auth.truelayer.com/?response_type=code&client_id={self.client_id}&scope=info%20accounts%20balance%20cards%20transactions%20direct_debits%20standing_orders%20offline_access&redirect_uri={self.redirect_uri}&providers=uk-ob-all%20uk-oauth-all"  # noqa
 
     @property
     def credentials(self):
