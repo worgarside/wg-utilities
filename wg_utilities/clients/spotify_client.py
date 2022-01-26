@@ -316,6 +316,7 @@ class SpotifyClient:
         scope (list): either a list of scopes or comma separated string of scopes.
         oauth_manager (SpotifyOAuth): an already-instantiated OAuth manager which
          provides authentication for all API interactions
+        log_requests (bool): flag for choosing if to log all requests made
         creds_cache_path (str): path at which to save cached credentials
     """
 

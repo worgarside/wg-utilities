@@ -7,7 +7,7 @@ from time import time
 from webbrowser import open as open_browser
 from datetime import datetime, timedelta
 from jwt import decode, DecodeError
-from requests import post, get
+from requests import post, get, HTTPError
 
 from wg_utilities.functions import user_data_dir, force_mkdir
 from wg_utilities.loggers import add_stream_handler
@@ -75,6 +75,132 @@ class TrueLayerEntity:
         self.json = json
         self._truelayer_client = truelayer_client
 
+        self._available_balance = None
+        self._current_balance = None
+        self._overdraft = None
+        self._credit_limit = None
+        self._last_statement_balance = None
+        self._last_statement_date = None
+        self._payment_due = None
+        self._payment_due_date = None
+
+        self.entity_type = self.__class__.__name__.lower()
+
+    def update_balance_values(self):
+        """Updates the balance-related instance attributes with the latest values from
+        the API
+        """
+
+        results = self._truelayer_client.get_json_response(
+            f"/data/v1/{self.entity_type}s/{self.id}/balance"
+        ).get("results")
+
+        if len(results) != 1:
+            raise ValueError(
+                "Unexpected number of results when getting balance info:"
+                f" {len(results)}",
+            )
+
+        balance_result = results[0]
+
+        self._available_balance = balance_result.get("available")
+        self._current_balance = balance_result.get("current")
+        self._overdraft = balance_result.get("overdraft")
+        self._credit_limit = balance_result.get("credit_limit")
+        self._last_statement_balance = balance_result.get("last_statement_balance")
+        self._last_statement_date = balance_result.get("last_statement_date")
+        self._payment_due = balance_result.get("payment_due")
+        self._payment_due_date = balance_result.get("payment_due_date")
+
+    @property
+    def available_balance(self):
+        """
+        Returns:
+            float: the amount of money available to the bank account holder
+        """
+        if not self._available_balance:
+            self.update_balance_values()
+
+        return self._available_balance
+
+    @property
+    def current_balance(self):
+        """
+        Returns:
+            float: the total amount of money in the account, including pending
+             transactions
+        """
+        if not self._current_balance:
+            self.update_balance_values()
+
+        return self._current_balance
+
+    @property
+    def overdraft(self):
+        """
+        Returns:
+            float: the overdraft limit of the account
+        """
+        if not self._overdraft:
+            self.update_balance_values()
+
+        return self._overdraft
+
+    @property
+    def credit_limit(self):
+        """
+        Returns:
+            float: the credit limit available to the customer
+        """
+        if not self._credit_limit:
+            self.update_balance_values()
+
+        return self._credit_limit
+
+    @property
+    def last_statement_balance(self):
+        """
+        Returns:
+            float: the balance on the last statement
+        """
+        if not self._last_statement_balance:
+            self.update_balance_values()
+
+        return self._last_statement_balance
+
+    @property
+    def last_statement_date(self):
+        """
+        Returns:
+            date: the date the last statement was issued on
+        """
+        if not self._last_statement_date:
+            self.update_balance_values()
+
+        return self._last_statement_date
+
+    @property
+    def payment_due(self):
+        """
+        Returns:
+            float: the amount of any due payment
+        """
+        if not self._payment_due:
+            self.update_balance_values()
+
+        return self._payment_due
+
+    @property
+    def payment_due_date(self):
+        """
+        Returns:
+            date: the date on which the next payment is due
+        """
+        if not self._payment_due_date:
+            self.update_balance_values()
+
+        return self._payment_due_date
+
     @property
     def pretty_json(self):
         """
@@ -91,18 +217,75 @@ class TrueLayerEntity:
         """
         return self.json.get("currency")
 
+    @property
+    def display_name(self):
+        """
+        Returns:
+            str: human-readable name of the entity
+        """
+        return self.json.get("display_name")
 
-class Transaction(TrueLayerEntity):
+    @property
+    def id(self):
+        """
+        Returns:
+            str: the unique ID for this entity
+        """
+
+        return self.json.get("account_id")
+
+    @property
+    def provider_name(self):
+        """
+        Returns:
+            str: the name of the account provider
+        """
+        return self.json.get("provider", {}).get("display_name")
+
+    @property
+    def provider_id(self):
+        """
+        Returns:
+            str: unique identifier for the provider
+        """
+        return self.json.get("provider", {}).get("provider_id")
+
+    @property
+    def provider_logo_uri(self):
+        """
+        Returns:
+            str: url for the account provider's logo
+        """
+        return self.json.get("provider", {}).get("logo_uri")
+
+
+class Transaction:
     """Class for individual transactions for data manipulation etc.
 
     Args:
-        parent_account (BankAccount): the account which this transaction was made under
+        parent_account (Account): the account which this transaction was made under
     """
 
-    def __init__(self, *args, parent_account, **kwargs):
-        super().__init__(*args, **kwargs)
-
+    def __init__(self, json, parent_account, truelayer_client=None):
+        self.json = json
+        self._truelayer_client = truelayer_client
         self.parent_account = parent_account
+
+    @property
+    def pretty_json(self):
+        """
+        Returns:
+            str: a "pretty" version of the JSON, used for debugging etc.
+        """
+        return dumps(self.json, indent=4, default=str)
+
+    @property
+    def currency(self):
+        """
+        Returns:
+            str: ISO 4217 alpha-3 currency code of this entity
+        """
+        return self.json.get("currency")
 
     @property
     def timestamp(self):
@@ -161,15 +344,6 @@ class Transaction(TrueLayerEntity):
         return self.json.get("amount")
 
     @property
-    def id(self):
-        """
-        Returns:
-            str: Unique identifier of the transaction in a request. It may change
-             between requests.
-        """
-        return self.json.get("transaction_id")
-
-    @property
     def provider_transaction_id(self):
         """
         Returns:
@@ -226,72 +400,11 @@ class Transaction(TrueLayerEntity):
         return self.json.get("meta", {}).get("debtor_account_name")
 
 
-class BankAccount(TrueLayerEntity):
+class Account(TrueLayerEntity):
     """Class for managing individual bank accounts"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self._available_balance = None
-        self._current_balance = None
-        self._overdraft = None
-
-    def update_balance_values(self):
-        """Updates the balance-related instance attributes with latest values from the
-        API"""
-
-        results = self._truelayer_client.get_json_response(
-            f"/data/v1/accounts/{self.id}/balance"
-        ).get("results")
-
-        if len(results) != 1:
-            raise ValueError(
-                "Unexpected number of results when getting balance info:"
-                f" {len(results)}",
-            )
-
-        balance_result = results[0]
-
-        self._available_balance = balance_result.get("available")
-        self._current_balance = balance_result.get("current")
-        self._overdraft = balance_result.get("overdraft")
-
-    @property
-    def available_balance(self):
-        """
-        Returns:
-            float: the amount of money available to the bank account holder
-        """
-
-        if not self._available_balance:
-            self.update_balance_values()
-
-        return self._available_balance
-
-    @property
-    def current_balance(self):
-        """
-        Returns:
-            float: the total amount of money in the account, including pending
-             transactions
-        """
-
-        if not self._current_balance:
-            self.update_balance_values()
-
-        return self._current_balance
-
-    @property
-    def overdraft(self):
-        """
-        Returns:
-            float: the overdraft limit of the account
-        """
-
-        if not self._overdraft:
-            self.update_balance_values()
-
-        return self._overdraft
 
     def get_transactions(self, from_datetime=None, to_datetime=None):
         """Polls the TL API to get all transactions under the given bank account. If
@@ -322,15 +435,7 @@ class BankAccount(TrueLayerEntity):
         ).get("results", [])
 
         for result in results:
-            yield Transaction(result, self._truelayer_client, parent_account=self)
-
-    @property
-    def id(self):
-        """
-        Returns:
-            str: unique identifier of the account.
-        """
-        return self.json.get("account_id")
+            yield Transaction(result, self, self._truelayer_client)
 
     @property
     def type(self):
@@ -339,14 +444,6 @@ class BankAccount(TrueLayerEntity):
             str: type of the account
         """
         return self.json.get("account_type")
-
-    @property
-    def display_name(self):
-        """
-        Returns:
-            str: human-readable name of the account
-        """
-        return self.json.get("display_name")
 
     @property
     def iban(self):
@@ -380,29 +477,44 @@ class BankAccount(TrueLayerEntity):
         """
         return self.json.get("account_number", {}).get("sort_code")
 
-    @property
-    def provider_name(self):
-        """
-        Returns:
-            str: the name of the account provider
-        """
-        return self.json.get("provider", {}).get("display_name")
+
+class Card(TrueLayerEntity):
+    """Class for managing individual cards"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @property
-    def provider_id(self):
+    def card_network(self):
         """
         Returns:
-            str: unique identifier for the provider.
+            str: card processor. For example, VISA
         """
-        return self.json.get("provider", {}).get("provider_id")
+        return self.json.get("card_network")
 
     @property
-    def provider_logo_uri(self):
+    def type(self):
         """
         Returns:
-            str: url for the account provider's logo
+            str: type of card: credit, debit
         """
-        return self.json.get("provider", {}).get("logo_uri")
+        return self.json.get("card_type")
+
+    @property
+    def partial_card_number(self):
+        """
+        Returns:
+            str: last few digits of card number
+        """
+        return self.json.get("partial_card_number")
+
+    @property
+    def name_on_card(self):
+        """
+        Returns:
+            str: the name on the card
+        """
+        return self.json.get("name_on_card")
 
 
 class TrueLayerClient:
@@ -416,6 +528,7 @@ class TrueLayerClient:
         redirect_uri (str): the redirect URI for the auth flow
         access_token_expiry_threshold (int): the number of seconds to subtract from
          the access token's expiry when checking its expiry status
+        log_requests (bool): flag for choosing if to log all requests made
     """
 
     BASE_URL = "https://api.truelayer.com"
@@ -430,12 +543,14 @@ class TrueLayerClient:
         bank,
         redirect_uri="https://console.truelayer.com/redirect-page",
         access_token_expiry_threshold=60,
+        log_requests=False,
     ):
         self.client_id = client_id
         self.client_secret = client_secret
         self.bank = bank
         self.redirect_uri = redirect_uri
         self.access_token_expiry_threshold = access_token_expiry_threshold
+        self.log_requests = log_requests
 
         self.auth_code_env_var = f"TRUELAYER_{self.bank.name}_AUTH_CODE"
 
@@ -457,7 +572,8 @@ class TrueLayerClient:
         if url.startswith("/"):
             url = f"{self.BASE_URL}{url}"
 
-        LOGGER.debug("GET %s with params %s", url, dumps(params or {}, default=str))
+        if self.log_requests:
+            LOGGER.debug("GET %s with params %s", url, dumps(params or {}, default=str))
 
         res = get(
             url,
@@ -485,13 +601,47 @@ class TrueLayerClient:
         """Lists all accounts under the given bank account
 
         Yields:
-            BankAccount: BankAccount instances, containing all related info
+            Account: Account instances, containing all related info
+
+        Raises:
+            HTTPError: if a HTTPError is raised by the _get method, but it's not a 501
         """
-        res = self.get_json_response(
-            "/data/v1/accounts",
-        )
+        try:
+            res = self.get_json_response(
+                "/data/v1/accounts",
+            )
+        except HTTPError as exc:
+            if exc.response.json().get("error") == "endpoint_not_supported":
+                LOGGER.warning("Accounts endpoint not supported by %s", self.bank.value)
+                res = {}
+            else:
+                raise
+
         for result in res.get("results", []):
-            yield BankAccount(result, self)
+            yield Account(result, self)
+
+    def list_cards(self):
+        """Lists all accounts under the given bank account
+
+        Yields:
+            Account: Account instances, containing all related info
+
+        Raises:
+            HTTPError: if a HTTPError is raised by the _get method, but it's not a 501
+        """
+        try:
+            res = self.get_json_response(
+                "/data/v1/cards",
+            )
+        except HTTPError as exc:
+            if exc.response.json().get("error") == "endpoint_not_supported":
+                LOGGER.warning("Cards endpoint not supported by %s", self.bank.value)
+                res = {}
+            else:
+                raise
+
+        for result in res.get("results", []):
+            yield Card(result, self)
 
     def refresh_access_token(self):
         """Uses the cached refresh token to submit a request to TL's API for a new
