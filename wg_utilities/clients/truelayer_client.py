@@ -89,6 +89,37 @@ class TrueLayerEntity:
 
         self.entity_type = self.__class__.__name__.lower()
 
+    def get_transactions(self, from_datetime=None, to_datetime=None):
+        """Polls the TL API to get all transactions under the given entity. If
+        only one datetime parameter is provided, then the other is given a default
+        value which maximises the range of results returned
+
+        Args:
+            from_datetime (datetime): lower range of transaction date range query
+            to_datetime (datetime): upper range of transaction date range query
+
+        Yields:
+            Transaction: one instance per tx, including all metadata etc.
+        """
+
+        if from_datetime or to_datetime:
+            from_datetime = from_datetime or datetime.utcnow() - timedelta(days=90)
+            to_datetime = to_datetime or datetime.utcnow()
+
+            params = {
+                "from": from_datetime.strftime(DATETIME_FORMAT),
+                "to": to_datetime.strftime(DATETIME_FORMAT),
+            }
+        else:
+            params = None
+
+        results = self._truelayer_client.get_json_response(
+            f"/data/v1/{self.entity_type}s/{self.id}/transactions", params=params
+        ).get("results", [])
+
+        for result in results:
+            yield Transaction(result, self, self._truelayer_client)
+
     def update_balance_values(self):
         """Updates the balance-related instance attributes with the latest values from
         the API
@@ -261,13 +292,14 @@ class Transaction:
     """Class for individual transactions for data manipulation etc.
 
     Args:
-        parent_account (Account): the account which this transaction was made under
+        parent_entity (TrueLayerEntity): the entity which this transaction was made
+         under
     """
 
-    def __init__(self, json, parent_account, truelayer_client=None):
+    def __init__(self, json, parent_entity, truelayer_client=None):
         self.json = json
         self._truelayer_client = truelayer_client
-        self.parent_account = parent_account
+        self.parent_entity = parent_entity
 
     @property
     def pretty_json(self):
@@ -276,6 +308,14 @@ class Transaction:
             str: a "pretty" version of the JSON, used for debugging etc.
         """
         return dumps(self.json, indent=4, default=str)
+
+    @property
+    def id(self):
+        """
+        Returns:
+            str: unique ID for this transaction, it may change between requests
+        """
+        return self.json.get("transaction_id")
 
     @property
     def currency(self):
@@ -405,37 +445,6 @@ class Account(TrueLayerEntity):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    def get_transactions(self, from_datetime=None, to_datetime=None):
-        """Polls the TL API to get all transactions under the given bank account. If
-        only one datetime parameter is provided, then the other is given a default
-        value which maximises the range of results returned
-
-        Args:
-            from_datetime (datetime): lower range of transaction date range query
-            to_datetime (datetime): upper range of transaction date range query
-
-        Yields:
-            Transaction: one instance per tx, including all metadata etc.
-        """
-
-        if from_datetime or to_datetime:
-            from_datetime = from_datetime or datetime.utcnow() - timedelta(days=90)
-            to_datetime = to_datetime or datetime.utcnow()
-
-            params = {
-                "from": from_datetime.strftime(DATETIME_FORMAT),
-                "to": to_datetime.strftime(DATETIME_FORMAT),
-            }
-        else:
-            params = None
-
-        results = self._truelayer_client.get_json_response(
-            f"/data/v1/accounts/{self.id}/transactions", params=params
-        ).get("results", [])
-
-        for result in results:
-            yield Transaction(result, self, self._truelayer_client)
 
     @property
     def type(self):
@@ -687,7 +696,7 @@ class TrueLayerClient:
             str: the authentication link, including the client ID
         """
         # pylint: disable=line-too-long
-        return f"https://auth.truelayer.com/?response_type=code&client_id={self.client_id}&scope=info%20accounts%20balance%20cards%20transactions%20direct_debits%20standing_orders%20offline_access&redirect_uri=https://console.truelayer.com/redirect-page&providers=uk-ob-all%20uk-oauth-all"
+        return f"https://auth.truelayer.com/?response_type=code&client_id={self.client_id}&scope=info%20accounts%20balance%20cards%20transactions%20direct_debits%20standing_orders%20offline_access&redirect_uri=https://console.truelayer.com/redirect-page&providers=uk-ob-all%20uk-oauth-all"  # noqa
 
     @property
     def credentials(self):
