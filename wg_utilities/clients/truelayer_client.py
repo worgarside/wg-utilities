@@ -1,15 +1,16 @@
 """Custom client for interacting with TrueLayer's API"""
+from datetime import datetime, timedelta
 from enum import Enum
 from json import load, dump, dumps
 from logging import getLogger, DEBUG
 from os import getenv
 from time import time
 from webbrowser import open as open_browser
-from datetime import datetime, timedelta
+
 from jwt import decode, DecodeError
 from requests import post, get, HTTPError
 
-from wg_utilities.functions import user_data_dir, force_mkdir
+from wg_utilities.functions import user_data_dir
 from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
@@ -725,7 +726,7 @@ class TrueLayerClient:
 
         try:
             with open(self.CREDS_FILE_PATH, encoding="UTF-8") as fin:
-                self._all_credentials_json = load(fin)
+                self._all_credentials_json = load(fin).get(self.client_id, {})
         except FileNotFoundError:
             LOGGER.info("Unable to find local creds file")
             self._all_credentials_json = {}
@@ -774,10 +775,13 @@ class TrueLayerClient:
     def credentials(self, value):
         self._all_credentials_json[self.bank.name] = value
 
-        with open(
-            force_mkdir(self.CREDS_FILE_PATH, path_is_file=True), "w", encoding="UTF-8"
-        ) as fout:
-            dump(self._all_credentials_json, fout)
+        with open(self.CREDS_FILE_PATH, encoding="UTF-8") as fin:
+            creds_all_apps = load(fin)
+
+        creds_all_apps[self.client_id] = self._all_credentials_json
+
+        with open(self.CREDS_FILE_PATH, "w", encoding="UTF-8") as fout:
+            dump(creds_all_apps, fout)
 
     @property
     def access_token(self):
