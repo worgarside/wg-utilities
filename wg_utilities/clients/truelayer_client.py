@@ -585,7 +585,6 @@ class TrueLayerClient:
 
         self.auth_code_env_var = f"TRUELAYER_{self.bank.name}_AUTH_CODE"
 
-        self._all_credentials_json = None
         self._credentials = None
 
     def _get(self, url, params=None):
@@ -686,9 +685,7 @@ class TrueLayerClient:
                 "grant_type": "refresh_token",
                 "client_id": self.client_id,
                 "client_secret": self.client_secret,
-                "refresh_token": self._all_credentials_json.get(self.bank.name, {}).get(
-                    "refresh_token"
-                ),
+                "refresh_token": self._credentials.get("refresh_token"),
             },
         )
 
@@ -697,7 +694,7 @@ class TrueLayerClient:
         # Maintain any existing credential values in the dictionary whilst updating
         # new ones
         self.credentials = {
-            **self._all_credentials_json.get(self.bank.name, {}),
+            **self._credentials,
             **res.json(),
         }
 
@@ -726,12 +723,14 @@ class TrueLayerClient:
 
         try:
             with open(self.CREDS_FILE_PATH, encoding="UTF-8") as fin:
-                self._all_credentials_json = load(fin).get(self.client_id, {})
+                self._credentials = (
+                    load(fin).get(self.client_id, {}).get(self.bank.name)
+                )
         except FileNotFoundError:
             LOGGER.info("Unable to find local creds file")
-            self._all_credentials_json = {}
+            self._credentials = {}
 
-        if self.bank.name not in self._all_credentials_json:
+        if not self._credentials:
             LOGGER.info("Performing first time login for bank `%s`", self.bank.value)
             LOGGER.debug("Opening %s", self.authentication_link)
             open_browser(self.authentication_link)
@@ -769,19 +768,21 @@ class TrueLayerClient:
         if self.access_token_has_expired:
             self.refresh_access_token()
 
-        return self._all_credentials_json[self.bank.name]
+        return self._credentials
 
     @credentials.setter
     def credentials(self, value):
-        self._all_credentials_json[self.bank.name] = value
+        self._credentials = value
 
         with open(self.CREDS_FILE_PATH, encoding="UTF-8") as fin:
-            creds_all_apps = load(fin)
+            all_credentials = load(fin)
 
-        creds_all_apps[self.client_id] = self._all_credentials_json
+        all_credentials.setdefault(self.client_id, {})[
+            self.bank.name
+        ] = self._credentials
 
         with open(self.CREDS_FILE_PATH, "w", encoding="UTF-8") as fout:
-            dump(creds_all_apps, fout)
+            dump(all_credentials, fout)
 
     @property
     def access_token(self):
@@ -802,7 +803,7 @@ class TrueLayerClient:
             expiry_epoch = decode(
                 # can't use self.access_token here, as that uses self.credentials,
                 # which in turn (recursively) checks if the access token has expired
-                self._all_credentials_json.get(self.bank.name, {}).get("access_token"),
+                self._credentials.get("access_token"),
                 options={"verify_signature": False},
             ).get("exp", 0)
 
