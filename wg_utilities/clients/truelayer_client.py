@@ -1,11 +1,11 @@
 """Custom client for interacting with TrueLayer's API"""
 from enum import Enum
-from json import load, dump
+from json import load, dump, dumps
 from logging import getLogger, DEBUG
 from os import getenv
 from time import time
 from webbrowser import open as open_browser
-
+from datetime import datetime, timedelta
 from jwt import decode, DecodeError
 from requests import post, get
 
@@ -15,6 +15,8 @@ from wg_utilities.loggers import add_stream_handler
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 add_stream_handler(LOGGER)
+
+DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 
 class TrueLayerBank(Enum):
@@ -59,6 +61,350 @@ class TrueLayerBank(Enum):
     YORKSHIRE_BUILDING_SOCIETY = "Yorkshire Building Society"
 
 
+class TrueLayerEntity:
+    """Parent class for all TrueLayer entities (accounts, cards, etc.)
+
+    Args:
+        json (dict): the JSON returned from the TrueLayer API which defines the
+         entity
+        truelayer_client (TrueLayerClient): a TrueLayer client, usually the one which
+         retrieved this entity from the API
+    """
+
+    def __init__(self, json, truelayer_client=None):
+        self.json = json
+        self._truelayer_client = truelayer_client
+
+    @property
+    def pretty_json(self):
+        """
+        Returns:
+            str: a "pretty" version of the JSON, used for debugging etc.
+        """
+        return dumps(self.json, indent=4, default=str)
+
+    @property
+    def currency(self):
+        """
+        Returns:
+            str: ISO 4217 alpha-3 currency code of this entity
+        """
+        return self.json.get("currency")
+
+
+class Transaction(TrueLayerEntity):
+    """Class for individual transactions for data manipulation etc.
+
+    Args:
+        parent_account (BankAccount): the account which this transaction was made under
+    """
+
+    def __init__(self, *args, parent_account, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.parent_account = parent_account
+
+    @property
+    def timestamp(self):
+        """
+        Returns:
+            datetime: the timestamp this transaction was made at
+        """
+        return datetime.strptime(self.json.get("timestamp"), "%Y-%m-%dT%H:%M:%S.%fZ")
+
+    @property
+    def description(self):
+        """
+        Returns:
+            str: the description of this transaction
+        """
+        return self.json.get("description")
+
+    @property
+    def type(self):
+        """
+        Returns:
+            str: the type of transaction
+        """
+        return self.json.get("transaction_type")
+
+    @property
+    def category(self):
+        """
+        Returns:
+            str: the category of this transaction
+        """
+        return self.json.get("transaction_category")
+
+    @property
+    def classifications(self):
+        """
+        Returns:
+            list: a list of classifications for this transaction
+        """
+        return self.json.get("transaction_classification")
+
+    @property
+    def merchant_name(self):
+        """
+        Returns:
+            str: the name of the merchant with which this transaction was made
+        """
+        return self.json.get("merchant_name")
+
+    @property
+    def amount(self):
+        """
+        Returns:
+            float: the amount this transaction is for
+        """
+        return self.json.get("amount")
+
+    @property
+    def id(self):
+        """
+        Returns:
+            str: Unique identifier of the transaction in a request. It may change
+             between requests.
+        """
+        return self.json.get("transaction_id")
+
+    @property
+    def provider_transaction_id(self):
+        """
+        Returns:
+            str: the tx ID from the provider
+        """
+        return self.json.get("provider_transaction_id")
+
+    @property
+    def normalised_provider_transaction_id(self):
+        """
+        Returns:
+            str: a normalised tx ID, less likely to change
+        """
+        return self.json.get("normalised_provider_transaction_id")
+
+    @property
+    def provider_category(self):
+        """
+        Returns:
+            str: the provider transaction category
+        """
+        return self.json.get("meta", {}).get("provider_category")
+
+    @property
+    def provider_transaction_type(self):
+        """
+        Returns:
+            str: the type of transaction, as seen by the provider?
+        """
+        return self.json.get("meta", {}).get("transaction_type")
+
+    @property
+    def counter_party_preferred_name(self):
+        """
+        Returns:
+            str: the preferred name of the merchant
+        """
+        return self.json.get("meta", {}).get("counter_party_preferred_name")
+
+    @property
+    def provider_id(self):
+        """
+        Returns:
+            str: seems to be the same as `self.provider_transaction_id`
+        """
+        return self.json.get("meta", {}).get("provider_id")
+
+    @property
+    def debtor_account_name(self):
+        """
+        Returns:
+            str: the account name of the debtor, if the tx is inbound
+        """
+        return self.json.get("meta", {}).get("debtor_account_name")
+
+
+class BankAccount(TrueLayerEntity):
+    """Class for managing individual bank accounts"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._available_balance = None
+        self._current_balance = None
+        self._overdraft = None
+
+    def update_balance_values(self):
+        """Updates the balance-related instance attributes with latest values from the
+        API"""
+
+        results = self._truelayer_client.get_json_response(
+            f"/data/v1/accounts/{self.id}/balance"
+        ).get("results")
+
+        if len(results) != 1:
+            raise ValueError(
+                "Unexpected number of results when getting balance info:"
+                f" {len(results)}",
+            )
+
+        balance_result = results[0]
+
+        self._available_balance = balance_result.get("available")
+        self._current_balance = balance_result.get("current")
+        self._overdraft = balance_result.get("overdraft")
+
+    @property
+    def available_balance(self):
+        """
+        Returns:
+            float: the amount of money available to the bank account holder
+        """
+
+        if not self._available_balance:
+            self.update_balance_values()
+
+        return self._available_balance
+
+    @property
+    def current_balance(self):
+        """
+        Returns:
+            float: the total amount of money in the account, including pending
+             transactions
+        """
+
+        if not self._current_balance:
+            self.update_balance_values()
+
+        return self._current_balance
+
+    @property
+    def overdraft(self):
+        """
+        Returns:
+            float: the overdraft limit of the account
+        """
+
+        if not self._overdraft:
+            self.update_balance_values()
+
+        return self._overdraft
+
+    def get_transactions(self, from_datetime=None, to_datetime=None):
+        """Polls the TL API to get all transactions under the given bank account. If
+        only one datetime parameter is provided, then the other is given a default
+        value which maximises the range of results returned
+
+        Args:
+            from_datetime (datetime): lower range of transaction date range query
+            to_datetime (datetime): upper range of transaction date range query
+
+        Yields:
+            Transaction: one instance per tx, including all metadata etc.
+        """
+
+        if from_datetime or to_datetime:
+            from_datetime = from_datetime or datetime.utcnow() - timedelta(days=90)
+            to_datetime = to_datetime or datetime.utcnow()
+
+            params = {
+                "from": from_datetime.strftime(DATETIME_FORMAT),
+                "to": to_datetime.strftime(DATETIME_FORMAT),
+            }
+        else:
+            params = None
+
+        results = self._truelayer_client.get_json_response(
+            f"/data/v1/accounts/{self.id}/transactions", params=params
+        ).get("results", [])
+
+        for result in results:
+            yield Transaction(result, self._truelayer_client, parent_account=self)
+
+    @property
+    def id(self):
+        """
+        Returns:
+            str: unique identifier of the account.
+        """
+        return self.json.get("account_id")
+
+    @property
+    def type(self):
+        """
+        Returns:
+            str: type of the account
+        """
+        return self.json.get("account_type")
+
+    @property
+    def display_name(self):
+        """
+        Returns:
+            str: human-readable name of the account
+        """
+        return self.json.get("display_name")
+
+    @property
+    def iban(self):
+        """
+        Returns:
+            str: the International Bank Account Number for this account
+        """
+        return self.json.get("account_number", {}).get("iban")
+
+    @property
+    def swift_bic(self):
+        """
+        Returns:
+            str: ISO 9362:2009 Business Identifier Codes.
+        """
+        return self.json.get("account_number", {}).get("swift_bic")
+
+    @property
+    def account_number(self):
+        """
+        Returns:
+            str: the account's account number
+        """
+        return self.json.get("account_number", {}).get("number")
+
+    @property
+    def sort_code(self):
+        """
+        Returns:
+            str: the account's sort code
+        """
+        return self.json.get("account_number", {}).get("sort_code")
+
+    @property
+    def provider_name(self):
+        """
+        Returns:
+            str: the name of the account provider
+        """
+        return self.json.get("provider", {}).get("display_name")
+
+    @property
+    def provider_id(self):
+        """
+        Returns:
+            str: unique identifier for the provider.
+        """
+        return self.json.get("provider", {}).get("provider_id")
+
+    @property
+    def provider_logo_uri(self):
+        """
+        Returns:
+            str: url for the account provider's logo
+        """
+        return self.json.get("provider", {}).get("logo_uri")
+
+
 class TrueLayerClient:
     """Custom client for interacting with TrueLayer's APIs, including all necessary
     authentication functionality
@@ -97,8 +443,21 @@ class TrueLayerClient:
         self._credentials = None
 
     def _get(self, url, params=None):
+        """Wrapper for GET requests which covers authentication, URL parsing, etc etc
+
+        Args:
+            url (str): the URL path to the endpoint (not necessarily including the
+             base URL)
+            params (dict): the parameters to be passed in the HTTP request
+
+        Returns:
+            Response: the response from the HTTP request
+        """
+
         if url.startswith("/"):
             url = f"{self.BASE_URL}{url}"
+
+        LOGGER.debug("GET %s with params %s", url, dumps(params or {}, default=str))
 
         res = get(
             url,
@@ -110,28 +469,29 @@ class TrueLayerClient:
 
         return res
 
-    def get_json_response(self, url):
+    def get_json_response(self, url, params=None):
         """Gets a simple JSON object from a URL
 
         Args:
             url (str): the API endpoint to GET
+            params (dict): the parameters to be passed in the HTTP request
 
         Returns:
             dict: the JSON from the response
         """
-        return self._get(url).json()
+        return self._get(url, params=params).json()
 
-    # def list_accounts(self):
-    #     """Lists all accounts under the given bank account
-    #
-    #     Yields:
-    #         BankAccount: BankAccount instances, containing all related info
-    #     """
-    #     res = self.get_json_response(
-    #         "/data/v1/accounts",
-    #     )
-    #     for result in res.get("results", []):
-    #         yield BankAccount(result, self)
+    def list_accounts(self):
+        """Lists all accounts under the given bank account
+
+        Yields:
+            BankAccount: BankAccount instances, containing all related info
+        """
+        res = self.get_json_response(
+            "/data/v1/accounts",
+        )
+        for result in res.get("results", []):
+            yield BankAccount(result, self)
 
     def refresh_access_token(self):
         """Uses the cached refresh token to submit a request to TL's API for a new
