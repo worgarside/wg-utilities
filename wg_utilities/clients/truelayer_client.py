@@ -75,7 +75,7 @@ class TrueLayerEntity:
     # Default value
     BALANCE_FIELDS = ()
 
-    def __init__(self, json, truelayer_client=None):
+    def __init__(self, json, truelayer_client=None, balance_update_threshold=15):
         self.json = json
         self._truelayer_client = truelayer_client
 
@@ -89,6 +89,9 @@ class TrueLayerEntity:
         self._payment_due_date = None
 
         self.entity_type = self.__class__.__name__.lower()
+
+        self.last_balance_update = datetime(1970, 1, 1)
+        self.balance_update_threshold = balance_update_threshold
 
     def get_transactions(self, from_datetime=None, to_datetime=None):
         """Polls the TL API to get all transactions under the given entity. If
@@ -147,6 +150,8 @@ class TrueLayerEntity:
         self._payment_due = balance_result.get("payment_due")
         self._payment_due_date = balance_result.get("payment_due_date")
 
+        self.last_balance_update = datetime.utcnow()
+
     def _get_balance_property(self, prop_name):
         """Gets a value for a balance-specific property, updating the values if
          necessary (i.e. if they don't already exist). This also has a check to see if
@@ -162,7 +167,9 @@ class TrueLayerEntity:
         if prop_name not in self.BALANCE_FIELDS:
             return None
 
-        if getattr(self, f"_{prop_name}") is None:
+        if getattr(self, f"_{prop_name}") is None or self.last_balance_update <= (
+            datetime.utcnow() - timedelta(minutes=self.balance_update_threshold)
+        ):
             self.update_balance_values()
 
         return getattr(self, f"_{prop_name}")
@@ -615,6 +622,38 @@ class TrueLayerClient:
 
         return res
 
+    def _get_entity_by_id(self, entity_id, entity_class):
+        """Gets entity info based on a given ID
+
+        Args:
+            entity_id (str): the unique ID for the account/card
+            entity_class (type): the class to instantiate with the returned info
+
+        Returns:
+            Union([Account, Card]): a Card instance with associated info
+
+        Raises:
+            HTTPError: if a HTTPError is raised by the request, and it's not because
+             the ID wasn't found
+            ValueError: if >1 result is returned from the TrueLayer API
+        """
+        try:
+            results = self.get_json_response(
+                f"/data/v1/{entity_class.__name__.lower()}s/{entity_id}"
+            ).get("results", [])
+        except HTTPError as exc:
+            if exc.response.json().get("error") == "account_not_found":
+                return None
+            raise
+
+        if len(results) != 1:
+            raise ValueError(
+                f"Unexpected number of results when getting {entity_class.__name__}:"
+                f" {len(results)}",
+            )
+
+        return entity_class(results[0], self)
+
     def get_json_response(self, url, params=None):
         """Gets a simple JSON object from a URL
 
@@ -626,6 +665,28 @@ class TrueLayerClient:
             dict: the JSON from the response
         """
         return self._get(url, params=params).json()
+
+    def get_account_by_id(self, account_id):
+        """Get an Account instance based on the ID
+
+        Args:
+            account_id (str): the ID of the card
+
+        Returns:
+            Account: a Account instance, with all relevant info
+        """
+        return self._get_entity_by_id(account_id, Account)
+
+    def get_card_by_id(self, card_id):
+        """Get a Card instance based on the ID
+
+        Args:
+            card_id (str): the ID of the card
+
+        Returns:
+            Card: a Card instance, with all relevant info
+        """
+        return self._get_entity_by_id(card_id, Card)
 
     def list_accounts(self):
         """Lists all accounts under the given bank account
