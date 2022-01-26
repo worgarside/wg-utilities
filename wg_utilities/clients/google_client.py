@@ -214,6 +214,8 @@ class GoogleClient:
     Args:
         project (str): the name of the project which this client is being used for
         scopes (list): a list of scopes the client can be given
+        client_id_json_path (str): the path to the `client_id.json` file downloaded
+         from Google's API Console
     """
 
     DEFAULT_PARAMS = {
