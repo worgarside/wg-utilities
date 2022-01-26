@@ -7,7 +7,7 @@ from time import time
 from webbrowser import open as open_browser
 
 from jwt import decode, DecodeError
-from requests import post
+from requests import post, get
 
 from wg_utilities.functions import user_data_dir, force_mkdir
 from wg_utilities.loggers import add_stream_handler
@@ -72,6 +72,7 @@ class TrueLayerClient:
          the access token's expiry when checking its expiry status
     """
 
+    BASE_URL = "https://api.truelayer.com"
     ACCESS_TOKEN_ENDPOINT = "https://auth.truelayer.com/connect/token"
     CREDS_FILE_PATH = user_data_dir(file_name="truelayer_api_creds.json")
 
@@ -95,9 +96,48 @@ class TrueLayerClient:
         self._all_credentials_json = None
         self._credentials = None
 
+    def _get(self, url, params=None):
+        if url.startswith("/"):
+            url = f"{self.BASE_URL}{url}"
+
+        res = get(
+            url,
+            headers={"Authorization": f"Bearer {self.access_token}"},
+            params=params or {},
+        )
+
+        res.raise_for_status()
+
+        return res
+
+    def get_json_response(self, url):
+        """Gets a simple JSON object from a URL
+
+        Args:
+            url (str): the API endpoint to GET
+
+        Returns:
+            dict: the JSON from the response
+        """
+        return self._get(url).json()
+
+    # def list_accounts(self):
+    #     """Lists all accounts under the given bank account
+    #
+    #     Yields:
+    #         BankAccount: BankAccount instances, containing all related info
+    #     """
+    #     res = self.get_json_response(
+    #         "/data/v1/accounts",
+    #     )
+    #     for result in res.get("results", []):
+    #         yield BankAccount(result, self)
+
     def refresh_access_token(self):
         """Uses the cached refresh token to submit a request to TL's API for a new
         access token"""
+
+        LOGGER.info("Refreshing access token for %s", self.bank.value)
 
         res = post(
             self.ACCESS_TOKEN_ENDPOINT,
@@ -105,7 +145,9 @@ class TrueLayerClient:
                 "grant_type": "refresh_token",
                 "client_id": self.client_id,
                 "client_secret": self.client_secret,
-                "refresh_token": self.refresh_token,
+                "refresh_token": self._all_credentials_json.get(self.bank.name, {}).get(
+                    "refresh_token"
+                ),
             },
         )
 
@@ -114,7 +156,7 @@ class TrueLayerClient:
         # Maintain any existing credential values in the dictionary whilst updating
         # new ones
         self.credentials = {
-            **self.credentials,
+            **self._all_credentials_json.get(self.bank.name, {}),
             **res.json(),
         }
 
@@ -214,7 +256,10 @@ class TrueLayerClient:
         """
         try:
             expiry_epoch = decode(
-                self.access_token, options={"verify_signature": False}
+                # can't use self.access_token here, as that uses self.credentials,
+                # which in turn (recursively) checks if the access token has expired
+                self._all_credentials_json.get(self.bank.name, {}).get("access_token"),
+                options={"verify_signature": False},
             ).get("exp", 0)
 
             return (expiry_epoch - self.access_token_expiry_threshold) < int(time())
