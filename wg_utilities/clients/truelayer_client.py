@@ -845,8 +845,11 @@ class TrueLayerClient:
     def credentials(self, value):
         self._credentials = value
 
-        with open(self.CREDS_FILE_PATH, encoding="UTF-8") as fin:
-            all_credentials = load(fin)
+        try:
+            with open(self.CREDS_FILE_PATH, encoding="UTF-8") as fin:
+                all_credentials = load(fin)
+        except FileNotFoundError:
+            all_credentials = {}
 
         all_credentials.setdefault(self.client_id, {})[
             self.bank.name
