@@ -10,7 +10,7 @@ from webbrowser import open as open_browser
 from jwt import decode, DecodeError
 from requests import post, get, HTTPError
 
-from wg_utilities.functions import user_data_dir
+from wg_utilities.functions import user_data_dir, force_mkdir
 from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
@@ -846,7 +846,9 @@ class TrueLayerClient:
         self._credentials = value
 
         try:
-            with open(self.CREDS_FILE_PATH, encoding="UTF-8") as fin:
+            with open(
+                force_mkdir(self.CREDS_FILE_PATH, path_is_file=True), encoding="UTF-8"
+            ) as fin:
                 all_credentials = load(fin)
         except FileNotFoundError:
             all_credentials = {}
