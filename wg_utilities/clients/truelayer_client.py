@@ -20,7 +20,7 @@ add_stream_handler(LOGGER)
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 
-class TrueLayerBank(Enum):
+class Bank(Enum):
     """Enum for all banks supported by TrueLayer"""
 
     ALLIED_IRISH_BANK_CORPORATE = "Allied Irish Bank Corporate"
@@ -562,7 +562,7 @@ class TrueLayerClient:
     Args:
         client_id (str): the client ID for the TrueLayer application
         client_secret (str): the client secret
-        bank (TrueLayerBank): the bank which we're working with
+        bank (Bank): the bank which we're working with
         redirect_uri (str): the redirect URI for the auth flow
         access_token_expiry_threshold (int): the number of seconds to subtract from
          the access token's expiry when checking its expiry status

@@ -2,4 +2,4 @@
 
 from .google_client import GoogleClient, MediaType, MediaItem, Album
 from .spotify_client import SpotifyClient
-from .truelayer_client import TrueLayerClient, TrueLayerBank, Account, Card, Transaction
+from .truelayer_client import TrueLayerClient, Bank, Account, Card, Transaction
