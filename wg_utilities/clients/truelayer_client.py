@@ -62,6 +62,54 @@ class Bank(Enum):
     YORKSHIRE_BUILDING_SOCIETY = "Yorkshire Building Society"
 
 
+class TransactionCategory(Enum):
+    """Enum for TrueLayer transaction types, including an overridden __init__
+    method for setting a description as well as the main value"""
+
+    ATM = (
+        "ATM",
+        "Deposit or withdrawal of funds using an ATM (Automated Teller Machine)",
+    )
+    BILL_PAYMENT = "Bill Payment", "Payment of a bill"
+    CASH = (
+        "Cash",
+        "Cash deposited over the branch counter or using Cash and Deposit Machines",
+    )
+    CASHBACK = (
+        "Cashback",
+        "An option retailers offer to withdraw cash while making a debit card purchase",
+    )
+    CHEQUE = (
+        "Cheque",
+        "A document ordering the payment of money from a bank account to another person"
+        " or organisation",
+    )
+    CORRECTION = "Correction", "Correction of a transaction error"
+    CREDIT = "Credit", "Funds added to your account"
+    DIRECT_DEBIT = (
+        "Direct Debit",
+        "An automatic withdrawal of funds initiated by a third party at regular"
+        " intervals",
+    )
+    DIVIDEND = "Dividend", "A payment to your account from shares you hold"
+    DEBIT = "Debit", "Funds taken out from your account, uncategorised by the bank"
+    FEE_CHARGE = "Fee Charge", "Fees or charges in relation to a transaction"
+    INTEREST = "Interest", "Credit or debit associated with interest earned or incurred"
+    OTHER = "Other", "Miscellaneous credit or debit"
+    PURCHASE = "Purchase", "A payment made with your debit or credit card"
+    STANDING_ORDER = (
+        "Standing Order",
+        "A payment instructed by the account-holder to a third party at regular"
+        " intervals",
+    )
+    TRANSFER = "Transfer", "Transfer of money between accounts"
+    UNKNOWN = "Unknown", "No classification of transaction category known"
+
+    def __init__(self, value, description):
+        self._value_ = value
+        self.description = description
+
+
 class TrueLayerEntity:
     """Parent class for all TrueLayer entities (accounts, cards, etc.)
 
@@ -371,7 +419,7 @@ class Transaction:
         Returns:
             str: the category of this transaction
         """
-        return self.json.get("transaction_category")
+        return TransactionCategory[self.json.get("transaction_category", "UNKNOWN")]
 
     @property
     def classifications(self):
