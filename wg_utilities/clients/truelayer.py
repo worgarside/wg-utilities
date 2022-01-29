@@ -817,7 +817,7 @@ class TrueLayerClient:
         """Allows first-time (or repeated) authentication against the given bank
 
         Args:
-            code (str): the authorization code returned form the TrueLayer console
+            code (str): the authorization code returned from the TrueLayer console
              auth flow
         """
 
