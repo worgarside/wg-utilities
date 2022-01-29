@@ -625,12 +625,13 @@ class TrueLayerClient:
 
         return res
 
-    def _get_entity_by_id(self, entity_id, entity_class):
+    def _get_entity_by_id(self, entity_id, entity_class, entity_instance_kwargs=None):
         """Gets entity info based on a given ID
 
         Args:
             entity_id (str): the unique ID for the account/card
             entity_class (type): the class to instantiate with the returned info
+            entity_instance_kwargs (dict): any kwargs to pass to the entity instance
 
         Returns:
             Union([Account, Card]): a Card instance with associated info
@@ -655,7 +656,7 @@ class TrueLayerClient:
                 f" {len(results)}",
             )
 
-        return entity_class(results[0], self)
+        return entity_class(results[0], self, **entity_instance_kwargs or {})
 
     def get_json_response(self, url, params=None):
         """Gets a simple JSON object from a URL
@@ -669,27 +670,29 @@ class TrueLayerClient:
         """
         return self._get(url, params=params).json()
 
-    def get_account_by_id(self, account_id):
+    def get_account_by_id(self, account_id, instance_kwargs=None):
         """Get an Account instance based on the ID
 
         Args:
             account_id (str): the ID of the card
+            instance_kwargs (dict): any kwargs to pass to the Account instance
 
         Returns:
             Account: a Account instance, with all relevant info
         """
-        return self._get_entity_by_id(account_id, Account)
+        return self._get_entity_by_id(account_id, Account, instance_kwargs)
 
-    def get_card_by_id(self, card_id):
+    def get_card_by_id(self, card_id, instance_kwargs=None):
         """Get a Card instance based on the ID
 
         Args:
             card_id (str): the ID of the card
+            instance_kwargs (dict): any kwargs to pass to the Card instance
 
         Returns:
             Card: a Card instance, with all relevant info
         """
-        return self._get_entity_by_id(card_id, Card)
+        return self._get_entity_by_id(card_id, Card, instance_kwargs)
 
     def list_accounts(self):
         """Lists all accounts under the given bank account
