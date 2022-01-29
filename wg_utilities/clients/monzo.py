@@ -149,6 +149,191 @@ class Account:
         return self._get_balance_property("total_balance")
 
 
+# pylint: disable=too-many-public-methods
+class Pot:
+    """Read-only class for Monzo pots"""
+
+    def __init__(self, json):
+        self.json = json
+
+    @property
+    def available_for_bills(self):
+        """
+        Returns:
+            bool: if the pot can be used directly for bills
+        """
+        return self.json.get("available_for_bills")
+
+    @property
+    def balance(self):
+        """
+        Returns:
+            float: the pot's balance in GBP
+        """
+        return self.json.get("balance", 0) / 100
+
+    @property
+    def charity_id(self):
+        """
+        Returns:
+            str: not sure!
+        """
+        return self.json.get("charity_id")
+
+    @property
+    def cover_image_url(self):
+        """
+        Returns:
+            str: URL for the cover image
+        """
+        return self.json.get("cover_image_url")
+
+    @property
+    def created_datetime(self):
+        """
+        Returns:
+            datetime: when the pot was created
+        """
+        if "created" not in self.json:
+            return None
+
+        return datetime.strptime(self.json["created"], DATETIME_FORMAT)
+
+    @property
+    def currency(self):
+        """
+        Returns:
+            str: the currency of the pot
+        """
+        return self.json.get("currency")
+
+    @property
+    def current_account_id(self):
+        """
+        Returns:
+            str: the UUID of the parent account
+        """
+        return self.json.get("current_account_id")
+
+    @property
+    def deleted(self):
+        """
+        Returns:
+            bool: has the pot been deleted
+        """
+        return self.json.get("deleted")
+
+    @property
+    def goal_amount(self):
+        """
+        Returns:
+            float: the user-set goal amount for the pot
+        """
+        if not (goal_amount := self.json.get("goal_amount")):
+            return None
+
+        return goal_amount / 100
+
+    @property
+    def has_virtual_cards(self):
+        """
+        Returns:
+            bool: if the pot has virtual cards attached
+        """
+        return self.json.get("has_virtual_cards")
+
+    @property
+    def id(self):
+        """
+        Returns:
+            str: the pot's UUID
+        """
+        return self.json.get("id")
+
+    @property
+    def is_tax_pot(self):
+        """
+        Returns:
+            bool: is the pot taxed? I'm not sure
+        """
+        return self.json.get("is_tax_pot")
+
+    @property
+    def isa_wrapper(self):
+        """
+        Returns:
+            str: is the pot ISA-wrapped?
+        """
+        return self.json.get("isa_wrapper")
+
+    @property
+    def locked(self):
+        """
+        Returns:
+            bool: is the pot locked
+        """
+        return self.json.get("locked")
+
+    @property
+    def name(self):
+        """
+        Returns:
+            str: the name of the pot
+        """
+        return self.json.get("name")
+
+    @property
+    def product_id(self):
+        """
+        Returns:
+            str: the ID of the product applied to the pot (e.g. savings)
+        """
+        return self.json.get("product_id")
+
+    @property
+    def round_up(self):
+        """
+        Returns:
+            bool: is the pot where all round ups go
+        """
+        return self.json.get("round_up")
+
+    @property
+    def round_up_multiplier(self):
+        """
+        Returns:
+            int: the multiplier applied to the pot's round-ups
+        """
+        return self.json.get("round_up_multiplier")
+
+    @property
+    def style(self):
+        """
+        Returns:
+            str: the pot background image
+        """
+        return self.json.get("style")
+
+    @property
+    def type(self):
+        """
+        Returns:
+            str: the type of pot (e.g. flex saver)
+        """
+        return self.json.get("type")
+
+    @property
+    def updated_datetime(self):
+        """
+        Returns:
+            datetime: when the pot was updated last
+        """
+        if "updated" not in self.json:
+            return None
+
+        return datetime.strptime(self.json["updated"], DATETIME_FORMAT)
+
+
 class MonzoClient(OauthClient):
     """Custom client for interacting with Monzo's API"""
 
@@ -175,23 +360,55 @@ class MonzoClient(OauthClient):
             creds_cache_path=creds_cache_path,
         )
 
-    def list_accounts(self, ignore_closed=True):
+    def get_main_account(self):
+        """Get the main account for the Monzo user. We assume there'll only be one
+         main account per user
+
+        Returns:
+            Account: the user's main account, instantiated
+        """
+
+        return list(self.list_accounts(account_type="uk_retail"))[0]
+
+    def list_accounts(self, ignore_closed=True, account_type=None):
         """Gets a list of the user's accounts
 
         Args:
             ignore_closed (bool): whether to include closed accounts in the response
+            account_type (str): the type of account(s) to find; submitted as param in
+             request
 
         Yields:
             Account: Account instances, containing all related info
         """
+
         res = self.get_json_response(
-            "/accounts",
+            "/accounts", params={"account_type": account_type} if account_type else None
         )
 
         for account in res.get("accounts", []):
             if ignore_closed and account.get("closed", False) is True:
                 continue
             yield Account(account, self)
+
+    def list_pots(self, ignore_deleted=True):
+        """Gets a list of the user's pots
+
+        Args:
+            ignore_deleted (bool): whether to include deleted pots in the response
+
+        Yields:
+            Pot: Pot instances, containing all related info
+        """
+
+        res = self.get_json_response(
+            "/pots", params={"current_account_id": self.get_main_account().id}
+        )
+
+        for pot in res.get("pots", []):
+            if ignore_deleted and pot.get("deleted", False) is True:
+                continue
+            yield Pot(pot)
 
     @property
     def access_token_has_expired(self):
