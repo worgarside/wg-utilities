@@ -89,7 +89,7 @@ class OauthClient:
 
         res = get(
             url,
-            headers={"Authorization": f"Bearer {self.access_token}"},
+            headers=self.request_headers,
             params=params or {},
         )
 
@@ -250,6 +250,14 @@ class OauthClient:
 
         with open(self.creds_cache_path, "w", encoding="UTF-8") as fout:
             dump(all_credentials, fout)
+
+    @property
+    def request_headers(self):
+        """
+        Returns:
+            dict: auth headers for HTTP requests
+        """
+        return {"Authorization": f"Bearer {self.access_token}"}
 
     @property
     def refresh_token(self):

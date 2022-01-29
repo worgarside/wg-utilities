@@ -3,10 +3,10 @@
 from logging import getLogger, DEBUG
 
 from datetime import datetime, timedelta
-from requests import get
+from requests import get, put
 
 from wg_utilities.clients._generic_oauth import OauthClient
-from wg_utilities.functions import user_data_dir
+from wg_utilities.functions import user_data_dir, cleanse_string
 from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
@@ -333,6 +333,9 @@ class Pot:
 
         return datetime.strptime(self.json["updated"], DATETIME_FORMAT)
 
+    def __str__(self):
+        return f"{self.name} | {self.id}"
+
 
 class MonzoClient(OauthClient):
     """Custom client for interacting with Monzo's API"""
@@ -360,15 +363,31 @@ class MonzoClient(OauthClient):
             creds_cache_path=creds_cache_path,
         )
 
-    def get_main_account(self):
-        """Get the main account for the Monzo user. We assume there'll only be one
-         main account per user
+        self._current_account = None
 
-        Returns:
-            Account: the user's main account, instantiated
+    def deposit_into_pot(self, pot, amount_pence, dedupe_id=None):
+        """Move money from an account owned by the currently authorised user into one
+         of their pots
+
+        Args:
+            pot (Pot): the target pot
+            amount_pence (int): the amount of money to depoist, in pence
+            dedupe_id (str): unique string used to de-duplicate deposits. Will be
+             created if not provided
         """
 
-        return list(self.list_accounts(account_type="uk_retail"))[0]
+        dedupe_id = dedupe_id or "|".join([pot.id, str(amount_pence)])
+
+        res = put(
+            f"{self.BASE_URL}/pots/{pot.id}/deposit",
+            headers=self.request_headers,
+            data={
+                "source_account_id": self.current_account.id,
+                "amount": amount_pence,
+                "dedupe_id": dedupe_id,
+            },
+        )
+        res.raise_for_status()
 
     def list_accounts(self, ignore_closed=True, account_type=None):
         """Gets a list of the user's accounts
@@ -402,13 +421,51 @@ class MonzoClient(OauthClient):
         """
 
         res = self.get_json_response(
-            "/pots", params={"current_account_id": self.get_main_account().id}
+            "/pots", params={"current_account_id": self.current_account.id}
         )
 
         for pot in res.get("pots", []):
             if ignore_deleted and pot.get("deleted", False) is True:
                 continue
             yield Pot(pot)
+
+    def get_pot_by_id(self, pot_id):
+        """Get a pot from its ID
+
+        Args:
+            pot_id (str): the ID of the pot to find
+
+        Returns:
+            Pot: the Pot instance
+        """
+        for pot in self.list_pots():
+            if pot.id == pot_id:
+                return pot
+
+        return None
+
+    def get_pot_by_name(self, pot_name, exact_match=False):
+        """Get a pot from its name
+
+        Args:
+            pot_name (str): the name of the pot to find
+            exact_match (bool): if False, all pot names will be cleansed before
+             evaluation
+
+        Returns:
+            Pot: the Pot instance
+        """
+        if not exact_match:
+            pot_name = cleanse_string(pot_name)
+
+        for pot in self.list_pots():
+            found_name = (
+                cleanse_string(pot.name).lower() if not exact_match else pot_name
+            )
+            if found_name.lower() == pot_name.lower():
+                return pot
+
+        return None
 
     @property
     def access_token_has_expired(self):
@@ -429,3 +486,18 @@ class MonzoClient(OauthClient):
         )
 
         return res.json().get("authenticated", False) is False
+
+    @property
+    def current_account(self):
+        """Get the main account for the Monzo user. We assume there'll only be one
+         main account per user
+
+        Returns:
+            Account: the user's main account, instantiated
+        """
+        if not self._current_account:
+            self._current_account = list(self.list_accounts(account_type="uk_retail"))[
+                0
+            ]
+
+        return self._current_account
