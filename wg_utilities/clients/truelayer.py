@@ -20,7 +20,7 @@ add_stream_handler(LOGGER)
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 
-class TrueLayerBank(Enum):
+class Bank(Enum):
     """Enum for all banks supported by TrueLayer"""
 
     ALLIED_IRISH_BANK_CORPORATE = "Allied Irish Bank Corporate"
@@ -60,6 +60,54 @@ class TrueLayerBank(Enum):
     VIRGIN_MONEY = "Virgin Money"
     WISE = "Wise"
     YORKSHIRE_BUILDING_SOCIETY = "Yorkshire Building Society"
+
+
+class TransactionCategory(Enum):
+    """Enum for TrueLayer transaction types, including an overridden __init__
+    method for setting a description as well as the main value"""
+
+    ATM = (
+        "ATM",
+        "Deposit or withdrawal of funds using an ATM (Automated Teller Machine)",
+    )
+    BILL_PAYMENT = "Bill Payment", "Payment of a bill"
+    CASH = (
+        "Cash",
+        "Cash deposited over the branch counter or using Cash and Deposit Machines",
+    )
+    CASHBACK = (
+        "Cashback",
+        "An option retailers offer to withdraw cash while making a debit card purchase",
+    )
+    CHEQUE = (
+        "Cheque",
+        "A document ordering the payment of money from a bank account to another person"
+        " or organisation",
+    )
+    CORRECTION = "Correction", "Correction of a transaction error"
+    CREDIT = "Credit", "Funds added to your account"
+    DIRECT_DEBIT = (
+        "Direct Debit",
+        "An automatic withdrawal of funds initiated by a third party at regular"
+        " intervals",
+    )
+    DIVIDEND = "Dividend", "A payment to your account from shares you hold"
+    DEBIT = "Debit", "Funds taken out from your account, uncategorised by the bank"
+    FEE_CHARGE = "Fee Charge", "Fees or charges in relation to a transaction"
+    INTEREST = "Interest", "Credit or debit associated with interest earned or incurred"
+    OTHER = "Other", "Miscellaneous credit or debit"
+    PURCHASE = "Purchase", "A payment made with your debit or credit card"
+    STANDING_ORDER = (
+        "Standing Order",
+        "A payment instructed by the account-holder to a third party at regular"
+        " intervals",
+    )
+    TRANSFER = "Transfer", "Transfer of money between accounts"
+    UNKNOWN = "Unknown", "No classification of transaction category known"
+
+    def __init__(self, value, description):
+        self._value_ = value
+        self.description = description
 
 
 class TrueLayerEntity:
@@ -371,7 +419,7 @@ class Transaction:
         Returns:
             str: the category of this transaction
         """
-        return self.json.get("transaction_category")
+        return TransactionCategory[self.json.get("transaction_category", "UNKNOWN")]
 
     @property
     def classifications(self):
@@ -562,7 +610,7 @@ class TrueLayerClient:
     Args:
         client_id (str): the client ID for the TrueLayer application
         client_secret (str): the client secret
-        bank (TrueLayerBank): the bank which we're working with
+        bank (Bank): the bank which we're working with
         redirect_uri (str): the redirect URI for the auth flow
         access_token_expiry_threshold (int): the number of seconds to subtract from
          the access token's expiry when checking its expiry status
@@ -625,12 +673,13 @@ class TrueLayerClient:
 
         return res
 
-    def _get_entity_by_id(self, entity_id, entity_class):
+    def _get_entity_by_id(self, entity_id, entity_class, entity_instance_kwargs=None):
         """Gets entity info based on a given ID
 
         Args:
             entity_id (str): the unique ID for the account/card
             entity_class (type): the class to instantiate with the returned info
+            entity_instance_kwargs (dict): any kwargs to pass to the entity instance
 
         Returns:
             Union([Account, Card]): a Card instance with associated info
@@ -655,7 +704,7 @@ class TrueLayerClient:
                 f" {len(results)}",
             )
 
-        return entity_class(results[0], self)
+        return entity_class(results[0], self, **entity_instance_kwargs or {})
 
     def get_json_response(self, url, params=None):
         """Gets a simple JSON object from a URL
@@ -669,27 +718,29 @@ class TrueLayerClient:
         """
         return self._get(url, params=params).json()
 
-    def get_account_by_id(self, account_id):
+    def get_account_by_id(self, account_id, instance_kwargs=None):
         """Get an Account instance based on the ID
 
         Args:
             account_id (str): the ID of the card
+            instance_kwargs (dict): any kwargs to pass to the Account instance
 
         Returns:
             Account: a Account instance, with all relevant info
         """
-        return self._get_entity_by_id(account_id, Account)
+        return self._get_entity_by_id(account_id, Account, instance_kwargs)
 
-    def get_card_by_id(self, card_id):
+    def get_card_by_id(self, card_id, instance_kwargs=None):
         """Get a Card instance based on the ID
 
         Args:
             card_id (str): the ID of the card
+            instance_kwargs (dict): any kwargs to pass to the Card instance
 
         Returns:
             Card: a Card instance, with all relevant info
         """
-        return self._get_entity_by_id(card_id, Card)
+        return self._get_entity_by_id(card_id, Card, instance_kwargs)
 
     def list_accounts(self):
         """Lists all accounts under the given bank account
@@ -766,7 +817,7 @@ class TrueLayerClient:
         """Allows first-time (or repeated) authentication against the given bank
 
         Args:
-            code (str): the authorization code returned form the TrueLayer console
+            code (str): the authorization code returned from the TrueLayer console
              auth flow
         """
 
