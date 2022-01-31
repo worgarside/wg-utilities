@@ -37,5 +37,6 @@ if __name__ == "__main__":
             # "jetson.gpio>=2.0; sys_platform == 'linux'",
             "spotipy~=2.19.0",
             "pyjwt~=2.1.0",
+            "flask>=2.0.2",
         ],
     )
