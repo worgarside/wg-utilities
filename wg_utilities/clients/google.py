@@ -7,12 +7,13 @@ from json import dump, load, dumps
 from logging import getLogger, DEBUG
 from os import remove, getenv
 from os.path import join, isfile
+from time import time
 from webbrowser import open as open_browser
-
+from jwt import decode, DecodeError
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
-from requests import get
+from requests import get, post
 
 from wg_utilities.functions import user_data_dir, force_mkdir
 from wg_utilities.loggers import add_stream_handler
@@ -217,6 +218,8 @@ class GoogleClient:
         client_id_json_path (str): the path to the `client_id.json` file downloaded
          from Google's API Console
         creds_cache_path (str): file path for where to cache credentials
+        access_token_expiry_threshold (int): the threshold for when the access token is
+         considered expired
     """
 
     DEFAULT_PARAMS = {
@@ -225,19 +228,25 @@ class GoogleClient:
     CREDS_FILE_PATH = user_data_dir(file_name="google_api_creds.json")
 
     def __init__(
-        self, project, scopes=None, client_id_json_path=None, creds_cache_path=None
+        self,
+        project,
+        scopes=None,
+        client_id_json_path=None,
+        creds_cache_path=None,
+        access_token_expiry_threshold=60,
     ):
         self.project = project
         self.scopes = scopes or []
         self.client_id_json_path = client_id_json_path
         self.creds_cache_path = creds_cache_path or self.CREDS_FILE_PATH
+        self.access_token_expiry_threshold = access_token_expiry_threshold
 
         if not scopes:
             LOGGER.warning(
                 "No scopes set for Google client. Functionality will be limited."
             )
 
-        self._all_credentials_json = None
+        self._all_credentials_json = {}
         self._session = None
 
         self._albums = None
@@ -324,6 +333,55 @@ class GoogleClient:
 
         raise FileNotFoundError(f"Unable to find album with name {album_name}")
 
+    def refresh_access_token(self):
+        """Uses the cached refresh token to submit a request to TL's API for a new
+        access token"""
+
+        LOGGER.info("Refreshing access token")
+
+        res = post(
+            "https://accounts.google.com/o/oauth2/token",
+            data={
+                "grant_type": "refresh_token",
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+                "refresh_token": self.refresh_token,
+            },
+        )
+
+        res.raise_for_status()
+
+        # Maintain any existing credential values in the dictionary whilst updating
+        # new ones
+        self.credentials = {
+            **self._all_credentials_json[self.project],
+            **res.json(),
+        }
+
+    @property
+    def access_token_has_expired(self):
+        """Decodes the JWT access token and evaluates the expiry time
+
+        Returns:
+            bool: has the access token expired?
+        """
+
+        if self.project not in self._all_credentials_json:
+            return True
+
+        try:
+            expiry_epoch = decode(
+                # can't use self.access_token here, as that uses self.credentials,
+                # which in turn (recursively) checks if the access token has expired
+                self._all_credentials_json[self.project].get("access_token"),
+                options={"verify_signature": False},
+            ).get("exp", 0)
+
+            return (expiry_epoch - self.access_token_expiry_threshold) < int(time())
+        except DecodeError:
+            # treat invalid token as expired, so we get a new one
+            return True
+
     @property
     def albums(self):
         """Lists all albums in the active Google account
@@ -343,6 +401,22 @@ class GoogleClient:
             ]
 
         return self._albums
+
+    @property
+    def client_id(self):
+        """
+        Returns:
+            str: the current client ID
+        """
+        return self._all_credentials_json.get(self.project, {}).get("client_id")
+
+    @property
+    def client_secret(self):
+        """
+        Returns:
+            str: the current client secret
+        """
+        return self._all_credentials_json.get(self.project, {}).get("client_secret")
 
     @property
     def credentials(self):
@@ -381,7 +455,7 @@ class GoogleClient:
                 redirect_uri="urn:ietf:wg:oauth:2.0:oob",
             )
 
-            auth_url, _ = flow.authorization_url()
+            auth_url, _ = flow.authorization_url(access_type="offline")
             LOGGER.debug("Opening %s", auth_url)
             open_browser(auth_url)
             try:
@@ -411,6 +485,9 @@ class GoogleClient:
                 "client_secret": flow.credentials.client_secret,
             }
 
+        if self.access_token_has_expired:
+            self.refresh_access_token()
+
         return Credentials.from_authorized_user_info(
             self._all_credentials_json[self.project], self.scopes
         )
@@ -427,6 +504,14 @@ class GoogleClient:
             force_mkdir(self.creds_cache_path, path_is_file=True), "w", encoding="UTF-8"
         ) as fout:
             dump(self._all_credentials_json, fout)
+
+    @property
+    def refresh_token(self):
+        """
+        Returns:
+            str: the current refresh token
+        """
+        return self._all_credentials_json.get(self.project, {}).get("refresh_token")
 
     @property
     def session(self):
