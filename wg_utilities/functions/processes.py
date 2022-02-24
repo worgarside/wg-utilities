@@ -13,12 +13,13 @@ add_stream_handler(LOGGER)
 COMMAND_PATTERN = compile_regex(r"""((?:[^\s"']|"[^"]*"|'[^']*')+)""")
 
 
-def run_cmd(cmd, exit_on_error=True):
+def run_cmd(cmd, exit_on_error=True, shell=False):
     """Helper function for running commands on the command line
 
     Args:
         cmd (str): the command to run in the user's terminal
         exit_on_error (bool): flag for if the script should exit if the command errored
+        shell (bool): flag for running command in shell
 
     Returns:
         str: the output of the command
@@ -30,7 +31,9 @@ def run_cmd(cmd, exit_on_error=True):
 
     LOGGER.debug("Running command `%s`", cmd)
 
-    with Popen(COMMAND_PATTERN.split(cmd)[1::2], stdout=PIPE, stderr=PIPE) as process:
+    popen_input = cmd if shell else COMMAND_PATTERN.split(cmd)[1::2]
+
+    with Popen(popen_input, stdout=PIPE, stderr=PIPE, shell=shell) as process:
         output, error = process.communicate()
 
         error = error.decode("utf-8").strip()
