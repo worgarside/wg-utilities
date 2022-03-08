@@ -5,7 +5,7 @@ from logging import getLogger, DEBUG
 from datetime import datetime, timedelta
 from requests import get, put
 
-from wg_utilities.clients._generic_oauth import OauthClient
+from wg_utilities.clients._generic import OauthClient
 from wg_utilities.functions import user_data_dir, cleanse_string
 from wg_utilities.loggers import add_stream_handler
 

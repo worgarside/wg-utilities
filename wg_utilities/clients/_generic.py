@@ -110,7 +110,6 @@ class TempAuthServer:
         while (
             time_elapsed := (datetime.now() - start_time).seconds
         ) < max_wait and not self._request_args.get(endpoint):
-            print("waiting", time_elapsed)
             sleep(1)
 
         if time_elapsed > max_wait:
@@ -189,6 +188,8 @@ class OauthClient:
             add_stream_handler(self.logger)
 
         self._credentials = None
+
+        self.temp_auth_server = None
 
     def _get(self, url, params=None):
         """Wrapper for GET requests which covers authentication, URL parsing, etc etc
@@ -337,9 +338,9 @@ class OauthClient:
             self.logger.debug("Opening %s", auth_link)
             open_browser(auth_link)
 
-            temp_server = TempAuthServer(__name__)
+            self.temp_auth_server = TempAuthServer(__name__)
 
-            request_args = temp_server.wait_for_request(
+            request_args = self.temp_auth_server.wait_for_request(
                 "/get_auth_code", kill_on_request=True
             )
 
