@@ -3,8 +3,7 @@
 from datetime import datetime
 
 from wg_utilities.clients._generic import GoogleClient
-from wg_utilities.functions import utcnow
-from wg_utilities.functions.datetime_helpers import DatetimeFixedUnit as DFUnit
+from wg_utilities.functions.datetime_helpers import utcnow, DatetimeFixedUnit as DFUnit
 
 
 class DataSource:
