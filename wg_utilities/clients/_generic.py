@@ -416,7 +416,6 @@ class GoogleClient:
         logger (RootLogger): a logger to use throughout the client functions
     """
 
-    CREDS_FILE_PATH = user_data_dir(file_name="google_api_creds.json")
     DEFAULT_PARAMS = {
         "pageSize": "50",
     }
@@ -433,7 +432,9 @@ class GoogleClient:
         self.project = project
         self.scopes = scopes or []
         self.client_id_json_path = client_id_json_path
-        self.creds_cache_path = creds_cache_path or self.CREDS_FILE_PATH
+        self.creds_cache_path = creds_cache_path or user_data_dir(
+            file_name="google_api_creds.json"
+        )
         self.access_token_expiry_threshold = access_token_expiry_threshold
 
         if logger:
