@@ -416,10 +416,10 @@ class GoogleClient:
         logger (RootLogger): a logger to use throughout the client functions
     """
 
+    CREDS_FILE_PATH = user_data_dir(file_name="google_api_creds.json")
     DEFAULT_PARAMS = {
         "pageSize": "50",
     }
-    CREDS_FILE_PATH = user_data_dir(file_name="google_api_creds.json")
 
     def __init__(
         self,
@@ -494,6 +494,15 @@ class GoogleClient:
             remove(self.creds_cache_path)
         except FileNotFoundError:
             pass
+
+    def get_items(self, url, list_key, *, params=None):
+        """Wrapper method for getting a list of items
+
+        See Also:
+            self._list_items: main worker method for this functionality
+        """
+
+        return self._list_items(self.session.get, url, list_key, params=params)
 
     def refresh_access_token(self):
         """Uses the cached refresh token to submit a request to TL's API for a new
