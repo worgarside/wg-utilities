@@ -419,7 +419,6 @@ class GoogleClient:
     DEFAULT_PARAMS = {
         "pageSize": "50",
     }
-    CREDS_FILE_PATH = user_data_dir(file_name="google_api_creds.json")
 
     def __init__(
         self,
@@ -433,7 +432,9 @@ class GoogleClient:
         self.project = project
         self.scopes = scopes or []
         self.client_id_json_path = client_id_json_path
-        self.creds_cache_path = creds_cache_path or self.CREDS_FILE_PATH
+        self.creds_cache_path = creds_cache_path or user_data_dir(
+            file_name="google_api_creds.json"
+        )
         self.access_token_expiry_threshold = access_token_expiry_threshold
 
         if logger:
@@ -494,6 +495,15 @@ class GoogleClient:
             remove(self.creds_cache_path)
         except FileNotFoundError:
             pass
+
+    def get_items(self, url, list_key, *, params=None):
+        """Wrapper method for getting a list of items
+
+        See Also:
+            self._list_items: main worker method for this functionality
+        """
+
+        return self._list_items(self.session.get, url, list_key, params=params)
 
     def refresh_access_token(self):
         """Uses the cached refresh token to submit a request to TL's API for a new

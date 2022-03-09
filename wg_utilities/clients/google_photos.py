@@ -200,22 +200,14 @@ class MediaItem:
 
 
 class GooglePhotosClient(GoogleClient):
-    """Custom client for interacting with the Google APIs
+    """Custom client for interacting with the Google Photos API
 
-    Args:
-        project (str): the name of the project which this client is being used for
-        scopes (list): a list of scopes the client can be given
-        client_id_json_path (str): the path to the `client_id.json` file downloaded
-         from Google's API Console
-        creds_cache_path (str): file path for where to cache credentials
-        access_token_expiry_threshold (int): the threshold for when the access token is
-         considered expired
+    See Also:
+        GoogleClient: the base Google client, used for authentication and common
+         functions
     """
 
-    DEFAULT_PARAMS = {
-        "pageSize": "50",
-    }
-    CREDS_FILE_PATH = user_data_dir(file_name="google_api_creds.json")
+    BASE_URL = "https://photoslibrary.googleapis.com/v1"
 
     def __init__(
         self,
@@ -252,7 +244,7 @@ class GooglePhotosClient(GoogleClient):
             MediaItem(item)
             for item in self._list_items(
                 self.session.post,
-                "https://photoslibrary.googleapis.com/v1/mediaItems:search",
+                f"{self.BASE_URL}/mediaItems:search",
                 "mediaItems",
                 params={"albumId": album_id},
             )
@@ -291,7 +283,7 @@ class GooglePhotosClient(GoogleClient):
                 Album(res, self)
                 for res in self._list_items(
                     self.session.get,
-                    "https://photoslibrary.googleapis.com/v1/albums",
+                    f"{self.BASE_URL}/albums",
                     "albums",
                 )
             ]
