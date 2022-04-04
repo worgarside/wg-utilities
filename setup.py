@@ -39,5 +39,6 @@ if __name__ == "__main__":
             "pyjwt~=2.1.0",
             "flask>=2.0.2",
             "pytz~=2022.1",
+            "tzlocal~=4.2",
         ],
     )

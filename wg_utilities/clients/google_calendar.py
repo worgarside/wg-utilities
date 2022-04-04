@@ -3,8 +3,10 @@
 from datetime import datetime, timedelta
 from enum import Enum
 from json import dumps
+from typing import List  # pylint: disable=unused-import
 
-from pytz import timezone
+from pytz import timezone, UTC
+from tzlocal import get_localzone
 
 from wg_utilities.clients._generic import GoogleClient
 
@@ -26,7 +28,7 @@ class _GoogleCalendarEntity:
         google_client (GoogleCalendarClient): a Google client for use in other requests
     """
 
-    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 
     def __init__(self, json=None, *, google_client=None):
         self._json = json or {}
@@ -84,6 +86,22 @@ class _GoogleCalendarEntity:
 class Event(_GoogleCalendarEntity):
     """Class for Google Calendar events"""
 
+    def __init__(self, json=None, *, calendar, google_client=None):
+        super().__init__(json, google_client=google_client)
+        self._json = json or {}
+        self.google_client = google_client
+        self.calendar = calendar
+
+    def delete(self):
+        """Deletes the event from the host calendar"""
+
+        res = self.google_client.session.delete(
+            f"{self.google_client.BASE_URL}/calendars/"
+            f"{self.calendar.id}/events/{self.id}"
+        )
+
+        res.raise_for_status()
+
     @property
     def attachments(self):
         """
@@ -98,7 +116,7 @@ class Event(_GoogleCalendarEntity):
         Returns:
             list: the attendees of the event
         """
-        return self._json.get("attendees")
+        return self._json.get("attendees", [])
 
     @property
     def attendees_omitted(self):
@@ -352,6 +370,10 @@ class Event(_GoogleCalendarEntity):
             if attendee.get("self") is True:
                 return ResponseStatus(attendee.get("responseStatus", "unknown"))
 
+        # Own events don't always have attendees
+        if self.creator.get("self") is True:
+            return ResponseStatus.ACCEPTED
+
         return ResponseStatus("unknown")
 
     @property
@@ -461,7 +483,7 @@ class Calendar(_GoogleCalendarEntity):
              events, but not the underlying recurring events themselves
 
         Returns:
-            list: a list of Event instances
+            List[Event]: a list of Event instances
 
         Raises:
             ValueError: if the time parameters are invalid
@@ -481,11 +503,17 @@ class Calendar(_GoogleCalendarEntity):
                     " versa"
                 )
 
+            if from_datetime.tzinfo is None:
+                from_datetime = from_datetime.replace(tzinfo=UTC)
+
+            if to_datetime.tzinfo is None:
+                to_datetime = to_datetime.replace(tzinfo=UTC)
+
             params["timeMin"] = from_datetime.strftime(self.DATETIME_FORMAT)
             params["timeMax"] = to_datetime.strftime(self.DATETIME_FORMAT)
 
         return [
-            Event(item)
+            Event(item, calendar=self, google_client=self.google_client)
             for item in self.google_client.get_items(
                 f"{self.google_client.BASE_URL}/calendars/{self.id}/events",
                 params=params,
@@ -534,6 +562,69 @@ class GoogleCalendarClient(GoogleClient):
         super().__init__(*args, **kwargs)
 
         self._primary_calendar = None
+
+    def create_event(
+        self,
+        summary,
+        start_datetime,
+        end_datetime,
+        tz=str(get_localzone()),
+        calendar=None,
+        extra_params=None,
+    ):
+        """Create an event
+
+        Args:
+            summary (str): the summary (title) of the event
+            start_datetime (datetime): when the event starts
+            end_datetime (datetime): when the event ends
+            tz (str): the timezone which the event is in (IANA database name)
+            calendar (Calendar): the calendar to add the event to
+            extra_params (dict): any extra params to pass in the request
+
+        Returns:
+            Event: a new event instance, fresh out of the oven
+        """
+
+        calendar = calendar or self.primary_calendar
+
+        res = self.session.post(
+            f"{self.BASE_URL}/calendars/{calendar.id}/events",
+            json={
+                "summary": summary,
+                "start": {
+                    "dateTime": start_datetime.strftime(
+                        _GoogleCalendarEntity.DATETIME_FORMAT
+                    ),
+                    "timeZone": tz,
+                },
+                "end": {
+                    "dateTime": end_datetime.strftime(
+                        _GoogleCalendarEntity.DATETIME_FORMAT
+                    ),
+                    "timeZone": tz,
+                },
+                **(extra_params or {}),
+            },
+        )
+
+        res.raise_for_status()
+
+        return Event(res.json(), calendar=calendar, google_client=self)
+
+    def delete_event(self, calendar, event_id):
+        """Deletes an event from a calendar
+
+        Args:
+            calendar (Calendar): the calendar being updated
+            event_id (str): the ID of the event to delete
+        """
+
+        res = self.session.delete(
+            f"{self.BASE_URL}/calendars/{calendar.id}/events/{event_id}"
+        )
+
+        res.raise_for_status()
 
     @property
     def calendar_list(self):
