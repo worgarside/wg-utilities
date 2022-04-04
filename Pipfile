@@ -4,20 +4,21 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
-black = "==21.12b0"
+black = "*"
 pylint = "*"
 pre-commit = "*"
-twine = "*"
+twine = "==3.8.0"
 
 [packages]
-google-auth-oauthlib = "*"
-requests = "*"
+google-auth-oauthlib = ">=0.4.6"
+requests = ">=2.26.0"
 spidev = { version = "*", sys_platform = "== 'linux'" }
 "rpi.gpio" = { version = "*", sys_platform = "== 'linux'" }
 "jetson.gpio" = { version = "*", sys_platform = "== 'linux'" }
-spotipy = "*"
-pyjwt = "*"
-flask = "*"
+spotipy = "~=2.19.0"
+pyjwt = "~=2.1.0"
+flask = ">=2.0.2"
+pytz = "~=2022.1"
 
 [requires]
 python_version = "3.9"

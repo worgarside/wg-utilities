@@ -499,7 +499,7 @@ class GoogleClient:
         except FileNotFoundError:
             pass
 
-    def get_items(self, url, list_key, *, params=None):
+    def get_items(self, url, list_key="items", *, params=None):
         """Wrapper method for getting a list of items
 
         See Also:
