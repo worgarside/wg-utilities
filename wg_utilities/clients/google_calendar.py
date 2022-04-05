@@ -618,13 +618,13 @@ class GoogleCalendarClient(GoogleClient):
             "timeZone": tz,
         }
 
-        if isinstance(start_datetime, date):
-            start_params["date"] = start_datetime.strftime(
-                _GoogleCalendarEntity.DATE_FORMAT
-            )
-        elif isinstance(start_datetime, datetime):
+        if isinstance(start_datetime, datetime):
             start_params["dateTime"] = start_datetime.strftime(
                 _GoogleCalendarEntity.DATETIME_FORMAT
+            )
+        elif isinstance(start_datetime, date):
+            start_params["date"] = start_datetime.strftime(
+                _GoogleCalendarEntity.DATE_FORMAT
             )
         else:
             raise TypeError("`start_datetime` must be either a date or a datetime")
@@ -633,13 +633,13 @@ class GoogleCalendarClient(GoogleClient):
             "timeZone": tz,
         }
 
-        if isinstance(end_datetime, date):
-            end_params["date"] = end_datetime.strftime(
-                _GoogleCalendarEntity.DATE_FORMAT
-            )
-        elif isinstance(end_datetime, datetime):
+        if isinstance(end_datetime, datetime):
             end_params["dateTime"] = end_datetime.strftime(
                 _GoogleCalendarEntity.DATETIME_FORMAT
+            )
+        elif isinstance(end_datetime, date):
+            end_params["date"] = end_datetime.strftime(
+                _GoogleCalendarEntity.DATE_FORMAT
             )
         else:
             raise TypeError("`end_datetime` must be either a date or a datetime")
