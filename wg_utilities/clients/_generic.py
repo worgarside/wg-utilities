@@ -477,6 +477,8 @@ class GoogleClient:
 
         res = method(url, params=params)
 
+        res.raise_for_status()
+
         item_list = res.json().get(list_key, [])
 
         while next_token := res.json().get("nextPageToken"):
@@ -484,6 +486,7 @@ class GoogleClient:
                 url,
                 params={**params, "pageToken": next_token},
             )
+            res.raise_for_status()
             item_list.extend(res.json().get(list_key, []))
             self.logger.debug("Found %i items so far", len(item_list))
 
@@ -496,7 +499,7 @@ class GoogleClient:
         except FileNotFoundError:
             pass
 
-    def get_items(self, url, list_key, *, params=None):
+    def get_items(self, url, list_key="items", *, params=None):
         """Wrapper method for getting a list of items
 
         See Also:

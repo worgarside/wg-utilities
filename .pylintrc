@@ -432,7 +432,8 @@ good-names=i,
            z,
            n,
            tb,
-           id
+           id,
+           tz
 
 # Include a hint for the correct naming format with invalid-name.
 include-naming-hint=yes
@@ -563,7 +564,7 @@ max-locals=15
 max-parents=7
 
 # Maximum number of public methods for a class (see R0904).
-max-public-methods=20
+max-public-methods=50
 
 # Maximum number of return / yield for function / method body.
 max-returns=6
