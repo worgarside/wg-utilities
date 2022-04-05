@@ -1,6 +1,6 @@
 """Custom client for interacting with Google's Drive API"""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from enum import Enum
 from json import dumps
 from typing import List  # pylint: disable=unused-import
@@ -16,8 +16,17 @@ class ResponseStatus(Enum):
 
     ACCEPTED = "accepted"
     DECLINED = "declined"
+    TENTATIVE = "tentative"
     UNCONFIRMED = "needsAction"
     UNKNOWN = "unknown"
+
+
+class EventType(Enum):
+    """Enumeration for event types"""
+
+    DEFAULT = "default"
+    FOCUS_TIME = "focusTime"
+    OUT_OF_OFFICE = "outOfOffice"
 
 
 class _GoogleCalendarEntity:
@@ -28,6 +37,7 @@ class _GoogleCalendarEntity:
         google_client (GoogleCalendarClient): a Google client for use in other requests
     """
 
+    DATE_FORMAT = "%Y-%m-%d"
     DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 
     def __init__(self, json=None, *, google_client=None):
@@ -62,7 +72,7 @@ class _GoogleCalendarEntity:
     def summary(self):
         """
         Returns:
-            str: title of the calendar
+            str: title of the entity
         """
         return self._json.get("summary")
 
@@ -150,7 +160,7 @@ class Event(_GoogleCalendarEntity):
     def created(self):
         """
         Returns:
-            datetime:
+            datetime: creation time of the event (as a RFC3339 timestamp)
         """
         return self._json.get("created")
 
@@ -158,7 +168,7 @@ class Event(_GoogleCalendarEntity):
     def creator(self):
         """
         Returns:
-            dict:
+            dict: the creator of the event
         """
         return self._json.get("creator")
 
@@ -166,7 +176,7 @@ class Event(_GoogleCalendarEntity):
     def description(self):
         """
         Returns:
-            str:
+            str: description of the event; can contain HTML
         """
         return self._json.get("description")
 
@@ -174,7 +184,8 @@ class Event(_GoogleCalendarEntity):
     def end(self):
         """
         Returns:
-            dict:
+            dict: the (exclusive) end time of the event. For a recurring event, this
+             is the end time of the first instance
         """
         return self._json.get("end")
 
@@ -184,59 +195,57 @@ class Event(_GoogleCalendarEntity):
         Returns:
             datetime: the datetime at which this event ends/ed
         """
+        end_datetime = None
+
         if end_datetime_str := self._json.get("end", {}).get("dateTime"):
-            return datetime.strptime(
+            end_datetime = datetime.strptime(
                 end_datetime_str,
                 self.DATETIME_FORMAT,
-            ).replace(tzinfo=timezone(self._json.get("end", {}).get("timeZone", "UTC")))
+            )
 
-        return None
+        if end_date_str := self._json.get("end", {}).get("date"):
+            end_datetime = datetime.strptime(
+                end_date_str,
+                self.DATE_FORMAT,
+            )
+
+        if end_datetime and end_datetime.tzinfo is None:
+            end_datetime = end_datetime.replace(
+                tzinfo=timezone(self._json.get("end", {}).get("timeZone", "UTC"))
+            )
+
+        return end_datetime
 
     @property
     def end_time_unspecified(self):
         """
         Returns:
-            bool:
+            bool: whether the end time is actually unspecified
         """
         return self._json.get("endTimeUnspecified")
-
-    @property
-    def etag(self):
-        """
-        Returns:
-            str:
-        """
-        return self._json.get("etag")
 
     @property
     def event_type(self):
         """
         Returns:
-            str:
+            EventType: specific type of the event
         """
-        return self._json.get("eventType")
+        return EventType(self._json.get("eventType", "default"))
 
     @property
     def extended_properties(self):
         """
         Returns:
-            dict:
+            dict: extended properties of the event
         """
         return self._json.get("extendedProperties")
-
-    @property
-    def gadget(self):
-        """
-        Returns:
-            dict:
-        """
-        return self._json.get("gadget")
 
     @property
     def guests_can_invite_others(self):
         """
         Returns:
-            bool:
+            bool: whether attendees other than the organizer can invite others to the
+             event
         """
         return self._json.get("guestsCanInviteOthers")
 
@@ -244,7 +253,7 @@ class Event(_GoogleCalendarEntity):
     def guests_can_modify(self):
         """
         Returns:
-            bool:
+            bool: whether attendees other than the organizer can modify the event
         """
         return self._json.get("guestsCanModify")
 
@@ -252,7 +261,8 @@ class Event(_GoogleCalendarEntity):
     def guests_can_see_other_guests(self):
         """
         Returns:
-            bool:
+            bool: whether attendees other than the organizer can see who the event's
+             attendees are
         """
         return self._json.get("guestsCanSeeOtherGuests")
 
@@ -260,7 +270,7 @@ class Event(_GoogleCalendarEntity):
     def hangout_link(self):
         """
         Returns:
-            str:
+            str: an absolute link to the Google Hangout associated with this event
         """
         return self._json.get("hangoutLink")
 
@@ -268,7 +278,7 @@ class Event(_GoogleCalendarEntity):
     def html_link(self):
         """
         Returns:
-            str:
+            str: an absolute link to this event in the Google Calendar Web UI
         """
         return self._json.get("htmlLink")
 
@@ -276,39 +286,18 @@ class Event(_GoogleCalendarEntity):
     def ical_uid(self):
         """
         Returns:
-            str:
+            str: event unique identifier as defined in RFC5545. It is used to uniquely
+             identify events across calendaring systems
         """
         return self._json.get("iCalUID")
-
-    @property
-    def id(self):
-        """
-        Returns:
-            str:
-        """
-        return self._json.get("id")
-
-    @property
-    def kind(self):
-        """
-        Returns:
-            str:
-        """
-        return self._json.get("kind")
-
-    @property
-    def location(self):
-        """
-        Returns:
-            str:
-        """
-        return self._json.get("location")
 
     @property
     def locked(self):
         """
         Returns:
-            bool:
+            bool: whether this is a locked event copy where no changes can be made to
+             the main event fields "summary", "description", "location", "start", "end"
+             or "recurrence"
         """
         return self._json.get("locked")
 
@@ -316,7 +305,7 @@ class Event(_GoogleCalendarEntity):
     def organizer(self):
         """
         Returns:
-            dict:
+            dict: the organizer of the event
         """
         return self._json.get("organizer")
 
@@ -324,7 +313,9 @@ class Event(_GoogleCalendarEntity):
     def original_start_time(self):
         """
         Returns:
-            dict:
+            dict: for an instance of a recurring event, this is the time at which this
+             event would start according to the recurrence data in the recurring event
+             identified by recurringEventId
         """
         return self._json.get("originalStartTime")
 
@@ -332,7 +323,7 @@ class Event(_GoogleCalendarEntity):
     def private_copy(self):
         """
         Returns:
-            bool:
+            bool: if set to True, Event propagation is disabled
         """
         return self._json.get("privateCopy")
 
@@ -340,7 +331,8 @@ class Event(_GoogleCalendarEntity):
     def recurrence(self):
         """
         Returns:
-            list:
+            list: list of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event,
+             as specified in RFC5545
         """
         return self._json.get("recurrence")
 
@@ -348,7 +340,8 @@ class Event(_GoogleCalendarEntity):
     def recurring_event_id(self):
         """
         Returns:
-            str:
+            str: for an instance of a recurring event, this is the id of the recurring
+             event to which this instance belongs
         """
         return self._json.get("recurringEventId")
 
@@ -356,7 +349,7 @@ class Event(_GoogleCalendarEntity):
     def reminders(self):
         """
         Returns:
-            dict:
+            dict: information about the event's reminders for the authenticated user
         """
         return self._json.get("reminders")
 
@@ -364,7 +357,7 @@ class Event(_GoogleCalendarEntity):
     def response_status(self):
         """
         Returns:
-            ResponseStatus: the response status for the current user
+            ResponseStatus: the response status for the authenticated user
         """
         for attendee in self.attendees:
             if attendee.get("self") is True:
@@ -380,7 +373,7 @@ class Event(_GoogleCalendarEntity):
     def sequence(self):
         """
         Returns:
-            int:
+            int: sequence number as per iCalendar
         """
         return self._json.get("sequence")
 
@@ -388,7 +381,7 @@ class Event(_GoogleCalendarEntity):
     def source(self):
         """
         Returns:
-            dict:
+            dict: source from which the event was created
         """
         return self._json.get("source")
 
@@ -396,7 +389,8 @@ class Event(_GoogleCalendarEntity):
     def start(self):
         """
         Returns:
-            dict:
+            dict: the (inclusive) start time of the event; for a recurring event, this
+             is the start time of the first instance
         """
         return self._json.get("start")
 
@@ -406,34 +400,40 @@ class Event(_GoogleCalendarEntity):
         Returns:
             datetime: the datetime at which this event starts/ed
         """
+        start_datetime = None
+
         if start_datetime_str := self._json.get("start", {}).get("dateTime"):
-            return datetime.strptime(start_datetime_str, self.DATETIME_FORMAT,).replace(
+            start_datetime = datetime.strptime(
+                start_datetime_str,
+                self.DATETIME_FORMAT,
+            )
+
+        if start_date_str := self._json.get("start", {}).get("date"):
+            start_datetime = datetime.strptime(
+                start_date_str,
+                self.DATE_FORMAT,
+            )
+
+        if start_datetime and start_datetime.tzinfo is None:
+            start_datetime = start_datetime.replace(
                 tzinfo=timezone(self._json.get("start", {}).get("timeZone", "UTC"))
             )
 
-        return None
+        return start_datetime
 
     @property
     def status(self):
         """
         Returns:
-            str:
+            str: status of the event
         """
         return self._json.get("status")
-
-    @property
-    def summary(self):
-        """
-        Returns:
-            str:
-        """
-        return self._json.get("summary")
 
     @property
     def transparency(self):
         """
         Returns:
-            str:
+            str: whether the event blocks time on the calendar
         """
         return self._json.get("transparency")
 
@@ -441,20 +441,42 @@ class Event(_GoogleCalendarEntity):
     def updated(self):
         """
         Returns:
-            datetime:
+            datetime: last modification time of the event
         """
-        return self._json.get("updated")
+        if updated_str := self._json.get("updated"):
+            return datetime.strptime(updated_str, self.DATETIME_FORMAT)
+
+        return None
 
     @property
     def visibility(self):
         """
         Returns:
-            str:
+            str: visibility of the event
         """
         return self._json.get("visibility")
 
+    def __lt__(self, other):
+        if self.start_datetime == other.start_datetime:
+            return self.summary.lower() < other.summary.lower()
+
+        return self.start_datetime < other.start_datetime
+
+    def __gt__(self, other):
+        if self.start_datetime == other.start_datetime:
+            return self.summary.lower() > other.summary.lower()
+
+        return self.start_datetime > other.start_datetime
+
     def __str__(self):
-        return dumps(self._json, indent=4)
+        try:
+            return (
+                f"{self.summary} ("
+                f"{self.start_datetime.strftime('%Y-%m-%d %H:%M:%S')} - "
+                f"{self.end_datetime.strftime('%Y-%m-%d %H:%M:%S')})"
+            )
+        except AttributeError:
+            return self.summary + dumps(self.start)
 
 
 class Calendar(_GoogleCalendarEntity):
@@ -568,7 +590,7 @@ class GoogleCalendarClient(GoogleClient):
         summary,
         start_datetime,
         end_datetime,
-        tz=str(get_localzone()),
+        tz=None,
         calendar=None,
         extra_params=None,
     ):
@@ -576,34 +598,58 @@ class GoogleCalendarClient(GoogleClient):
 
         Args:
             summary (str): the summary (title) of the event
-            start_datetime (datetime): when the event starts
-            end_datetime (datetime): when the event ends
+            start_datetime (Union[datetime, date]): when the event starts
+            end_datetime (Union[datetime, date]): when the event ends
             tz (str): the timezone which the event is in (IANA database name)
             calendar (Calendar): the calendar to add the event to
             extra_params (dict): any extra params to pass in the request
 
         Returns:
             Event: a new event instance, fresh out of the oven
+
+        Raises:
+            TypeError: if the start/end datetime params are not the correct type
         """
 
         calendar = calendar or self.primary_calendar
+        tz = tz or str(get_localzone())
+
+        start_params = {
+            "timeZone": tz,
+        }
+
+        if isinstance(start_datetime, date):
+            start_params["date"] = start_datetime.strftime(
+                _GoogleCalendarEntity.DATE_FORMAT
+            )
+        elif isinstance(start_datetime, datetime):
+            start_params["dateTime"] = start_datetime.strftime(
+                _GoogleCalendarEntity.DATETIME_FORMAT
+            )
+        else:
+            raise TypeError("`start_datetime` must be either a date or a datetime")
+
+        end_params = {
+            "timeZone": tz,
+        }
+
+        if isinstance(end_datetime, date):
+            end_params["date"] = end_datetime.strftime(
+                _GoogleCalendarEntity.DATE_FORMAT
+            )
+        elif isinstance(end_datetime, datetime):
+            end_params["dateTime"] = end_datetime.strftime(
+                _GoogleCalendarEntity.DATETIME_FORMAT
+            )
+        else:
+            raise TypeError("`end_datetime` must be either a date or a datetime")
 
         res = self.session.post(
             f"{self.BASE_URL}/calendars/{calendar.id}/events",
             json={
                 "summary": summary,
-                "start": {
-                    "dateTime": start_datetime.strftime(
-                        _GoogleCalendarEntity.DATETIME_FORMAT
-                    ),
-                    "timeZone": tz,
-                },
-                "end": {
-                    "dateTime": end_datetime.strftime(
-                        _GoogleCalendarEntity.DATETIME_FORMAT
-                    ),
-                    "timeZone": tz,
-                },
+                "start": start_params,
+                "end": end_params,
                 **(extra_params or {}),
             },
         )
@@ -612,19 +658,39 @@ class GoogleCalendarClient(GoogleClient):
 
         return Event(res.json(), calendar=calendar, google_client=self)
 
-    def delete_event(self, calendar, event_id):
+    def delete_event(self, event_id, calendar=None):
         """Deletes an event from a calendar
 
         Args:
-            calendar (Calendar): the calendar being updated
             event_id (str): the ID of the event to delete
+            calendar (Calendar): the calendar being updated
         """
+        calendar = calendar or self.primary_calendar
 
         res = self.session.delete(
             f"{self.BASE_URL}/calendars/{calendar.id}/events/{event_id}"
         )
 
         res.raise_for_status()
+
+    def get_event(self, event_id, calendar=None):
+        """Get a specific event by ID
+
+        Args:
+            event_id (str): the ID of the event to delete
+            calendar (Calendar): the calendar being updated
+
+        Returns:
+            Event: an Event instance with all relevant attributes
+        """
+        calendar = calendar or self.primary_calendar
+        res = self.session.get(
+            f"{self.BASE_URL}/calendars/{calendar.id}/events/{event_id}"
+        )
+
+        res.raise_for_status()
+
+        return Event(res.json(), calendar=calendar, google_client=self)
 
     @property
     def calendar_list(self):
