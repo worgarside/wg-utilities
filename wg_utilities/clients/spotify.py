@@ -88,6 +88,9 @@ class SpotifyEntity:
 
         return self.json.get("uri", f"spotify:{type(self).__name__.lower()}:{self.id}")
 
+    def __eq__(self, other):
+        return self.id == other.id
+
     def __gt__(self, other):
         return self.name.lower() > other.name.lower()
 
