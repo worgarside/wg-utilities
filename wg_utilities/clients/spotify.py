@@ -94,8 +94,14 @@ class SpotifyEntity:
     def __gt__(self, other):
         return self.name.lower() > other.name.lower()
 
+    def __hash__(self):
+        return hash(repr(self))
+
     def __lt__(self, other):
         return self.name.lower() < other.name.lower()
+
+    def __repr__(self):
+        return f'{type(self).__name__}(id="{self.id}")'
 
     def __str__(self):
         return f"{self.name} ({self.id})"
