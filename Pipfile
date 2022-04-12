@@ -15,10 +15,10 @@ requests = ">=2.26.0"
 spidev = { version = "*", sys_platform = "== 'linux'" }
 "rpi.gpio" = { version = "*", sys_platform = "== 'linux'" }
 "jetson.gpio" = { version = "*", sys_platform = "== 'linux'" }
-spotipy = "~=2.19.0"
+spotipy = ">=2.19.0"
 pyjwt = "~=2.1.0"
 flask = ">=2.0.2"
-pytz = "~=2022.1"
+pytz = ">=2022.1"
 tzlocal = "*"
 
 [requires]
