@@ -9,12 +9,14 @@ LOGGER.setLevel(DEBUG)
 add_stream_handler(LOGGER)
 
 
-def get_nsmap(*, root=None, xml_doc=None):
-    """Get the namespace map for a XML document
+def get_nsmap(*, root=None, xml_doc=None, warn_on_defaults=False):
+    """Get the namespace map for an XML document
 
     Args:
         root (Element): an lxml Element from an XML document
         xml_doc (str): a raw XML document
+        warn_on_defaults (bool): log a warning when an empty prefix is found and
+         converted to a default value
 
     Returns:
         dict: a namespace mapping for the provided XML
@@ -36,10 +38,11 @@ def get_nsmap(*, root=None, xml_doc=None):
 
         if prefix is None:
             prefix = f"default_{default_count}"
-            LOGGER.warning(
-                "Adding namespace url `%s` with prefix key `%s`", url, prefix
-            )
             default_count += 1
+            if warn_on_defaults:
+                LOGGER.warning(
+                    "Adding namespace url `%s` with prefix key `%s`", url, prefix
+                )
 
         nsmap[prefix] = url
         processed_urls.add(url)
