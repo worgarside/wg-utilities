@@ -236,10 +236,11 @@ class Album(SpotifyEntity):
             date: the date the album was first released
         """
         if (release_date_str := self.json.get("release_date")) is not None:
-            return datetime.strptime(
-                release_date_str,
-                "%Y" if self.release_date_precision == "year" else "%Y-%m-%d",
-            ).date()
+            for _format in ("%Y-%m-%d", "%Y-%m", "%Y"):
+                try:
+                    return datetime.strptime(release_date_str, _format).date()
+                except ValueError:
+                    pass
 
         return release_date_str
 
