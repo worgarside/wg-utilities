@@ -166,6 +166,14 @@ class Track(SpotifyEntity):
         return self._audio_features
 
     @property
+    def release_date(self):
+        """
+        Returns:
+            str: the date the track's album was first released
+        """
+        return self.album.release_date
+
+    @property
     def tempo(self):
         """
         Returns:
@@ -220,6 +228,28 @@ class Album(SpotifyEntity):
             ]
 
         return self._artists
+
+    @property
+    def release_date(self):
+        """
+        Returns:
+            str: the date the album was first released
+        """
+        if (release_date_str := self.json.get("release_date")) is not None:
+            return datetime.strptime(
+                release_date_str,
+                "%Y" if self.release_date_precision == "year" else "%Y-%m-%d",
+            ).date()
+
+        return release_date_str
+
+    @property
+    def release_date_precision(self):
+        """
+        Returns:
+            str: the precision with which release_date value is known
+        """
+        return self.json.get("release_date_precision")
 
     @property
     def tracks(self):
