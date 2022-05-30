@@ -1,5 +1,5 @@
 """Custom client for interacting with Spotify's Web API"""
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date  # pylint: disable=unused-import
 from enum import Enum
 from json import dumps
 from logging import getLogger, DEBUG
@@ -169,7 +169,7 @@ class Track(SpotifyEntity):
     def release_date(self):
         """
         Returns:
-            str: the date the track's album was first released
+            date: the date the track's album was first released
         """
         return self.album.release_date
 
@@ -233,7 +233,7 @@ class Album(SpotifyEntity):
     def release_date(self):
         """
         Returns:
-            str: the date the album was first released
+            date: the date the album was first released
         """
         if (release_date_str := self.json.get("release_date")) is not None:
             return datetime.strptime(
