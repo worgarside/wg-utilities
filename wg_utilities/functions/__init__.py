@@ -6,3 +6,4 @@ from .processes import run_cmd
 from .string_manipulation import cleanse_string
 from .xml import get_nsmap
 from .json import set_nested_value
+from ._functions import chunk_list, flatten_dict, try_float

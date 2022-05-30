@@ -8,6 +8,7 @@ from re import sub
 from requests import get, Response, post
 from spotipy import SpotifyOAuth, CacheFileHandler
 
+from wg_utilities.functions import chunk_list
 from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
@@ -598,24 +599,24 @@ class SpotifyClient:
 
         return self._current_user
 
-    def add_tracks_to_playlist(self, tracks, playlist):
+    def add_tracks_to_playlist(self, tracks, playlist, *, log_responses=False):
         """Add one or more tracks to a playlist
 
         Args:
             tracks (list): a list of Track instances to be added to the given playlist
             playlist (Playlist): the playlist being updated
-
-        Returns:
-            Response: the response from the web API
+            log_responses (bool): log each individual response
         """
+        for chunk in chunk_list(tracks, 100):
+            res = self._post(
+                f"/playlists/{playlist.id}/tracks",
+                json={"uris": [t.uri for t in chunk]},
+            )
 
-        res = self._post(
-            f"/playlists/{playlist.id}/tracks", json={"uris": [t.uri for t in tracks]}
-        )
+            res.raise_for_status()
 
-        res.raise_for_status()
-
-        return res
+            if log_responses:
+                LOGGER.debug(dumps(res.json()))
 
     def create_playlist(self, name, description="", public=False, collaborative=False):
         """Create a new playlist under the current user's account
