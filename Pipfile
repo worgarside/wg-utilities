@@ -21,6 +21,7 @@ flask = ">=2.0.2"
 pytz = ">=2022.1"
 tzlocal = "*"
 lxml = "==4.8.0"
+botocore = "*"
 
 [requires]
 python_version = "3.9"
