@@ -1,7 +1,7 @@
 """Functions for string manipulation"""
 
 
-def cleanse_string(value):
+def cleanse_string(value: str) -> str:
     """Remove all non-alphanumeric characters from a string
 
     Args:

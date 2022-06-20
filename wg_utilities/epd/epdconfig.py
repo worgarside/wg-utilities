@@ -1,3 +1,4 @@
+# type: ignore
 """
 * | File        :	  epdconfig.py
 * | Author      :   Waveshare team
@@ -30,7 +31,7 @@ THE SOFTWARE.
 
 from logging import debug
 from os import path
-from os.path import exists, join, realpath, dirname
+from os.path import dirname, exists, join, realpath
 from sys import modules
 from time import sleep
 
@@ -46,8 +47,8 @@ class RaspberryPi:
     # noinspection PyUnresolvedReferences,PyPackageRequirements
     # pylint: disable=import-outside-toplevel
     def __init__(self):
-        from spidev import SpiDev
         from RPi import GPIO
+        from spidev import SpiDev
 
         self.gpio = GPIO
 
@@ -102,6 +103,7 @@ class JetsonNano:
     # pylint: disable=import-outside-toplevel
     def __init__(self):
         from ctypes.cdll import LoadLibrary
+
         from Jetson import GPIO
 
         self.spi = None

@@ -1,3 +1,4 @@
+# type: ignore
 """
 * | File        :	  epd7in5.py
 * | Author      :   Waveshare team

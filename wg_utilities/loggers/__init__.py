@@ -1,6 +1,6 @@
 """Useful constants and functions for use in logging in other projects"""
 
-from logging import Formatter, FileHandler, DEBUG, StreamHandler
+from logging import DEBUG, FileHandler, Formatter, Logger, StreamHandler
 from sys import stdout
 
 FORMATTER = Formatter(
@@ -8,7 +8,7 @@ FORMATTER = Formatter(
 )
 
 
-def create_file_handler(logfile_path, level=DEBUG):
+def create_file_handler(logfile_path: str, level: int = DEBUG) -> FileHandler:
     """Create a file handler for use in other loggers
 
     Args:
@@ -26,7 +26,7 @@ def create_file_handler(logfile_path, level=DEBUG):
     return f_handler
 
 
-def add_file_handler(logger, *, logfile_path, level=DEBUG):
+def add_file_handler(logger: Logger, *, logfile_path: str, level: int = DEBUG) -> None:
     """Add a FileHandler to an existing logger
 
     Args:
@@ -40,7 +40,9 @@ def add_file_handler(logger, *, logfile_path, level=DEBUG):
     logger.addHandler(f_handler)
 
 
-def add_stream_handler(logger, *, formatter=FORMATTER, level=DEBUG):
+def add_stream_handler(
+    logger: Logger, *, formatter: Formatter = FORMATTER, level: int = DEBUG
+) -> None:
     """Add a FileHandler to an existing logger
 
     Args:

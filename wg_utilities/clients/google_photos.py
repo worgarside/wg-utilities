@@ -1,19 +1,64 @@
 """Custom client for interacting with Google's Photos API"""
+from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum, auto
 from json import dumps
+from logging import Logger
 from os import getenv
-from os.path import join, isfile
+from os.path import isfile, join
+from typing import Dict, Iterable, List, Optional, TypedDict, cast
 
 from requests import get
 
-from wg_utilities.clients._generic import GoogleClient
-from wg_utilities.functions import user_data_dir, force_mkdir
+from wg_utilities.clients._google import GoogleClient, _GoogleEntityInfo
+from wg_utilities.functions import force_mkdir, user_data_dir
 
 LOCAL_MEDIA_DIRECTORY = getenv(
     "LOCAL_MEDIA_DIRECTORY", user_data_dir(file_name="media_downloads")
 )
+
+
+class _SharedAlbumOptionsInfo(TypedDict):
+    isCollaborative: bool
+    isCommentable: bool
+
+
+class _ShareInfoInfo(TypedDict):
+    isJoinable: bool
+    isJoined: bool
+    isOwned: bool
+    shareableUrl: str
+    sharedAlbumOptions: _SharedAlbumOptionsInfo
+    shareToken: str
+
+
+class _AlbumInfo(_GoogleEntityInfo):
+    coverPhotoBaseUrl: str
+    coverPhotoMediaItemId: str
+    id: str
+    isWriteable: bool
+    mediaItemsCount: str
+    productUrl: str
+    shareInfo: _ShareInfoInfo
+    title: str
+
+
+class _MediaItemMetadataInfo(TypedDict):
+    creationTime: str
+    height: str
+    width: str
+
+
+class _MediaItemInfo(_GoogleEntityInfo):
+    baseUrl: str
+    contributorInfo: Dict[str, str]
+    description: str
+    filename: str
+    id: str
+    mediaMetadata: _MediaItemMetadataInfo
+    mimeType: str
+    productUrl: str
 
 
 class MediaType(Enum):
@@ -21,6 +66,7 @@ class MediaType(Enum):
 
     IMAGE = auto()
     VIDEO = auto()
+    UNKNOWN = auto()
 
 
 class Album:
@@ -34,14 +80,14 @@ class Album:
 
     """
 
-    def __init__(self, json, google_client=None):
+    def __init__(self, json: _AlbumInfo, google_client: GooglePhotosClient):
         self.json = json
-        self._media_items = None
+        self._media_items: Optional[List[MediaItem]] = None
 
         self.google_client = google_client
 
     @property
-    def media_items(self):
+    def media_items(self) -> List[MediaItem]:
         # noinspection GrazieInspection
         """Lists all media items in the album
 
@@ -55,7 +101,7 @@ class Album:
         return self._media_items
 
     @property
-    def title(self):
+    def title(self) -> Optional[str]:
         """
         Returns:
             str: the title of the album
@@ -63,22 +109,22 @@ class Album:
         return self.json.get("title")
 
     @property
-    def id(self):
+    def id(self) -> str:
         """
         Returns:
             str: the ID of the album
         """
-        return self.json.get("id")
+        return self.json["id"]
 
     @property
-    def media_items_count(self):
+    def media_items_count(self) -> int:
         """
         Returns:
             int: the number of media items within the album
         """
         return int(self.json.get("mediaItemsCount", "-1"))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.title}: {self.id}"
 
 
@@ -90,17 +136,17 @@ class MediaItem:
         this media item
     """
 
-    def __init__(self, json):
-        self.json = json
+    def __init__(self, json: _MediaItemInfo):
+        self.json: _MediaItemInfo = json
 
         try:
             self.creation_datetime = datetime.strptime(
-                json.get("mediaMetadata", {}).get("creationTime"),
+                json["mediaMetadata"]["creationTime"],
                 "%Y-%m-%dT%H:%M:%S.%fZ",
             )
         except ValueError:
             self.creation_datetime = datetime.strptime(
-                json.get("mediaMetadata", {}).get("creationTime"), "%Y-%m-%dT%H:%M:%SZ"
+                json["mediaMetadata"]["creationTime"], "%Y-%m-%dT%H:%M:%SZ"
             )
 
         self.local_path = join(
@@ -109,7 +155,12 @@ class MediaItem:
             json["filename"],
         )
 
-    def download(self, width_override=None, height_override=None, force_download=False):
+    def download(
+        self,
+        width_override: Optional[int] = None,
+        height_override: Optional[int] = None,
+        force_download: bool = False,
+    ) -> str:
         """Download the media item to local storage. The width/height overrides do
         not apply to videos
 
@@ -118,6 +169,9 @@ class MediaItem:
             height_override (int): the height override to use when downloading the file
             force_download (bool): flag for forcing a download, even if it exists
              locally already
+
+         Returns:
+             str: the path to the downloaded file (self.local_path)
         """
         if not self.stored_locally or force_download:
             width = width_override or self.width
@@ -133,8 +187,10 @@ class MediaItem:
             with open(force_mkdir(self.local_path, path_is_file=True), "wb") as fout:
                 fout.write(get(f"{self.json['baseUrl']}{param_str}").content)
 
+        return self.local_path
+
     @property
-    def bytes(self):
+    def bytes(self) -> bytes:
         """Opens the local copy of the file (downloading it first if necessary) and
         reads the binary content of it
 
@@ -150,7 +206,7 @@ class MediaItem:
         return bytes_content
 
     @property
-    def stored_locally(self):
+    def stored_locally(self) -> bool:
         """
         Returns:
             bool: flag for if the file exists locally
@@ -158,7 +214,7 @@ class MediaItem:
         return isfile(self.local_path)
 
     @property
-    def filename(self):
+    def filename(self) -> Optional[str]:
         """
         Returns:
             str: the media item's file name
@@ -166,7 +222,7 @@ class MediaItem:
         return self.json.get("filename")
 
     @property
-    def height(self):
+    def height(self) -> int:
         """
         Returns:
             int: the media item's height
@@ -174,7 +230,7 @@ class MediaItem:
         return int(self.json.get("mediaMetadata", {}).get("height", "-1"))
 
     @property
-    def width(self):
+    def width(self) -> int:
         """
         Returns:
             int: the media item's width
@@ -182,20 +238,22 @@ class MediaItem:
         return int(self.json.get("mediaMetadata", {}).get("width", "-1"))
 
     @property
-    def media_type(self):
+    def media_type(self) -> MediaType:
         """Determines the media item's file type from the JSON
 
         Returns:
             MediaType: the media type (image, video, etc.) for this item
         """
-        mime_type = self.json.get("mimeType", "")
 
-        return {
-            "image" in mime_type: MediaType.IMAGE,
-            "video" in mime_type: MediaType.VIDEO,
-        }.get(True)
+        if "image" in (mime_type := self.json.get("mimeType", "")):
+            return MediaType.IMAGE
 
-    def __str__(self):
+        if "video" in mime_type:
+            return MediaType.VIDEO
+
+        return MediaType.UNKNOWN
+
+    def __str__(self) -> str:
         return dumps(self.json, indent=4, default=str)
 
 
@@ -211,12 +269,12 @@ class GooglePhotosClient(GoogleClient):
 
     def __init__(
         self,
-        project,
-        scopes=None,
-        client_id_json_path=None,
-        creds_cache_path=None,
-        access_token_expiry_threshold=60,
-        logger=None,
+        project: str,
+        scopes: Optional[List[str]] = None,
+        client_id_json_path: Optional[str] = None,
+        creds_cache_path: Optional[str] = None,
+        access_token_expiry_threshold: int = 60,
+        logger: Optional[Logger] = None,
     ):
         super().__init__(
             project,
@@ -227,9 +285,9 @@ class GooglePhotosClient(GoogleClient):
             logger,
         )
 
-        self._albums = None
+        self._albums: Optional[List[Album]] = None
 
-    def get_album_contents(self, album_id):
+    def get_album_contents(self, album_id: str) -> List[MediaItem]:
         # noinspection GrazieInspection
         """Gets the contents of a given album in Google Photos
 
@@ -242,15 +300,18 @@ class GooglePhotosClient(GoogleClient):
 
         return [
             MediaItem(item)
-            for item in self._list_items(
-                self.session.post,
-                f"{self.BASE_URL}/mediaItems:search",
-                "mediaItems",
-                params={"albumId": album_id},
+            for item in cast(
+                Iterable[_MediaItemInfo],
+                self._list_items(
+                    self.session.post,
+                    f"{self.BASE_URL}/mediaItems:search",
+                    "mediaItems",
+                    params={"albumId": album_id},
+                ),
             )
         ]
 
-    def get_album_from_name(self, album_name):
+    def get_album_from_name(self, album_name: str) -> Album:
         """Gets an album definition from the Google API based on the album name
 
         Args:
@@ -271,7 +332,7 @@ class GooglePhotosClient(GoogleClient):
         raise FileNotFoundError(f"Unable to find album with name {album_name}")
 
     @property
-    def albums(self):
+    def albums(self) -> List[Album]:
         """Lists all albums in the active Google account
 
         Returns:
@@ -280,11 +341,14 @@ class GooglePhotosClient(GoogleClient):
 
         if not self._albums:
             self._albums = [
-                Album(res, self)
-                for res in self._list_items(
-                    self.session.get,
-                    f"{self.BASE_URL}/albums",
-                    "albums",
+                Album(item, self)
+                for item in cast(
+                    Iterable[_AlbumInfo],
+                    self._list_items(
+                        self.session.get,
+                        f"{self.BASE_URL}/albums",
+                        "albums",
+                    ),
                 )
             ]
 

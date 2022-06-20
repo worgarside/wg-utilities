@@ -18,3 +18,11 @@ exclude = '''
   | tests/data
 )/
 '''
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+ignore_missing_imports = true
+exclude = "sandbox|wg_utilities/epd"
+show_error_codes = true

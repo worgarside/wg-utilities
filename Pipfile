@@ -8,6 +8,12 @@ black = "*"
 pylint = "*"
 pre-commit = "*"
 twine = "==3.8.0"
+mypy = "*"
+types-requests = "*"
+types-tzlocal = "*"
+boto3-stubs = "*"
+lxml-stubs = "*"
+types-setuptools = "*"
 
 [packages]
 google-auth-oauthlib = ">=0.4.6"

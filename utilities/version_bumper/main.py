@@ -2,10 +2,11 @@
 
 from argparse import ArgumentParser
 from enum import Enum
+from logging import DEBUG, getLogger
 from os import chdir
 from os.path import abspath, sep
 from re import match
-from logging import getLogger, DEBUG
+
 from packaging.version import parse as parse_version
 
 from wg_utilities.functions import run_cmd
@@ -41,7 +42,7 @@ class Bump(Enum):
     PATCH = 2
 
 
-def get_latest_version():
+def get_latest_version() -> str:
     """Gets the latest release number (x.y.z) from GitHub
 
     Returns:
@@ -63,7 +64,7 @@ def get_latest_version():
     return releases[-1]
 
 
-def get_new_version(bump_type, latest_version):
+def get_new_version(bump_type: Bump, latest_version: str) -> str:
     """Builds a new version number
 
     Args:
@@ -84,7 +85,7 @@ def get_new_version(bump_type, latest_version):
     return ".".join(version_digits)
 
 
-def create_release_branch(old, new):
+def create_release_branch(old: str, new: str) -> None:
     """Creates (and completes!) a release branch with the new release number
 
     Args:
@@ -119,7 +120,7 @@ def create_release_branch(old, new):
     run_cmd("git push --all")
 
 
-def main():
+def main() -> None:
     """Main function for this script"""
     parser = ArgumentParser()
     parser.add_argument("--bump")

@@ -1,6 +1,10 @@
 """Helper functions specifically for parsing/manipulating XML"""
-from logging import getLogger, DEBUG
-from lxml.etree import fromstring
+
+
+from logging import DEBUG, getLogger
+from typing import Dict, Optional
+
+from lxml import etree
 
 from wg_utilities.loggers import add_stream_handler
 
@@ -9,7 +13,12 @@ LOGGER.setLevel(DEBUG)
 add_stream_handler(LOGGER)
 
 
-def get_nsmap(*, root=None, xml_doc=None, warn_on_defaults=False):
+def get_nsmap(
+    *,
+    root: Optional[etree._Element] = None,
+    xml_doc: Optional[str] = None,
+    warn_on_defaults: bool = False,
+) -> Dict[str, str]:
     """Get the namespace map for an XML document
 
     Args:
@@ -27,12 +36,15 @@ def get_nsmap(*, root=None, xml_doc=None, warn_on_defaults=False):
     if not (root or xml_doc):
         raise ValueError("One of `root` or `xml_doc` should be non-null")
 
-    root = root or fromstring(xml_doc.encode())
+    root = root or etree.fromstring(xml_doc.encode())  # type: ignore
     nsmap = {}
 
     default_count = 0
     processed_urls = set()
-    for prefix, url in root.xpath("//namespace::*"):
+
+    prefix: str
+    url: str
+    for prefix, url in root.xpath("//namespace::*"):  # type: ignore
         if url in processed_urls:
             continue
 

@@ -1,8 +1,9 @@
 """This module contains one-off functions that are useful across many different
 projects/use-cases"""
+from typing import Any, Dict, Generator, List, Optional, Union
 
 
-def chunk_list(lst, n):
+def chunk_list(lst: List[Any], n: int) -> Generator[List[Any], None, None]:
     """Yield successive n-sized chunks from lst
 
     Examples:
@@ -27,8 +28,13 @@ def chunk_list(lst, n):
 
 
 def flatten_dict(
-    nested_dict, *, join_char=".", exclude_keys=None, exact_keys=False, parent_key=""
-):
+    nested_dict: Dict[str, Any],
+    *,
+    join_char: str = ".",
+    exclude_keys: Optional[List[str]] = None,
+    exact_keys: bool = False,
+    parent_key: str = "",
+) -> Dict[str, Any]:
     """This function recursively traverses a dictionary and flattens any nested JSON
     so the resultant dict has no values of type dict. This allows for easier processing
     into Redshift
@@ -119,7 +125,7 @@ def flatten_dict(
     return output
 
 
-def try_float(v, default=0.0):
+def try_float(v: Any, default: Any = 0.0) -> Union[float, Any]:
     """Tries to cast a value to a float, and returns a default if it fails
 
     Examples:
@@ -138,7 +144,7 @@ def try_float(v, default=0.0):
         default (object): The value to be returned if the casting fails
 
     Returns:
-        float: The value passed in in float format, or the default
+        float: The value passed in, in float format, or the default
     """
 
     try:

@@ -1,7 +1,14 @@
 """Useful functions for working with JSON/dictionaries"""
+from typing import Any, Dict, List, Optional
 
 
-def set_nested_value(*, json_obj, keys, target_value, final_key=None):
+def set_nested_value(
+    *,
+    json_obj: Dict[Any, Any],
+    keys: List[str],
+    target_value: Any,
+    final_key: Optional[str] = None
+) -> None:
     """Update a nested value in a dictionary
 
     Args:
