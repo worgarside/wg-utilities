@@ -92,7 +92,7 @@ def flatten_dict(
         exclude_keys (list): list of keys to exclude when flatting the dict
         exact_keys (bool): whether the exculded list of keys contains the exact
          flattened key, eg for {one:{two:{three:3}} the exact key would be
-         one.two or if it should exclude all keys reguardless of parent
+         `one.two` or if it should exclude all keys reguardless of parent
         parent_key (str): the string that keeps track of all the nested keys,
          for the inital use this should be an empty string, which is the
          default

@@ -233,7 +233,7 @@ class TrueLayerClient:
         self._credentials: Dict[str, str] = {}
 
     def _get(self, url: str, params: Optional[Dict[str, str]] = None) -> Response:
-        """Wrapper for GET requests which covers authentication, URL parsing, etc etc
+        """Wrapper for GET requests which covers authentication, URL parsing, etc. etc.
 
         Args:
             url (str): the URL path to the endpoint (not necessarily including the
