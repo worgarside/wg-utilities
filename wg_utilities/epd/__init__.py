@@ -1,8 +1,9 @@
+# type: ignore
 """Drivers obtained from https://github.com/waveshare/e-Paper"""
-from logging import Formatter, getLogger, DEBUG, StreamHandler
+from logging import DEBUG, Formatter, StreamHandler, getLogger
 from sys import stdout
 
-from .epd7in5_v2 import EPD_WIDTH, EPD_HEIGHT
+from .epd7in5_v2 import EPD_HEIGHT, EPD_WIDTH
 from .epdconfig import TEST_MODE, implementation
 
 _FORMATTER = Formatter(

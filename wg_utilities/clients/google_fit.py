@@ -1,13 +1,47 @@
 """Custom client for interacting with Google's Fit API"""
+from __future__ import annotations
 
 from datetime import datetime
+from logging import Logger
+from typing import Dict, List, Literal, Optional, TypedDict, Union
 
-from wg_utilities.clients._generic import GoogleClient
-from wg_utilities.functions.datetime_helpers import utcnow, DatetimeFixedUnit as DFUnit
+from wg_utilities.clients._google import GoogleClient, _GoogleEntityInfo
+from wg_utilities.functions.datetime_helpers import DatetimeFixedUnit as DFUnit
+from wg_utilities.functions.datetime_helpers import utcnow
+
+
+class _DataSourceDataTypeFieldInfo(TypedDict):
+    format: Literal[
+        "blob", "floatList", "floatPoint", "integer", "integerList", "map", "string"
+    ]
+    name: str
+
+
+class _DataSourceDataTypeInfo(TypedDict):
+    field: List[_DataSourceDataTypeFieldInfo]
+    name: str
+
+
+class _DataSourceDescriptionInfo(TypedDict):
+    application: Dict[str, str]
+    dataStreamId: str
+    dataStreamName: str
+    dataType: _DataSourceDataTypeInfo
+
+
+class _GoogleFitDataPointInfo(_GoogleEntityInfo):
+    id: str
+    startTimeNanos: str
+    endTimeNanos: str
+    dataTypeName: str
+    originDataSourceId: str
+    value: List[Dict[str, Union[int]]]
 
 
 class DataSource:
-    """Class for interacting with Google Fit Data Sources
+    """Class for interacting with Google Fit Data Sources. An example of a data source
+    is Strava, Google Fit, MyFitnessPal, etc. The ID is something _like_ "...weight",
+    "...calories burnt"
 
     Args:
         data_source_id (str): the unique ID of the data source
@@ -17,32 +51,31 @@ class DataSource:
 
     DP_VALUE_KEY_LOOKUP = {"floatPoint": "fpVal", "integer": "intVal"}
 
-    GOOGLE_CLIENT = None
-
-    def __init__(self, data_source_id, *, google_client=None):
+    def __init__(self, data_source_id: str, *, google_client: GoogleClient):
         self.data_source_id = data_source_id
         self.url = (
             f"{GoogleFitClient.BASE_URL}/users/me/dataSources/{self.data_source_id}"
         )
+        self.google_client = google_client
 
-        self._description = None
-
-        if isinstance(google_client, GoogleClient) and self.GOOGLE_CLIENT is None:
-            # This is a class attribute, so it can be shared across all instances
-            DataSource.GOOGLE_CLIENT = google_client
+        self._description: _DataSourceDescriptionInfo
 
     @property
-    def description(self):
+    def description(self) -> _DataSourceDescriptionInfo:
         """
         Returns:
             dict: the JSON description of this data source
         """
-        if not self._description:
+        if not hasattr(self, "_description"):
             self._description = self.google_client.session.get(self.url).json()
 
         return self._description
 
-    def sum_data_points_in_range(self, from_datetime=None, to_datetime=None):
+    def sum_data_points_in_range(
+        self,
+        from_datetime: Optional[datetime] = None,
+        to_datetime: Optional[datetime] = None,
+    ) -> int:
         """Gets the sum of data points in the given range: if no `from_datetime` is
         provided, it defaults to the start of today; if no `to_datetime` is provided
         then it defaults to now.
@@ -52,10 +85,10 @@ class DataSource:
             to_datetime (datetime): upper boundary for step count
 
         Returns:
-            list: a list of data point in the given range
+            int: a sum of data points in the given range
         """
 
-        from_nano = (
+        from_nano = int(
             int(from_datetime.timestamp() * 1000000000)
             if from_datetime
             else int(
@@ -66,13 +99,13 @@ class DataSource:
             )
         )
 
-        to_nano = (
+        to_nano = int(
             int(to_datetime.timestamp() * 1000000000)
             if to_datetime
-            else utcnow(DFUnit.NANOSECOND)
+            else utcnow(DFUnit.NANOSECOND)  # type: ignore[arg-type]
         )
 
-        data_points = self.google_client.get_items(
+        data_points: List[_GoogleFitDataPointInfo] = self.google_client.get_items(
             f"{self.url}/datasets/{from_nano}-{to_nano}",
             "point",
         )
@@ -88,40 +121,35 @@ class DataSource:
         return count
 
     @property
-    def data_type_field_format(self):
+    def data_type_field_format(
+        self,
+    ) -> Literal[
+        "blob", "floatList", "floatPoint", "integer", "integerList", "map", "string"
+    ]:
         """
         Returns:
             str: the field format of this data source (i.e. "integer" or "floatPoint")
+
+        Raises:
+            Exception: if more than 1 dataType field value is found
         """
-        return self.description.get("dataType", {}).get("field", [{}])[0].get("format")
+        data_type_fields = self.description["dataType"]["field"]
+        if len(data_type_fields) != 1:
+            raise Exception(
+                f"Unexpected number of dataType fields ({len(data_type_fields)}): "
+                + ", ".join(f["name"] for f in data_type_fields)
+            )
+
+        return data_type_fields[0]["format"]
 
     @property
-    def data_point_value_key(self):
+    def data_point_value_key(self) -> Literal["fpVal", "intVal"]:
         """
         Returns:
             str: the key to use when extracting data from a data point
         """
-        return self.DP_VALUE_KEY_LOOKUP.get(self.data_type_field_format)
-
-    @property
-    def google_client(self):
-        """
-
-        Returns:
-            GoogleClient: a GoogleClient instance, needed for getting DataSource info
-        """
-        return self.GOOGLE_CLIENT
-
-    # pylint: disable=no-self-use
-    @google_client.setter
-    def google_client(self, value):
-        """Sets the class attribute for the Google client to the given value
-
-        Args:
-            value (GoogleClient): a GoogleClient instance, needed for getting
-             DataSource info
-        """
-        DataSource.GOOGLE_CLIENT = value
+        # pylint: disable=line-too-long
+        return self.DP_VALUE_KEY_LOOKUP[self.data_type_field_format]  # type: ignore[return-value]
 
 
 class GoogleFitClient(GoogleClient):
@@ -136,12 +164,12 @@ class GoogleFitClient(GoogleClient):
 
     def __init__(
         self,
-        project,
-        scopes=None,
-        client_id_json_path=None,
-        creds_cache_path=None,
-        access_token_expiry_threshold=60,
-        logger=None,
+        project: str,
+        scopes: Optional[List[str]] = None,
+        client_id_json_path: Optional[str] = None,
+        creds_cache_path: Optional[str] = None,
+        access_token_expiry_threshold: int = 60,
+        logger: Optional[Logger] = None,
     ):
         super().__init__(
             project,
@@ -151,9 +179,9 @@ class GoogleFitClient(GoogleClient):
             access_token_expiry_threshold=access_token_expiry_threshold,
             logger=logger,
         )
-        self.data_sources = {}
+        self.data_sources: Dict[str, DataSource] = {}
 
-    def get_data_source(self, data_source_id):
+    def get_data_source(self, data_source_id: str) -> DataSource:
         """Gets a data source based on its UID. DataSource instances are cached for the
          lifetime of the GoogleClient instance
 
@@ -164,7 +192,8 @@ class GoogleFitClient(GoogleClient):
             DataSource: an instance, ready to use!
         """
 
-        if not (data_source := self.data_sources.get(data_source_id)):
+        # TODO why isn't this just a list an we compare the istance IDs?
+        if (data_source := self.data_sources.get(data_source_id)) is None:
             data_source = DataSource(data_source_id, google_client=self)
             self.data_sources[data_source_id] = data_source
 

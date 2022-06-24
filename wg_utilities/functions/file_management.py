@@ -1,12 +1,15 @@
 """Functions for specifically managing files and directories"""
 
-from os import getenv
+from os import environ, getenv
 from os.path import dirname
-from sys import platform
 from pathlib import Path
+from sys import platform
+from typing import Optional, Union
 
 
-def user_data_dir(*, project_name="WgUtilities", file_name=None):
+def user_data_dir(
+    *, project_name: str = "WgUtilities", file_name: Optional[str] = None
+) -> Path:
     """Get OS specific data directory path
 
     Typical user data directories are:
@@ -18,7 +21,7 @@ def user_data_dir(*, project_name="WgUtilities", file_name=None):
 
     Args:
         project_name (str): the name of the project which the utils are running in
-        file_name (str): file to be fetched from the data dir
+        file_name (Optional[str]): file to be fetched from the data dir
 
     Returns:
         str: full path to the user-specific data dir
@@ -26,7 +29,7 @@ def user_data_dir(*, project_name="WgUtilities", file_name=None):
 
     # get os specific path
     if platform.startswith("win"):
-        os_path = getenv("LOCALAPPDATA")
+        os_path = environ["LOCALAPPDATA"]
     elif platform.startswith("darwin"):
         os_path = "~/Library/Application Support"
     else:
@@ -41,7 +44,9 @@ def user_data_dir(*, project_name="WgUtilities", file_name=None):
     return path.expanduser()
 
 
-def force_mkdir(target_path, path_is_file=False):
+def force_mkdir(
+    target_path: Union[str, Path], path_is_file: bool = False
+) -> Union[str, Path]:
     """Creates all directories needed for the given path
 
     Args:

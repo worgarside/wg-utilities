@@ -1,14 +1,43 @@
+---
 repos:
   - repo: https://github.com/psf/black
-    rev: 21.6b0
+    rev: 22.3.0
     hooks:
       - id: black
-        language_version: python3.8
+        language_version: python3.9
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        name: isort (python)
 
   - repo: local
     hooks:
       - id: pylint
         name: pylint
-        entry: pylint
+        entry: pylint --disable=fixme
         language: system
         types: [python]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.961
+    hooks:
+      - id: mypy
+        args: [--strict]
+        # yamllint disable-line rule:line-length
+        additional_dependencies: [types-requests, boto3-stubs, lxml-stubs, types-setuptools, types-tzlocal]
+
+
+  - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+    rev: 0.2.1
+    hooks:
+      - id: yamlfmt
+        # yamllint disable-line rule:line-length
+        args: [--mapping, '2', --sequence, '4', --offset, '2', --width, '4096', --preserve-quotes]
+
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.26.3
+    hooks:
+      - id: yamllint
+        args: [--format, parsable, --strict]
