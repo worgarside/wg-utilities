@@ -1,28 +1,35 @@
 """This module has classes etc. for subscribing to YAS-209 updates"""
 from __future__ import annotations
 
-from asyncio import get_event_loop, sleep
+from asyncio import get_event_loop, new_event_loop
+from asyncio import sleep as async_sleep
 from copy import deepcopy
 from datetime import datetime, timedelta
 from enum import Enum
+from functools import wraps
 from logging import DEBUG, getLogger
-from time import strptime
+from threading import Thread
+from time import sleep, strptime
 from typing import (
     Any,
     Callable,
+    Coroutine,
     Dict,
     Literal,
+    Mapping,
     Optional,
     Sequence,
+    Tuple,
     TypedDict,
     TypeVar,
     Union,
 )
 
 from async_upnp_client.aiohttp import AiohttpNotifyServer, AiohttpRequester
-from async_upnp_client.client import UpnpService, UpnpStateVariable
+from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable
 from async_upnp_client.client_factory import UpnpFactory
 from async_upnp_client.utils import get_local_ip
+from mypy_extensions import Arg, KwArg, VarArg
 from pydantic import BaseModel, Extra, Field  # pylint: disable=no-name-in-module
 from xmltodict import parse as parse_xml
 
@@ -62,10 +69,10 @@ class TrackMetaDataItem(BaseModel, extra=Extra.forbid):
     song_singerid: str = Field(..., alias="song:singerid")
     song_albumid: str = Field(..., alias="song:albumid")
     res: CurrentTrackMetaDataItemRes
-    dc_title: str = Field(..., alias="dc:title")
-    dc_creator: str = Field(..., alias="dc:creator")
-    upnp_artist: str = Field(..., alias="upnp:artist")
-    upnp_album: str = Field(..., alias="upnp:album")
+    dc_title: Optional[str] = Field(..., alias="dc:title")
+    dc_creator: Optional[str] = Field(..., alias="dc:creator")
+    upnp_artist: Optional[str] = Field(..., alias="upnp:artist")
+    upnp_album: Optional[str] = Field(..., alias="upnp:album")
     upnp_albumArtURI: str = Field(..., alias="upnp:albumArtURI")
 
 
@@ -276,6 +283,146 @@ class Yas209State(Enum):
     UNKNOWN = "unknown"
 
 
+class Yas209Service(Enum):
+    """Enumeration for available YAS-209 services"""
+
+    AVT = "urn:schemas-upnp-org:service:AVTransport:1", (
+        "GetCurrentTransportActions",
+        "GetDeviceCapabilities",
+        "GetInfoEx",
+        "GetMediaInfo",
+        "GetPlayType",
+        "GetPositionInfo",
+        "GetTransportInfo",
+        "GetTransportSettings",
+        "Next",
+        "Pause",
+        "Play",
+        "Previous",
+        "Seek",
+        "SeekBackward",
+        "SeekForward",
+        "SetAVTransportURI",
+        "SetPlayMode",
+        "Stop",
+    )
+    CM = "urn:schemas-upnp-org:service:ConnectionManager:1", (
+        "GetCurrentConnectionIDs",
+        "GetCurrentConnectionInfo",
+        "GetProtocolInfo",
+    )
+    PQ = "urn:schemas-wiimu-com:service:PlayQueue:1", (
+        "AppendQueue",
+        "AppendTracksInQueue",
+        "AppendTracksInQueueEx",
+        "BackUpQueue",
+        "BrowseQueue",
+        "CreateQueue",
+        "DeleteActionQueue",
+        "DeleteQueue",
+        "GetKeyMapping",
+        "GetQueueIndex",
+        "GetQueueLoopMode",
+        "GetQueueOnline",
+        "GetUserAccountHistory",
+        "GetUserFavorites",
+        "GetUserInfo",
+        "PlayQueueWithIndex",
+        "RemoveTracksInQueue",
+        "ReplaceQueue",
+        "SearchQueueOnline",
+        "SetKeyMapping",
+        "SetQueueLoopMode",
+        "SetQueuePolicy",
+        "SetQueueRecord",
+        "SetSongsRecord",
+        "SetSpotifyPreset",
+        "SetUserFavorites",
+        "UserLogin",
+        "UserLogout",
+        "UserRegister",
+    )
+    Q_PLAY = "urn:schemas-tencent-com:service:QPlay:1", (
+        "GetMaxTracks",
+        "GetTracksCount",
+        "GetTracksInfo",
+        "InsertTracks",
+        "QPlayAuth",
+        "RemoveAllTracks",
+        "RemoveTracks",
+        "SetNetwork",
+        "SetTracksInfo",
+    )
+    RC = "urn:schemas-upnp-org:service:RenderingControl:1", (
+        "DeleteAlarmQueue",
+        "GetAlarmQueue",
+        "GetChannel",
+        "GetControlDeviceInfo",
+        "GetEqualizer",
+        "GetMute",
+        "GetSimpleDeviceInfo",
+        "GetVolume",
+        "ListPresets",
+        "MultiPlaySlaveMask",
+        "SelectPreset",
+        "SetAlarmQueue",
+        "SetChannel",
+        "SetDeviceName",
+        "SetEqualizer",
+        "SetMute",
+        "SetVolume",
+        "StreamServicesCapability",
+    )
+
+    def __init__(self, value: str, actions: Tuple[str]):
+        self._value_ = value
+        self.actions = actions
+
+
+def needs_device(
+    func: Callable[[YamahaYas209], Coroutine[Any, Any, None]]
+) -> Callable[
+    [Arg(YamahaYas209, "yas_209"), VarArg(Tuple[Any]), KwArg(Dict[str, Any])], Any
+]:
+    """This decorator is used when the DLNA device is needed and provides a clean way
+     of instantiating it lazily
+
+    Args:
+        func (Callable): the function being wrapped
+
+    Returns:
+        Callable: the inner function
+    """
+
+    @wraps(func)
+    def create_device(yas_209: YamahaYas209, *args: Any, **kwargs: Any) -> Any:
+        """Inner function for creating the device before executing the wrapped function
+
+        Args:
+            yas_209 (YamahaYas209): the YamahaYas209 instance
+            *args (Any): positional arguments
+            **kwargs (Any): keyword arguments
+
+        Returns:
+            Any: the result of the wrapped function
+        """
+        if not hasattr(yas_209, "device"):
+            requester = AiohttpRequester()
+            factory = UpnpFactory(requester)
+
+            async def _create() -> None:
+                yas_209.device = await factory.async_create_device(
+                    yas_209.description_url
+                )
+
+            # Listener loop can't be running without a device so this is fine to use
+            new_event_loop().run_until_complete(_create())
+
+        return func(yas_209, *args, **kwargs)
+
+    return create_device
+
+
 class YamahaYas209:
     """Class for consuming information from a YAS-209n in real time"""
 
@@ -307,7 +454,6 @@ class YamahaYas209:
     ):
         self.ip = ip
         self.on_event = on_event
-        self.loop = get_event_loop()
 
         # noinspection HttpUrlsUsage
         self.description_url = f"http://{ip}:49152/description.xml"
@@ -320,12 +466,26 @@ class YamahaYas209:
         self._state: Yas209State
         self._volume_level: float
 
+        self._listener_thread: Thread
+        self._listening = False
+
+        self.device: UpnpDevice
+
         if start_listener:
             self.listen()
 
-    def listen(self) -> None:
+    def listen(self, blocking: bool = False) -> None:
         """Start the listener"""
-        self.loop.run_until_complete(self.subscribe())
+        if blocking:
+            get_event_loop().run_until_complete(self._subscribe())
+        else:
+
+            def _worker() -> None:
+                loop = new_event_loop()
+                loop.run_until_complete(self._subscribe())
+
+            self._listener_thread = Thread(target=_worker)
+            self._listener_thread.start()
 
     def on_event_wrapper(
         self, service: UpnpService, service_variables: Sequence[UpnpStateVariable[str]]
@@ -373,36 +533,32 @@ class YamahaYas209:
             if last_change.Event.InstanceID.CurrentTrackMetaData is not None:
                 self.current_track = CurrentTrack.from_last_change(last_change)
         elif service.service_id == "urn:upnp-org:serviceId:RenderingControl":
-            self.volume_level = last_change.Event.InstanceID.Volume.val
+            # The DLNA payload has volume as a string value between 0 and 100
+            self.volume_level = float(last_change.Event.InstanceID.Volume.val) / 100
 
         if self.on_event is not None:
             self.on_event(event_payload)
 
-    async def subscribe(self) -> None:
+    @needs_device
+    async def _subscribe(self) -> None:
         """Subscribe to service(s) and output updates."""
 
-        requester = AiohttpRequester()
-        factory = UpnpFactory(requester)
-
-        # create a device
-        device = await factory.async_create_device(self.description_url)
-
         # start notify server/event handler
-        source = (get_local_ip(device.device_url), 0)
-        server = AiohttpNotifyServer(device.requester, source=source)
+        source = (get_local_ip(self.device.device_url), 0)
+        server = AiohttpNotifyServer(self.device.requester, source=source)
         await server.async_start_server()
         event_handler = server.event_handler
 
         # create service subscriptions
         services = []
         failed_subscriptions = []
-        for service_name in device.services.keys():
+        for service_name in self.device.services.keys():
             if not self.SUBSCRIPTION_SERVICES & set(service_name.split(":")):
                 continue
 
             service = next(
                 service
-                for service in device.all_services
+                for service in self.device.all_services
                 if service_name == service.service_type
             )
             service.on_event = self.on_event_wrapper
@@ -418,9 +574,14 @@ class YamahaYas209:
                 )
                 failed_subscriptions.append(service)
 
+        self._listening = True
+
         # keep the webservice running (force resubscribe)
-        while True:
-            await sleep(120)
+        while self._listening:
+            for _ in range(24):
+                if self._listening is False:
+                    return
+                await async_sleep(5)
             await event_handler.async_resubscribe_all()
 
             for service in deepcopy(failed_subscriptions):
@@ -437,6 +598,99 @@ class YamahaYas209:
                         type(exc).__name__,
                         str(exc),
                     )
+
+    def _call_service_action(
+        self,
+        service: Yas209Service,
+        action: str,
+        callback: Optional[Callable[[Mapping[str, Any]], Any]] = None,
+        **call_kwargs: Union[str, int],
+    ) -> None:
+        @needs_device
+        async def _worker(_self: YamahaYas209) -> None:
+            res = (
+                await _self.device.services[service.value]
+                .action(action)
+                .async_call(**call_kwargs)
+            )
+
+            if callback is not None:
+                callback(res)
+
+        if action not in service.actions:
+            raise ValueError(
+                f"Unknown action {action!r}, must be one of:"
+                f" {', '.join(service.actions)}"
+            )
+
+        get_event_loop().run_until_complete(_worker(self))
+
+    def pause(self) -> None:
+        """Pause the current media"""
+        self._call_service_action(Yas209Service.AVT, "Pause", InstanceID=0)
+
+    def play(self) -> None:
+        """Play the current media"""
+        self._call_service_action(Yas209Service.AVT, "Play", InstanceID=0, Speed="1")
+
+    def play_pause(self) -> None:
+        """Toggle the playing/paused state"""
+        if self.state == Yas209State.PAUSED_PLAYBACK:
+            self.play()
+        else:
+            self.pause()
+
+    def mute(self) -> None:
+        """Mute"""
+        self._call_service_action(
+            Yas209Service.RC,
+            "SetMute",
+            InstanceID=0,
+            Channel="Master",
+            DesiredMute=True,
+        )
+
+    def next_track(self) -> None:
+        """Skip to the next track"""
+        self._call_service_action(Yas209Service.AVT, "Next", InstanceID=0)
+
+    def previous_track(self) -> None:
+        """Go to the previous track"""
+        self._call_service_action(Yas209Service.AVT, "Previous", InstanceID=0)
+
+    def stop_listening(self) -> None:
+        """Stop the event listener"""
+        self._listening = False
+
+    def unmute(self) -> None:
+        """Unmute"""
+        self._call_service_action(
+            Yas209Service.RC,
+            "SetMute",
+            InstanceID=0,
+            Channel="Master",
+            DesiredMute=False,
+        )
+
+    def volume_down(self) -> None:
+        """Decrease the volume by 2 points"""
+        self._call_service_action(
+            Yas209Service.RC,
+            "SetVolume",
+            InstanceID=0,
+            Channel="Master",
+            DesiredVolume=int((100 * self.volume_level) - 2),
+        )
+
+    def volume_up(self) -> None:
+        """Increase the volume by 2 points"""
+        self._call_service_action(
+            Yas209Service.RC,
+            "SetVolume",
+            InstanceID=0,
+            Channel="Master",
+            DesiredVolume=int((100 * self.volume_level) + 2),
+        )
 
     @property
     def album_art_uri(self) -> Union[str, None]:
@@ -519,21 +773,40 @@ class YamahaYas209:
             self.on_state_update(self._state.value)
 
     @property
-    def volume_level(self) -> Union[float, None]:
+    def volume_level(self) -> float:
         """
         Returns:
             float: the current volume level
         """
-        if hasattr(self, "_volume_level"):
-            return self._volume_level
+        if not hasattr(self, "_volume_level"):
 
-        return None
+            def _set_volume_attr(response: Mapping[str, int]) -> None:
+                self._volume_level = response["CurrentVolume"] / 100
+
+            self._call_service_action(
+                Yas209Service.RC,
+                "GetVolume",
+                InstanceID=0,
+                Channel="Master",
+                callback=_set_volume_attr,
+            )
+
+        while not hasattr(self, "_volume_level"):
+            sleep(0.1)
+
+        return float(self._volume_level)
 
     @volume_level.setter
-    def volume_level(self, value: str) -> None:
-        # The DLNA payload has volume as a string value between 0 and 100
+    def volume_level(self, value: float) -> None:
+        self._volume_level = value
 
-        self._volume_level = float(value) / 100
+        self._call_service_action(
+            Yas209Service.RC,
+            "SetVolume",
+            InstanceID=0,
+            Channel="Master",
+            DesiredVolume=int(self._volume_level * 100),
+        )
 
         if self.on_volume_update is not None:
             self.on_volume_update(self._volume_level)
