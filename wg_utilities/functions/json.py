@@ -150,8 +150,8 @@ def traverse_dict(
             matched_single_key = False
             if len(v) == 1 and single_keys_to_remove is not None:
                 if (only_key := next(iter(v.keys()))) in single_keys_to_remove:
+                    matched_single_key = True
                     if isinstance(value := v.get(only_key), target_type):
-                        matched_single_key = True
                         try:
                             value = target_processor_func(value)
 
