@@ -100,7 +100,7 @@ def traverse_dict(
     log_op_func_failures: bool = False,
     single_keys_to_remove: Optional[Sequence[str]] = None,
 ) -> None:
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches,too-many-nested-blocks
     """Recursively traverse a JSON object and apply `dict_op_func` to any values
     of type `target_type`
 
@@ -154,6 +154,22 @@ def traverse_dict(
                         matched_single_key = True
                         try:
                             value = target_processor_func(value)
+
+                            if isinstance(value, dict):
+                                # Wrap the value, so that if the top level key is one
+                                # of `single_keys_to_remove` then it's processed
+                                # correctly
+                                tmp_wrapper = {"-": value}
+                                traverse_dict(
+                                    tmp_wrapper,
+                                    target_type=target_type,
+                                    target_processor_func=target_processor_func,
+                                    pass_on_fail=pass_on_fail,
+                                    log_op_func_failures=log_op_func_failures,
+                                    single_keys_to_remove=single_keys_to_remove,
+                                )
+
+                                value = tmp_wrapper["-"]
                         except Exception as exc:  # pylint: disable=broad-except
                             if log_op_func_failures:
                                 LOGGER.error(str(exc))
