@@ -42,5 +42,8 @@ if __name__ == "__main__":
             "pytz~=2022.1",
             "tzlocal~=4.2",
             "lxml>=4.8.0",
+            "pydantic",
+            "xmltodict~=0.13",
+            "async-upnp-client",
         ],
     )
