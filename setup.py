@@ -25,6 +25,7 @@ if __name__ == "__main__":
         long_description_content_type="text/markdown",
         url="https://github.com/worgarside/wg-utilities",
         packages=find_packages(),
+        package_data={pkg: ["py.typed"] for pkg in find_packages()},
         classifiers=[
             "Programming Language :: Python :: 3",
             "License :: OSI Approved :: MIT License",
@@ -46,4 +47,5 @@ if __name__ == "__main__":
             "xmltodict~=0.13",
             "async-upnp-client",
         ],
+        zip_safe=False,
     )
