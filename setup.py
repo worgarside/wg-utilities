@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     setup(
         name="wg_utilities",
-        version="2.19.0",
+        version="2.20.0",
         author="Will Garside",
         author_email="worgarside@gmail.com",
         description="Generic utilities for use across all personal projects",
@@ -42,5 +42,8 @@ if __name__ == "__main__":
             "pytz~=2022.1",
             "tzlocal~=4.2",
             "lxml>=4.8.0",
+            "pydantic",
+            "xmltodict~=0.13",
+            "async-upnp-client",
         ],
     )

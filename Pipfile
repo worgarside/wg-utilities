@@ -14,6 +14,7 @@ types-tzlocal = "*"
 boto3-stubs = "*"
 lxml-stubs = "*"
 types-setuptools = "*"
+xmltodict = "*"
 
 [packages]
 google-auth-oauthlib = ">=0.4.6"
@@ -28,6 +29,8 @@ pytz = ">=2022.1"
 tzlocal = "*"
 lxml = "==4.8.0"
 botocore = "*"
+async-upnp-client = "*"
+pydantic = "*"
 
 [requires]
 python_version = "3.9"

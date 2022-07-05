@@ -26,8 +26,7 @@ repos:
       - id: mypy
         args: [--strict]
         # yamllint disable-line rule:line-length
-        additional_dependencies: [types-requests, boto3-stubs, lxml-stubs, types-setuptools, types-tzlocal]
-
+        additional_dependencies: [types-requests, boto3-stubs, lxml-stubs, types-setuptools, types-tzlocal, pydantic]
 
   - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
     rev: 0.2.1
