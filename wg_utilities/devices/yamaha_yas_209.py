@@ -29,8 +29,7 @@ from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable
 from async_upnp_client.client_factory import UpnpFactory
 from async_upnp_client.exceptions import UpnpActionResponseError, UpnpResponseError
 from async_upnp_client.utils import get_local_ip
-from mypy_extensions import Arg
-from pydantic import BaseModel, Extra, Field  # pylint: disable=no-name-in-module
+from pydantic import BaseModel, Extra, Field
 from xmltodict import parse as parse_xml
 
 from wg_utilities.functions import traverse_dict
@@ -468,7 +467,7 @@ class Yas209Service(Enum):
 
 def _needs_device(
     func: Callable[[YamahaYas209], Coroutine[Any, Any, Union[Mapping[str, Any], None]]]
-) -> Callable[[Arg(YamahaYas209, "yas_209")], Any]:
+) -> Callable[[YamahaYas209], Any]:
     """This decorator is used when the DLNA device is needed and provides a clean
      way of instantiating it lazily
 
