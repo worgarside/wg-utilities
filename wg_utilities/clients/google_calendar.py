@@ -5,17 +5,7 @@ from datetime import date, datetime, timedelta
 from enum import Enum
 from json import dumps
 from logging import Logger
-from typing import (  # pylint: disable=unused-import
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Literal,
-    Optional,
-    TypedDict,
-    Union,
-    cast,
-)
+from typing import Any, Dict, Iterable, List, Literal, Optional, Union, cast
 
 from pytz import UTC, timezone
 from tzlocal import get_localzone

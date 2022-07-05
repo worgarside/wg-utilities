@@ -7,3 +7,13 @@ from .google_photos import GooglePhotosClient
 from .monzo import MonzoClient
 from .spotify import SpotifyClient
 from .truelayer import TrueLayerClient
+
+__all__ = [
+    "GoogleCalendarClient",
+    "GoogleDriveClient",
+    "GoogleFitClient",
+    "GooglePhotosClient",
+    "MonzoClient",
+    "SpotifyClient",
+    "TrueLayerClient",
+]

@@ -15,6 +15,7 @@ boto3-stubs = "*"
 lxml-stubs = "*"
 types-setuptools = "*"
 xmltodict = "*"
+pycln = "*"
 
 [packages]
 google-auth-oauthlib = ">=0.4.6"
