@@ -818,7 +818,7 @@ class YamahaYas209:
             local_only (bool): only change the local value of the volume level (i.e.
              don't update the soundbar)
         """
-        self._volume_level = value
+        self._volume_level = round(value, 2)
 
         if not local_only:
             self._call_service_action(
@@ -852,23 +852,11 @@ class YamahaYas209:
 
     def volume_down(self) -> None:
         """Decrease the volume by 2 points"""
-        self._call_service_action(
-            Yas209Service.RC,
-            "SetVolume",
-            InstanceID=0,
-            Channel="Master",
-            DesiredVolume=int((100 * self.volume_level) - 2),
-        )
+        self.set_volume_level(self.volume_level - 0.02)
 
     def volume_up(self) -> None:
         """Increase the volume by 2 points"""
-        self._call_service_action(
-            Yas209Service.RC,
-            "SetVolume",
-            InstanceID=0,
-            Channel="Master",
-            DesiredVolume=int((100 * self.volume_level) + 2),
-        )
+        self.set_volume_level(self.volume_level + 0.02)
 
     @property
     def album_art_uri(self) -> Union[str, None]:
