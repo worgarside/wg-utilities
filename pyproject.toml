@@ -41,3 +41,9 @@ init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
 warn_untyped_fields = true
+
+[tool.pycln]
+path = "wg_utilities/"
+expand_stars = true
+all = true
+no_gitignore = false

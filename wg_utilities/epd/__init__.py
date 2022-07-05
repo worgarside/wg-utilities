@@ -35,3 +35,5 @@ else:
     for method in dir(EPD_ORIG):
         if not method.startswith("_"):
             setattr(EPD, method, lambda *a, **k: None)
+
+__all__ = ["EPD", "EPD_HEIGHT", "EPD_WIDTH", "implementation"]
