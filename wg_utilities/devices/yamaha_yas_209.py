@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
 from logging import DEBUG, getLogger
+from textwrap import dedent
 from threading import Thread
 from time import sleep, strptime
 from typing import (
@@ -537,6 +538,9 @@ class YamahaYas209:
         on_track_update: Optional[Callable[[CurrentTrack.Info], None]] = None,
         on_state_update: Optional[Callable[[str], None]] = None,
         logging: bool = True,
+        listen_ip: Optional[str] = None,
+        listen_port: Optional[int] = None,
+        source_port: int = 0,
     ):
         self.ip = ip
         self.on_event = on_event
@@ -557,6 +561,15 @@ class YamahaYas209:
         self.device: UpnpDevice
 
         self._logging = logging
+        self._listen_ip = listen_ip
+        self._listen_port = listen_port
+        self._source_port = source_port or 0
+
+        if self._listen_ip is not None and self._listen_port is None:
+            raise TypeError(
+                "Argument `listen_port` cannot be None when `listen_ip` is not None:"
+                f" {self._listen_ip!r}"
+            )
 
         if start_listener:
             self.listen()
@@ -632,10 +645,40 @@ class YamahaYas209:
         """Subscribe to service(s) and output updates."""
 
         # start notify server/event handler
-        source = (get_local_ip(self.device.device_url), 0)
-        server = AiohttpNotifyServer(self.device.requester, source=source)
+        local_ip = get_local_ip(self.device.device_url)
+        source = (local_ip, self._source_port)
+
+        callback_url = (
+            None
+            if self._listen_port is None
+            else f"http://{self._listen_ip or local_ip}:{self._listen_port}/notify"
+        )
+        server = AiohttpNotifyServer(
+            self.device.requester, source=source, callback_url=callback_url
+        )
         await server.async_start_server()
-        event_handler = server.event_handler
+
+        if self._logging:
+            LOGGER.debug(
+                dedent(
+                    """
+            Listen IP:          %s
+            Listen Port:        %s
+            Source IP:          %s
+            Source Port:        %s
+            Callback URL:       %s
+            Server Listen IP:   %s
+            Server Listen Port: %s
+            """
+                ),
+                self._listen_ip,
+                str(self._listen_port),
+                local_ip,
+                str(self._source_port),
+                str(callback_url),
+                server.listen_ip,
+                server.listen_port,
+            )
 
         # create service subscriptions
         services = []
@@ -647,7 +690,8 @@ class YamahaYas209:
             service.on_event = self.on_event_wrapper
             services.append(service)
             try:
-                await event_handler.async_subscribe(service)
+                await server.event_handler.async_subscribe(service)
+                LOGGER.debug("Subscribed to %s", service.service_id)
             except UpnpResponseError as exc:
                 if self._logging:
                     LOGGER.exception(
@@ -666,7 +710,9 @@ class YamahaYas209:
                 if self._listening is False:
                     return
                 await async_sleep(1)
-            await event_handler.async_resubscribe_all()
+
+            LOGGER.debug("Resubscribing to all services")
+            await server.event_handler.async_resubscribe_all()
 
             services_to_remove = []
             for service in failed_subscriptions:
@@ -677,7 +723,7 @@ class YamahaYas209:
                             " %s",
                             service.service_id,
                         )
-                    await event_handler.async_subscribe(service)
+                    await server.event_handler.async_subscribe(service)
                     services_to_remove.append(service)
                 except UpnpResponseError as exc:
                     if self._logging:
@@ -700,7 +746,7 @@ class YamahaYas209:
         action: str,
         callback: Optional[Callable[[Mapping[str, Any]], Any]] = None,
         **call_kwargs: Union[str, int],
-    ) -> Dict[str, Any]:
+    ) -> Union[Dict[str, Any], None]:
 
         if action not in service.actions:
             raise ValueError(
@@ -727,14 +773,14 @@ class YamahaYas209:
                 f" {', '.join(service.actions)}"
             )
         try:
-            return run(_worker(self))
+            return run(_worker(self))  # type: ignore[no-any-return]
         except UpnpActionResponseError:
             # if not trying to transition to the current state (and current state is
             # known)
             if self.state != Yas209State.UNKNOWN and self.state.action != action:
                 raise
 
-            return {}
+            return None
 
     @staticmethod
     def _parse_xml_dict(xml_dict: Dict[str, Any]) -> None:
@@ -930,8 +976,9 @@ class YamahaYas209:
             dict: the response in JSON form
         """
 
-        media_info = self._call_service_action(
-            Yas209Service.AVT, "GetMediaInfo", InstanceID=0
+        media_info = (
+            self._call_service_action(Yas209Service.AVT, "GetMediaInfo", InstanceID=0)
+            or {}
         )
 
         self._parse_xml_dict(media_info)
@@ -968,13 +1015,16 @@ class YamahaYas209:
         """
         if not hasattr(self, "_volume_level"):
 
-            res = self._call_service_action(
-                Yas209Service.RC,
-                "GetVolume",
-                InstanceID=0,
-                Channel="Master",
+            res = (
+                self._call_service_action(
+                    Yas209Service.RC,
+                    "GetVolume",
+                    InstanceID=0,
+                    Channel="Master",
+                )
+                or {}
             )
 
-            self._volume_level = float(res["CurrentVolume"] / 100)
+            self._volume_level = float(res.get("CurrentVolume", 0) / 100)
 
         return self._volume_level
