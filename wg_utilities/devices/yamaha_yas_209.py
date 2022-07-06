@@ -540,7 +540,7 @@ class YamahaYas209:
         logging: bool = True,
         listen_ip: Optional[str] = None,
         listen_port: Optional[int] = None,
-        source_port: int = 0,
+        source_port: Optional[int] = None,
     ):
         self.ip = ip
         self.on_event = on_event
