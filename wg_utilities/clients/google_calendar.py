@@ -243,7 +243,7 @@ class Event(_GoogleCalendarEntity):
         Returns:
             str: description of the event; can contain HTML
         """
-        return self.json["description"]
+        return self.json.get("description", "")
 
     @property
     def end(self) -> Dict[str, str]:
