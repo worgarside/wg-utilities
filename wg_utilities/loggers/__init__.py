@@ -34,7 +34,8 @@ class ListHandler(Handler):
         records_list: Optional[List[Any]] = None,
         *,
         log_ttl: Optional[int] = 86400,
-        on_expiry: Optional[Callable[[LogRecord], Any]] = None
+        on_record: Optional[Callable[[LogRecord], Any]] = None,
+        on_expiry: Optional[Callable[[LogRecord], Any]] = None,
     ):
         super().__init__()
 
@@ -44,6 +45,7 @@ class ListHandler(Handler):
         )
 
         self.ttl = log_ttl
+        self.on_record = on_record
         self.on_expiry = on_expiry
 
     def emit(self, record: LogRecord) -> None:
@@ -55,6 +57,9 @@ class ListHandler(Handler):
         self.expire_records()
 
         self._records_list.append(record)
+
+        if self.on_record is not None:
+            self.on_record(record)
 
     def expire_records(self) -> None:
         """Remove records older than `self.ttl`, and call `self.on_expiry` on them"""
@@ -167,7 +172,7 @@ def add_list_handler(
     log_list: Optional[List[Any]] = None,
     level: int = DEBUG,
     log_ttl: Optional[int] = 86400,
-    on_expiry: Optional[Callable[[LogRecord], Any]] = None
+    on_expiry: Optional[Callable[[LogRecord], Any]] = None,
 ) -> ListHandler:
     """Add a ListHandler to an existing logger
 
