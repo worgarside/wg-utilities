@@ -580,14 +580,23 @@ class YamahaYas209:
         if self._listening:
             return
 
+        worker_exception: Optional[Exception] = None
+
         def _worker() -> None:
-            new_event_loop().run_until_complete(self._subscribe())
+            nonlocal worker_exception
+            try:
+                new_event_loop().run_until_complete(self._subscribe())
+            except Exception as exc:  # pylint: disable=broad-except
+                worker_exception = exc
 
         listener_thread = Thread(target=_worker)
         listener_thread.start()
 
-        while not self._listening:
+        while not self._listening and worker_exception is None:
             sleep(0.01)
+
+        if worker_exception is not None:
+            raise worker_exception  # pylint: disable=raising-bad-type
 
     def on_event_wrapper(
         self, service: UpnpService, service_variables: Sequence[UpnpStateVariable[str]]
