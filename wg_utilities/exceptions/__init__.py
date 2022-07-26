@@ -13,7 +13,7 @@ from requests import post
 
 load_dotenv()
 
-HA_LOG_ENDPOINT = getenv("HA_LOG_ENDPOINT")
+HA_LOG_ENDPOINT = getenv("HA_LOG_ENDPOINT", "192.168.1.120:8001")
 
 
 class ResourceNotFound(Exception):
@@ -35,9 +35,6 @@ def send_exception_to_home_assistant(exc: Exception) -> None:
         "message": f"{type(exc).__name__} in `{stack()[2].filename}`: {repr(exc)}",
         "traceback": format_exc(),
     }
-
-    if HA_LOG_ENDPOINT is None:
-        raise ValueError("Env var `HA_LOG_ENDPOINT` is not set")
 
     try:
         try:
