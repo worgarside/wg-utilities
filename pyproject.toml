@@ -11,11 +11,7 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | Pipfile.lock
-
-  # The following are specific to Black, you probably don't want those.
-  | blib2to3
-  | tests/data
+  | Pipfile\.lock
 )/
 '''
 
@@ -27,7 +23,6 @@ ignore_missing_imports = true
 exclude = "sandbox|wg_utilities/epd"
 show_error_codes = true
 plugins = 'pydantic.mypy'
-
 follow_imports = "silent"
 warn_redundant_casts = true
 warn_unused_ignores = true
@@ -43,7 +38,7 @@ warn_required_dynamic_aliases = true
 warn_untyped_fields = true
 
 [tool.pycln]
-path = "wg_utilities/"
+path = "*"
 expand_stars = true
 all = true
 no_gitignore = false
