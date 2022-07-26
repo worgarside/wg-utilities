@@ -15,8 +15,20 @@
 *.xml
 *.txt
 test.py
-*sandbox.py
-sandbox/
+!requirements*.txt
+.aws-sam
+*.html
+.google_maps_location_sharing.cookies.*_com
+sandbox
+addons/**/.ssh
+secret_files
+.env
+*.DS_Store
+*.idea
+__pycache__
+*.pkl
+logs
+.cache
 
 *.tmp
 
@@ -255,3 +267,11 @@ fabric.properties
 
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
+
+
+# AWS CDK
+*.cdk.staging
+**/cdk.out/*
+!cdk.json
+
+/config/secrets.yaml
