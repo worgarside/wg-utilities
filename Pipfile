@@ -32,6 +32,7 @@ lxml = "==4.8.0"
 botocore = "*"
 async-upnp-client = "*"
 pydantic = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.9"
