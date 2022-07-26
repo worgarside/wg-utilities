@@ -10,7 +10,6 @@ from typing import Any, Callable
 
 from dotenv import load_dotenv
 from requests import post
-from requests.exceptions import SSLError
 
 load_dotenv()
 
@@ -28,6 +27,7 @@ def send_exception_to_home_assistant(exc: Exception) -> None:
         exc (Exception): the exception being handled
 
     Raises:
+        ValueError: if the HA_LOG_ENDPOINT isn't set
         Exception: if posting the exception to HA fails, then an exception is raised
     """
     payload = {
@@ -36,13 +36,16 @@ def send_exception_to_home_assistant(exc: Exception) -> None:
         "traceback": format_exc(),
     }
 
+    if HA_LOG_ENDPOINT is None:
+        raise ValueError("Env var `HA_LOG_ENDPOINT` is not set")
+
     try:
         try:
-            post(f"https://{HA_LOG_ENDPOINT}/log/error", json=payload)
-        except SSLError:
             # If the host is on the same network as HA, then an HTTP local URL can be
             # used
             post(f"http://{HA_LOG_ENDPOINT}/log/error", json=payload)
+        except Exception:  # pylint: disable=broad-except
+            post(f"https://{HA_LOG_ENDPOINT}/log/error", json=payload)
     except Exception as send_exc:
         raise send_exc from exc
 
