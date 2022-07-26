@@ -50,7 +50,7 @@ def send_exception_to_home_assistant(exc: Exception) -> None:
 def on_exception(
     exception_callback: Callable[[Exception], Any] = send_exception_to_home_assistant,
     raise_after_callback: bool = True,
-) -> Callable[[Callable[[Any], Any]], Callable[[Any, Any], None]]:
+) -> Callable[[Any], Any]:
     """Decorator factory to allow parameterizing the inner decorator
 
     Args:
