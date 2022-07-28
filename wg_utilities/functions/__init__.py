@@ -6,7 +6,6 @@ from .file_management import force_mkdir, user_data_dir
 from .json import process_list, set_nested_value, traverse_dict
 from .processes import run_cmd
 from .string_manipulation import cleanse_string
-from .xml import get_nsmap
 
 __all__ = [
     "chunk_list",
@@ -18,7 +17,16 @@ __all__ = [
     "set_nested_value",
     "run_cmd",
     "cleanse_string",
-    "get_nsmap",
     "process_list",
     "traverse_dict",
 ]
+
+try:
+    from .xml import get_nsmap
+
+    __all__.append(
+        "get_nsmap",
+    )
+except ImportError as _exc:
+    if str(_exc) == "No module named 'lxml'":
+        pass
