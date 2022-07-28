@@ -4,7 +4,12 @@
 from logging import DEBUG, getLogger
 from typing import Dict, Optional
 
-from lxml import etree
+try:
+    from lxml import etree
+
+    LXML_IMPORT_EXC = None
+except ImportError as _exc:
+    LXML_IMPORT_EXC = _exc
 
 from wg_utilities.loggers import add_stream_handler
 
@@ -32,7 +37,12 @@ def get_nsmap(
 
     Raises:
         ValueError: if neither argument is provided
+        ImportError: if lxml couldn't be imported, only raise it now (can't install it
+         on all Pis)
     """
+    if LXML_IMPORT_EXC is not None:
+        raise LXML_IMPORT_EXC
+
     if not (root or xml_doc):
         raise ValueError("One of `root` or `xml_doc` should be non-null")
 
