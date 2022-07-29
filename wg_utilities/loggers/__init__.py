@@ -16,6 +16,8 @@ from logging import (
 from sys import stdout
 from typing import Any, Callable, List, Optional
 
+from wg_utilities.functions import force_mkdir
+
 FORMATTER = Formatter(
     "%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s", "%Y-%m-%d %H:%M:%S"
 )
@@ -134,16 +136,22 @@ class ListHandler(Handler):
         return self._records_list
 
 
-def create_file_handler(logfile_path: str, level: int = DEBUG) -> FileHandler:
+def create_file_handler(
+    logfile_path: str, level: int = DEBUG, create_directory: bool = True
+) -> FileHandler:
     """Create a file handler for use in other loggers
 
     Args:
         logfile_path (str): the path to the logging file
         level (int): the logging level to be used for the FileHandler
+        create_directory (bool): whether to force-create the directory/ies the file is
+         contained within
 
     Returns:
         FileHandler: a log handler with a file as the output
     """
+    if create_directory:
+        force_mkdir(logfile_path, path_is_file=True)
 
     f_handler = FileHandler(logfile_path)
     f_handler.setFormatter(FORMATTER)
@@ -152,16 +160,26 @@ def create_file_handler(logfile_path: str, level: int = DEBUG) -> FileHandler:
     return f_handler
 
 
-def add_file_handler(logger: Logger, *, logfile_path: str, level: int = DEBUG) -> None:
+def add_file_handler(
+    logger: Logger,
+    *,
+    logfile_path: str,
+    level: int = DEBUG,
+    create_directory: bool = True,
+) -> None:
     """Add a FileHandler to an existing logger
 
     Args:
         logger (Logger): the logger to add a file handler to
         logfile_path (str): the path to the logging file
         level (int): the logging level to be used for the FileHandler
+        create_directory (bool): whether to force-create the directory/ies the file is
+         contained within
     """
 
-    f_handler = create_file_handler(logfile_path, level)
+    f_handler = create_file_handler(
+        logfile_path, level, create_directory=create_directory
+    )
 
     logger.addHandler(f_handler)
 
