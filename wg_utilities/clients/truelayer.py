@@ -26,11 +26,9 @@ from jwt import DecodeError, decode
 from requests import HTTPError, Response, get, post
 
 from wg_utilities.functions import force_mkdir, user_data_dir
-from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 

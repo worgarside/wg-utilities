@@ -2,11 +2,8 @@
 from logging import DEBUG, getLogger
 from typing import Any, Callable, Dict, List, Optional, Sequence, Type
 
-from wg_utilities.loggers import add_stream_handler
-
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 
 def set_nested_value(

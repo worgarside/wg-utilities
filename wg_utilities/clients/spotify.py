@@ -12,11 +12,9 @@ from requests import Response, get, post
 from spotipy import CacheFileHandler, SpotifyOAuth
 
 from wg_utilities.functions import chunk_list
-from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 
 class AlbumType(Enum):

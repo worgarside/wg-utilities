@@ -5,11 +5,8 @@ from re import compile as compile_regex
 from subprocess import PIPE, Popen
 from typing import Tuple
 
-from wg_utilities.loggers import add_stream_handler
-
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 COMMAND_PATTERN = compile_regex(r"""((?:[^\s"']|"[^"]*"|'[^']*')+)""")
 

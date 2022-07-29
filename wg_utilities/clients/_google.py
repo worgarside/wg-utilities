@@ -28,7 +28,6 @@ from typing_extensions import Protocol
 
 from wg_utilities.clients._generic import TempAuthServer
 from wg_utilities.functions import force_mkdir, user_data_dir
-from wg_utilities.loggers import add_stream_handler
 
 
 class _GoogleEntityInfo(TypedDict):
@@ -98,7 +97,6 @@ class GoogleClient:
         else:
             self.logger = getLogger(__name__)
             self.logger.setLevel(DEBUG)
-            add_stream_handler(self.logger)
 
         if not scopes:
             self.logger.warning(
