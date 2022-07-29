@@ -976,11 +976,11 @@
         },
         "boto3-stubs": {
             "hashes": [
-                "sha256:5f4f00d06179a33ecd39c4eacd574f5d0c0ab9e52523e66338d7efa81f01afd9",
-                "sha256:7118ec18c1a8a93dfda61b42073e5256bedbc19529c7b45a6b31241dadf97ac2"
+                "sha256:7b85fb94c4b339985edb6b842707ab655c8fd6b960ea4ae0bc9e49cb11dae53d",
+                "sha256:df798efdea9fc34e4bf564af133d72044e2bfcafb0c61d3b39c55832377e3648"
             ],
             "index": "pypi",
-            "version": "==1.24.39"
+            "version": "==1.24.40"
         },
         "botocore-stubs": {
             "hashes": [
