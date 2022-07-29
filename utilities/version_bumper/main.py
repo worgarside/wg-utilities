@@ -10,11 +10,13 @@ from re import match
 from packaging.version import parse as parse_version
 
 from wg_utilities.functions import run_cmd
+from wg_utilities.functions.processes import LOGGER as CMD_LOGGER
 from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 add_stream_handler(LOGGER)
+add_stream_handler(CMD_LOGGER)
 
 VERSION_REGEX = r"(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)"
 
