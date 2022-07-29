@@ -7,7 +7,7 @@ from random import choice
 from string import ascii_letters
 from threading import Thread
 from time import sleep, time
-from typing import Any, Dict, Literal, Optional, TypedDict, Union
+from typing import Any, Dict, Optional, TypedDict, Union
 from webbrowser import open as open_browser
 
 from flask import Flask, request
@@ -15,7 +15,6 @@ from jwt import DecodeError, decode
 from requests import Response, get, post
 
 from wg_utilities.functions import force_mkdir, user_data_dir
-from wg_utilities.loggers import add_stream_handler
 
 
 class TempAuthServer:
@@ -61,20 +60,22 @@ class TempAuthServer:
         method per endpoint) because of the need to use `self.app` as the decorator
         """
 
-        @self.app.route("/get_auth_code", methods=["GET"])  # type: ignore[misc]
-        def get_auth_code() -> Dict[Literal["statusCode"], Literal[200]]:
+        @self.app.route("/get_auth_code", methods=["GET"])
+        def get_auth_code() -> str:
             """Endpoint for getting auth code from third party callback
 
             Returns:
                 dict: simple response dict
             """
             self._request_args[request.path] = request.args
-            return {
-                "statusCode": 200,
-            }
+            return dumps(
+                {
+                    "statusCode": 200,
+                }
+            )
 
-        @self.app.route("/kill", methods=["GET"])  # type: ignore[misc]
-        def kill() -> Dict[Literal["statusCode"], Literal[200]]:
+        @self.app.route("/kill", methods=["GET"])
+        def kill() -> str:
             """Workaround endpoint for killing the server from within a script
 
             Returns:
@@ -87,9 +88,11 @@ class TempAuthServer:
             if (func := request.environ.get("werkzeug.server.shutdown")) is None:
                 raise RuntimeError("Not running with the Werkzeug Server")
             func()
-            return {
-                "statusCode": 200,
-            }
+            return dumps(
+                {
+                    "statusCode": 200,
+                }
+            )
 
     def wait_for_request(
         self, endpoint: str, max_wait: int = 300, kill_on_request: bool = False
@@ -182,7 +185,6 @@ class OauthClient:
         else:
             self.logger = getLogger(__name__)
             self.logger.setLevel(DEBUG)
-            add_stream_handler(self.logger)
 
         self._credentials: _OauthCredentialsInfo
 

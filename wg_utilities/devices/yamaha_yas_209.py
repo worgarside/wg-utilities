@@ -34,11 +34,9 @@ from pydantic import BaseModel, Extra, Field
 from xmltodict import parse as parse_xml
 
 from wg_utilities.functions import traverse_dict
-from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 
 # pylint: disable=too-few-public-methods

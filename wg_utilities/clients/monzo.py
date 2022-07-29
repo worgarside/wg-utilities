@@ -9,11 +9,9 @@ from requests import get, put
 
 from wg_utilities.clients._generic import OauthClient
 from wg_utilities.functions import cleanse_string, user_data_dir
-from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 

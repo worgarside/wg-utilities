@@ -6,11 +6,8 @@ from typing import Dict, Optional
 
 from lxml import etree
 
-from wg_utilities.loggers import add_stream_handler
-
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 
 def get_nsmap(
