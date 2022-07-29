@@ -36,4 +36,4 @@ else:
         if not method.startswith("_"):
             setattr(EPD, method, lambda *a, **k: None)
 
-__all__ = ["EPD", "EPD_HEIGHT", "EPD_WIDTH", "implementation"]
+__all__ = ["EPD", "EPD_HEIGHT", "EPD_WIDTH", "implementation", "FRAME_DELAY"]
