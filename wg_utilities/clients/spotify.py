@@ -6,7 +6,7 @@ from enum import Enum
 from json import dumps
 from logging import DEBUG, getLogger
 from re import sub
-from typing import Any, Callable, Dict, List, Literal, Optional, TypedDict, Union
+from typing import Any, Callable, Literal, TypedDict
 
 from requests import Response, get, post
 from spotipy import CacheFileHandler, SpotifyOAuth
@@ -35,52 +35,52 @@ class _SpotifyEntityInfo(TypedDict):
 
 class _AlbumTracksItemInfo(TypedDict):
     href: str
-    items: List[_TrackInfo]  # type: ignore
+    items: list[_TrackInfo]  # type: ignore
     limit: int
-    next: Union[str, None]
+    next: str | None
     offset: int
-    previous: Union[str, None]
+    previous: str | None
     total: int
 
 
 class _AlbumInfo(_SpotifyEntityInfo):
     album_type: Literal["album", "single", "compilation"]
-    artists: List[_ArtistInfo]
-    available_markets: List[str]
-    external_urls: Dict[Literal["spotify"], str]
-    images: List[Dict[str, Union[str, int]]]
+    artists: list[_ArtistInfo]
+    available_markets: list[str]
+    external_urls: dict[Literal["spotify"], str]
+    images: list[dict[str, str | int]]
     release_date: str
     release_date_precision: Literal["year", "month", "day", None]
-    restrictions: Dict[str, str]
+    restrictions: dict[str, str]
     total_tracks: int
     tracks: _AlbumTracksItemInfo
     type: Literal["album"]
 
 
 class _ArtistInfo(_SpotifyEntityInfo):
-    external_urls: Dict[Literal["spotify"], str]
-    followers: Dict[str, Union[Optional[str], int]]
-    genres: List[str]
-    images: List[Dict[str, Union[str, int]]]
+    external_urls: dict[Literal["spotify"], str]
+    followers: dict[str, str | None | int]
+    genres: list[str]
+    images: list[dict[str, str | int]]
     popularity: int
     type: Literal["artist"]
 
 
 class _PlaylistInfo(_SpotifyEntityInfo):
     collaborative: bool
-    external_urls: Dict[Literal["spotify"], str]
-    followers: Dict[str, Union[Optional[str], int]]
-    images: List[Dict[str, Union[str, int]]]
+    external_urls: dict[Literal["spotify"], str]
+    followers: dict[str, str | None | int]
+    images: list[dict[str, str | int]]
     owner: _UserInfo
     public: bool
     snapshot_id: str
-    tracks: List[_TrackInfo]  # type: ignore
+    tracks: list[_TrackInfo]  # type: ignore
     type: Literal["playlist"]
 
 
 class _TrackInfo(_SpotifyEntityInfo):
     album: _AlbumInfo
-    artists: List[_ArtistInfo]
+    artists: list[_ArtistInfo]
 
 
 class _UserInfo(_SpotifyEntityInfo):
@@ -123,7 +123,7 @@ class SpotifyEntity:
         self,
         json: _SpotifyEntityInfo,
         spotify_client: SpotifyClient,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ):
         self.json = json
         self._spotify_client = spotify_client
@@ -138,7 +138,7 @@ class SpotifyEntity:
         return dumps(self.json, indent=4, default=str)
 
     @property
-    def description(self) -> Optional[str]:
+    def description(self) -> str | None:
         """
         Returns:
             str: the description of the entity
@@ -146,7 +146,7 @@ class SpotifyEntity:
         return self.json.get("description")
 
     @property
-    def endpoint(self) -> Optional[str]:
+    def endpoint(self) -> str | None:
         """
         Returns:
             str: A link to the Web API endpoint providing full details of the entity
@@ -154,7 +154,7 @@ class SpotifyEntity:
         return self.json.get("href")
 
     @property
-    def id(self) -> Optional[str]:
+    def id(self) -> str | None:
         """
         Returns:
             str: The base-62 identifier for the entity
@@ -170,7 +170,7 @@ class SpotifyEntity:
         return self.json["name"]
 
     @property
-    def uri(self) -> Optional[str]:
+    def uri(self) -> str | None:
         """
         Returns:
             str: the Spotify URI of this entity
@@ -210,7 +210,7 @@ class User(SpotifyEntity):
         self,
         json: _UserInfo,
         spotify_client: SpotifyClient,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ):
         super().__init__(json=json, spotify_client=spotify_client, metadata=metadata)
 
@@ -233,11 +233,11 @@ class Track(SpotifyEntity):
         self,
         json: _TrackInfo,
         spotify_client: SpotifyClient,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ):
         super().__init__(json=json, spotify_client=spotify_client, metadata=metadata)
-        self._artists: Optional[List[Artist]] = None
-        self._audio_features: Optional[_TrackAudioFeaturesInfo] = None
+        self._artists: list[Artist] | None = None
+        self._audio_features: _TrackAudioFeaturesInfo | None = None
 
     @property
     def album(self) -> Album:
@@ -249,7 +249,7 @@ class Track(SpotifyEntity):
         return Album(self.json["album"], self._spotify_client)
 
     @property
-    def artists(self) -> List[Artist]:
+    def artists(self) -> list[Artist]:
         """
         Returns:
             list(Artist): a list of the artists who contributed to this track
@@ -277,7 +277,7 @@ class Track(SpotifyEntity):
         return self._audio_features
 
     @property
-    def release_date(self) -> Union[date, str, None]:
+    def release_date(self) -> date | str | None:
         """
         Returns:
             date: the date the track's album was first released
@@ -285,7 +285,7 @@ class Track(SpotifyEntity):
         return self.album.release_date
 
     @property
-    def tempo(self) -> Union[float, None]:
+    def tempo(self) -> float | None:
         """
         Returns:
             float: the tempo of the track, in BPM
@@ -298,10 +298,10 @@ class Artist(SpotifyEntity):
 
     def __init__(self, json: _ArtistInfo, spotify_client: SpotifyClient):
         super().__init__(json=json, spotify_client=spotify_client)
-        self._albums: Optional[List[Album]] = None
+        self._albums: list[Album] | None = None
 
     @property
-    def albums(self) -> List[Album]:
+    def albums(self) -> list[Album]:
         """
         Returns:
             list: A list of albums this artist has contributed to
@@ -324,11 +324,11 @@ class Album(SpotifyEntity):
 
     def __init__(self, json: _AlbumInfo, spotify_client: SpotifyClient):
         super().__init__(json, spotify_client)
-        self._artists: Optional[List[Artist]] = None
-        self._tracks: Optional[List[Track]] = None
+        self._artists: list[Artist] | None = None
+        self._tracks: list[Track] | None = None
 
     @property
-    def artists(self) -> List[Artist]:
+    def artists(self) -> list[Artist]:
         """
         Returns:
             list(Artist): a list of the artists who contributed to this track
@@ -343,7 +343,7 @@ class Album(SpotifyEntity):
         return self._artists
 
     @property
-    def release_date(self) -> Union[date, str, None]:
+    def release_date(self) -> date | str | None:
         """
         Returns:
             date: the date the album was first released
@@ -366,7 +366,7 @@ class Album(SpotifyEntity):
         return self.json.get("release_date_precision")
 
     @property
-    def tracks(self) -> List[Track]:
+    def tracks(self) -> list[Track]:
         """
         Returns:
             list: a list of tracks on this album
@@ -405,13 +405,13 @@ class Playlist(SpotifyEntity):
         self,
         json: _PlaylistInfo,
         spotify_client: SpotifyClient,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ):
         super().__init__(json=json, spotify_client=spotify_client, metadata=metadata)
-        self._tracks: Optional[List[Track]] = None
+        self._tracks: list[Track] | None = None
 
     @property
-    def tracks(self) -> List[Track]:
+    def tracks(self) -> list[Track]:
         """
         Returns:
             list: a list of tracks in this playlist
@@ -517,13 +517,13 @@ class SpotifyClient:
     def __init__(
         self,
         *,
-        client_id: Optional[str] = None,
-        client_secret: Optional[str] = None,
+        client_id: str | None = None,
+        client_secret: str | None = None,
         redirect_uri: str = "http://localhost:8080",
-        scope: Optional[Union[str, List[str]]] = None,
-        oauth_manager: Optional[SpotifyOAuth] = None,
+        scope: str | list[str] | None = None,
+        oauth_manager: SpotifyOAuth | None = None,
         log_requests: bool = False,
-        creds_cache_path: Optional[str] = None,
+        creds_cache_path: str | None = None,
     ):
         self.oauth_manager = oauth_manager or SpotifyOAuth(
             client_id=client_id,
@@ -535,18 +535,16 @@ class SpotifyClient:
         self.log_requests = log_requests
         self.api_call_count = 0
 
-        self._current_user: Optional[User] = None
+        self._current_user: User | None = None
 
-        self._albums: Optional[List[Album]] = None
-        self._playlists: Optional[List[Playlist]] = None
-        self._tracks: Optional[List[Track]] = None
+        self._albums: list[Album] | None = None
+        self._playlists: list[Playlist] | None = None
+        self._tracks: list[Track] | None = None
 
     def _get(
         self,
         url: str,
-        params: Optional[
-            Dict[str, Union[str, float, int, bool, Dict[str, Any]]]
-        ] = None,
+        params: None | (dict[str, str | float | int | bool | dict[str, Any]]) = None,
     ) -> Response:
         """Wrapper for GET requests which covers authentication, URL parsing, etc. etc.
 
@@ -584,9 +582,8 @@ class SpotifyClient:
     def _post(
         self,
         url: str,
-        json: Optional[
-            Dict[str, Union[str, int, float, bool, List[str], Dict[Any, Any]]]
-        ] = None,
+        json: None
+        | (dict[str, str | int | float | bool | list[str] | dict[Any, Any]]) = None,
     ) -> Response:
         """Wrapper for POST requests which covers authentication, URL parsing, etc. etc.
 
@@ -623,19 +620,17 @@ class SpotifyClient:
     def get_items_from_url(
         self,
         url: str,
-        params: Optional[
-            Dict[str, Union[str, int, float, bool, Dict[str, Any]]]
-        ] = None,
+        params: None | (dict[str, str | int | float | bool | dict[str, Any]]) = None,
         *,
         hard_limit: int = 1000000,
-        limit_func: Optional[Callable[[Dict[str, Any]], bool]] = None,
-    ) -> List[
-        Union[
-            _PlaylistInfo,
-            _TrackInfo,
-            _AlbumInfo,
-            List[Dict[Literal["album"], _AlbumInfo]],
-        ]
+        limit_func: Callable[[dict[str, Any]], bool] | None = None,
+    ) -> list[
+        (
+            _PlaylistInfo
+            | _TrackInfo
+            | _AlbumInfo
+            | list[dict[Literal["album"], _AlbumInfo]]
+        )
     ]:
         """Retrieve a list of items from a given URL, including pagination
 
@@ -655,13 +650,13 @@ class SpotifyClient:
         params = params or {}
         params["limit"] = min(50, hard_limit)
 
-        items: List[
-            Union[
-                _PlaylistInfo,
-                _TrackInfo,
-                _AlbumInfo,
-                List[Dict[Literal["album"], _AlbumInfo]],
-            ]
+        items: list[
+            (
+                _PlaylistInfo
+                | _TrackInfo
+                | _AlbumInfo
+                | list[dict[Literal["album"], _AlbumInfo]]
+            )
         ] = []
         res = Response()
         # pylint: disable=protected-access
@@ -684,7 +679,7 @@ class SpotifyClient:
 
         return items
 
-    def get_json_response(self, url: str) -> Union[_TrackAudioFeaturesInfo]:
+    def get_json_response(self, url: str) -> _TrackAudioFeaturesInfo:
         """Gets a simple JSON object from a URL
 
         Args:
@@ -704,7 +699,7 @@ class SpotifyClient:
         return str(self.oauth_manager.get_access_token(as_dict=False))
 
     @property
-    def albums(self) -> List[Album]:
+    def albums(self) -> list[Album]:
         """
         Returns:
             list: a list of albums owned by the current user
@@ -719,7 +714,7 @@ class SpotifyClient:
         return self._albums
 
     @property
-    def playlists(self) -> List[Playlist]:
+    def playlists(self) -> list[Playlist]:
         """
         Returns:
             list: a list of playlists owned by the current user
@@ -734,7 +729,7 @@ class SpotifyClient:
         return self._playlists
 
     @property
-    def tracks(self) -> List[Track]:
+    def tracks(self) -> list[Track]:
         """
         Returns:
             list: a list of tracks owned by the current user
@@ -761,7 +756,7 @@ class SpotifyClient:
         return self._current_user
 
     def add_tracks_to_playlist(
-        self, tracks: List[Track], playlist: Playlist, *, log_responses: bool = False
+        self, tracks: list[Track], playlist: Playlist, *, log_responses: bool = False
     ) -> None:
         """Add one or more tracks to a playlist
 
@@ -815,7 +810,7 @@ class SpotifyClient:
 
     def get_playlists_by_name(
         self, name: str, return_all: bool = False
-    ) -> Union[List[Playlist], Playlist, None]:
+    ) -> list[Playlist] | Playlist | None:
         """Gets Playlist instance(s) which have the given name
 
         Args:
@@ -896,8 +891,8 @@ class SpotifyClient:
         return Track(self._get(f"/tracks/{id_}").json(), self)
 
     def get_recently_liked_tracks(
-        self, track_limit: int = 100, *, day_limit: Optional[float] = None
-    ) -> List[Track]:
+        self, track_limit: int = 100, *, day_limit: float | None = None
+    ) -> list[Track]:
         """Gets a list of songs which were liked by the current user in the past N days
 
         Args:
@@ -908,9 +903,7 @@ class SpotifyClient:
             list: a list of Track instances
         """
 
-        kwargs: Dict[str, Union[int, Callable[[Any], bool]]] = {
-            "hard_limit": track_limit
-        }
+        kwargs: dict[str, int | Callable[[Any], bool]] = {"hard_limit": track_limit}
 
         if isinstance(day_limit, (float, int)):
             kwargs["limit_func"] = lambda item: bool(

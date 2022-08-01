@@ -14,15 +14,11 @@ from typing import (
     Any,
     Callable,
     Coroutine,
-    Dict,
     Literal,
     Mapping,
-    Optional,
     Sequence,
-    Tuple,
     TypedDict,
     TypeVar,
-    Union,
 )
 
 from async_upnp_client.aiohttp import AiohttpNotifyServer, AiohttpRequester
@@ -53,7 +49,7 @@ class CurrentTrackMetaDataItemRes(BaseModel, extra=Extra.forbid):
 
     protocolInfo: str
     duration: str
-    text: Optional[str]
+    text: str | None
 
 
 # pylint: disable=too-few-public-methods
@@ -61,18 +57,18 @@ class TrackMetaDataItem(BaseModel, extra=Extra.forbid):
     """BaseModel for part of the DLNA payload"""
 
     id: str
-    song_subid: Union[str, None] = Field(..., alias="song:subid")
-    song_description: Union[str, None] = Field(..., alias="song:description")
+    song_subid: str | None = Field(..., alias="song:subid")
+    song_description: str | None = Field(..., alias="song:description")
     song_skiplimit: str = Field(..., alias="song:skiplimit")
-    song_id: Union[str, None] = Field(..., alias="song:id")
+    song_id: str | None = Field(..., alias="song:id")
     song_like: str = Field(..., alias="song:like")
     song_singerid: str = Field(..., alias="song:singerid")
     song_albumid: str = Field(..., alias="song:albumid")
     res: CurrentTrackMetaDataItemRes
-    dc_title: Optional[str] = Field(..., alias="dc:title")
-    dc_creator: Optional[str] = Field(..., alias="dc:creator")
-    upnp_artist: Optional[str] = Field(..., alias="upnp:artist")
-    upnp_album: Optional[str] = Field(..., alias="upnp:album")
+    dc_title: str | None = Field(..., alias="dc:title")
+    dc_creator: str | None = Field(..., alias="dc:creator")
+    upnp_artist: str | None = Field(..., alias="upnp:artist")
+    upnp_album: str | None = Field(..., alias="upnp:album")
     upnp_albumArtURI: str = Field(..., alias="upnp:albumArtURI")
 
 
@@ -97,30 +93,30 @@ class InstanceIDAVTransport(BaseModel, extra=Extra.forbid):
 
     val: str
     TransportState: str
-    TransportStatus: Optional[str]
-    NumberOfTracks: Optional[str]
-    CurrentTrack: Optional[str]
-    CurrentTrackDuration: Optional[str]
-    CurrentMediaDuration: Optional[str]
-    CurrentTrackURI: Optional[str]
-    AVTransportURI: Optional[str]
-    TrackSource: Optional[str]
-    CurrentTrackMetaData: Optional[TrackMetaData]
-    AVTransportURIMetaData: Optional[TrackMetaData]
-    PlaybackStorageMedium: Optional[str]
-    PossiblePlaybackStorageMedia: Optional[str]
-    PossibleRecordStorageMedia: Optional[str]
-    RecordStorageMedium: Optional[str]
-    CurrentPlayMode: Optional[str]
-    TransportPlaySpeed: Optional[str]
-    RecordMediumWriteStatus: Optional[str]
-    CurrentRecordQualityMode: Optional[str]
-    PossibleRecordQualityModes: Optional[str]
-    RelativeTimePosition: Optional[str]
-    AbsoluteTimePosition: Optional[str]
-    RelativeCounterPosition: Optional[str]
-    AbsoluteCounterPosition: Optional[str]
-    CurrentTransportActions: Optional[str]
+    TransportStatus: str | None
+    NumberOfTracks: str | None
+    CurrentTrack: str | None
+    CurrentTrackDuration: str | None
+    CurrentMediaDuration: str | None
+    CurrentTrackURI: str | None
+    AVTransportURI: str | None
+    TrackSource: str | None
+    CurrentTrackMetaData: TrackMetaData | None
+    AVTransportURIMetaData: TrackMetaData | None
+    PlaybackStorageMedium: str | None
+    PossiblePlaybackStorageMedia: str | None
+    PossibleRecordStorageMedia: str | None
+    RecordStorageMedium: str | None
+    CurrentPlayMode: str | None
+    TransportPlaySpeed: str | None
+    RecordMediumWriteStatus: str | None
+    CurrentRecordQualityMode: str | None
+    PossibleRecordQualityModes: str | None
+    RelativeTimePosition: str | None
+    AbsoluteTimePosition: str | None
+    RelativeCounterPosition: str | None
+    AbsoluteCounterPosition: str | None
+    CurrentTransportActions: str | None
 
 
 class InstanceIDRenderingControl(BaseModel, extra=Extra.forbid):
@@ -128,13 +124,13 @@ class InstanceIDRenderingControl(BaseModel, extra=Extra.forbid):
 
     val: str
     Mute: StateVariable
-    Channel: Optional[StateVariable]
-    Equalizer: Optional[StateVariable]
+    Channel: StateVariable | None
+    Equalizer: StateVariable | None
     # There's a typo in the schema, this is correct for some payloads -.-
-    Equaluzer: Optional[StateVariable]
+    Equaluzer: StateVariable | None
     Volume: StateVariable
-    PresetNameList: Optional[str]
-    TimeStamp: Optional[str]
+    PresetNameList: str | None
+    TimeStamp: str | None
 
 
 class EventAVTransport(BaseModel, extra=Extra.forbid):
@@ -157,7 +153,7 @@ class LastChange(BaseModel, extra=Extra.forbid):
     Event: Any
 
     @classmethod
-    def parse(cls, payload: Dict[Literal["Event"], Any]) -> LastChange:
+    def parse(cls, payload: dict[Literal["Event"], Any]) -> LastChange:
         """Parse a `LastChange` model from the payload dictionary.
 
         Args:
@@ -229,20 +225,20 @@ class CurrentTrack:
     class Info(TypedDict):
         """Info for the attributes of this class"""
 
-        album_art_uri: Optional[str]
-        media_album_name: Optional[str]
-        media_artist: Optional[str]
+        album_art_uri: str | None
+        media_album_name: str | None
+        media_artist: str | None
         media_duration: float
-        media_title: Optional[str]
+        media_title: str | None
 
     def __init__(
         self,
         *,
-        album_art_uri: Optional[str],
-        media_album_name: Optional[str],
-        media_artist: Optional[str],
+        album_art_uri: str | None,
+        media_album_name: str | None,
+        media_artist: str | None,
         media_duration: float,
-        media_title: Optional[str],
+        media_title: str | None,
     ):
         self.album_art_uri = album_art_uri
         self.media_album_name = media_album_name
@@ -334,7 +330,7 @@ class Yas209State(Enum):
     NO_MEDIA_PRESENT = "idle", None
     UNKNOWN = "unknown", None
 
-    def __init__(self, value: str, action: Optional[str]):
+    def __init__(self, value: str, action: str | None):
         self._value_ = value
         self.action = action
 
@@ -456,7 +452,7 @@ class Yas209Service(Enum):
     )
 
     def __init__(
-        self, value: str, service_id: str, service_name: str, actions: Tuple[str]
+        self, value: str, service_id: str, service_name: str, actions: tuple[str]
     ):
         self._value_ = value
         self.service_id = service_id
@@ -465,7 +461,7 @@ class Yas209Service(Enum):
 
 
 def _needs_device(
-    func: Callable[[YamahaYas209], Coroutine[Any, Any, Union[Mapping[str, Any], None]]]
+    func: Callable[[YamahaYas209], Coroutine[Any, Any, Mapping[str, Any] | None]]
 ) -> Callable[[YamahaYas209], Any]:
     """This decorator is used when the DLNA device is needed and provides a clean
      way of instantiating it lazily
@@ -524,21 +520,21 @@ class YamahaYas209:
         service_id: str
         service_type: str
         last_change: LastChange
-        other_xml_payloads: Dict[str, Any]
+        other_xml_payloads: dict[str, Any]
 
     def __init__(
         self,
         ip: str,
         *,
-        on_event: Optional[Callable[[EventPayloadInfo], None]] = None,
+        on_event: Callable[[EventPayloadInfo], None] | None = None,
         start_listener: bool = False,
-        on_volume_update: Optional[Callable[[float], None]] = None,
-        on_track_update: Optional[Callable[[CurrentTrack.Info], None]] = None,
-        on_state_update: Optional[Callable[[str], None]] = None,
+        on_volume_update: Callable[[float], None] | None = None,
+        on_track_update: Callable[[CurrentTrack.Info], None] | None = None,
+        on_state_update: Callable[[str], None] | None = None,
         logging: bool = True,
-        listen_ip: Optional[str] = None,
-        listen_port: Optional[int] = None,
-        source_port: Optional[int] = None,
+        listen_ip: str | None = None,
+        listen_port: int | None = None,
+        source_port: int | None = None,
     ):
         self.ip = ip
         self.on_event = on_event
@@ -578,7 +574,7 @@ class YamahaYas209:
         if self._listening:
             return
 
-        worker_exception: Optional[Exception] = None
+        worker_exception: Exception | None = None
 
         def _worker() -> None:
             nonlocal worker_exception
@@ -607,7 +603,7 @@ class YamahaYas209:
             service_variables (list): a list of state variables that have updated
         """
 
-        xml_payloads: Dict[str, Union[str, Dict[str, Any], None]] = {
+        xml_payloads: dict[str, str | dict[str, Any] | None] = {
             sv.name: sv.value for sv in service_variables
         }
 
@@ -751,9 +747,9 @@ class YamahaYas209:
         self,
         service: Yas209Service,
         action: str,
-        callback: Optional[Callable[[Mapping[str, Any]], Any]] = None,
-        **call_kwargs: Union[str, int],
-    ) -> Union[Dict[str, Any], None]:
+        callback: Callable[[Mapping[str, Any]], Any] | None = None,
+        **call_kwargs: str | int,
+    ) -> dict[str, Any] | None:
 
         if action not in service.actions:
             raise ValueError(
@@ -790,7 +786,7 @@ class YamahaYas209:
             return None
 
     @staticmethod
-    def _parse_xml_dict(xml_dict: Dict[str, Any]) -> None:
+    def _parse_xml_dict(xml_dict: dict[str, Any]) -> None:
         """Parse a dictionary where some values are/could be XML strings, and unpack
         the XML into JSON within the dict
 
@@ -911,7 +907,7 @@ class YamahaYas209:
         self.set_volume_level(self.volume_level + 0.02)
 
     @property
-    def album_art_uri(self) -> Union[str, None]:
+    def album_art_uri(self) -> str | None:
         """
         Returns:
             str: URL for the current album's artwork
@@ -922,7 +918,7 @@ class YamahaYas209:
         return None
 
     @property
-    def current_track(self) -> Union[CurrentTrack, None]:
+    def current_track(self) -> CurrentTrack | None:
         """
         Returns:
             dict: the current track's info
@@ -944,7 +940,7 @@ class YamahaYas209:
             self.on_track_update(value.json)
 
     @property
-    def media_album_name(self) -> Union[str, None]:
+    def media_album_name(self) -> str | None:
         """
         Returns:
             str: the current media_title
@@ -955,7 +951,7 @@ class YamahaYas209:
         return None
 
     @property
-    def media_artist(self) -> Union[str, None]:
+    def media_artist(self) -> str | None:
         """
         Returns:
             str: the current media_artist
@@ -966,7 +962,7 @@ class YamahaYas209:
         return None
 
     @property
-    def media_duration(self) -> Union[float, None]:
+    def media_duration(self) -> float | None:
         """
         Returns:
             str: the current media_duration
@@ -976,7 +972,7 @@ class YamahaYas209:
 
         return None
 
-    def get_media_info(self) -> Dict[str, Any]:
+    def get_media_info(self) -> dict[str, Any]:
         """Get the current media info from the soundbar
 
         Returns:
@@ -993,7 +989,7 @@ class YamahaYas209:
         return media_info
 
     @property
-    def media_title(self) -> Union[str, None]:
+    def media_title(self) -> str | None:
         """
         Returns:
             str: the current media_album_name

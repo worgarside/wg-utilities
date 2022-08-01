@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from logging import DEBUG, getLogger
-from typing import Dict, Generator, Literal, Optional, TypedDict, Union
+from typing import Generator, Literal, TypedDict
 
 from requests import get, put
 
@@ -57,8 +57,8 @@ class _BalanceVariablesInfo(TypedDict):
     balance_including_flexible_savings: int
     currency: Literal["GBP"]
     local_currency: str
-    local_exchange_rate: Union[int, float]
-    local_spend: Dict[str, Union[str, int]]
+    local_exchange_rate: int | float
+    local_spend: dict[str, str | int]
     spend_today: int
     total_balance: int
 
@@ -92,7 +92,7 @@ class Account:
             "spend_today",
             "total_balance",
         ],
-    ) -> Union[str, float, Dict[str, Union[str, int]], None]:
+    ) -> str | float | dict[str, str | int] | None:
         """Gets a value for a balance-specific property, updating the values if
          necessary (i.e. if they don't already exist). This also has a check to see if
          property is relevant for the given entity type and if not it just returns None
@@ -136,7 +136,7 @@ class Account:
         self.last_balance_update = datetime.utcnow()
 
     @property
-    def account_number(self) -> Optional[str]:
+    def account_number(self) -> str | None:
         """
         Returns:
             str: the account's account number
@@ -144,7 +144,7 @@ class Account:
         return self.json.get("account_number")
 
     @property
-    def balance(self) -> Optional[float]:
+    def balance(self) -> float | None:
         """
         Returns:
             float: the currently available balance of the account
@@ -152,7 +152,7 @@ class Account:
         return self._get_balance_property("balance")  # type: ignore[return-value]
 
     @property
-    def balance_including_flexible_savings(self) -> Optional[float]:
+    def balance_including_flexible_savings(self) -> float | None:
         """
         Returns:
             float: the currently available balance of the account, including flexible
@@ -163,7 +163,7 @@ class Account:
         )  # type: ignore[return-value]
 
     @property
-    def created_datetime(self) -> Optional[datetime]:
+    def created_datetime(self) -> datetime | None:
         """
         Returns:
             datetime: when the account was created
@@ -174,7 +174,7 @@ class Account:
         return datetime.strptime(self.json["created"], DATETIME_FORMAT)
 
     @property
-    def description(self) -> Optional[str]:
+    def description(self) -> str | None:
         """
         Returns:
             str: the description of the account
@@ -182,7 +182,7 @@ class Account:
         return self.json.get("description")
 
     @property
-    def id(self) -> Optional[str]:
+    def id(self) -> str | None:
         """
         Returns:
             str: the account's UUID
@@ -190,7 +190,7 @@ class Account:
         return self.json["id"]
 
     @property
-    def sort_code(self) -> Optional[str]:
+    def sort_code(self) -> str | None:
         """
         Returns:
             str: the account's sort code
@@ -198,7 +198,7 @@ class Account:
         return self.json.get("sort_code")
 
     @property
-    def spend_today(self) -> Optional[float]:
+    def spend_today(self) -> float | None:
         """
         Returns:
             float: the amount spent from this account today (considered from approx
@@ -207,7 +207,7 @@ class Account:
         return self._get_balance_property("spend_today")  # type: ignore[return-value]
 
     @property
-    def total_balance(self) -> Optional[str]:
+    def total_balance(self) -> str | None:
         """
         Returns:
             str: the sum of the currently available balance of the account and the
@@ -224,7 +224,7 @@ class Pot:
         self.json = json
 
     @property
-    def available_for_bills(self) -> Optional[bool]:
+    def available_for_bills(self) -> bool | None:
         """
         Returns:
             bool: if the pot can be used directly for bills
@@ -240,7 +240,7 @@ class Pot:
         return float(self.json.get("balance", 0)) / 100
 
     @property
-    def charity_id(self) -> Optional[str]:
+    def charity_id(self) -> str | None:
         """
         Returns:
             str: not sure!
@@ -248,7 +248,7 @@ class Pot:
         return self.json.get("charity_id")
 
     @property
-    def cover_image_url(self) -> Optional[str]:
+    def cover_image_url(self) -> str | None:
         """
         Returns:
             str: URL for the cover image
@@ -256,7 +256,7 @@ class Pot:
         return self.json.get("cover_image_url")
 
     @property
-    def created_datetime(self) -> Optional[datetime]:
+    def created_datetime(self) -> datetime | None:
         """
         Returns:
             datetime: when the pot was created
@@ -267,7 +267,7 @@ class Pot:
         return datetime.strptime(self.json["created"], DATETIME_FORMAT)
 
     @property
-    def currency(self) -> Optional[str]:
+    def currency(self) -> str | None:
         """
         Returns:
             str: the currency of the pot
@@ -275,7 +275,7 @@ class Pot:
         return self.json.get("currency")
 
     @property
-    def current_account_id(self) -> Optional[str]:
+    def current_account_id(self) -> str | None:
         """
         Returns:
             str: the UUID of the parent account
@@ -283,7 +283,7 @@ class Pot:
         return self.json.get("current_account_id")
 
     @property
-    def deleted(self) -> Optional[bool]:
+    def deleted(self) -> bool | None:
         """
         Returns:
             bool: has the pot been deleted
@@ -291,7 +291,7 @@ class Pot:
         return self.json.get("deleted")
 
     @property
-    def goal_amount(self) -> Optional[float]:
+    def goal_amount(self) -> float | None:
         """
         Returns:
             float: the user-set goal amount for the pot
@@ -302,7 +302,7 @@ class Pot:
         return goal_amount / 100
 
     @property
-    def has_virtual_cards(self) -> Optional[bool]:
+    def has_virtual_cards(self) -> bool | None:
         """
         Returns:
             bool: if the pot has virtual cards attached
@@ -318,7 +318,7 @@ class Pot:
         return self.json["id"]
 
     @property
-    def is_tax_pot(self) -> Optional[bool]:
+    def is_tax_pot(self) -> bool | None:
         """
         Returns:
             bool: is the pot taxed? I'm not sure
@@ -326,7 +326,7 @@ class Pot:
         return self.json.get("is_tax_pot")
 
     @property
-    def isa_wrapper(self) -> Optional[str]:
+    def isa_wrapper(self) -> str | None:
         """
         Returns:
             str: is the pot ISA-wrapped?
@@ -334,7 +334,7 @@ class Pot:
         return self.json.get("isa_wrapper")
 
     @property
-    def locked(self) -> Optional[bool]:
+    def locked(self) -> bool | None:
         """
         Returns:
             bool: is the pot locked
@@ -350,7 +350,7 @@ class Pot:
         return self.json["name"]
 
     @property
-    def product_id(self) -> Optional[str]:
+    def product_id(self) -> str | None:
         """
         Returns:
             str: the ID of the product applied to the pot (e.g. savings)
@@ -358,7 +358,7 @@ class Pot:
         return self.json.get("product_id")
 
     @property
-    def round_up(self) -> Optional[bool]:
+    def round_up(self) -> bool | None:
         """
         Returns:
             bool: is the pot where all round ups go
@@ -366,7 +366,7 @@ class Pot:
         return self.json.get("round_up")
 
     @property
-    def round_up_multiplier(self) -> Optional[float]:
+    def round_up_multiplier(self) -> float | None:
         """
         Returns:
             float: the multiplier applied to the pot's round-ups
@@ -374,7 +374,7 @@ class Pot:
         return self.json.get("round_up_multiplier")
 
     @property
-    def style(self) -> Optional[str]:
+    def style(self) -> str | None:
         """
         Returns:
             str: the pot background image
@@ -382,7 +382,7 @@ class Pot:
         return self.json.get("style")
 
     @property
-    def type(self) -> Optional[str]:
+    def type(self) -> str | None:
         """
         Returns:
             str: the type of pot (e.g. flex saver)
@@ -390,7 +390,7 @@ class Pot:
         return self.json.get("type")
 
     @property
-    def updated_datetime(self) -> Optional[datetime]:
+    def updated_datetime(self) -> datetime | None:
         """
         Returns:
             datetime: when the pot was updated last
@@ -419,7 +419,7 @@ class MonzoClient(OauthClient):
         redirect_uri: str = "http://0.0.0.0:5001/get_auth_code",
         access_token_expiry_threshold: int = 60,
         log_requests: bool = False,
-        creds_cache_path: Optional[str] = None,
+        creds_cache_path: str | None = None,
     ):
         super().__init__(
             client_id=client_id,
@@ -432,10 +432,10 @@ class MonzoClient(OauthClient):
             creds_cache_path=creds_cache_path or self.CREDS_FILE_PATH,
         )
 
-        self._current_account: Optional[Account] = None
+        self._current_account: Account | None = None
 
     def deposit_into_pot(
-        self, pot: Pot, amount_pence: int, dedupe_id: Optional[str] = None
+        self, pot: Pot, amount_pence: int, dedupe_id: str | None = None
     ) -> None:
         """Move money from an account owned by the currently authorised user into one
          of their pots
@@ -461,7 +461,7 @@ class MonzoClient(OauthClient):
         res.raise_for_status()
 
     def list_accounts(
-        self, ignore_closed: bool = True, account_type: Optional[str] = None
+        self, ignore_closed: bool = True, account_type: str | None = None
     ) -> Generator[Account, None, None]:
         """Gets a list of the user's accounts
 
@@ -502,7 +502,7 @@ class MonzoClient(OauthClient):
                 continue
             yield Pot(pot)
 
-    def get_pot_by_id(self, pot_id: str) -> Optional[Pot]:
+    def get_pot_by_id(self, pot_id: str) -> Pot | None:
         """Get a pot from its ID
 
         Args:
@@ -517,9 +517,7 @@ class MonzoClient(OauthClient):
 
         return None
 
-    def get_pot_by_name(
-        self, pot_name: str, exact_match: bool = False
-    ) -> Optional[Pot]:
+    def get_pot_by_name(self, pot_name: str, exact_match: bool = False) -> Pot | None:
         """Get a pot from its name
 
         Args:

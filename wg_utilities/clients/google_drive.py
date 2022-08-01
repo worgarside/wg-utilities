@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from logging import Logger
-from typing import Any, Collection, Dict, Iterable, List, Optional, Set, Union, cast
+from typing import Any, Collection, Dict, Iterable, cast
 
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.exceptions import ResourceNotFound
@@ -96,7 +96,7 @@ class File:
         id: str,
         name: str,
         google_client: GoogleDriveClient,
-        parents: Optional[List[str]] = None,
+        parents: list[str] | None = None,
         **_: Any,
     ):
         self.file_id = id
@@ -104,12 +104,12 @@ class File:
         self.parent_id = parents.pop() if parents else None
         self.google_client = google_client
 
-        self._description: Dict[str, Union[str, bool, float, int]]
+        self._description: dict[str, str | bool | float | int]
         self._parent: Directory
 
     def describe(
         self, force_update: bool = False
-    ) -> Dict[str, Union[str, bool, float, int]]:
+    ) -> dict[str, str | bool | float | int]:
         """Describe the file by requesting all available fields from the Drive API
 
         Args:
@@ -187,15 +187,15 @@ class Directory(File):
         id: str,
         name: str,
         google_client: GoogleDriveClient,
-        parents: Optional[List[str]] = None,
+        parents: list[str] | None = None,
         **_: Any,
     ):
         super().__init__(id=id, name=name, parents=parents, google_client=google_client)
-        self.children: Set[Directory] = set()
-        self._files: Optional[List[File]] = None
+        self.children: set[Directory] = set()
+        self._files: list[File] | None = None
 
     @property
-    def files(self) -> List[File]:
+    def files(self) -> list[File]:
         """
         Returns:
             list: the list of files contained within this directory
@@ -247,7 +247,7 @@ class Directory(File):
         def build_sub_tree(
             parent_dir: Directory,
             level: int,
-            block_pipes_at_levels: Optional[List[int]] = None,
+            block_pipes_at_levels: list[int] | None = None,
             show_files: bool = True,
         ) -> None:
             """Builds a subtree of a given directory
@@ -323,11 +323,11 @@ class GoogleDriveClient(GoogleClient):
     def __init__(
         self,
         project: str,
-        scopes: Optional[List[str]] = None,
-        client_id_json_path: Optional[str] = None,
-        creds_cache_path: Optional[str] = None,
+        scopes: list[str] | None = None,
+        client_id_json_path: str | None = None,
+        creds_cache_path: str | None = None,
         access_token_expiry_threshold: int = 60,
-        logger: Optional[Logger] = None,
+        logger: Logger | None = None,
     ):
         super().__init__(
             project=project,
@@ -339,7 +339,7 @@ class GoogleDriveClient(GoogleClient):
         )
         self._root_directory: Directory
 
-        self._directories: List[Directory]
+        self._directories: list[Directory]
 
     def _build_directory_structure(self) -> None:
         """Build the complete tree of directories, including parent-child relationships
@@ -349,7 +349,7 @@ class GoogleDriveClient(GoogleClient):
         self._directories = [self.root_directory]
 
         # List every single directory
-        directory: Dict[str, str]
+        directory: dict[str, str]
         for directory in self.get_items(
             f"{self.BASE_URL}/files",
             "files",
@@ -392,7 +392,7 @@ class GoogleDriveClient(GoogleClient):
     def get_file_from_id(
         self,
         file_id: str,
-        params: Optional[Dict[str, Union[str, int, float, bool]]] = None,
+        params: dict[str, str | int | float | bool] | None = None,
     ) -> File:
         """Find a file by its UUID
 
@@ -420,7 +420,7 @@ class GoogleDriveClient(GoogleClient):
         )
 
     @property
-    def shared_drives(self) -> List[Dict[str, str]]:
+    def shared_drives(self) -> list[dict[str, str]]:
         """
         Returns:
             list: a list of Shared Drives the current user has access to
@@ -429,7 +429,7 @@ class GoogleDriveClient(GoogleClient):
         return self.get_items(f"{self.BASE_URL}/drives", "drives")  # type: ignore[return-value]
 
     @property
-    def directories(self) -> List[Directory]:
+    def directories(self) -> list[Directory]:
         """
         Returns:
             list: a list of all directories in the user's Drive
