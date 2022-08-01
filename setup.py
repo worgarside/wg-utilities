@@ -42,14 +42,15 @@ if __name__ == "__main__":
                 "python-dotenv",
                 "spotipy>=2.19.0",
             ],
-            "devices": [
+            "devices.epd": [
+                "spidev>=3.5; sys_platform == 'linux'",
+                "rpi.gpio>=0.7.0; sys_platform == 'linux'",
+            ],
+            "devices.dht22": ["pigpio"],
+            "devices.yamaha_yas_209": [
                 "async-upnp-client",
                 "pydantic",
                 "xmltodict~=0.13",
-            ],
-            "epd": [
-                "spidev>=3.5; sys_platform == 'linux'",
-                "rpi.gpio>=0.7.0; sys_platform == 'linux'",
             ],
             "exceptions": [
                 "python-dotenv",

@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 from logging import debug
 
-from wg_utilities.epd import epdconfig
+from wg_utilities.devices.epd import epdconfig
 
 # Display resolution
 EPD_WIDTH = 800

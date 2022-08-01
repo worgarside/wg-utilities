@@ -1,5 +1,3 @@
 """Modules/classes for physical devices"""
 
-from .yamaha_yas_209 import YamahaYas209
-
-__all__ = ["YamahaYas209"]
+__all__ = ["dht22", "epd", "yamaha_yas_209"]
