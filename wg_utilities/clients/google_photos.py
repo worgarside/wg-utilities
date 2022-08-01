@@ -7,7 +7,7 @@ from json import dumps
 from logging import Logger
 from os import getenv
 from os.path import isfile, join
-from typing import Dict, Iterable, List, Optional, TypedDict, cast
+from typing import Iterable, TypedDict, cast
 
 from requests import get
 
@@ -52,7 +52,7 @@ class _MediaItemMetadataInfo(TypedDict):
 
 class _MediaItemInfo(_GoogleEntityInfo):
     baseUrl: str
-    contributorInfo: Dict[str, str]
+    contributorInfo: dict[str, str]
     description: str
     filename: str
     id: str
@@ -82,12 +82,12 @@ class Album:
 
     def __init__(self, json: _AlbumInfo, google_client: GooglePhotosClient):
         self.json = json
-        self._media_items: Optional[List[MediaItem]] = None
+        self._media_items: list[MediaItem] | None = None
 
         self.google_client = google_client
 
     @property
-    def media_items(self) -> List[MediaItem]:
+    def media_items(self) -> list[MediaItem]:
         # noinspection GrazieInspection
         """Lists all media items in the album
 
@@ -101,7 +101,7 @@ class Album:
         return self._media_items
 
     @property
-    def title(self) -> Optional[str]:
+    def title(self) -> str | None:
         """
         Returns:
             str: the title of the album
@@ -157,8 +157,8 @@ class MediaItem:
 
     def download(
         self,
-        width_override: Optional[int] = None,
-        height_override: Optional[int] = None,
+        width_override: int | None = None,
+        height_override: int | None = None,
         force_download: bool = False,
     ) -> str:
         """Download the media item to local storage. The width/height overrides do
@@ -214,7 +214,7 @@ class MediaItem:
         return isfile(self.local_path)
 
     @property
-    def filename(self) -> Optional[str]:
+    def filename(self) -> str | None:
         """
         Returns:
             str: the media item's file name
@@ -270,11 +270,11 @@ class GooglePhotosClient(GoogleClient):
     def __init__(
         self,
         project: str,
-        scopes: Optional[List[str]] = None,
-        client_id_json_path: Optional[str] = None,
-        creds_cache_path: Optional[str] = None,
+        scopes: list[str] | None = None,
+        client_id_json_path: str | None = None,
+        creds_cache_path: str | None = None,
         access_token_expiry_threshold: int = 60,
-        logger: Optional[Logger] = None,
+        logger: Logger | None = None,
     ):
         super().__init__(
             project,
@@ -285,9 +285,9 @@ class GooglePhotosClient(GoogleClient):
             logger,
         )
 
-        self._albums: Optional[List[Album]] = None
+        self._albums: list[Album] | None = None
 
-    def get_album_contents(self, album_id: str) -> List[MediaItem]:
+    def get_album_contents(self, album_id: str) -> list[MediaItem]:
         # noinspection GrazieInspection
         """Gets the contents of a given album in Google Photos
 
@@ -332,7 +332,7 @@ class GooglePhotosClient(GoogleClient):
         raise FileNotFoundError(f"Unable to find album with name {album_name}")
 
     @property
-    def albums(self) -> List[Album]:
+    def albums(self) -> list[Album]:
         """Lists all albums in the active Google account
 
         Returns:

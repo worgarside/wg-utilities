@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     setup(
         name="wg_utilities",
-        version="2.26.1",
+        version="2.27.0",
         author="Will Garside",
         author_email="worgarside@gmail.com",
         description="Generic utilities for use across all personal projects",
@@ -42,14 +42,15 @@ if __name__ == "__main__":
                 "python-dotenv",
                 "spotipy>=2.19.0",
             ],
-            "devices": [
+            "devices.epd": [
+                "spidev>=3.5; sys_platform == 'linux'",
+                "rpi.gpio>=0.7.0; sys_platform == 'linux'",
+            ],
+            "devices.dht22": ["pigpio"],
+            "devices.yamaha_yas_209": [
                 "async-upnp-client",
                 "pydantic",
                 "xmltodict~=0.13",
-            ],
-            "epd": [
-                "spidev>=3.5; sys_platform == 'linux'",
-                "rpi.gpio>=0.7.0; sys_platform == 'linux'",
             ],
             "exceptions": [
                 "python-dotenv",

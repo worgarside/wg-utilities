@@ -33,6 +33,7 @@ botocore = "*"
 async-upnp-client = "*"
 pydantic = "*"
 python-dotenv = "*"
+pigpio = "*"
 
 [requires]
 python_version = "3.9"

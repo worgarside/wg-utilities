@@ -358,7 +358,9 @@ good-names=i,
            s3,
            e,
            id,
-           n
+           tz,
+           ip,
+           pi
 
 # Include a hint for the correct naming format with invalid-name.
 include-naming-hint=yes

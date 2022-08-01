@@ -6,17 +6,7 @@ from json import dump, dumps, load
 from logging import DEBUG, Logger, getLogger
 from os import remove
 from time import time
-from typing import (
-    Any,
-    Dict,
-    List,
-    Literal,
-    Mapping,
-    Optional,
-    TypedDict,
-    TypeVar,
-    Union,
-)
+from typing import Any, Literal, Mapping, TypedDict, TypeVar
 from webbrowser import open as open_browser
 
 from google.auth.transport.requests import AuthorizedSession
@@ -42,10 +32,10 @@ class _GoogleCredentialsInfo(TypedDict):
     client_id: str
     client_secret: str
     expires_in: int
-    id_token: Union[str, None]
+    id_token: str | None
     refresh_token: str
     scope: str
-    scopes: List[str]
+    scopes: list[str]
     token: str
     token_type: Literal["Bearer"]
     token_uri: str
@@ -53,7 +43,7 @@ class _GoogleCredentialsInfo(TypedDict):
 
 # pylint: disable=too-few-public-methods
 class _SessionMethodCallable(Protocol):
-    def __call__(self, url: str, params: Optional[Dict[str, Any]] = None) -> Response:
+    def __call__(self, url: str, params: dict[str, Any] | None = None) -> Response:
         ...
 
 
@@ -78,11 +68,11 @@ class GoogleClient:
     def __init__(
         self,
         project: str,
-        scopes: Optional[List[str]] = None,
-        client_id_json_path: Optional[str] = None,
-        creds_cache_path: Optional[str] = None,
+        scopes: list[str] | None = None,
+        client_id_json_path: str | None = None,
+        creds_cache_path: str | None = None,
         access_token_expiry_threshold: int = 60,
-        logger: Optional[Logger] = None,
+        logger: Logger | None = None,
     ):
         self.project = project
         self.scopes = scopes or []
@@ -103,10 +93,10 @@ class GoogleClient:
                 "No scopes set for Google client. Functionality will be limited."
             )
 
-        self._all_credentials_json: Dict[str, _GoogleCredentialsInfo] = {}
+        self._all_credentials_json: dict[str, _GoogleCredentialsInfo] = {}
         self._session = None
 
-        self.temp_auth_server: Optional[TempAuthServer] = None
+        self.temp_auth_server: TempAuthServer | None = None
 
     def _list_items(
         self,
@@ -114,8 +104,8 @@ class GoogleClient:
         url: str,
         list_key: str,
         *,
-        params: Optional[Mapping[str, Any]] = None,
-    ) -> List[_GoogleEntityInfoTypeVar]:
+        params: Mapping[str, Any] | None = None,
+    ) -> list[_GoogleEntityInfoTypeVar]:
         """Generic method for listing items on Google's API(s)
 
         Args:
@@ -140,7 +130,7 @@ class GoogleClient:
 
         res.raise_for_status()
 
-        item_list: List[_GoogleEntityInfoTypeVar] = res.json().get(list_key, [])
+        item_list: list[_GoogleEntityInfoTypeVar] = res.json().get(list_key, [])
 
         while next_token := res.json().get("nextPageToken"):
             # noinspection PyArgumentList
@@ -166,8 +156,8 @@ class GoogleClient:
         url: str,
         list_key: str = "items",
         *,
-        params: Optional[Mapping[str, Union[str, int, float, bool]]] = None,
-    ) -> List[_GoogleEntityInfoTypeVar]:
+        params: Mapping[str, str | int | float | bool] | None = None,
+    ) -> list[_GoogleEntityInfoTypeVar]:
         """Wrapper method for getting a list of items
 
         See Also:

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from logging import Logger
-from typing import Dict, List, Literal, Optional, TypedDict, Union
+from typing import Literal, TypedDict
 
 from wg_utilities.clients._google import GoogleClient, _GoogleEntityInfo
 from wg_utilities.functions.datetime_helpers import DatetimeFixedUnit as DFUnit
@@ -18,12 +18,12 @@ class _DataSourceDataTypeFieldInfo(TypedDict):
 
 
 class _DataSourceDataTypeInfo(TypedDict):
-    field: List[_DataSourceDataTypeFieldInfo]
+    field: list[_DataSourceDataTypeFieldInfo]
     name: str
 
 
 class _DataSourceDescriptionInfo(TypedDict):
-    application: Dict[str, str]
+    application: dict[str, str]
     dataStreamId: str
     dataStreamName: str
     dataType: _DataSourceDataTypeInfo
@@ -35,7 +35,7 @@ class _GoogleFitDataPointInfo(_GoogleEntityInfo):
     endTimeNanos: str
     dataTypeName: str
     originDataSourceId: str
-    value: List[Dict[str, Union[int]]]
+    value: list[dict[str, int]]
 
 
 class DataSource:
@@ -73,8 +73,8 @@ class DataSource:
 
     def sum_data_points_in_range(
         self,
-        from_datetime: Optional[datetime] = None,
-        to_datetime: Optional[datetime] = None,
+        from_datetime: datetime | None = None,
+        to_datetime: datetime | None = None,
     ) -> int:
         """Gets the sum of data points in the given range: if no `from_datetime` is
         provided, it defaults to the start of today; if no `to_datetime` is provided
@@ -105,7 +105,7 @@ class DataSource:
             else utcnow(DFUnit.NANOSECOND)  # type: ignore[arg-type]
         )
 
-        data_points: List[_GoogleFitDataPointInfo] = self.google_client.get_items(
+        data_points: list[_GoogleFitDataPointInfo] = self.google_client.get_items(
             f"{self.url}/datasets/{from_nano}-{to_nano}",
             "point",
         )
@@ -165,11 +165,11 @@ class GoogleFitClient(GoogleClient):
     def __init__(
         self,
         project: str,
-        scopes: Optional[List[str]] = None,
-        client_id_json_path: Optional[str] = None,
-        creds_cache_path: Optional[str] = None,
+        scopes: list[str] | None = None,
+        client_id_json_path: str | None = None,
+        creds_cache_path: str | None = None,
         access_token_expiry_threshold: int = 60,
-        logger: Optional[Logger] = None,
+        logger: Logger | None = None,
     ):
         super().__init__(
             project,
@@ -179,7 +179,7 @@ class GoogleFitClient(GoogleClient):
             access_token_expiry_threshold=access_token_expiry_threshold,
             logger=logger,
         )
-        self.data_sources: Dict[str, DataSource] = {}
+        self.data_sources: dict[str, DataSource] = {}
 
     def get_data_source(self, data_source_id: str) -> DataSource:
         """Gets a data source based on its UID. DataSource instances are cached for the
