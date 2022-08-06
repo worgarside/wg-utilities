@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from functools import wraps
 from inspect import stack
+from logging import Logger
 from os import getenv
 from socket import gethostname
 from traceback import format_exc
@@ -49,13 +50,16 @@ def send_exception_to_home_assistant(exc: Exception) -> None:
 
 def on_exception(
     exception_callback: Callable[[Exception], Any] = send_exception_to_home_assistant,
+    *,
     raise_after_callback: bool = True,
+    logger: Logger | None = None,
 ) -> Callable[[Any], Any]:
     """Decorator factory to allow parameterizing the inner decorator
 
     Args:
         exception_callback (Callable): callback function to process the exception
         raise_after_callback (bool): raise the exception after the callback has run
+        logger (Logger): optional logger for logging the exception
 
     Returns:
         Callable: the actual decorator
@@ -89,7 +93,11 @@ def on_exception(
             try:
                 return func(*args, **kwargs)
             except Exception as exc:  # pylint: disable=broad-except
+                if logger is not None:
+                    logger.exception(repr(exc))
+
                 exception_callback(exc)
+
                 if raise_after_callback:
                     raise
 
