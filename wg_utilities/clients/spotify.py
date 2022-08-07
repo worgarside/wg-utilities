@@ -6,7 +6,7 @@ from enum import Enum
 from json import dumps
 from logging import DEBUG, getLogger
 from re import sub
-from typing import Any, Callable, Literal, TypedDict
+from typing import Any, Callable, Collection, Literal, TypedDict
 
 from requests import Response, get, post
 from spotipy import CacheFileHandler, SpotifyOAuth
@@ -31,6 +31,7 @@ class _SpotifyEntityInfo(TypedDict):
     id: str
     name: str
     uri: str
+    external_urls: dict[Literal["spotify"], str]
 
 
 class _AlbumTracksItemInfo(TypedDict):
@@ -47,7 +48,6 @@ class _AlbumInfo(_SpotifyEntityInfo):
     album_type: Literal["album", "single", "compilation"]
     artists: list[_ArtistInfo]
     available_markets: list[str]
-    external_urls: dict[Literal["spotify"], str]
     images: list[dict[str, str | int]]
     release_date: str
     release_date_precision: Literal["year", "month", "day", None]
@@ -58,7 +58,6 @@ class _AlbumInfo(_SpotifyEntityInfo):
 
 
 class _ArtistInfo(_SpotifyEntityInfo):
-    external_urls: dict[Literal["spotify"], str]
     followers: dict[str, str | None | int]
     genres: list[str]
     images: list[dict[str, str | int]]
@@ -68,7 +67,6 @@ class _ArtistInfo(_SpotifyEntityInfo):
 
 class _PlaylistInfo(_SpotifyEntityInfo):
     collaborative: bool
-    external_urls: dict[Literal["spotify"], str]
     followers: dict[str, str | None | int]
     images: list[dict[str, str | int]]
     owner: _UserInfo
@@ -118,6 +116,8 @@ class SpotifyEntity:
          retrieved this entity from the API
         metadata (dict): any extra metadata about this entity
     """
+
+    json: _SpotifyEntityInfo
 
     def __init__(
         self,
@@ -170,13 +170,24 @@ class SpotifyEntity:
         return self.json["name"]
 
     @property
-    def uri(self) -> str | None:
+    def uri(self) -> str:
         """
         Returns:
             str: the Spotify URI of this entity
         """
 
         return self.json.get("uri", f"spotify:{type(self).__name__.lower()}:{self.id}")
+
+    @property
+    def url(self) -> str:
+        """
+        Returns:
+            str: the URL of this entity
+        """
+        return self.json.get("external_urls", {}).get(
+            "spotify",
+            f"https://open.spotify.com/{type(self).__name__.lower()}/{self.id}",
+        )
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SpotifyEntity):
@@ -237,7 +248,7 @@ class Track(SpotifyEntity):
     ):
         super().__init__(json=json, spotify_client=spotify_client, metadata=metadata)
         self._artists: list[Artist] | None = None
-        self._audio_features: _TrackAudioFeaturesInfo | None = None
+        self._audio_features: _TrackAudioFeaturesInfo
 
     @property
     def album(self) -> Album:
@@ -269,8 +280,9 @@ class Track(SpotifyEntity):
         Returns:
             dict: the JSON response from the Spotify /audio-features endpoint
         """
-        if self._audio_features is None:
-            self._audio_features = self._spotify_client.get_json_response(
+        if not hasattr(self, "_audio_features"):
+            # pylint: disable=line-too-long
+            self._audio_features = self._spotify_client.get_json_response(  # type: ignore[assignment]
                 f"/audio-features/{self.id}"
             )
 
@@ -295,6 +307,8 @@ class Track(SpotifyEntity):
 
 class Artist(SpotifyEntity):
     """An artist on Spotify"""
+
+    json: _ArtistInfo
 
     def __init__(self, json: _ArtistInfo, spotify_client: SpotifyClient):
         super().__init__(json=json, spotify_client=spotify_client)
@@ -514,6 +528,15 @@ class SpotifyClient:
         "user-read-private",
     ]
 
+    SEARCH_TYPES = (
+        "album",
+        "artist",
+        "playlist",
+        "track",
+        # "show",
+        # "episode",
+    )
+
     def __init__(
         self,
         *,
@@ -679,16 +702,118 @@ class SpotifyClient:
 
         return items
 
-    def get_json_response(self, url: str) -> _TrackAudioFeaturesInfo:
+    def get_json_response(
+        self,
+        url: str,
+        params: None | (dict[str, str | int | float | bool | dict[str, Any]]) = None,
+    ) -> dict[str, Any]:
         """Gets a simple JSON object from a URL
 
         Args:
             url (str): the API endpoint to GET
+            params (dict): the parameters to be passed in the HTTP request
 
         Returns:
             dict: the JSON from the response
         """
-        return self._get(url).json()  # type: ignore
+        return self._get(url, params=params).json()  # type: ignore
+
+    def search(
+        self,
+        search_term: str,
+        entity_types: Collection[Literal["album", "artist", "playlist", "track"]] = (),
+        get_best_match_only: bool = False,
+    ) -> Artist | Playlist | Track | Album | None | dict[
+        Literal["album", "artist", "playlist", "track"],
+        list[Album | Artist | Playlist | Track],
+    ]:
+        """Search Spotify for a given search term
+
+        Args:
+            search_term (str): the term to use as the base of the search
+            entity_types (str): the types of entity to search for. Must be one of
+             SpotifyClient.SEARCH_TYPES
+            get_best_match_only (bool): return a single entity from the top of the
+             list, rather than all matches
+
+        Returns:
+            Artist | Playlist | Track | Album: a single entity if the best match flag
+             is set
+            dict: a dict of entities, by type
+
+        Raises:
+            ValueError: if multiple entity types have been requested but the best match
+             flag is true
+            ValueError: if one of entity_types is an invalid value
+        """
+
+        entity_types = entity_types or self.SEARCH_TYPES  # type: ignore[assignment]
+
+        if get_best_match_only is True and len(entity_types) != 1:
+            raise ValueError(
+                "Exactly one entity type must be requested if `get_best_match_only`"
+                " is True"
+            )
+
+        entity_type: Literal["artist", "playlist", "track", "album"]
+        for entity_type in entity_types:
+            if entity_type not in self.SEARCH_TYPES:
+                raise ValueError(
+                    f"""Unexpected value for entity type: '{entity_type}'. Must be"""
+                    f""" one of '{"', '".join(self.SEARCH_TYPES)}'"""
+                )
+
+        res = self.get_json_response(
+            "/search",
+            params={
+                "q": search_term,
+                "type": ",".join(entity_types),
+                "limit": 50,
+            },
+        )
+
+        entity_instances: dict[
+            Literal["album", "artist", "playlist", "track"],
+            list[Album | Artist | Playlist | Track],
+        ] = {}
+
+        for entity_type, entities_json in res.items():  # type: ignore[assignment]
+
+            instance_class: type[Album | Artist | Playlist | Track] = {
+                "albums": Album,
+                "artists": Artist,
+                "playlists": Playlist,
+                "tracks": Track,
+            }[entity_type]
+
+            if get_best_match_only:
+                try:
+                    # Take the entity off the top of the list
+                    return instance_class(
+                        entities_json.get("items", [])[0], spotify_client=self
+                    )
+                except IndexError:
+                    return None
+
+            entity_instances.setdefault(entity_type, []).extend(
+                [
+                    instance_class(entity_json, spotify_client=self)
+                    for entity_json in entities_json.get("items", [])
+                ]
+            )
+
+            # Each entity type has its own type-specific next URL
+            if (next_url := entities_json.get("next")) is not None:
+                entity_instances[entity_type].extend(
+                    [
+                        instance_class(
+                            item, spotify_client=self  # type: ignore[arg-type]
+                        )
+                        for item in self.get_items_from_url(next_url)
+                    ]
+                )
+
+        return entity_instances
 
     @property
     def access_token(self) -> str:
