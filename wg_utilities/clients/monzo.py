@@ -216,7 +216,6 @@ class Account:
         return self._get_balance_property("total_balance")  # type: ignore[return-value]
 
 
-# pylint: disable=too-many-public-methods
 class Pot:
     """Read-only class for Monzo pots"""
 

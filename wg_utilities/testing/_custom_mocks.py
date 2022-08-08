@@ -9,7 +9,6 @@ from botocore.client import BaseClient
 ORIG_API_CALL: Callable[..., Dict[str, str]] = BaseClient._make_api_call  # type: ignore
 
 
-# pylint: disable=too-few-public-methods
 class MockBoto3Client:
     """Class for adding custom mocks for boto3 when moto doesn't support the
     operation"""

@@ -338,8 +338,8 @@ class Album(SpotifyEntity):
 
     def __init__(self, json: _AlbumInfo, spotify_client: SpotifyClient):
         super().__init__(json, spotify_client)
-        self._artists: list[Artist] | None = None
-        self._tracks: list[Track] | None = None
+        self._artists: list[Artist]
+        self._tracks: list[Track]
 
     @property
     def artists(self) -> list[Artist]:
@@ -348,7 +348,7 @@ class Album(SpotifyEntity):
             list(Artist): a list of the artists who contributed to this track
         """
 
-        if self._artists is None:
+        if not hasattr(self, "_artists"):
             self._artists = [
                 Artist(item, self._spotify_client)
                 for item in self.json.get("artists", [])
@@ -386,12 +386,14 @@ class Album(SpotifyEntity):
             list: a list of tracks on this album
         """
 
-        if not self._tracks:
+        if not hasattr(self, "_tracks"):
             self._tracks = [
                 Track(item, self._spotify_client)
                 for item in self.json.get("tracks", {}).get("items", [])
             ]
 
+            # May as well get the items in the album description already, then can get
+            # the rest if we need to
             if next_url := self.json.get("tracks", {}).get("next"):
                 self._tracks.extend(
                     Track(item, self._spotify_client)  # type: ignore[arg-type]
@@ -422,7 +424,7 @@ class Playlist(SpotifyEntity):
         metadata: dict[str, Any] | None = None,
     ):
         super().__init__(json=json, spotify_client=spotify_client, metadata=metadata)
-        self._tracks: list[Track] | None = None
+        self._tracks: list[Track]
 
     @property
     def tracks(self) -> list[Track]:
@@ -431,7 +433,7 @@ class Playlist(SpotifyEntity):
             list: a list of tracks in this playlist
         """
 
-        if self._tracks is None:
+        if not hasattr(self, "_tracks"):
             self._tracks = [
                 Track(
                     item.get("track", {}),  # type: ignore[arg-type,union-attr]
@@ -454,7 +456,7 @@ class Playlist(SpotifyEntity):
         return User(self.json["owner"], self._spotify_client)
 
     def __contains__(self, track: Track) -> bool:
-        return track.id in [track.id for track in self.tracks]
+        return track in self.tracks
 
     def __gt__(self, other: object) -> bool:
         if not isinstance(other, Playlist):
@@ -558,11 +560,11 @@ class SpotifyClient:
         self.log_requests = log_requests
         self.api_call_count = 0
 
-        self._current_user: User | None = None
+        self._current_user: User
 
-        self._albums: list[Album] | None = None
-        self._playlists: list[Playlist] | None = None
-        self._tracks: list[Track] | None = None
+        self._albums: list[Album]
+        self._playlists: list[Playlist]
+        self._tracks: list[Track]
 
     def _get(
         self,
@@ -830,7 +832,7 @@ class SpotifyClient:
             list: a list of albums owned by the current user
         """
 
-        if not self._albums:
+        if not hasattr(self, "_albums"):
             self._albums = [
                 Album(item["album"], self)  # type: ignore
                 for item in self.get_items_from_url("/me/albums")
@@ -845,7 +847,7 @@ class SpotifyClient:
             list: a list of playlists owned by the current user
         """
 
-        if not self._playlists:
+        if not hasattr(self, "_playlists"):
             self._playlists = [
                 Playlist(item, self)  # type: ignore[arg-type]
                 for item in self.get_items_from_url("/me/playlists")
@@ -860,7 +862,7 @@ class SpotifyClient:
             list: a list of tracks owned by the current user
         """
 
-        if not self._tracks:
+        if not hasattr(self, "_tracks"):
             self._tracks = [
                 Track(item["track"], self)  # type: ignore
                 for item in self.get_items_from_url("/me/tracks")
@@ -875,13 +877,19 @@ class SpotifyClient:
         Returns:
             User: an instance of the current Spotify user
         """
-        if not self._current_user:
+        if not hasattr(self, "_current_user"):
             self._current_user = User(self._get(f"{self.BASE_URL}/me").json(), self)
 
         return self._current_user
 
     def add_tracks_to_playlist(
-        self, tracks: list[Track], playlist: Playlist, *, log_responses: bool = False
+        self,
+        tracks: list[Track],
+        playlist: Playlist,
+        *,
+        log_responses: bool = False,
+        force_add: bool = False,
+        update_instance_tracklist: bool = True,
     ) -> None:
         """Add one or more tracks to a playlist
 
@@ -889,7 +897,16 @@ class SpotifyClient:
             tracks (list): a list of Track instances to be added to the given playlist
             playlist (Playlist): the playlist being updated
             log_responses (bool): log each individual response
+            force_add (bool): flag for adding the track even if it's in the playlist
+             already
+            update_instance_tracklist (bool): appends the track to the Playlist's
+             tracklist. Can be slow if it's a big playlist as it might have to get
+             the tracklist first
         """
+
+        if not force_add:
+            tracks = [track for track in tracks if track not in playlist]
+
         for chunk in chunk_list(tracks, 100):
             res = self._post(
                 f"/playlists/{playlist.id}/tracks",
@@ -900,6 +917,9 @@ class SpotifyClient:
 
             if log_responses:
                 LOGGER.debug(dumps(res.json()))
+
+        if update_instance_tracklist:
+            playlist.tracks.extend(tracks)
 
     def create_playlist(
         self,
@@ -920,7 +940,6 @@ class SpotifyClient:
             Playlist: an instance of the Playlist class containing the new playlist's
              metadata
         """
-
         res = self._post(
             f"/users/{self.current_user.id}/playlists",
             {
@@ -1046,7 +1065,7 @@ class SpotifyClient:
     def reset_properties(self) -> None:
         """Resets all list properties"""
 
-        self._current_user = None
-        self._albums = None
-        self._playlists = None
-        self._tracks = None
+        del self._current_user
+        del self._albums
+        del self._playlists
+        del self._tracks

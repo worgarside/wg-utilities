@@ -41,7 +41,6 @@ class _GoogleCredentialsInfo(TypedDict):
     token_uri: str
 
 
-# pylint: disable=too-few-public-methods
 class _SessionMethodCallable(Protocol):
     def __call__(self, url: str, params: dict[str, Any] | None = None) -> Response:
         ...
