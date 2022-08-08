@@ -504,8 +504,8 @@ class YamahaYas209:
     """Class for consuming information from a YAS-209 in real time"""
 
     SUBSCRIPTION_SERVICES = (
-        Yas209Service.AVT.service_id,  # pylint: disable=no-member
-        Yas209Service.RC.service_id,  # pylint: disable=no-member
+        Yas209Service.AVT.service_id,
+        Yas209Service.RC.service_id,
     )
 
     LAST_CHANGE_PAYLOAD_PARSERS = {
