@@ -49,6 +49,9 @@ repos:
     hooks:
       - id: pylint
         name: pylint
-        entry: pylint --disable=fixme
-        language: system
+        entry: pylint
+        # yamllint disable-line rule:line-length
+        args: ["--disable=fixme", "--enable=useless-suppression", "--rcfile=.pylintrc", "--load-plugins=pylint_strict_informational"]
+        language: python
         types: [python]
+        additional_dependencies: [pylint-strict-informational]
