@@ -971,11 +971,11 @@
         },
         "boto3-stubs": {
             "hashes": [
-                "sha256:3aa84f2925b4b50b7f47ac41a11ac05302e744cdf460cb7bcf6488319393d8a4",
-                "sha256:9482238ed9ea7794e6e66a41376bf75d5950f0328de09fac9d224906dcc624ef"
+                "sha256:2482b5c82e0bc09649aa24ba0f79a242e6e0607f34c8398387a2a38870a7c905",
+                "sha256:5d31fab93f327c50f415fc90864b0dd134f5f414cba77f8b05789a9576597e88"
             ],
             "index": "pypi",
-            "version": "==1.24.46"
+            "version": "==1.24.48"
         },
         "botocore-stubs": {
             "hashes": [
@@ -1510,7 +1510,7 @@
                 "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc",
                 "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"
             ],
-            "markers": "python_version < '3.11'",
+            "markers": "python_full_version < '3.11.0a7'",
             "version": "==2.0.1"
         },
         "tomlkit": {
