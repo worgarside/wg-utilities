@@ -1570,11 +1570,11 @@
         },
         "types-setuptools": {
             "hashes": [
-                "sha256:f568830d82b48783a0df00646bc84effeddb4886bf0f19708fbbadeb552b6ece",
-                "sha256:f954044034066cd3d8ceccc87e2d5cebe7a96c9f87996f61c3c6a92cd56cc8a4"
+                "sha256:6aad80dd16bb5ee5c78260d7b5536ddbb95470ed8cc3dab19027802a7f8dc362",
+                "sha256:8781e2fe71fd2885b085f2eeaad099468cda791b383ccbc735d9aad0c44f5355"
             ],
             "index": "pypi",
-            "version": "==63.4.0"
+            "version": "==63.4.1"
         },
         "types-tzlocal": {
             "hashes": [
