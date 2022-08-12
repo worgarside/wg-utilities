@@ -1509,7 +1509,7 @@
                 "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc",
                 "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"
             ],
-            "markers": "python_version < '3.11'",
+            "markers": "python_full_version < '3.11.0a7'",
             "version": "==2.0.1"
         },
         "tomlkit": {
@@ -1569,11 +1569,11 @@
         },
         "types-setuptools": {
             "hashes": [
-                "sha256:6aad80dd16bb5ee5c78260d7b5536ddbb95470ed8cc3dab19027802a7f8dc362",
-                "sha256:8781e2fe71fd2885b085f2eeaad099468cda791b383ccbc735d9aad0c44f5355"
+                "sha256:ccf621e6bce09f9b6dee57e81ce3e6878e3dc795395ae0b749deb340198e288b",
+                "sha256:da53c28d27e5cc8a37d4f219dc36be559b879c65642fa96d0176402602b1cda3"
             ],
             "index": "pypi",
-            "version": "==63.4.1"
+            "version": "==64.0.0"
         },
         "types-tzlocal": {
             "hashes": [
