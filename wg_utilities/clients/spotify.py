@@ -234,6 +234,38 @@ class User(SpotifyEntity):
 
         return self.json["display_name"]
 
+    @property
+    def current_playlist(self) -> Playlist | None:
+        """Gets the current playlist for the given user
+
+        Returns:
+            Playlist: the playlist currently being listened to
+        """
+
+        res = self._spotify_client.get_json_response("/me/player/currently-playing")
+
+        if (context := res.get("context", {})).get("type") == "playlist":
+            return self._spotify_client.get_playlist_by_id(
+                context["uri"].split(":")[-1]
+            )
+
+        return None
+
+    @property
+    def current_track(self) -> Track | None:
+        """Gets the currently playing track for the given user
+
+        Returns:
+            Track: the track currently being listened to
+        """
+
+        res = self._spotify_client.get_json_response("/me/player/currently-playing")
+
+        if res.get("is_playing", False):
+            return Track(res["item"], spotify_client=self._spotify_client)
+
+        return None
+
 
 class Track(SpotifyEntity):
     """A track on Spotify"""
@@ -1015,7 +1047,7 @@ class SpotifyClient:
             Playlist: an instantiated Playlist, from the API's response
         """
 
-        if self._playlists:
+        if hasattr(self, "_playlists"):
             for plist in self.playlists:
                 if plist.id == id_:
                     return plist
