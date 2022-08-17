@@ -1096,8 +1096,22 @@ class SpotifyClient:
 
     def reset_properties(self) -> None:
         """Resets all list properties"""
+        try:
+            del self._current_user
+        except AttributeError as exc:
+            print(str(exc))
 
-        del self._current_user
-        del self._albums
-        del self._playlists
-        del self._tracks
+        try:
+            del self._albums
+        except AttributeError as exc:
+            print(repr(exc))
+
+        try:
+            del self._playlists
+        except AttributeError:
+            pass
+
+        try:
+            del self._tracks
+        except AttributeError:
+            pass
