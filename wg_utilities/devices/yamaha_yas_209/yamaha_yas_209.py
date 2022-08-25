@@ -30,9 +30,11 @@ from pydantic import BaseModel, Extra, Field
 from xmltodict import parse as parse_xml
 
 from wg_utilities.functions import traverse_dict
+from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
+add_stream_handler(LOGGER)
 
 
 # pylint: disable=too-few-public-methods
@@ -559,6 +561,8 @@ class YamahaYas209:
         self._listen_port = listen_port
         self._source_port = source_port or 0
 
+        self._active_service_ids: list[str] = []
+
         if self._listen_ip is not None and self._listen_port is None:
             raise TypeError(
                 "Argument `listen_port` cannot be None when `listen_ip` is not None:"
@@ -571,7 +575,15 @@ class YamahaYas209:
     def listen(self) -> None:
         """Start the listener"""
 
+        if self._logging:
+            LOGGER.info("Starting listener")
+
         if self._listening:
+            if self._logging:
+                LOGGER.debug(
+                    "Already listening to '%s', returning immediately",
+                    "', '".join(self._active_service_ids),
+                )
             return
 
         worker_exception: Exception | None = None
@@ -591,6 +603,12 @@ class YamahaYas209:
 
         if worker_exception is not None:
             raise worker_exception  # pylint: disable=raising-bad-type
+
+        if self._logging:
+            LOGGER.debug(
+                "Listen action complete, now subscribed to '%s'",
+                "', '".join(self._active_service_ids),
+            )
 
     def on_event_wrapper(
         self, service: UpnpService, service_variables: Sequence[UpnpStateVariable[str]]
@@ -645,6 +663,7 @@ class YamahaYas209:
     # noinspection PyArgumentList
     @_needs_device
     async def _subscribe(self) -> None:
+        # pylint: disable=too-many-branches
         """Subscribe to service(s) and output updates."""
 
         # start notify server/event handler
@@ -694,6 +713,7 @@ class YamahaYas209:
             services.append(service)
             try:
                 await server.event_handler.async_subscribe(service)
+                self._active_service_ids.append(service.service_id)
                 LOGGER.debug("Subscribed to %s", service.service_id)
             except UpnpResponseError as exc:
                 if self._logging:
@@ -711,6 +731,8 @@ class YamahaYas209:
         while self._listening:
             for _ in range(120):
                 if self._listening is False:
+                    if self._logging:
+                        LOGGER.debug("Exiting listener loop")
                     return
                 await async_sleep(1)
 
@@ -727,21 +749,30 @@ class YamahaYas209:
                             service.service_id,
                         )
                     await server.event_handler.async_subscribe(service)
+                    self._active_service_ids.append(service.service_id)
                     services_to_remove.append(service)
                 except UpnpResponseError as exc:
+                    log_message = (
+                        f"Still unable to subscribe to {service.service_id}:"
+                        f" {exc!r}"
+                    )
+
                     if self._logging:
-                        LOGGER.exception(
-                            "Still unable to subscribe to %s: %s - %s",
-                            service.service_id,
-                            type(exc).__name__,
-                            str(exc),
-                        )
+                        LOGGER.exception(log_message)
+                    else:
+                        # Should still log this exception, regardless
+                        LOGGER.warning(log_message)
 
             # This needs to be separate because `.remove` is the cleanest way to remove
             # the items, but can't be done within the loop, and I can't `deepcopy`
             # `failed_subscriptions` and it's threaded content
             for service in services_to_remove:
                 failed_subscriptions.remove(service)
+
+        if self._logging:
+            LOGGER.debug(
+                "Exiting subscription loop, `self._listening` is `%s`", self._listening
+            )
 
     def _call_service_action(
         self,
@@ -886,6 +917,9 @@ class YamahaYas209:
 
     def stop_listening(self) -> None:
         """Stop the event listener"""
+        if self._logging:
+            LOGGER.debug("Stopping event listener (will take <= 2 minutes)")
+
         self._listening = False
 
     def unmute(self) -> None:
