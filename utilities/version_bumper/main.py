@@ -93,12 +93,28 @@ def create_release_branch(old: str, new: str) -> None:
     Args:
         old (str): the old release number (x.y.z)
         new (str): the new release number (x.y.z)
+
+    Raises:
+        RuntimeError: if a RuntimeError is raised, and it's not because Git flow isn't
+            installed *and* the user chooses not to install it
     """
 
     LOGGER.info("Bumping version from %s to %s", old, new)
 
     run_cmd("git push --all origin")
-    run_cmd(f"git flow release start {new}")
+    try:
+        run_cmd(f"git flow release start {new}")
+    except RuntimeError as exc:
+        if (
+            "git: 'flow' is not a git command" in str(exc)
+            and input("git-flow is not installed. Install and initialise? [y/N] ")
+            == "y"
+        ):
+            run_cmd("brew install git-flow")
+            run_cmd("git flow init")
+            run_cmd(f"git flow release start {new}")
+        else:
+            raise
 
     with open(SETUP_PY_PATH, encoding="UTF-8") as f:
         setup_file = f.readlines()

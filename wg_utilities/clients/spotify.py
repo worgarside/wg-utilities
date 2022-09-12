@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import date, datetime, timedelta
 from enum import Enum
-from json import dumps
+from json import JSONDecodeError, dumps
 from logging import DEBUG, getLogger
 from re import sub
 from typing import Any, Callable, Collection, Literal, TypedDict
@@ -750,7 +750,10 @@ class SpotifyClient:
         Returns:
             dict: the JSON from the response
         """
-        return self._get(url, params=params).json()  # type: ignore
+        try:
+            return self._get(url, params=params).json()  # type: ignore
+        except JSONDecodeError:
+            return {}
 
     def search(
         self,
