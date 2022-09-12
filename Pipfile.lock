@@ -983,7 +983,7 @@
                 "sha256:117a49fd6ef1d2b78d89bd0d5afaca3915a0e1ea29d1ea17e4dbc87ac92885e8",
                 "sha256:99a866d9b5eaf9bdda2faae33209d5d1a45420b4b1fa6fca55aad765c5eca5ff"
             ],
-            "markers": "python_version >= '3.7' and python_version < '4'",
+            "markers": "python_version >= '3.7' and python_version < '4.0'",
             "version": "==1.27.71"
         },
         "certifi": {
@@ -1186,7 +1186,7 @@
                 "sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7",
                 "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"
             ],
-            "markers": "python_version < '4' and python_full_version >= '3.6.1'",
+            "markers": "python_version < '4.0' and python_full_version >= '3.6.1'",
             "version": "==5.10.1"
         },
         "jaraco.classes": {
@@ -1491,7 +1491,7 @@
                 "sha256:2eb4e6894cde1e017976d2975ac210ef515d7548bc595ba20e195fb9628acdeb",
                 "sha256:63a5c5ce3673d3d5fbbf23cd87e11ab84b6b451436f1b7f19ec54b6bc36ed7ca"
             ],
-            "markers": "python_version < '4' and python_full_version >= '3.6.3'",
+            "markers": "python_version < '4.0' and python_full_version >= '3.6.3'",
             "version": "==12.5.1"
         },
         "secretstorage": {
@@ -1531,7 +1531,7 @@
                 "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc",
                 "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"
             ],
-            "markers": "python_full_version < '3.11.0a7'",
+            "markers": "python_version < '3.11'",
             "version": "==2.0.1"
         },
         "tomlkit": {
@@ -1539,7 +1539,7 @@
                 "sha256:25d4e2e446c453be6360c67ddfb88838cfc42026322770ba13d1fbd403a93a5c",
                 "sha256:3235a9010fae54323e727c3ac06fb720752fe6635b3426e379daec60fbd44a83"
             ],
-            "markers": "python_version >= '3.6' and python_version < '4'",
+            "markers": "python_version >= '3.6' and python_version < '4.0'",
             "version": "==0.11.4"
         },
         "twine": {
@@ -1563,7 +1563,7 @@
                 "sha256:f20f83420b5276966e91d94a5dbf8f66822524d9d9aba1c56be4783323ec6b56",
                 "sha256:f8b1bf874c2e38deb390fcadc1177df760eebe85116398a359c49423b70b1b64"
             ],
-            "markers": "python_version >= '3.7' and python_version < '4'",
+            "markers": "python_version >= '3.7' and python_version < '4.0'",
             "version": "==0.14.6"
         },
         "types-pytz": {
@@ -1575,18 +1575,18 @@
         },
         "types-requests": {
             "hashes": [
-                "sha256:86cb66d3de2f53eac5c09adc42cf6547eefbd0c7e1210beca1ee751c35d96083",
-                "sha256:feaf581bd580497a47fe845d506fa3b91b484cf706ff27774e87659837de9962"
+                "sha256:45b485725ed58752f2b23461252f1c1ad9205b884a1e35f786bb295525a3e16a",
+                "sha256:97d8f40aa1ffe1e58c3726c77d63c182daea9a72d9f1fa2cafdea756b2a19f2c"
             ],
             "index": "pypi",
-            "version": "==2.28.9"
+            "version": "==2.28.10"
         },
         "types-s3transfer": {
             "hashes": [
                 "sha256:0c45331bfd0db210f5043efd2bc3ecd4b3482a02c28faea33edf719b6be38431",
                 "sha256:78f9ea029fedc97e1a5d323edd149a827d4ab361d11cd92bb1b5f235ff84ba72"
             ],
-            "markers": "python_version >= '3.7' and python_version < '4'",
+            "markers": "python_version >= '3.7' and python_version < '4.0'",
             "version": "==0.6.0.post4"
         },
         "types-setuptools": {
