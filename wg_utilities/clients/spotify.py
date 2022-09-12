@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import date, datetime, timedelta
 from enum import Enum
-from json import dumps, JSONDecodeError
+from json import JSONDecodeError, dumps
 from logging import DEBUG, getLogger
 from re import sub
 from typing import Any, Callable, Collection, Literal, TypedDict
