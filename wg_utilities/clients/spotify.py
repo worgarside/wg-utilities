@@ -8,6 +8,7 @@ from logging import DEBUG, getLogger
 from re import sub
 from typing import Any, Callable, Collection, Literal, TypedDict
 
+from pydantic import BaseModel, Extra
 from requests import Response, get, post
 from spotipy import CacheFileHandler, SpotifyOAuth
 
@@ -23,6 +24,19 @@ class AlbumType(Enum):
     SINGLE = "single"
     ALBUM = "album"
     COMPILATION = "compilation"
+
+
+class Device(BaseModel, extra=Extra.allow):
+    # pylint: disable=too-few-public-methods
+    """Model for a Spotify device"""
+
+    id: str
+    is_active: bool
+    is_private_session: bool
+    is_restricted: bool
+    name: str
+    type: str
+    volume_percent: int
 
 
 class _SpotifyEntityInfo(TypedDict):
@@ -226,15 +240,6 @@ class User(SpotifyEntity):
         super().__init__(json=json, spotify_client=spotify_client, metadata=metadata)
 
     @property
-    def name(self) -> str:
-        """
-        Returns:
-            str: the display name of the User
-        """
-
-        return self.json["display_name"]
-
-    @property
     def current_playlist(self) -> Playlist | None:
         """Gets the current playlist for the given user
 
@@ -252,6 +257,19 @@ class User(SpotifyEntity):
         return None
 
     @property
+    def devices(self) -> list[Device]:
+        """
+        Returns:
+            list[Device]: a list of devices available to the user
+        """
+        return [
+            Device.parse_obj(device_json)
+            for device_json in self._spotify_client.get_json_response(
+                "/me/player/devices"
+            ).get("devices", [])
+        ]
+
+    @property
     def current_track(self) -> Track | None:
         """Gets the currently playing track for the given user
 
@@ -265,6 +283,66 @@ class User(SpotifyEntity):
             return Track(res["item"], spotify_client=self._spotify_client)
 
         return None
+
+    @property
+    def followed_artists(self) -> list[Artist]:
+        """
+        Returns:
+            list[Artist]: the top artists for the user
+        """
+        return [
+            Artist(
+                artist_json,  # type: ignore[arg-type]
+                spotify_client=self._spotify_client,
+            )
+            for artist_json in self._spotify_client.get_items_from_url(
+                "/me/following",
+                params={
+                    "type": "artist",
+                },
+            )
+        ]
+
+    @property
+    def name(self) -> str:
+        """
+        Returns:
+            str: the display name of the User
+        """
+
+        return self.json["display_name"]
+
+    @property
+    def top_artists(self) -> tuple[Artist, ...]:
+        """
+        Returns:
+            tuple[Artist, ...]: the top artists for the user
+        """
+        return tuple(
+            Artist(
+                artist_json,  # type: ignore[arg-type]
+                spotify_client=self._spotify_client,
+            )
+            for artist_json in self._spotify_client.get_items_from_url(
+                "/me/top/artists", params={"time_range": "short_term"}
+            )
+        )
+
+    @property
+    def top_tracks(self) -> tuple[Track, ...]:
+        """
+        Returns:
+            tuple[Track]: the top artists for the user
+        """
+        return tuple(
+            Track(
+                track_json,  # type: ignore[arg-type]
+                spotify_client=self._spotify_client,
+            )
+            for track_json in self._spotify_client.get_items_from_url(
+                "/me/top/tracks", params={"time_range": "short_term"}
+            )
+        )
 
 
 class Track(SpotifyEntity):
@@ -686,6 +764,7 @@ class SpotifyClient:
             _PlaylistInfo
             | _TrackInfo
             | _AlbumInfo
+            | _ArtistInfo
             | list[dict[Literal["album"], _AlbumInfo]]
         )
     ]:
@@ -712,6 +791,7 @@ class SpotifyClient:
                 _PlaylistInfo
                 | _TrackInfo
                 | _AlbumInfo
+                | _ArtistInfo
                 | list[dict[Literal["album"], _AlbumInfo]]
             )
         ] = []
