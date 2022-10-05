@@ -14,7 +14,7 @@ from requests import post
 
 load_dotenv()
 
-HA_LOG_ENDPOINT = getenv("HA_LOG_ENDPOINT", "192.168.1.120:8001")
+HA_LOG_ENDPOINT = getenv("HA_LOG_ENDPOINT", "homeassistant.local:8001")
 
 
 class ResourceNotFound(Exception):
@@ -41,9 +41,9 @@ def send_exception_to_home_assistant(exc: Exception) -> None:
         try:
             # If the host is on the same network as HA, then an HTTP local URL can be
             # used
-            post(f"http://{HA_LOG_ENDPOINT}/log/error", json=payload)
+            post(f"http://{HA_LOG_ENDPOINT}/log/error", json=payload, timeout=10)
         except Exception:  # pylint: disable=broad-except
-            post(f"https://{HA_LOG_ENDPOINT}/log/error", json=payload)
+            post(f"https://{HA_LOG_ENDPOINT}/log/error", json=payload, timeout=10)
     except Exception as send_exc:
         raise send_exc from exc
 
