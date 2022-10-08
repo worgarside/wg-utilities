@@ -56,7 +56,7 @@ repos:
       - id: mypy
         args: [--strict, --show-error-codes]
         # yamllint disable-line rule:line-length
-        additional_dependencies: [types-requests, types-paramiko, boto3-stubs, lxml-stubs, types-flask, types-Pillow, types-setuptools, types-tzlocal, pydantic]
+        additional_dependencies: [types-requests, types-paramiko, boto3-stubs, lxml-stubs, types-flask, types-Pillow, types-setuptools, types-tzlocal, pydantic, types-PyYAML]
 
   - repo: local
     hooks:
