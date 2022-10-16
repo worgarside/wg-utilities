@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from enum import Enum
 from logging import DEBUG, getLogger
 from os import chdir
-from os.path import abspath, sep
+from pathlib import Path
 from re import match
 
 from packaging.version import parse as parse_version
@@ -20,18 +20,9 @@ add_stream_handler(CMD_LOGGER)
 
 VERSION_REGEX = r"(\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)"
 
-PROJECT_ROOT = sep.join(
-    abspath(__file__).split(sep)[
-        0 : abspath(__file__).split(sep).index("wg-utilities") + 1
-    ],
-)
-
-SETUP_PY_PATH = sep.join(
-    [
-        PROJECT_ROOT,
-        "setup.py",
-    ]
-)
+PROJECT_ROOT = Path(__file__).parents[2]
+SETUP_PY_PATH = PROJECT_ROOT / "setup.py"
+WG_UTILS_PACKAGE_INIT_PATH = PROJECT_ROOT / "wg_utilities" / "__init__.py"
 
 chdir(PROJECT_ROOT)
 
@@ -116,26 +107,72 @@ def create_release_branch(old: str, new: str) -> None:
         else:
             raise
 
-    with open(SETUP_PY_PATH, encoding="UTF-8") as f:
-        setup_file = f.readlines()
-
-    version_line_num, version_line_content = [
-        (index, line)
-        for index, line in enumerate(setup_file)
-        if line.strip().lower().startswith("version=")
-    ][0]
-
-    setup_file[version_line_num] = version_line_content.replace(old, new)
-
-    with open(SETUP_PY_PATH, "w", encoding="UTF-8") as f:
-        f.writelines(setup_file)
+    update_setup_py_file(old, new)
+    update_wg_utils_package_init_file(old, new)
 
     run_cmd(f"git add {SETUP_PY_PATH}")
+    run_cmd(f"git add {WG_UTILS_PACKAGE_INIT_PATH}")
     run_cmd(f'git commit -m "VB {new}"')
     run_cmd(f"git push --set-upstream origin release/{new}")
     run_cmd(f'git tag -a {new} -m ""')
     run_cmd(f"git flow release finish -n {new}")
     run_cmd("git push --all")
+
+
+def _update_file(
+    *, file_path: Path, version_line_prefix: str, old: str, new: str
+) -> None:
+    """Updates the given file with the new version number
+
+    Args:
+        file_path (Path): the path to the file to update
+        version_line_prefix (str): the prefix of the line containing the version number
+        old (str): the old release number (x.y.z)
+        new (str): the new release number (x.y.z)
+    """
+    with open(file_path, encoding="UTF-8") as f:
+        file_content = f.readlines()
+
+    version_line_num, version_line_content = [
+        (index, line)
+        for index, line in enumerate(file_content)
+        if line.strip().lower().startswith(version_line_prefix)
+    ][0]
+
+    file_content[version_line_num] = version_line_content.replace(old, new)
+
+    with open(file_path, "w", encoding="UTF-8") as f:
+        f.writelines(file_content)
+
+
+def update_setup_py_file(old: str, new: str) -> None:
+    """Updates the `setup.py` file with the new version number
+
+    Args:
+        old (str): the old release number (x.y.z)
+        new (str): the new release number (x.y.z)
+    """
+    _update_file(
+        file_path=SETUP_PY_PATH,
+        version_line_prefix="version=",
+        old=old,
+        new=new,
+    )
+
+
+def update_wg_utils_package_init_file(old: str, new: str) -> None:
+    """Updates the `wg_utilities/__init__.py` file with the new version number
+
+    Args:
+        old (str): the old release number (x.y.z)
+        new (str): the new release number (x.y.z)
+    """
+    _update_file(
+        file_path=WG_UTILS_PACKAGE_INIT_PATH,
+        version_line_prefix="__version__",
+        old=old,
+        new=new,
+    )
 
 
 def main() -> None:
