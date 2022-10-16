@@ -108,6 +108,7 @@ def create_release_branch(old: str, new: str) -> None:
             raise
 
     update_setup_py_file(old, new)
+    update_wg_utils_package_init_file(old, new)
 
     run_cmd(f"git add {SETUP_PY_PATH}")
     run_cmd(f'git commit -m "VB {new}"')
