@@ -111,6 +111,7 @@ def create_release_branch(old: str, new: str) -> None:
     update_wg_utils_package_init_file(old, new)
 
     run_cmd(f"git add {SETUP_PY_PATH}")
+    run_cmd(f"git add {WG_UTILS_PACKAGE_INIT_PATH}")
     run_cmd(f'git commit -m "VB {new}"')
     run_cmd(f"git push --set-upstream origin release/{new}")
     run_cmd(f'git tag -a {new} -m ""')
