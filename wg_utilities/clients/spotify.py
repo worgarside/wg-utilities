@@ -1,8 +1,10 @@
+# pylint: disable=too-many-lines
 """Custom client for interacting with Spotify's Web API"""
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta
 from enum import Enum
+from http import HTTPStatus
 from json import JSONDecodeError, dumps
 from logging import DEBUG, getLogger
 from re import sub
@@ -831,7 +833,10 @@ class SpotifyClient:
             dict: the JSON from the response
         """
         try:
-            return self._get(url, params=params).json()  # type: ignore
+            res = self._get(url, params=params)
+            if res.status_code == HTTPStatus.NO_CONTENT:
+                return {}
+            return res.json()  # type: ignore[no-any-return]
         except JSONDecodeError:
             return {}
 
