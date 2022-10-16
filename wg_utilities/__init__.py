@@ -1,7 +1,7 @@
 # pylint: disable=missing-module-docstring,invalid-name
 name = "wg_utilities"
 
-__version__ = "2.31.1"
+__version__ = "2.32.0"
 
 __all__ = [
     "clients",
