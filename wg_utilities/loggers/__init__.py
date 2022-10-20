@@ -166,7 +166,7 @@ def add_file_handler(
     logfile_path: str,
     level: int = DEBUG,
     create_directory: bool = True,
-) -> None:
+) -> Logger:
     """Add a FileHandler to an existing logger
 
     Args:
@@ -175,6 +175,10 @@ def add_file_handler(
         level (int): the logging level to be used for the FileHandler
         create_directory (bool): whether to force-create the directory/ies the file is
          contained within
+
+    Returns:
+        Logger: the logger instance, returned for use in one-liners:
+            `logger = add_file_handler(logging.getLogger(__name__))`
     """
 
     f_handler = create_file_handler(
@@ -182,6 +186,8 @@ def add_file_handler(
     )
 
     logger.addHandler(f_handler)
+
+    return logger
 
 
 def add_list_handler(
@@ -212,13 +218,17 @@ def add_list_handler(
 
 def add_stream_handler(
     logger: Logger, *, formatter: Formatter = FORMATTER, level: int = DEBUG
-) -> None:
+) -> Logger:
     """Add a FileHandler to an existing logger
 
     Args:
         logger (Logger): the logger to add a file handler to
         formatter (Formatter): the formatter to use in the stream logs
         level (int): the logging level to be used for the FileHandler
+
+    Returns:
+        Logger: the logger instance, returned for use in one-liners:
+            `logger = add_stream_handler(logging.getLogger(__name__))`
     """
 
     s_handler = StreamHandler(stdout)
@@ -226,3 +236,5 @@ def add_stream_handler(
     s_handler.setLevel(level)
 
     logger.addHandler(s_handler)
+
+    return logger
