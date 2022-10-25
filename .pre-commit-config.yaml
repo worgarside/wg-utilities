@@ -36,7 +36,7 @@ repos:
     hooks:
       - id: yamlfmt
         # yamllint disable-line rule:line-length
-        args: [--mapping, '2', --sequence, '4', --offset, '2', --width, '4096', --preserve-quotes]
+        args: [--mapping, '2', --sequence, '4', --offset, '2', --width, '4096']
 
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.28.0
@@ -64,7 +64,7 @@ repos:
         name: pylint
         entry: pylint
         # yamllint disable-line rule:line-length
-        args: ["--disable=fixme", "--enable=useless-suppression", "--rcfile=.pylintrc", "--load-plugins=pylint_strict_informational"]
+        args: [--disable=fixme, --enable=useless-suppression, --rcfile=.pylintrc, --load-plugins=pylint_strict_informational]
         language: python
         types: [python]
         additional_dependencies: [pylint-strict-informational]
