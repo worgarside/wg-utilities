@@ -1,4 +1,3 @@
-# type: ignore
 """
 * | File        :	  epdconfig.py
 * | Author      :   Waveshare team
@@ -32,9 +31,9 @@ from __future__ import annotations
 # pylint: disable=missing-function-docstring,missing-class-docstring
 from logging import debug
 from os import path
-from os.path import dirname, exists, join, realpath
 from sys import modules
 from time import sleep
+from typing import Literal
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -47,7 +46,7 @@ class RaspberryPi:
 
     # noinspection PyUnresolvedReferences,PyPackageRequirements
     # pylint: disable=import-outside-toplevel
-    def __init__(self):
+    def __init__(self) -> None:
         from RPi import GPIO
         from spidev import SpiDev
 
@@ -56,21 +55,21 @@ class RaspberryPi:
         # SPI device, bus = 0, device = 0
         self.spi = SpiDev(0, 0)
 
-    def digital_write(self, pin, value):
+    def digital_write(self, pin: int, value: bool) -> None:
         self.gpio.output(pin, value)
 
-    def digital_read(self, pin):
-        return self.gpio.input(pin)
+    def digital_read(self, pin: int) -> bool:
+        return self.gpio.input(pin)  # type: ignore[no-any-return]
 
     @staticmethod
-    def delay_ms(delay_time):
+    def delay_ms(delay_time: float | int) -> None:
         sleep(delay_time / 1000.0)
 
-    def spi_writebyte(self, data):
+    def spi_writebyte(self, data: list[int]) -> None:
         self.spi.writebytes(data)
 
     # noinspection DuplicatedCode
-    def module_init(self):
+    def module_init(self) -> Literal[0]:
         self.gpio.setmode(self.gpio.BCM)
         self.gpio.setwarnings(False)
         self.gpio.setup(self.RST_PIN, self.gpio.OUT)
@@ -81,7 +80,7 @@ class RaspberryPi:
         self.spi.mode = 0b00
         return 0
 
-    def module_exit(self):
+    def module_exit(self) -> None:
         debug("spi end")
         self.spi.close()
 
@@ -92,78 +91,81 @@ class RaspberryPi:
         self.gpio.cleanup()
 
 
-# noinspection PyMissingOrEmptyDocstring
-class JetsonNano:
-    # Pin definition
-    RST_PIN = 17
-    DC_PIN = 25
-    CS_PIN = 8
-    BUSY_PIN = 24
-
-    # noinspection PyUnresolvedReferences
-    # pylint: disable=import-outside-toplevel
-    def __init__(self):
-        from ctypes.cdll import LoadLibrary
-
-        from Jetson import GPIO
-
-        self.spi = None
-
-        for find_dir in [
-            dirname(realpath(__file__)),
-            "/usr/local/lib",
-            "/usr/lib",
-        ]:
-            so_filename = join(find_dir, "sysfs_software_spi.so")
-            if exists(so_filename):
-                self.spi = LoadLibrary(so_filename)
-                break
-
-        if self.spi is None:
-            raise RuntimeError("Cannot find sysfs_software_spi.so")
-
-        self.gpio = GPIO
-
-    def digital_write(self, pin, value):
-        self.gpio.output(pin, value)
-
-    def digital_read(self, _):
-        return self.gpio.input(self.BUSY_PIN)
-
-    @staticmethod
-    def delay_ms(delay_time):
-        sleep(delay_time / 1000.0)
-
-    def spi_writebyte(self, data):
-        self.spi.SYSFS_software_spi_transfer(data[0])
-
-    # noinspection DuplicatedCode
-    def module_init(self):
-        self.gpio.setmode(self.gpio.BCM)
-        self.gpio.setwarnings(False)
-        self.gpio.setup(self.RST_PIN, self.gpio.OUT)
-        self.gpio.setup(self.DC_PIN, self.gpio.OUT)
-        self.gpio.setup(self.CS_PIN, self.gpio.OUT)
-        self.gpio.setup(self.BUSY_PIN, self.gpio.IN)
-        self.spi.SYSFS_software_spi_begin()
-        return 0
-
-    def module_exit(self):
-        debug("spi end")
-        self.spi.SYSFS_software_spi_end()
-
-        debug("close 5V, Module enters 0 power consumption ...")
-        self.gpio.output(self.RST_PIN, 0)
-        self.gpio.output(self.DC_PIN, 0)
-
-        self.gpio.cleanup()
+# This is commented out because I don't have a Jetson Nano and I can't be bothered type
+# hinting it all
+#
+# class JetsonNano:
+#     # Pin definition
+#     RST_PIN = 17
+#     DC_PIN = 25
+#     CS_PIN = 8
+#     BUSY_PIN = 24
+#
+#     # noinspection PyUnresolvedReferences
+#     def __init__(self):
+#         from ctypes.cdll import LoadLibrary
+#
+#         from Jetson import GPIO
+#
+#         self.spi = None
+#
+#         for find_dir in [
+#             dirname(realpath(__file__)),
+#             "/usr/local/lib",
+#             "/usr/lib",
+#         ]:
+#             so_filename = join(find_dir, "sysfs_software_spi.so")
+#             if exists(so_filename):
+#                 self.spi = LoadLibrary(so_filename)
+#                 break
+#
+#         if self.spi is None:
+#             raise RuntimeError("Cannot find sysfs_software_spi.so")
+#
+#         self.gpio = GPIO
+#
+#     def digital_write(self, pin, value):
+#         self.gpio.output(pin, value)
+#
+#     def digital_read(self, _):
+#         return self.gpio.input(self.BUSY_PIN)
+#
+#     @staticmethod
+#     def delay_ms(delay_time):
+#         sleep(delay_time / 1000.0)
+#
+#     def spi_writebyte(self, data):
+#         self.spi.SYSFS_software_spi_transfer(data[0])
+#
+#     # noinspection DuplicatedCode
+#     def module_init(self):
+#         self.gpio.setmode(self.gpio.BCM)
+#         self.gpio.setwarnings(False)
+#         self.gpio.setup(self.RST_PIN, self.gpio.OUT)
+#         self.gpio.setup(self.DC_PIN, self.gpio.OUT)
+#         self.gpio.setup(self.CS_PIN, self.gpio.OUT)
+#         self.gpio.setup(self.BUSY_PIN, self.gpio.IN)
+#         self.spi.SYSFS_software_spi_begin()
+#         return 0
+#
+#     def module_exit(self):
+#         debug("spi end")
+#         self.spi.SYSFS_software_spi_end()
+#
+#         debug("close 5V, Module enters 0 power consumption ...")
+#         self.gpio.output(self.RST_PIN, 0)
+#         self.gpio.output(self.DC_PIN, 0)
+#
+#         self.gpio.cleanup()
 
 
 try:
     if path.exists("/sys/bus/platform/drivers/gpiomem-bcm2835"):
-        implementation = RaspberryPi()
+        # pylint: disable=used-before-assignment
+        implementation: RaspberryPi | FakeImplementation = RaspberryPi()
     else:
-        implementation = JetsonNano()
+        # implementation = JetsonNano()
+        raise RuntimeError("Unsupported platform (Jetson Nano?)")
 
     for func in dir(implementation):
         if not func.startswith("_"):
@@ -176,7 +178,8 @@ except (RuntimeError, ImportError):
     class FakeImplementation:
         """Class to cover functionality of implementations on non-supporting devices"""
 
-    for method in set().union(dir(RaspberryPi), dir(JetsonNano)):
+    # for method in set().union(dir(RaspberryPi), dir(JetsonNano)):
+    for method in dir(RaspberryPi):
         if not method.startswith("_"):
             setattr(FakeImplementation, method, lambda *a, **k: None)
 

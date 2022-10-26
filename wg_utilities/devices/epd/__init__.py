@@ -1,4 +1,3 @@
-# type: ignore
 """Drivers obtained from https://github.com/waveshare/e-Paper"""
 from __future__ import annotations
 
@@ -30,7 +29,7 @@ else:
     FRAME_DELAY = 0
 
     # pylint: disable=too-few-public-methods
-    class EPD:
+    class EPD:  # type: ignore[no-redef]
         """Dynamically built class to mirror the functionality of the EPD on devices
         which don't support it"""
 

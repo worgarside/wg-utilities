@@ -44,6 +44,7 @@ if __name__ == "__main__":
             "devices.epd": [
                 "spidev>=3.5; sys_platform == 'linux'",
                 "rpi.gpio>=0.7.0; sys_platform == 'linux'",
+                "Pillow",
             ],
             "devices.dht22": ["pigpio"],
             "devices.yamaha_yas_209": [

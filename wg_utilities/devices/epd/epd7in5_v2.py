@@ -1,4 +1,3 @@
-# type: ignore
 """
 * | File        :	  epd7in5.py
 * | Author      :   Waveshare team
@@ -32,6 +31,8 @@ from __future__ import annotations
 # pylint: disable=missing-function-docstring,missing-class-docstring,no-member
 from logging import debug
 
+from PIL.Image import Image
+
 from wg_utilities.devices.epd import epdconfig
 
 # Display resolution
@@ -41,46 +42,46 @@ EPD_HEIGHT = 480
 
 # noinspection PyUnresolvedReferences,PyMissingOrEmptyDocstring,SpellCheckingInspection
 class EPD:
-    def __init__(self):
-        self.reset_pin = epdconfig.RST_PIN
-        self.dc_pin = epdconfig.DC_PIN
-        self.busy_pin = epdconfig.BUSY_PIN
-        self.cs_pin = epdconfig.CS_PIN
+    def __init__(self) -> None:
+        self.reset_pin = epdconfig.RST_PIN  # type: ignore[attr-defined]
+        self.dc_pin = epdconfig.DC_PIN  # type: ignore[attr-defined]
+        self.busy_pin = epdconfig.BUSY_PIN  # type: ignore[attr-defined]
+        self.cs_pin = epdconfig.CS_PIN  # type: ignore[attr-defined]
         self.width = EPD_WIDTH
         self.height = EPD_HEIGHT
 
     # Hardware reset
-    def reset(self):
-        epdconfig.digital_write(self.reset_pin, 1)
-        epdconfig.delay_ms(200)
-        epdconfig.digital_write(self.reset_pin, 0)
-        epdconfig.delay_ms(2)
-        epdconfig.digital_write(self.reset_pin, 1)
-        epdconfig.delay_ms(200)
+    def reset(self) -> None:
+        epdconfig.digital_write(self.reset_pin, 1)  # type: ignore[attr-defined]
+        epdconfig.delay_ms(200)  # type: ignore[attr-defined]
+        epdconfig.digital_write(self.reset_pin, 0)  # type: ignore[attr-defined]
+        epdconfig.delay_ms(2)  # type: ignore[attr-defined]
+        epdconfig.digital_write(self.reset_pin, 1)  # type: ignore[attr-defined]
+        epdconfig.delay_ms(200)  # type: ignore[attr-defined]
 
-    def send_command(self, command):
-        epdconfig.digital_write(self.dc_pin, 0)
-        epdconfig.digital_write(self.cs_pin, 0)
-        epdconfig.spi_writebyte([command])
-        epdconfig.digital_write(self.cs_pin, 1)
+    def send_command(self, command: int) -> None:
+        epdconfig.digital_write(self.dc_pin, 0)  # type: ignore[attr-defined]
+        epdconfig.digital_write(self.cs_pin, 0)  # type: ignore[attr-defined]
+        epdconfig.spi_writebyte([command])  # type: ignore[attr-defined]
+        epdconfig.digital_write(self.cs_pin, 1)  # type: ignore[attr-defined]
 
-    def send_data(self, data):
-        epdconfig.digital_write(self.dc_pin, 1)
-        epdconfig.digital_write(self.cs_pin, 0)
-        epdconfig.spi_writebyte([data])
-        epdconfig.digital_write(self.cs_pin, 1)
+    def send_data(self, data: int) -> None:
+        epdconfig.digital_write(self.dc_pin, 1)  # type: ignore[attr-defined]
+        epdconfig.digital_write(self.cs_pin, 0)  # type: ignore[attr-defined]
+        epdconfig.spi_writebyte([data])  # type: ignore[attr-defined]
+        epdconfig.digital_write(self.cs_pin, 1)  # type: ignore[attr-defined]
 
-    def read_busy(self):
+    def read_busy(self) -> None:
         debug("e-Paper busy")
         self.send_command(0x71)
-        busy = epdconfig.digital_read(self.busy_pin)
+        busy = epdconfig.digital_read(self.busy_pin)  # type: ignore[attr-defined]
         while busy == 0:
             self.send_command(0x71)
-            busy = epdconfig.digital_read(self.busy_pin)
-        epdconfig.delay_ms(200)
+            busy = epdconfig.digital_read(self.busy_pin)  # type: ignore[attr-defined]
+        epdconfig.delay_ms(200)  # type: ignore[attr-defined]
 
-    def init(self):
-        if epdconfig.module_init() != 0:
+    def init(self) -> int:
+        if epdconfig.module_init() != 0:  # type: ignore[attr-defined]
             return -1
         # EPD hardware init start
         self.reset()
@@ -92,7 +93,7 @@ class EPD:
         self.send_data(0x3F)  # VDL=-15V
 
         self.send_command(0x04)  # POWER ON
-        epdconfig.delay_ms(100)
+        epdconfig.delay_ms(100)  # type: ignore[attr-defined]
         self.read_busy()
 
         self.send_command(0x00)  # PANEL SETTING
@@ -117,12 +118,12 @@ class EPD:
         # EPD hardware init end
         return 0
 
-    def getbuffer(self, image):
+    def getbuffer(self, image: Image) -> list[int]:
         # logging.debug("bufsiz = ",int(self.width/8) * self.height)
         buf = [0xFF] * (int(self.width / 8) * self.height)
         image_monocolor = image.convert("1")
         imwidth, imheight = image_monocolor.size
-        pixels = image_monocolor.load()
+        pixels = image_monocolor.load()  # type: ignore[func-returns-value]
         # logging.debug("imwidth = %d, imheight = %d",imwidth,imheight)
         if imwidth == self.width and imheight == self.height:
             debug("Vertical")
@@ -141,16 +142,16 @@ class EPD:
                         buf[int((new_x + new_y * self.width) / 8)] &= ~(0x80 >> (y % 8))
         return buf
 
-    def display(self, image):
+    def display(self, image: Image) -> None:
         self.send_command(0x13)
         for i in range(0, int(self.width * self.height / 8)):
-            self.send_data(~image[i])
+            self.send_data(~image[i])  # type: ignore[index]
 
         self.send_command(0x12)
-        epdconfig.delay_ms(100)
+        epdconfig.delay_ms(100)  # type: ignore[attr-defined]
         self.read_busy()
 
-    def clear(self):
+    def clear(self) -> None:
         self.send_command(0x10)
         for _ in range(0, int(self.width * self.height / 8)):
             self.send_data(0x00)
@@ -160,10 +161,10 @@ class EPD:
             self.send_data(0x00)
 
         self.send_command(0x12)
-        epdconfig.delay_ms(100)
+        epdconfig.delay_ms(100)  # type: ignore[attr-defined]
         self.read_busy()
 
-    def sleep(self):
+    def sleep(self) -> None:
         self.send_command(0x02)  # POWER_OFF
         self.read_busy()
 
@@ -171,5 +172,5 @@ class EPD:
         self.send_data(0xA5)
 
     @staticmethod
-    def dev_exit():
-        epdconfig.module_exit()
+    def dev_exit() -> None:
+        epdconfig.module_exit()  # type: ignore[attr-defined]
