@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from asyncio import new_event_loop, run
 from asyncio import sleep as async_sleep
+from collections.abc import Coroutine, Mapping, Sequence
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
@@ -10,16 +11,7 @@ from logging import DEBUG, getLogger
 from textwrap import dedent
 from threading import Thread
 from time import sleep, strptime
-from typing import (
-    Any,
-    Callable,
-    Coroutine,
-    Literal,
-    Mapping,
-    Sequence,
-    TypedDict,
-    TypeVar,
-)
+from typing import Any, Callable, Literal, TypedDict, TypeVar
 
 from async_upnp_client.aiohttp import AiohttpNotifyServer, AiohttpRequester
 from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable

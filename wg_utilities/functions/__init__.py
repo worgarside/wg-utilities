@@ -1,5 +1,7 @@
 """Useful functions"""
 
+from __future__ import annotations
+
 from ._functions import chunk_list, flatten_dict, try_float
 from .datetime_helpers import utcnow
 from .file_management import force_mkdir, user_data_dir

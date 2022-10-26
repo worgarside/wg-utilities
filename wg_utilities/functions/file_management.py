@@ -1,14 +1,15 @@
 """Functions for specifically managing files and directories"""
 
+from __future__ import annotations
+
 from os import environ, getenv
 from os.path import dirname
 from pathlib import Path
 from sys import platform
-from typing import Optional, Union
 
 
 def user_data_dir(
-    *, project_name: str = "WgUtilities", file_name: Optional[str] = None
+    *, project_name: str = "WgUtilities", file_name: str | None = None
 ) -> Path:
     """Get OS specific data directory path
 
@@ -44,9 +45,7 @@ def user_data_dir(
     return path.expanduser()
 
 
-def force_mkdir(
-    target_path: Union[str, Path], path_is_file: bool = False
-) -> Union[str, Path]:
+def force_mkdir(target_path: str | Path, path_is_file: bool = False) -> str | Path:
     """Creates all directories needed for the given path
 
     Args:

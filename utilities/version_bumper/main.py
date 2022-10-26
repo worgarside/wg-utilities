@@ -1,5 +1,7 @@
 """Script for creating (and deploying) a new version of WGUtils"""
 
+from __future__ import annotations
+
 from argparse import ArgumentParser
 from enum import Enum
 from logging import DEBUG, getLogger

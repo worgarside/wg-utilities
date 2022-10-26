@@ -1,5 +1,7 @@
 """Useful clients for commonly accessed APIs/services"""
 
+from __future__ import annotations
+
 from .google_calendar import GoogleCalendarClient
 from .google_drive import GoogleDriveClient
 from .google_fit import GoogleFitClient

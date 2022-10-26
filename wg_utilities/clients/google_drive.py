@@ -1,9 +1,10 @@
 """Custom client for interacting with Google's Drive API"""
 from __future__ import annotations
 
+from collections.abc import Collection, Iterable
 from copy import deepcopy
 from logging import Logger
-from typing import Any, Collection, Dict, Iterable, cast
+from typing import Any, cast
 
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.exceptions import ResourceNotFound
@@ -205,7 +206,7 @@ class Directory(File):
                 File(**item, google_client=self.google_client)  # type: ignore[arg-type]
                 # TODO make this just pass in the JSON like everything else...
                 for item in cast(
-                    Iterable[Dict[str, str]],
+                    Iterable[dict[str, str]],
                     self.google_client.get_items(
                         f"{self.google_client.BASE_URL}/files",
                         "files",

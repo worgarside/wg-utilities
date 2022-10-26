@@ -1,9 +1,10 @@
 """Functions for managing processes"""
 
+from __future__ import annotations
+
 from logging import DEBUG, getLogger
 from re import compile as compile_regex
 from subprocess import PIPE, Popen
-from typing import Tuple
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -13,7 +14,7 @@ COMMAND_PATTERN = compile_regex(r"""((?:[^\s"']|"[^"]*"|'[^']*')+)""")
 
 def run_cmd(
     cmd: str, exit_on_error: bool = True, shell: bool = False
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     """Helper function for running commands on the command line
 
     Args:

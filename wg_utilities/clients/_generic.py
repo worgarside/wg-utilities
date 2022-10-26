@@ -1,4 +1,6 @@
 """Generic Oauth client to allow for reusable authentication flows/checks etc."""
+from __future__ import annotations
+
 from datetime import datetime
 from json import dump, dumps, load
 from logging import DEBUG, Logger, getLogger
@@ -7,7 +9,7 @@ from random import choice
 from string import ascii_letters
 from threading import Thread
 from time import sleep, time
-from typing import Any, Dict, Optional, TypedDict, Union
+from typing import Any, TypedDict
 from webbrowser import open as open_browser
 
 from flask import Flask, request
@@ -48,7 +50,7 @@ class TempAuthServer:
             )
         )
 
-        self._request_args: Dict[str, Dict[str, Any]] = {}
+        self._request_args: dict[str, dict[str, Any]] = {}
 
         self.create_endpoints()
 
@@ -96,7 +98,7 @@ class TempAuthServer:
 
     def wait_for_request(
         self, endpoint: str, max_wait: int = 300, kill_on_request: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Wait for a request to come into the server for when it is needed in a
          synchronous flow
 
@@ -166,8 +168,8 @@ class OauthClient:
         redirect_uri: str = "http://0.0.0.0:5001/get_auth_code",
         access_token_expiry_threshold: int = 60,
         log_requests: bool = False,
-        creds_cache_path: Optional[Union[str, Path]] = None,
-        logger: Optional[Logger] = None,
+        creds_cache_path: str | Path | None = None,
+        logger: Logger | None = None,
     ):
         self.client_id = client_id
         self.client_secret = client_secret
@@ -188,9 +190,9 @@ class OauthClient:
 
         self._credentials: _OauthCredentialsInfo
 
-        self.temp_auth_server: Optional[TempAuthServer] = None
+        self.temp_auth_server: TempAuthServer | None = None
 
-    def _get(self, url: str, params: Optional[Dict[str, Any]] = None) -> Response:
+    def _get(self, url: str, params: dict[str, Any] | None = None) -> Response:
         """Wrapper for GET requests which covers authentication, URL parsing, etc. etc.
 
         Args:
@@ -247,8 +249,8 @@ class OauthClient:
         self.credentials = res.json()
 
     def get_json_response(
-        self, url: str, params: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, url: str, params: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Gets a simple JSON object from a URL
 
         Args:
@@ -284,12 +286,12 @@ class OauthClient:
         # Maintain any existing credential values in the dictionary whilst updating
         # new ones
         self.credentials = {
-            **self._credentials,  # type: ignore
+            **self._credentials,  # type: ignore[misc]
             **res.json(),
         }
 
     @property
-    def access_token(self) -> Optional[str]:
+    def access_token(self) -> str | None:
         """
         Returns:
             str: the access token for this bank's API
@@ -383,7 +385,7 @@ class OauthClient:
             dump(all_credentials, fout)
 
     @property
-    def request_headers(self) -> Dict[str, str]:
+    def request_headers(self) -> dict[str, str]:
         """
         Returns:
             dict: auth headers for HTTP requests
@@ -391,7 +393,7 @@ class OauthClient:
         return {"Authorization": f"Bearer {self.access_token}"}
 
     @property
-    def refresh_token(self) -> Optional[str]:
+    def refresh_token(self) -> str | None:
         """
         Returns:
             str: the API refresh token

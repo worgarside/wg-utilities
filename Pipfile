@@ -16,6 +16,7 @@ lxml-stubs = "*"
 types-setuptools = "*"
 xmltodict = "*"
 pycln = "*"
+pylint-strict-informational = "*"
 
 [packages]
 google-auth-oauthlib = ">=0.4.6"

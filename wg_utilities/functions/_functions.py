@@ -1,9 +1,12 @@
 """This module contains one-off functions that are useful across many different
 projects/use-cases"""
-from typing import Any, Dict, Generator, List, Optional, Union
+from __future__ import annotations
+
+from collections.abc import Generator
+from typing import Any
 
 
-def chunk_list(lst: List[Any], n: int) -> Generator[List[Any], None, None]:
+def chunk_list(lst: list[Any], n: int) -> Generator[list[Any], None, None]:
     """Yield successive n-sized chunks from lst
 
     Examples:
@@ -28,13 +31,13 @@ def chunk_list(lst: List[Any], n: int) -> Generator[List[Any], None, None]:
 
 
 def flatten_dict(
-    nested_dict: Dict[str, Any],
+    nested_dict: dict[str, Any],
     *,
     join_char: str = ".",
-    exclude_keys: Optional[List[str]] = None,
+    exclude_keys: list[str] | None = None,
     exact_keys: bool = False,
     parent_key: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """This function recursively traverses a dictionary and flattens any nested JSON
     so the resultant dict has no values of type dict. This allows for easier processing
     into Redshift
@@ -92,9 +95,9 @@ def flatten_dict(
         exclude_keys (list): list of keys to exclude when flatting the dict
         exact_keys (bool): whether the exculded list of keys contains the exact
          flattened key, eg for {one:{two:{three:3}} the exact key would be
-         `one.two` or if it should exclude all keys reguardless of parent
+         `one.two` or if it should exclude all keys regardless of parent
         parent_key (str): the string that keeps track of all the nested keys,
-         for the inital use this should be an empty string, which is the
+         for the initial use this should be an empty string, which is the
          default
 
     Returns:
@@ -125,7 +128,7 @@ def flatten_dict(
     return output
 
 
-def try_float(v: Any, default: Any = 0.0) -> Union[float, Any]:
+def try_float(v: Any, default: Any = 0.0) -> float | Any:
     """Tries to cast a value to a float, and returns a default if it fails
 
     Examples:

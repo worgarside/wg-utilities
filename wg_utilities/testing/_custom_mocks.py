@@ -1,12 +1,15 @@
 """This module contains any custom mocks (classes or functions) for use in Unit Tests
 within this project and others"""
-from typing import Any, Callable, Dict, List, Optional, Union
+from __future__ import annotations
+
+from typing import Any, Callable
 
 from botocore.client import BaseClient
 
-# noinspection PyProtectedMember
 # pylint: disable=protected-access
-ORIG_API_CALL: Callable[..., Dict[str, str]] = BaseClient._make_api_call  # type: ignore
+ORIG_API_CALL: Callable[
+    ..., dict[str, str]
+] = BaseClient._make_api_call  # type: ignore[attr-defined]
 
 
 class MockBoto3Client:
@@ -15,13 +18,11 @@ class MockBoto3Client:
 
     def __init__(
         self,
-        mocked_operation_lookup: Optional[
-            Dict[str, Union[str, Callable[..., Any]]]
-        ] = None,
+        mocked_operation_lookup: None | (dict[str, str | Callable[..., Any]]) = None,
     ):
         self.mocked_operation_lookup = mocked_operation_lookup or {}
 
-        self.boto3_calls: Dict[str, List[Dict[Any, Any]]] = {}
+        self.boto3_calls: dict[str, list[dict[Any, Any]]] = {}
 
     def reset_boto3_calls(self) -> None:
         """Resets the boto3 calls to an empty dict"""
@@ -29,9 +30,9 @@ class MockBoto3Client:
 
     def build_api_call(
         self,
-        lookup_overrides: Optional[Dict[str, Union[str, Callable[..., Any]]]] = None,
+        lookup_overrides: dict[str, str | Callable[..., Any]] | None = None,
         reset_boto3_calls: bool = True,
-    ) -> Callable[[BaseClient, str, Dict[str, Any]], Union[Dict[str, str], str]]:
+    ) -> Callable[[BaseClient, str, dict[str, Any]], dict[str, str] | str]:
         """Wrapper function for the API call. Also resets the internal log of boto3
         calls as this is a new API call
 
@@ -49,8 +50,8 @@ class MockBoto3Client:
             self.reset_boto3_calls()
 
         def api_call(
-            client: BaseClient, operation_name: str, kwargs: Dict[str, Any]
-        ) -> Union[Dict[str, str], str]:
+            client: BaseClient, operation_name: str, kwargs: dict[str, Any]
+        ) -> dict[str, str] | str:
             """Inner function of this mock, which is the actual mock function itself.
 
             Args:
@@ -85,7 +86,7 @@ class MockBoto3Client:
                 mocked_operation := self.mocked_operation_lookup.get(operation_name)
             ) is not None:
                 if callable(mocked_operation):
-                    return mocked_operation(kwargs)  # type: ignore
+                    return mocked_operation(kwargs)  # type: ignore[no-any-return]
 
                 return mocked_operation
 

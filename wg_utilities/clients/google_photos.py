@@ -1,13 +1,14 @@
 """Custom client for interacting with Google's Photos API"""
 from __future__ import annotations
 
+from collections.abc import Iterable
 from datetime import datetime
 from enum import Enum, auto
 from json import dumps
 from logging import Logger
 from os import getenv
 from os.path import isfile, join
-from typing import Iterable, TypedDict, cast
+from typing import TypedDict, cast
 
 from requests import get
 

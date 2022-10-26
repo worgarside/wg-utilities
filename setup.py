@@ -1,14 +1,13 @@
 """Setup/config file for the package"""
 
-from os.path import abspath, join, sep
+from __future__ import annotations
+
+from os.path import join, sep
 
 from setuptools import find_packages, setup
 
 PROJECT_ROOT = sep + join(
-    "",
-    *abspath(__file__).split(sep)[
-        0 : abspath(__file__).split(sep).index("wg-utilities") + 1
-    ]
+    "", *__file__.split(sep)[0 : __file__.split(sep).index("wg-utilities") + 1]
 )
 
 if __name__ == "__main__":

@@ -27,8 +27,9 @@ LIABILITY WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
-# pylint: disable=missing-function-docstring,missing-class-docstring
+from __future__ import annotations
 
+# pylint: disable=missing-function-docstring,missing-class-docstring
 from logging import debug
 from os import path
 from os.path import dirname, exists, join, realpath

@@ -27,8 +27,9 @@ LIABILITY WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
-# pylint: disable=missing-function-docstring,missing-class-docstring,no-member
+from __future__ import annotations
 
+# pylint: disable=missing-function-docstring,missing-class-docstring,no-member
 from logging import debug
 
 from wg_utilities.devices.epd import epdconfig
@@ -94,7 +95,7 @@ class EPD:
         epdconfig.delay_ms(100)
         self.read_busy()
 
-        self.send_command(0x00)  # PANNEL SETTING
+        self.send_command(0x00)  # PANEL SETTING
         self.send_data(0x1F)  # KW-3f   KWR-2F	BWROTP 0f	BWOTP 1f
 
         self.send_command(0x61)  # tres

@@ -1,13 +1,14 @@
 """Custom client for interacting with TrueLayer's API"""
 from __future__ import annotations
 
+from collections.abc import Generator, Iterable
 from datetime import datetime, timedelta
 from enum import Enum
 from json import dump, dumps, load
 from logging import DEBUG, getLogger
 from os import getenv
 from time import time
-from typing import Any, Generator, Iterable, Literal, TypedDict
+from typing import Any, Literal, TypedDict
 from webbrowser import open as open_browser
 
 from jwt import DecodeError, decode
@@ -329,7 +330,9 @@ class TrueLayerClient:
         Returns:
             Card: a Card instance, with all relevant info
         """
-        return self._get_entity_by_id(card_id, Card, instance_kwargs)  # type: ignore
+        return self._get_entity_by_id(  # type: ignore[return-value]
+            card_id, Card, instance_kwargs
+        )
 
     def list_accounts(self) -> Generator[Account, None, None]:
         """Lists all accounts under the given bank account
@@ -684,7 +687,7 @@ class TrueLayerEntity:
         ):
             self.update_balance_values()
 
-        return getattr(self, f"_{prop_name}")  # type: ignore
+        return getattr(self, f"_{prop_name}")  # type: ignore[no-any-return]
 
     @property
     def available_balance(self) -> str | float | int | None:

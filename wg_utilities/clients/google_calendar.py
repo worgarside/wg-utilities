@@ -1,11 +1,12 @@
 """Custom client for interacting with Google's Drive API"""
 from __future__ import annotations
 
+from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 from enum import Enum
 from json import dumps
 from logging import Logger
-from typing import Any, Iterable, Literal, cast
+from typing import Any, Literal, cast
 
 from pytz import UTC, timezone
 from tzlocal import get_localzone

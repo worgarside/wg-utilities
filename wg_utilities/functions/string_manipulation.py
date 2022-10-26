@@ -1,6 +1,9 @@
 """Functions for string manipulation"""
 
 
+from __future__ import annotations
+
+
 def cleanse_string(value: str) -> str:
     """Remove all non-alphanumeric characters from a string
 

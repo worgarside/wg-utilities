@@ -1,9 +1,10 @@
 """Custom client for interacting with Monzo's API"""
 from __future__ import annotations
 
+from collections.abc import Generator
 from datetime import datetime, timedelta
 from logging import DEBUG, getLogger
-from typing import Generator, Literal, TypedDict
+from typing import Literal, TypedDict
 
 from requests import get, put
 

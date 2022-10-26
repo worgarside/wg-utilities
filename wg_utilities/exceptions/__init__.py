@@ -1,6 +1,7 @@
 """Custom exception types"""
 from __future__ import annotations
 
+from collections.abc import Iterable
 from functools import wraps
 from inspect import stack
 from logging import Logger, getLogger
@@ -8,7 +9,7 @@ from os import getenv
 from socket import gethostname
 from sys import exc_info
 from traceback import format_exc
-from typing import Any, Callable, Iterable
+from typing import Any, Callable
 
 from dotenv import load_dotenv
 from requests import post

@@ -1,4 +1,6 @@
 """Useful constants and functions for use in logging in other projects"""
+from __future__ import annotations
+
 from datetime import datetime
 from logging import (
     CRITICAL,
@@ -14,7 +16,7 @@ from logging import (
     StreamHandler,
 )
 from sys import stdout
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable
 
 from wg_utilities.functions import force_mkdir
 
@@ -33,16 +35,16 @@ class ListHandler(Handler):
 
     def __init__(
         self,
-        records_list: Optional[List[Any]] = None,
+        records_list: list[Any] | None = None,
         *,
-        log_ttl: Optional[int] = 86400,
-        on_record: Optional[Callable[[LogRecord], Any]] = None,
-        on_expiry: Optional[Callable[[LogRecord], Any]] = None,
+        log_ttl: int | None = 86400,
+        on_record: Callable[[LogRecord], Any] | None = None,
+        on_expiry: Callable[[LogRecord], Any] | None = None,
     ):
         super().__init__()
 
         # Can't use `or` here as `[]` is False
-        self._records_list: List[LogRecord] = (
+        self._records_list: list[LogRecord] = (
             records_list if records_list is not None else []
         )
 
@@ -82,7 +84,7 @@ class ListHandler(Handler):
                 break
 
     @property
-    def debug_records(self) -> List[LogRecord]:
+    def debug_records(self) -> list[LogRecord]:
         """
         Returns:
             list: a list of log records with the level DEBUG
@@ -91,7 +93,7 @@ class ListHandler(Handler):
         return [record for record in self._records_list if record.levelno == DEBUG]
 
     @property
-    def info_records(self) -> List[LogRecord]:
+    def info_records(self) -> list[LogRecord]:
         """
         Returns:
             list: a list of log records with the level INFO
@@ -100,7 +102,7 @@ class ListHandler(Handler):
         return [record for record in self._records_list if record.levelno == INFO]
 
     @property
-    def warning_records(self) -> List[LogRecord]:
+    def warning_records(self) -> list[LogRecord]:
         """
         Returns:
             list: a list of log records with the level WARNING
@@ -109,7 +111,7 @@ class ListHandler(Handler):
         return [record for record in self._records_list if record.levelno == WARNING]
 
     @property
-    def error_records(self) -> List[LogRecord]:
+    def error_records(self) -> list[LogRecord]:
         """
         Returns:
             list: a list of log records with the level ERROR
@@ -118,7 +120,7 @@ class ListHandler(Handler):
         return [record for record in self._records_list if record.levelno == ERROR]
 
     @property
-    def critical_records(self) -> List[LogRecord]:
+    def critical_records(self) -> list[LogRecord]:
         """
         Returns:
             list: a list of log records with the level CRITICAL
@@ -127,7 +129,7 @@ class ListHandler(Handler):
         return [record for record in self._records_list if record.levelno == CRITICAL]
 
     @property
-    def records(self) -> List[LogRecord]:
+    def records(self) -> list[LogRecord]:
         """
         Returns:
             list: a list of log records with the level CRITICAL
@@ -193,10 +195,10 @@ def add_file_handler(
 def add_list_handler(
     logger: Logger,
     *,
-    log_list: Optional[List[Any]] = None,
+    log_list: list[Any] | None = None,
     level: int = DEBUG,
-    log_ttl: Optional[int] = 86400,
-    on_expiry: Optional[Callable[[LogRecord], Any]] = None,
+    log_ttl: int | None = 86400,
+    on_expiry: Callable[[LogRecord], Any] | None = None,
 ) -> ListHandler:
     """Add a ListHandler to an existing logger
 
@@ -238,3 +240,12 @@ def add_stream_handler(
     logger.addHandler(s_handler)
 
     return logger
+
+
+__all__ = [
+    "ListHandler",
+    "create_file_handler",
+    "add_list_handler",
+    "add_file_handler",
+    "add_stream_handler",
+]

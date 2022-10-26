@@ -2,13 +2,14 @@
 """Custom client for interacting with Spotify's Web API"""
 from __future__ import annotations
 
+from collections.abc import Collection
 from datetime import date, datetime, timedelta
 from enum import Enum
 from http import HTTPStatus
 from json import JSONDecodeError, dumps
 from logging import DEBUG, getLogger
 from re import sub
-from typing import Any, Callable, Collection, Literal, TypedDict
+from typing import Any, Callable, Literal, TypedDict
 
 from pydantic import BaseModel, Extra
 from requests import Response, get, post
@@ -52,7 +53,7 @@ class _SpotifyEntityInfo(TypedDict):
 
 class _AlbumTracksItemInfo(TypedDict):
     href: str
-    items: list[_TrackInfo]  # type: ignore
+    items: list[_TrackInfo]  # type: ignore[misc]
     limit: int
     next: str | None
     offset: int
@@ -88,7 +89,7 @@ class _PlaylistInfo(_SpotifyEntityInfo):
     owner: _UserInfo
     public: bool
     snapshot_id: str
-    tracks: list[_TrackInfo]  # type: ignore
+    tracks: list[_TrackInfo]  # type: ignore[misc]
     type: Literal["playlist"]
 
 
@@ -954,7 +955,7 @@ class SpotifyClient:
 
         if not hasattr(self, "_albums"):
             self._albums = [
-                Album(item["album"], self)  # type: ignore
+                Album(item["album"], self)  # type: ignore[call-overload,typeddict-item]
                 for item in self.get_items_from_url("/me/albums")
             ]
 
@@ -984,7 +985,7 @@ class SpotifyClient:
 
         if not hasattr(self, "_tracks"):
             self._tracks = [
-                Track(item["track"], self)  # type: ignore
+                Track(item["track"], self)  # type: ignore[call-overload,typeddict-item]
                 for item in self.get_items_from_url("/me/tracks")
             ]
 
@@ -1172,14 +1173,25 @@ class SpotifyClient:
         if isinstance(day_limit, (float, int)):
             kwargs["limit_func"] = lambda item: bool(
                 datetime.strptime(item["added_at"], self.DATETIME_FORMAT)
-                # pylint: disable=line-too-long
-                < (datetime.utcnow() - timedelta(days=day_limit))  # type: ignore[arg-type]
+                < (
+                    datetime.utcnow()
+                    - timedelta(days=day_limit)  # type: ignore[arg-type]
+                )
             )
 
         return [
-            # pylint: disable=line-too-long
-            Track(item["track"], self, metadata={"liked_at": item["added_at"]})  # type: ignore
-            for item in self.get_items_from_url("/me/tracks", **kwargs)  # type: ignore
+            Track(
+                item["track"],  # type: ignore[call-overload,typeddict-item]
+                self,
+                metadata={
+                    "liked_at": item[
+                        "added_at"  # type: ignore[typeddict-item]
+                    ]  # type: ignore[call-overload]
+                },
+            )
+            for item in self.get_items_from_url(
+                "/me/tracks", **kwargs  # type: ignore[arg-type]
+            )
         ]
 
     def reset_properties(self) -> None:

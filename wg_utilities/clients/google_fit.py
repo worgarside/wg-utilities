@@ -192,7 +192,7 @@ class GoogleFitClient(GoogleClient):
             DataSource: an instance, ready to use!
         """
 
-        # TODO why isn't this just a list an we compare the istance IDs?
+        # TODO why isn't this just a list and we compare the instance IDs?
         if (data_source := self.data_sources.get(data_source_id)) is None:
             data_source = DataSource(data_source_id, google_client=self)
             self.data_sources[data_source_id] = data_source

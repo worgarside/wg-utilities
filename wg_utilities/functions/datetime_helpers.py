@@ -1,7 +1,8 @@
 """Helper functions for all things date and time related"""
+from __future__ import annotations
+
 from datetime import datetime
 from enum import Enum
-from typing import Optional, Union
 
 
 class DatetimeFixedUnit(Enum):
@@ -20,7 +21,7 @@ class DatetimeFixedUnit(Enum):
     NANOSECOND = 1e-9
 
 
-def utcnow(unit: Optional[DatetimeFixedUnit] = None) -> Union[datetime, int]:
+def utcnow(unit: DatetimeFixedUnit | None = None) -> datetime | int:
     """Gets the current UTC time and returns it in a chosen unit. If no unit is
      provided then it is just returned as a datetime
 

@@ -1,12 +1,13 @@
 """Generic Google Client - having one client for all APIs is way too big"""
 from __future__ import annotations
 
+from collections.abc import Mapping
 from copy import deepcopy
 from json import dump, dumps, load
 from logging import DEBUG, Logger, getLogger
 from os import remove
 from time import time
-from typing import Any, Literal, Mapping, TypedDict, TypeVar
+from typing import Any, Literal, Protocol, TypedDict, TypeVar
 from webbrowser import open as open_browser
 
 from google.auth.transport.requests import AuthorizedSession
@@ -14,7 +15,6 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from jwt import DecodeError, decode
 from requests import Response, post
-from typing_extensions import Protocol
 
 from wg_utilities.clients._generic import TempAuthServer
 from wg_utilities.functions import force_mkdir, user_data_dir

@@ -1,6 +1,9 @@
 """Useful functions for working with JSON/dictionaries"""
+from __future__ import annotations
+
+from collections.abc import Sequence
 from logging import DEBUG, getLogger
-from typing import Any, Callable, Dict, List, Optional, Sequence, Type
+from typing import Any, Callable
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -8,10 +11,10 @@ LOGGER.setLevel(DEBUG)
 
 def set_nested_value(
     *,
-    json_obj: Dict[Any, Any],
-    keys: List[str],
+    json_obj: dict[Any, Any],
+    keys: list[str],
     target_value: Any,
-    final_key: Optional[str] = None,
+    final_key: str | None = None,
 ) -> None:
     """Update a nested value in a dictionary
 
@@ -36,13 +39,13 @@ def set_nested_value(
 
 
 def process_list(
-    lst: List[Any],
+    lst: list[Any],
     *,
-    target_type: Type[Any],
+    target_type: type[Any],
     target_processor_func: Callable[[Any], Any],
     pass_on_fail: bool = True,
     log_op_func_failures: bool = False,
-    single_keys_to_remove: Optional[Sequence[str]] = None,
+    single_keys_to_remove: Sequence[str] | None = None,
 ) -> None:
     """Iterates through a list and applies `list_op_func` to any instances of
     `target_type`
@@ -89,13 +92,13 @@ def process_list(
 
 
 def traverse_dict(
-    payload_json: Dict[Any, Any],
+    payload_json: dict[Any, Any],
     *,
-    target_type: Type[Any],
+    target_type: type[Any],
     target_processor_func: Callable[[Any], Any],
     pass_on_fail: bool = True,
     log_op_func_failures: bool = False,
-    single_keys_to_remove: Optional[Sequence[str]] = None,
+    single_keys_to_remove: Sequence[str] | None = None,
 ) -> None:
     # pylint: disable=too-many-branches,too-many-nested-blocks
     """Recursively traverse a JSON object and apply `dict_op_func` to any values
