@@ -45,6 +45,10 @@ repos:
     hooks:
       - id: isort
         name: isort (python)
+        args:
+          - -a
+          - from __future__ import annotations
+
 
   - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
     rev: 0.2.2
