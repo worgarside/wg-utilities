@@ -12,7 +12,7 @@ from typing import TypedDict, cast
 
 from requests import get
 
-from wg_utilities.clients._google import GoogleClient, _GoogleEntityInfo
+from wg_utilities.clients._google import GoogleClient
 from wg_utilities.functions import force_mkdir, user_data_dir
 
 LOCAL_MEDIA_DIRECTORY = getenv(
@@ -34,7 +34,7 @@ class _ShareInfoInfo(TypedDict):
     shareToken: str
 
 
-class _AlbumInfo(_GoogleEntityInfo):
+class _AlbumInfo(TypedDict):
     coverPhotoBaseUrl: str
     coverPhotoMediaItemId: str
     id: str
@@ -51,7 +51,7 @@ class _MediaItemMetadataInfo(TypedDict):
     width: str
 
 
-class _MediaItemInfo(_GoogleEntityInfo):
+class _MediaItemInfo(TypedDict):
     baseUrl: str
     contributorInfo: dict[str, str]
     description: str

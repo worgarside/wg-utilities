@@ -24,7 +24,6 @@ __all__ = [
 ]
 
 try:
-    from .xml import get_nsmap
 
     __all__.append(
         "get_nsmap",

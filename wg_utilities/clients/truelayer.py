@@ -8,7 +8,7 @@ from json import dump, dumps, load
 from logging import DEBUG, getLogger
 from os import getenv
 from time import time
-from typing import Any, Literal, TypedDict
+from typing import Any, Literal, TypedDict, TypeVar
 from webbrowser import open as open_browser
 
 from jwt import DecodeError, decode
@@ -250,9 +250,9 @@ class TrueLayerClient:
     def _get_entity_by_id(
         self,
         entity_id: str,
-        entity_class: type[Account] | type[Card],
+        entity_class: type[EntityByIdTypeVar],
         entity_instance_kwargs: dict[Any, Any] | None = None,
-    ) -> Account | Card | None:
+    ) -> EntityByIdTypeVar | None:
         """Gets entity info based on a given ID
 
         Args:
@@ -312,8 +312,7 @@ class TrueLayerClient:
         Returns:
             Account: an Account instance, with all relevant info
         """
-        # pylint: disable=line-too-long
-        return self._get_entity_by_id(account_id, Account, instance_kwargs)  # type: ignore[return-value]
+        return self._get_entity_by_id(account_id, Account, instance_kwargs)
 
     def get_card_by_id(
         self,
@@ -330,9 +329,7 @@ class TrueLayerClient:
         Returns:
             Card: a Card instance, with all relevant info
         """
-        return self._get_entity_by_id(  # type: ignore[return-value]
-            card_id, Card, instance_kwargs
-        )
+        return self._get_entity_by_id(card_id, Card, instance_kwargs)
 
     def list_accounts(self) -> Generator[Account, None, None]:
         """Lists all accounts under the given bank account
@@ -435,7 +432,7 @@ class TrueLayerClient:
             str: the authentication link, including the client ID
         """
         # pylint: disable=line-too-long
-        return f"https://auth.truelayer.com/?response_type=code&client_id={self.client_id}&scope=info%20accounts%20balance%20cards%20transactions%20direct_debits%20standing_orders%20offline_access&redirect_uri={self.redirect_uri}&providers=uk-ob-all%20uk-oauth-all"  # noqa
+        return f"https://auth.truelayer.com/?response_type=code&client_id={self.client_id}&scope=info%20accounts%20balance%20cards%20transactions%20direct_debits%20standing_orders%20offline_access&redirect_uri={self.redirect_uri}&providers=uk-ob-all%20uk-oauth-all"
 
     @property
     def credentials(self) -> dict[str, str]:
@@ -1070,3 +1067,6 @@ class Card(TrueLayerEntity):
             str: the name on the card
         """
         return self.json.get("name_on_card")
+
+
+EntityByIdTypeVar = TypeVar("EntityByIdTypeVar", Account, Card)

@@ -341,7 +341,7 @@ class OauthClient:
             self.logger.info("Performing first time login")
             state_token = "".join(choice(ascii_letters) for _ in range(32))
             # pylint: disable=line-too-long
-            auth_link = f"https://auth.monzo.com/?client_id={self.client_id}&redirect_uri={self.redirect_uri}&response_type=code&state={state_token}"  # noqa E501
+            auth_link = f"https://auth.monzo.com/?client_id={self.client_id}&redirect_uri={self.redirect_uri}&response_type=code&state={state_token}"
             self.logger.debug("Opening %s", auth_link)
             open_browser(auth_link)
 

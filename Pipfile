@@ -17,6 +17,7 @@ types-setuptools = "*"
 xmltodict = "*"
 pycln = "*"
 pylint-strict-informational = "*"
+pillow = "*"
 
 [packages]
 google-auth-oauthlib = ">=0.4.6"

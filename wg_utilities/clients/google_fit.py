@@ -5,15 +5,16 @@ from datetime import datetime
 from logging import Logger
 from typing import Literal, TypedDict
 
-from wg_utilities.clients._google import GoogleClient, _GoogleEntityInfo
+from wg_utilities.clients._google import GoogleClient
 from wg_utilities.functions.datetime_helpers import DatetimeFixedUnit as DFUnit
 from wg_utilities.functions.datetime_helpers import utcnow
 
 
 class _DataSourceDataTypeFieldInfo(TypedDict):
-    format: Literal[
-        "blob", "floatList", "floatPoint", "integer", "integerList", "map", "string"
-    ]
+    # format: Literal[
+    #     "blob", "floatList", "floatPoint", "integer", "integerList", "map", "string"
+    # ]
+    format: Literal["floatPoint", "integer"]
     name: str
 
 
@@ -29,13 +30,20 @@ class _DataSourceDescriptionInfo(TypedDict):
     dataType: _DataSourceDataTypeInfo
 
 
-class _GoogleFitDataPointInfo(_GoogleEntityInfo):
+class _GoogleFitDataPointInfo(TypedDict):
     id: str
     startTimeNanos: str
     endTimeNanos: str
     dataTypeName: str
     originDataSourceId: str
     value: list[dict[str, int]]
+
+
+class DataPointValueKeyLookupInfo(TypedDict):
+    """Typing info for the Data Point lookup dict"""
+
+    floatPoint: Literal["fpVal"]
+    integer: Literal["intVal"]
 
 
 class DataSource:
@@ -49,7 +57,10 @@ class DataSource:
          DataSource info
     """
 
-    DP_VALUE_KEY_LOOKUP = {"floatPoint": "fpVal", "integer": "intVal"}
+    DP_VALUE_KEY_LOOKUP: DataPointValueKeyLookupInfo = {
+        "floatPoint": "fpVal",
+        "integer": "intVal",
+    }
 
     def __init__(self, data_source_id: str, *, google_client: GoogleClient):
         self.data_source_id = data_source_id
@@ -123,10 +134,22 @@ class DataSource:
     @property
     def data_type_field_format(
         self,
-    ) -> Literal[
-        "blob", "floatList", "floatPoint", "integer", "integerList", "map", "string"
-    ]:
-        """
+    ) -> Literal["floatPoint", "integer"]:
+        """Original return type on here was as follows, think it was for other endpoints
+        I haven't implemented
+
+        ```
+        Literal[
+            "blob",
+            "floatList",
+            "floatPoint",
+            "integer",
+            "integerList",
+            "map",
+            "string"
+        ]
+        ```
+
         Returns:
             str: the field format of this data source (i.e. "integer" or "floatPoint")
 
@@ -148,8 +171,8 @@ class DataSource:
         Returns:
             str: the key to use when extracting data from a data point
         """
-        # pylint: disable=line-too-long
-        return self.DP_VALUE_KEY_LOOKUP[self.data_type_field_format]  # type: ignore[return-value]
+
+        return self.DP_VALUE_KEY_LOOKUP[self.data_type_field_format]
 
 
 class GoogleFitClient(GoogleClient):

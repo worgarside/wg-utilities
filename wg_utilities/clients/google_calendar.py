@@ -6,15 +6,15 @@ from datetime import date, datetime, timedelta
 from enum import Enum
 from json import dumps
 from logging import Logger
-from typing import Any, Literal, cast
+from typing import Any, Literal, TypedDict, cast
 
 from pytz import UTC, timezone
 from tzlocal import get_localzone
 
-from wg_utilities.clients._google import GoogleClient, _GoogleEntityInfo
+from wg_utilities.clients._google import GoogleClient
 
 
-class _GoogleCalendarEntityInfo(_GoogleEntityInfo):
+class _GoogleCalendarEntityInfo(TypedDict):
     description: str
     etag: str
     id: str

@@ -394,9 +394,10 @@ class Track(SpotifyEntity):
             dict: the JSON response from the Spotify /audio-features endpoint
         """
         if not hasattr(self, "_audio_features"):
-            # pylint: disable=line-too-long
-            self._audio_features = self._spotify_client.get_json_response(  # type: ignore[assignment]
-                f"/audio-features/{self.id}"
+            self._audio_features = (
+                self._spotify_client.get_json_response(  # type: ignore[assignment]
+                    f"/audio-features/{self.id}"
+                )
             )
 
         return self._audio_features
@@ -1171,13 +1172,17 @@ class SpotifyClient:
         kwargs: dict[str, int | Callable[[Any], bool]] = {"hard_limit": track_limit}
 
         if isinstance(day_limit, (float, int)):
-            kwargs["limit_func"] = lambda item: bool(
-                datetime.strptime(item["added_at"], self.DATETIME_FORMAT)
-                < (
-                    datetime.utcnow()
-                    - timedelta(days=day_limit)  # type: ignore[arg-type]
+
+            def _limit_func(item: dict[str, Any]) -> bool:
+                return bool(
+                    datetime.strptime(item["added_at"], self.DATETIME_FORMAT)
+                    < (
+                        datetime.utcnow()
+                        - timedelta(days=day_limit)  # type: ignore[arg-type]
+                    )
                 )
-            )
+
+            kwargs["limit_func"] = _limit_func
 
         return [
             Track(

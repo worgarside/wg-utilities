@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections.abc import Collection, Iterable
 from copy import deepcopy
 from logging import Logger
-from typing import Any, cast
+from typing import Any, TypedDict, cast
 
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.exceptions import ResourceNotFound
@@ -170,7 +170,15 @@ class File:
         return self.name
 
     def __repr__(self) -> str:
-        return self.name
+        # pylint: disable=line-too-long
+        return f"File(id={self.file_id!r}, name={self.name!r}, parent_id={self.parent_id!r})"
+
+
+class _DirectoryItemInfo(TypedDict):
+    id: str
+    name: str
+    google_client: GoogleDriveClient
+    parents: list[str] | None
 
 
 class Directory(File):
@@ -192,8 +200,24 @@ class Directory(File):
         **_: Any,
     ):
         super().__init__(id=id, name=name, parents=parents, google_client=google_client)
-        self.children: set[Directory] = set()
+        self._children: set[Directory] = set()
         self._files: list[File] | None = None
+
+    def add_child(self, directory: Directory) -> None:
+        """Adds a child directory to this directory's children record
+
+        Args:
+            directory (Directory): the directory to add
+        """
+        self._children.add(directory)
+
+    @property
+    def children(self) -> list[Directory]:
+        """
+        Returns:
+            list: the directories contained within this directory
+        """
+        return sorted(self._children)
 
     @property
     def files(self) -> list[File]:
@@ -236,7 +260,7 @@ class Directory(File):
 
     @property
     def tree(self) -> str:
-        """A simple copy of the Linux `tree` command, this builds a directory tree in
+        """A "simple" copy of the Linux `tree` command, this builds a directory tree in
         text form for quick visualisation
 
         Returns:
@@ -303,6 +327,10 @@ class Directory(File):
 
         return output
 
+    def __repr__(self) -> str:
+        # pylint: disable=line-too-long
+        return f"Directory(id={self.file_id!r}, name={self.name!r}, parent_id={self.parent_id!r})"
+
 
 class GoogleDriveClient(GoogleClient):
     """Custom client specifically for Google's Drive API
@@ -340,7 +368,7 @@ class GoogleDriveClient(GoogleClient):
         )
         self._root_directory: Directory
 
-        self._directories: list[Directory]
+        self._directories: list[Directory] = []
 
     def _build_directory_structure(self) -> None:
         """Build the complete tree of directories, including parent-child relationships
@@ -350,24 +378,37 @@ class GoogleDriveClient(GoogleClient):
         self._directories = [self.root_directory]
 
         # List every single directory
-        directory: dict[str, str]
+        directory: _DirectoryItemInfo
         for directory in self.get_items(
             f"{self.BASE_URL}/files",
             "files",
-            params=dict(
-                pageSize="1000",
-                q="mimeType = 'application/vnd.google-apps.folder'",
-                fields="nextPageToken, files(id, name, parents)",
-            ),
+            params={
+                "pageSize": "1000",
+                "q": "mimeType = 'application/vnd.google-apps.folder'",
+                "fields": "nextPageToken, files(id, name, parents)",
+            },
         ):
-            self._directories.append(Directory(**directory, google_client=self))
+            self._directories.append(
+                Directory(
+                    id=directory["id"],  # type: ignore[index]
+                    name=directory["name"],  # type: ignore[index]
+                    google_client=self,
+                    parents=directory.get("parents", []),  # type: ignore[attr-defined]
+                )
+            )
 
         # Iterate through the directories, adding their parents and children as
         # applicable
         for directory_ in self._directories:
-            if parent_dir := self.get_directory_by("file_id", directory_.parent_id):
+            if (
+                directory_.parent_id is not None
+                and directory_.name != "My Drive"
+                and (
+                    parent_dir := self.get_directory_by("file_id", directory_.parent_id)
+                )
+            ):
                 directory_.parent = parent_dir
-                parent_dir.children.add(directory_)
+                parent_dir.add_child(directory_)
 
     def get_directory_by(self, attribute: str, value: Any) -> Directory:
         """Get a Directory instance by any attribute
@@ -426,8 +467,10 @@ class GoogleDriveClient(GoogleClient):
         Returns:
             list: a list of Shared Drives the current user has access to
         """
-        # pylint: disable=line-too-long
-        return self.get_items(f"{self.BASE_URL}/drives", "drives")  # type: ignore[return-value]
+        # TODO create Drive class
+        return self.get_items(  # type: ignore[return-value]
+            f"{self.BASE_URL}/drives", "drives"
+        )
 
     @property
     def directories(self) -> list[Directory]:

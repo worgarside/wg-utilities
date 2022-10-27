@@ -7,7 +7,7 @@ from json import dump, dumps, load
 from logging import DEBUG, Logger, getLogger
 from os import remove
 from time import time
-from typing import Any, Literal, Protocol, TypedDict, TypeVar
+from typing import TYPE_CHECKING, Literal, Protocol, TypedDict, TypeVar, Union
 from webbrowser import open as open_browser
 
 from google.auth.transport.requests import AuthorizedSession
@@ -19,12 +19,22 @@ from requests import Response, post
 from wg_utilities.clients._generic import TempAuthServer
 from wg_utilities.functions import force_mkdir, user_data_dir
 
+if TYPE_CHECKING:
+    from wg_utilities.clients.google_calendar import _GoogleCalendarEntityInfo
+    from wg_utilities.clients.google_drive import _DirectoryItemInfo
+    from wg_utilities.clients.google_fit import _GoogleFitDataPointInfo
+    from wg_utilities.clients.google_photos import _AlbumInfo, _MediaItemInfo
 
-class _GoogleEntityInfo(TypedDict):
-    pass
-
-
-_GoogleEntityInfoTypeVar = TypeVar("_GoogleEntityInfoTypeVar", bound=_GoogleEntityInfo)
+    _GoogleEntityInfo = TypeVar(
+        "_GoogleEntityInfo",
+        bound=Union[
+            _GoogleCalendarEntityInfo,
+            _GoogleFitDataPointInfo,
+            _DirectoryItemInfo,
+            _AlbumInfo,
+            _MediaItemInfo,
+        ],
+    )
 
 
 class _GoogleCredentialsInfo(TypedDict):
@@ -42,7 +52,9 @@ class _GoogleCredentialsInfo(TypedDict):
 
 
 class _SessionMethodCallable(Protocol):
-    def __call__(self, url: str, params: dict[str, Any] | None = None) -> Response:
+    def __call__(
+        self, url: str, *, params: dict[str, object] | None = None
+    ) -> Response:
         ...
 
 
@@ -60,7 +72,7 @@ class GoogleClient:
         logger (RootLogger): a logger to use throughout the client functions
     """
 
-    DEFAULT_PARAMS = {
+    DEFAULT_PARAMS: dict[str, object] = {
         "pageSize": "50",
     }
 
@@ -103,8 +115,8 @@ class GoogleClient:
         url: str,
         list_key: str,
         *,
-        params: Mapping[str, Any] | None = None,
-    ) -> list[_GoogleEntityInfoTypeVar]:
+        params: Mapping[str, object] | None = None,
+    ) -> list[_GoogleEntityInfo]:
         """Generic method for listing items on Google's API(s)
 
         Args:
@@ -116,6 +128,7 @@ class GoogleClient:
         Returns:
             list: a list of dicts, each representing an item from the API
         """
+
         params = (
             {**self.DEFAULT_PARAMS, **params}
             if params
@@ -125,12 +138,13 @@ class GoogleClient:
             "Listing all items at endpoint `%s` with params %s", url, dumps(params)
         )
 
-        res = method(url, params=params)
+        res: Response = method(url, params=params)
 
         res.raise_for_status()
 
-        item_list: list[_GoogleEntityInfoTypeVar] = res.json().get(list_key, [])
+        item_list: list[_GoogleEntityInfo] = res.json().get(list_key, [])
 
+        next_token: str | None
         while next_token := res.json().get("nextPageToken"):
             # noinspection PyArgumentList
             res = method(
@@ -156,7 +170,7 @@ class GoogleClient:
         list_key: str = "items",
         *,
         params: Mapping[str, str | int | float | bool] | None = None,
-    ) -> list[_GoogleEntityInfoTypeVar]:
+    ) -> list[_GoogleEntityInfo]:
         """Wrapper method for getting a list of items
 
         See Also:
