@@ -63,6 +63,7 @@ repos:
           - '2'
           - --width
           - '4096'
+          - --preserve-quotes
 
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.28.0
