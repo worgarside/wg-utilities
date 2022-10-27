@@ -29,6 +29,7 @@ __pycache__
 *.pkl
 logs
 .cache
+_local_sandbox
 
 *.tmp
 
