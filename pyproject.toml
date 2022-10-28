@@ -42,3 +42,64 @@ path = "*"
 expand_stars = true
 all = true
 no_gitignore = false
+
+
+[tool.ruff]
+# Longer line length to avoid throwing errors in case where black doesn't
+# wraps the lines (e.g. a long URL).
+line-length = 120
+extend-select = [
+    # https://github.com/charliermarsh/ruff#supported-rules
+    "M001", # UnusedNOQA
+    "U001", # UselessMetaclassType
+    "U002", # UnnecessaryAbspath
+    "U003", # TypeOfPrimitive
+    "U004", # UselessObjectInheritance
+    "U005", # DeprecatedUnittestAlias
+    "U006", # UsePEP585Annotation
+    "U008", # SuperCallWithParameters
+    "B011", # DoNotAssertFalse
+    "B014", # DuplicateHandlerException
+    "B025", # DuplicateTryBlockException
+    "D100", # PublicModule
+    "D101", # PublicClass
+    "D102", # PublicMethod
+    "D103", # PublicFunction
+    "D104", # PublicPackage
+    "D106", # PublicNestedClass
+    "D200", # FitsOnOneLine
+    "D201", # NoBlankLineBeforeFunction
+    "D205", # BlankLineAfterSummary
+    "D206", # IndentWithSpaces
+    "D207", # NoUnderIndentation
+    "D208", # NoOverIndentation
+    "D209", # NewLineAfterLastParagraph
+    "D210", # NoSurroundingWhitespace
+    "D211", # NoBlankLineBeforeClass
+    "D212", # MultiLineSummaryFirstLine
+    "D214", # SectionNotOverIndented
+    "D300", # UsesTripleQuotes
+    "D402", # NoSignature
+    "D403", # FirstLineCapitalized
+    "D405", # CapitalizeSectionName
+    "D410", # BlankLineAfterSection
+    "D411", # BlankLineBeforeSection
+    "D412", # NoBlankLinesBetweenHeaderAndContent
+    "D414", # NonEmptySection
+    "D415", # EndsInPunctuation
+    "D416", # SectionNameEndsInColon
+    "D417", # DocumentAllArguments
+    "D418", # SkipDocstring
+    "D419", # NonEmpty
+    "N801", # InvalidClassName
+    "N802", # InvalidFunctionName
+    "N803", # InvalidArgumentName
+    "N804", # InvalidFirstArgumentNameForClassMethod
+    "N805", # InvalidFirstArgumentNameForMethod
+    "N807", # DunderFunctionName
+    "N811", # ConstantImportedAsNonConstant
+    "N812", # LowercaseImportedAsNonLowercase
+    "N813", # CamelcaseImportedAsLowercase
+    "N814", # CamelcaseImportedAsConstant
+    "N817", # CamelcaseImportedAsAcronym
+]
