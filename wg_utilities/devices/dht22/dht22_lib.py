@@ -1,4 +1,4 @@
-"""A class I found a long time ago for DHT22, I can't remember where :("""
+"""A class I found a long time ago for DHT22, I can't remember where :(."""
 from __future__ import annotations
 
 from time import sleep
@@ -66,7 +66,8 @@ class DHT22Sensor:
 
     def _cb(self, _: int, level: int, tick: int) -> None:
         # pylint: disable=too-many-branches,too-many-statements
-        """
+        """Callback function for DHT22 Sensor.
+
         Accumulate the 40 data bits.  Format into 5 bytes, humidity high,
         humidity low, temperature high, temperature low, checksum.
 
@@ -193,7 +194,6 @@ class DHT22Sensor:
 
     def cancel(self) -> None:
         """Cancel the DHT22 Sensor."""
-
         self.pi.set_watchdog(self.gpio, 0)
 
         if self.callback is not None:

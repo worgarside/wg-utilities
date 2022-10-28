@@ -1,5 +1,4 @@
-"""This module contains any custom mocks (classes or functions) for use in Unit Tests
-within this project and others"""
+"""Custom mocks (classes or functions) for use in Unit Tests."""
 from __future__ import annotations
 
 from typing import Any, Callable
@@ -13,8 +12,11 @@ ORIG_API_CALL: Callable[
 
 
 class MockBoto3Client:
-    """Class for adding custom mocks for boto3 when moto doesn't support the
-    operation"""
+    """boto3.client for mock usage.
+
+    Class for adding custom mocks for boto3 when moto doesn't support the
+    operation
+    """
 
     def __init__(
         self,
@@ -25,7 +27,7 @@ class MockBoto3Client:
         self.boto3_calls: dict[str, list[dict[Any, Any]]] = {}
 
     def reset_boto3_calls(self) -> None:
-        """Resets the boto3 calls to an empty dict"""
+        """Resets the boto3 calls to an empty dict."""
         self.boto3_calls = {}
 
     def build_api_call(
@@ -33,7 +35,9 @@ class MockBoto3Client:
         lookup_overrides: dict[str, str | Callable[..., Any]] | None = None,
         reset_boto3_calls: bool = True,
     ) -> Callable[[BaseClient, str, dict[str, Any]], dict[str, str] | str]:
-        """Wrapper function for the API call. Also resets the internal log of boto3
+        """Builds an API call for use in stubs.
+
+        Wrapper function for the API call. Also resets the internal log of boto3
         calls as this is a new API call
 
         Args:

@@ -1,5 +1,5 @@
 # pylint: disable=too-many-lines
-"""Custom client for interacting with Spotify's Web API"""
+"""Custom client for interacting with Spotify's Web API."""
 from __future__ import annotations
 
 from collections.abc import Collection
@@ -22,7 +22,7 @@ LOGGER.setLevel(DEBUG)
 
 
 class AlbumType(Enum):
-    """Enum for the different types of album Spotify supports"""
+    """Enum for the different types of album Spotify supports."""
 
     SINGLE = "single"
     ALBUM = "album"
@@ -31,7 +31,7 @@ class AlbumType(Enum):
 
 class Device(BaseModel, extra=Extra.allow):
     # pylint: disable=too-few-public-methods
-    """Model for a Spotify device"""
+    """Model for a Spotify device."""
 
     id: str
     is_active: bool
@@ -124,7 +124,7 @@ class _TrackAudioFeaturesInfo(TypedDict):
 
 
 class SpotifyEntity:
-    """Parent class for all Spotify entities (albums, artists, etc.)
+    """Parent class for all Spotify entities (albums, artists, etc.).
 
     Args:
         json (dict): the JSON returned from the Spotify Web API which defines the
@@ -148,7 +148,8 @@ class SpotifyEntity:
 
     @property
     def pretty_json(self) -> str:
-        """
+        """Return a pretty-printed version of the JSON for this entity.
+
         Returns:
             str: a "pretty" version of the JSON, used for debugging etc.
         """
@@ -156,7 +157,8 @@ class SpotifyEntity:
 
     @property
     def description(self) -> str | None:
-        """
+        """Description of the entity.
+
         Returns:
             str: the description of the entity
         """
@@ -164,7 +166,8 @@ class SpotifyEntity:
 
     @property
     def endpoint(self) -> str | None:
-        """
+        """Endpoint of the entity.
+
         Returns:
             str: A link to the Web API endpoint providing full details of the entity
         """
@@ -172,7 +175,8 @@ class SpotifyEntity:
 
     @property
     def id(self) -> str | None:
-        """
+        """ID of the entity.
+
         Returns:
             str: The base-62 identifier for the entity
         """
@@ -180,7 +184,8 @@ class SpotifyEntity:
 
     @property
     def name(self) -> str:
-        """
+        """Name of the entity.
+
         Returns:
             str: the name of the entity
         """
@@ -188,7 +193,8 @@ class SpotifyEntity:
 
     @property
     def uri(self) -> str:
-        """
+        """Spotify URI for the entity.
+
         Returns:
             str: the Spotify URI of this entity
         """
@@ -197,7 +203,8 @@ class SpotifyEntity:
 
     @property
     def url(self) -> str:
-        """
+        """URL of the entity.
+
         Returns:
             str: the URL of this entity
         """
@@ -230,7 +237,7 @@ class SpotifyEntity:
 
 
 class User(SpotifyEntity):
-    """A Spotify user, usually just the current user"""
+    """A Spotify user, usually just the current user."""
 
     json: _UserInfo
 
@@ -244,7 +251,7 @@ class User(SpotifyEntity):
 
     @property
     def current_playlist(self) -> Playlist | None:
-        """Gets the current playlist for the given user
+        """Gets the current playlist for the given user.
 
         Returns:
             Playlist: the playlist currently being listened to
@@ -261,7 +268,8 @@ class User(SpotifyEntity):
 
     @property
     def devices(self) -> list[Device]:
-        """
+        """Devices that the user currently has access to.
+
         Returns:
             list[Device]: a list of devices available to the user
         """
@@ -274,7 +282,7 @@ class User(SpotifyEntity):
 
     @property
     def current_track(self) -> Track | None:
-        """Gets the currently playing track for the given user
+        """Gets the currently playing track for the given user.
 
         Returns:
             Track: the track currently being listened to
@@ -289,9 +297,10 @@ class User(SpotifyEntity):
 
     @property
     def followed_artists(self) -> list[Artist]:
-        """
+        """Artists that the user is following.
+
         Returns:
-            list[Artist]: the top artists for the user
+            list[Artist]: artists that the user is following
         """
         return [
             Artist(
@@ -308,7 +317,8 @@ class User(SpotifyEntity):
 
     @property
     def name(self) -> str:
-        """
+        """Display name of the user.
+
         Returns:
             str: the display name of the User
         """
@@ -317,7 +327,8 @@ class User(SpotifyEntity):
 
     @property
     def top_artists(self) -> tuple[Artist, ...]:
-        """
+        """Top artists for the user.
+
         Returns:
             tuple[Artist, ...]: the top artists for the user
         """
@@ -333,9 +344,10 @@ class User(SpotifyEntity):
 
     @property
     def top_tracks(self) -> tuple[Track, ...]:
-        """
+        """The top tracks for the user.
+
         Returns:
-            tuple[Track]: the top artists for the user
+            tuple[Track]: the top tracks for the user
         """
         return tuple(
             Track(
@@ -349,7 +361,7 @@ class User(SpotifyEntity):
 
 
 class Track(SpotifyEntity):
-    """A track on Spotify"""
+    """A track on Spotify."""
 
     json: _TrackInfo
 
@@ -365,7 +377,8 @@ class Track(SpotifyEntity):
 
     @property
     def album(self) -> Album:
-        """
+        """Track's parent album.
+
         Returns:
             Album: the album which this track is from
         """
@@ -374,7 +387,8 @@ class Track(SpotifyEntity):
 
     @property
     def artists(self) -> list[Artist]:
-        """
+        """Artists who contributed to the track.
+
         Returns:
             list(Artist): a list of the artists who contributed to this track
         """
@@ -389,7 +403,8 @@ class Track(SpotifyEntity):
 
     @property
     def audio_features(self) -> _TrackAudioFeaturesInfo:
-        """
+        """Audio features of the track.
+
         Returns:
             dict: the JSON response from the Spotify /audio-features endpoint
         """
@@ -404,7 +419,8 @@ class Track(SpotifyEntity):
 
     @property
     def release_date(self) -> date | str | None:
-        """
+        """Album release date.
+
         Returns:
             date: the date the track's album was first released
         """
@@ -412,7 +428,8 @@ class Track(SpotifyEntity):
 
     @property
     def tempo(self) -> float | None:
-        """
+        """Tempo of the track in BPM.
+
         Returns:
             float: the tempo of the track, in BPM
         """
@@ -420,7 +437,7 @@ class Track(SpotifyEntity):
 
 
 class Artist(SpotifyEntity):
-    """An artist on Spotify"""
+    """An artist on Spotify."""
 
     json: _ArtistInfo
 
@@ -430,7 +447,8 @@ class Artist(SpotifyEntity):
 
     @property
     def albums(self) -> list[Album]:
-        """
+        """Albums by this artist.
+
         Returns:
             list: A list of albums this artist has contributed to
         """
@@ -446,7 +464,7 @@ class Artist(SpotifyEntity):
 
 
 class Album(SpotifyEntity):
-    """An album on Spotify"""
+    """An album on Spotify."""
 
     json: _AlbumInfo
 
@@ -457,7 +475,8 @@ class Album(SpotifyEntity):
 
     @property
     def artists(self) -> list[Artist]:
-        """
+        """Featured artists in Album.
+
         Returns:
             list(Artist): a list of the artists who contributed to this track
         """
@@ -472,7 +491,8 @@ class Album(SpotifyEntity):
 
     @property
     def release_date(self) -> date | str | None:
-        """
+        """Initial release date.
+
         Returns:
             date: the date the album was first released
         """
@@ -487,7 +507,8 @@ class Album(SpotifyEntity):
 
     @property
     def release_date_precision(self) -> Literal["year", "month", "day", None]:
-        """
+        """Release date precision.
+
         Returns:
             str: the precision with which release_date value is known
         """
@@ -495,7 +516,8 @@ class Album(SpotifyEntity):
 
     @property
     def tracks(self) -> list[Track]:
-        """
+        """List of tracks on the album.
+
         Returns:
             list: a list of tracks on this album
         """
@@ -518,7 +540,8 @@ class Album(SpotifyEntity):
 
     @property
     def type(self) -> AlbumType:
-        """
+        """Album type.
+
         Returns:
             AlbumType: the type of album this is
         """
@@ -527,7 +550,7 @@ class Album(SpotifyEntity):
 
 
 class Playlist(SpotifyEntity):
-    """A Spotify playlist"""
+    """A Spotify playlist."""
 
     json: _PlaylistInfo
 
@@ -542,7 +565,8 @@ class Playlist(SpotifyEntity):
 
     @property
     def tracks(self) -> list[Track]:
-        """
+        """Tracks in the playlist.
+
         Returns:
             list: a list of tracks in this playlist
         """
@@ -562,7 +586,8 @@ class Playlist(SpotifyEntity):
 
     @property
     def owner(self) -> User:
-        """
+        """Playlist owner.
+
         Returns:
             User: the Spotify user who owns this playlist
         """
@@ -604,9 +629,10 @@ class Playlist(SpotifyEntity):
 
 
 class SpotifyClient:
-    """Custom client for interacting with Spotify's Web API. For authentication
-    purposes either an already-instantiated OAuth manager or the relevant credentials
-    must be provided
+    """Custom client for interacting with Spotify's Web API.
+
+    For authentication purposes either an already-instantiated OAuth manager or the
+    relevant credentials must be provided
 
     Args:
         client_id (str): the application's client ID
@@ -772,7 +798,7 @@ class SpotifyClient:
             | list[dict[Literal["album"], _AlbumInfo]]
         )
     ]:
-        """Retrieve a list of items from a given URL, including pagination
+        """Retrieve a list of items from a given URL, including pagination.
 
         Args:
             url (str): the API endpoint which we're listing
@@ -825,7 +851,7 @@ class SpotifyClient:
         url: str,
         params: None | (dict[str, str | int | float | bool | dict[str, Any]]) = None,
     ) -> dict[str, Any]:
-        """Gets a simple JSON object from a URL
+        """Gets a simple JSON object from a URL.
 
         Args:
             url (str): the API endpoint to GET
@@ -851,7 +877,7 @@ class SpotifyClient:
         Literal["album", "artist", "playlist", "track"],
         list[Album | Artist | Playlist | Track],
     ]:
-        """Search Spotify for a given search term
+        """Search Spotify for a given search term.
 
         Args:
             search_term (str): the term to use as the base of the search
@@ -941,7 +967,8 @@ class SpotifyClient:
 
     @property
     def access_token(self) -> str:
-        """
+        """Access token for the Spotify API.
+
         Returns:
             str: the web API access token
         """
@@ -949,7 +976,8 @@ class SpotifyClient:
 
     @property
     def albums(self) -> list[Album]:
-        """
+        """List of albums in the user's library.
+
         Returns:
             list: a list of albums owned by the current user
         """
@@ -964,7 +992,8 @@ class SpotifyClient:
 
     @property
     def playlists(self) -> list[Playlist]:
-        """
+        """Playlists owned by the current user.
+
         Returns:
             list: a list of playlists owned by the current user
         """
@@ -979,7 +1008,8 @@ class SpotifyClient:
 
     @property
     def tracks(self) -> list[Track]:
-        """
+        """Liked Songs.
+
         Returns:
             list: a list of tracks owned by the current user
         """
@@ -994,7 +1024,7 @@ class SpotifyClient:
 
     @property
     def current_user(self) -> User:
-        """Gets the current user's info
+        """Gets the current user's info.
 
         Returns:
             User: an instance of the current Spotify user
@@ -1013,7 +1043,7 @@ class SpotifyClient:
         force_add: bool = False,
         update_instance_tracklist: bool = True,
     ) -> None:
-        """Add one or more tracks to a playlist
+        """Add one or more tracks to a playlist.
 
         Args:
             tracks (list): a list of Track instances to be added to the given playlist
@@ -1050,7 +1080,7 @@ class SpotifyClient:
         public: bool = False,
         collaborative: bool = False,
     ) -> Playlist:
-        """Create a new playlist under the current user's account
+        """Create a new playlist under the current user's account.
 
         Args:
             name (str): the name of the new playlist
@@ -1077,7 +1107,7 @@ class SpotifyClient:
     def get_playlists_by_name(
         self, name: str, return_all: bool = False
     ) -> list[Playlist] | Playlist | None:
-        """Gets Playlist instance(s) which have the given name
+        """Gets Playlist instance(s) which have the given name.
 
         Args:
             name (str): the name of the target playlist(s)
@@ -1104,7 +1134,7 @@ class SpotifyClient:
         return None
 
     def get_album_by_id(self, id_: str) -> Album:
-        """Get an album from Spotify based on the ID
+        """Get an album from Spotify based on the ID.
 
         Args:
             id_(str): the Spotify ID which is used to find the album
@@ -1116,7 +1146,7 @@ class SpotifyClient:
         return Album(self._get(f"/albums/{id_}").json(), self)
 
     def get_artist_by_id(self, id_: str) -> Artist:
-        """Get an artist from Spotify based on the ID
+        """Get an artist from Spotify based on the ID.
 
         Args:
             id_(str): the Spotify ID which is used to find the artist
@@ -1128,7 +1158,7 @@ class SpotifyClient:
         return Artist(self._get(f"/artists/{id_}").json(), self)
 
     def get_playlist_by_id(self, id_: str) -> Playlist:
-        """Get a playlist from Spotify based on the ID
+        """Get a playlist from Spotify based on the ID.
 
         Args:
             id_(str): the Spotify ID which is used to find the playlist
@@ -1145,7 +1175,7 @@ class SpotifyClient:
         return Playlist(self._get(f"/playlists/{id_}").json(), self)
 
     def get_track_by_id(self, id_: str) -> Track:
-        """Get a track from Spotify based on the ID
+        """Get a track from Spotify based on the ID.
 
         Args:
             id_(str): the Spotify ID which is used to find the track
@@ -1159,7 +1189,7 @@ class SpotifyClient:
     def get_recently_liked_tracks(
         self, track_limit: int = 100, *, day_limit: float | None = None
     ) -> list[Track]:
-        """Gets a list of songs which were liked by the current user in the past N days
+        """Gets a list of songs which were liked by the current user in the past N days.
 
         Args:
             track_limit (int): the number of tracks to return
@@ -1200,7 +1230,7 @@ class SpotifyClient:
         ]
 
     def reset_properties(self) -> None:
-        """Resets all list properties"""
+        """Resets all list properties."""
         try:
             del self._current_user
         except AttributeError as exc:

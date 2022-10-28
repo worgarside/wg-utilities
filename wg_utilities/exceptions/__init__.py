@@ -1,4 +1,4 @@
-"""Custom exception types"""
+"""Custom exception types."""
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -24,11 +24,11 @@ LOGGER: Logger | None = None
 
 
 class ResourceNotFound(Exception):
-    """Custom exception for when some kind of resource isn't found"""
+    """Custom exception for when some kind of resource isn't found."""
 
 
 def send_exception_to_home_assistant(exc: Exception) -> None:
-    """Format an exception and send useful info to Home Assistant
+    """Format an exception and send useful info to Home Assistant.
 
     Args:
         exc (Exception): the exception being handled
@@ -63,7 +63,7 @@ def on_exception(
     _suppress_ignorant_warnings: bool | None = None,
 ) -> Callable[[Any], Any]:
     # pylint: disable=useless-type-doc,useless-param-doc
-    """Decorator factory to allow parameterizing the inner decorator
+    """Decorator factory to allow parameterizing the inner decorator.
 
     Args:
         exception_callback (Callable): callback function to process the exception
@@ -79,7 +79,7 @@ def on_exception(
     """
 
     def _decorator(func: Callable[[Any], Any]) -> Callable[[Any, Any], Any]:
-        """Decorator to allow simple cover-all exception handler callback behaviour
+        """Decorator to allow simple cover-all exception handler callback behaviour.
 
         Args:
             func (Callable): the function being wrapped
@@ -90,7 +90,7 @@ def on_exception(
 
         @wraps(func)
         def worker(*args: Any, **kwargs: Any) -> Any:
-            """Tries to run the decorated function and calls the callback function
+            """Tries to run the decorated function and calls the callback function.
 
             Args:
                 *args (Any): any args passed to the inner func

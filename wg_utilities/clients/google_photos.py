@@ -1,4 +1,4 @@
-"""Custom client for interacting with Google's Photos API"""
+"""Custom client for interacting with Google's Photos API."""
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -63,7 +63,7 @@ class _MediaItemInfo(TypedDict):
 
 
 class MediaType(Enum):
-    """Enum for all potential media types"""
+    """Enum for all potential media types."""
 
     IMAGE = auto()
     VIDEO = auto()
@@ -71,7 +71,7 @@ class MediaType(Enum):
 
 
 class Album:
-    """Class for Google Photos albums and their metadata/content
+    """Class for Google Photos albums and their metadata/content.
 
     Args:
         json (dict): the JSON which is returned from the Google Photos API when
@@ -90,7 +90,7 @@ class Album:
     @property
     def media_items(self) -> list[MediaItem]:
         # noinspection GrazieInspection
-        """Lists all media items in the album
+        """Lists all media items in the album.
 
         Returns:
             list: a list of MediaItem instances, representing the contents of the album
@@ -103,7 +103,8 @@ class Album:
 
     @property
     def title(self) -> str | None:
-        """
+        """Album title.
+
         Returns:
             str: the title of the album
         """
@@ -111,7 +112,8 @@ class Album:
 
     @property
     def id(self) -> str:
-        """
+        """Album ID.
+
         Returns:
             str: the ID of the album
         """
@@ -119,7 +121,8 @@ class Album:
 
     @property
     def media_items_count(self) -> int:
-        """
+        """MediaItem count.
+
         Returns:
             int: the number of media items within the album
         """
@@ -130,7 +133,7 @@ class Album:
 
 
 class MediaItem:
-    """Class for representing a MediaItem and its metadata/content
+    """Class for representing a MediaItem and its metadata/content.
 
     Args:
         json (dict): the JSON returned from the Google Photos API, which describes
@@ -162,8 +165,10 @@ class MediaItem:
         height_override: int | None = None,
         force_download: bool = False,
     ) -> str:
-        """Download the media item to local storage. The width/height overrides do
-        not apply to videos
+        """Download the media item to local storage.
+
+        Notes:
+            The width/height overrides do not apply to videos.
 
         Args:
             width_override (int): the width override to use when downloading the file
@@ -171,7 +176,7 @@ class MediaItem:
             force_download (bool): flag for forcing a download, even if it exists
              locally already
 
-         Returns:
+        Returns:
              str: the path to the downloaded file (self.local_path)
         """
         if not self.stored_locally or force_download:
@@ -192,7 +197,9 @@ class MediaItem:
 
     @property
     def bytes(self) -> bytes:
-        """Opens the local copy of the file (downloading it first if necessary) and
+        """MediaItem binary content.
+
+        Opens the local copy of the file (downloading it first if necessary) and
         reads the binary content of it
 
         Returns:
@@ -208,7 +215,8 @@ class MediaItem:
 
     @property
     def stored_locally(self) -> bool:
-        """
+        """MediaItem is available in local storage.
+
         Returns:
             bool: flag for if the file exists locally
         """
@@ -216,7 +224,8 @@ class MediaItem:
 
     @property
     def filename(self) -> str | None:
-        """
+        """MediaItem file name.
+
         Returns:
             str: the media item's file name
         """
@@ -224,7 +233,8 @@ class MediaItem:
 
     @property
     def height(self) -> int:
-        """
+        """MediaItem height.
+
         Returns:
             int: the media item's height
         """
@@ -232,7 +242,8 @@ class MediaItem:
 
     @property
     def width(self) -> int:
-        """
+        """MediaItem width.
+
         Returns:
             int: the media item's width
         """
@@ -240,7 +251,7 @@ class MediaItem:
 
     @property
     def media_type(self) -> MediaType:
-        """Determines the media item's file type from the JSON
+        """Determines the media item's file type from the JSON.
 
         Returns:
             MediaType: the media type (image, video, etc.) for this item
@@ -259,7 +270,7 @@ class MediaItem:
 
 
 class GooglePhotosClient(GoogleClient):
-    """Custom client for interacting with the Google Photos API
+    """Custom client for interacting with the Google Photos API.
 
     See Also:
         GoogleClient: the base Google client, used for authentication and common
@@ -290,7 +301,7 @@ class GooglePhotosClient(GoogleClient):
 
     def get_album_contents(self, album_id: str) -> list[MediaItem]:
         # noinspection GrazieInspection
-        """Gets the contents of a given album in Google Photos
+        """Gets the contents of a given album in Google Photos.
 
         Args:
             album_id (str): the ID of the album which we want the contents of
@@ -313,7 +324,7 @@ class GooglePhotosClient(GoogleClient):
         ]
 
     def get_album_from_name(self, album_name: str) -> Album:
-        """Gets an album definition from the Google API based on the album name
+        """Gets an album definition from the Google API based on the album name.
 
         Args:
             album_name (str): the name of the album to find
@@ -334,7 +345,7 @@ class GooglePhotosClient(GoogleClient):
 
     @property
     def albums(self) -> list[Album]:
-        """Lists all albums in the active Google account
+        """Lists all albums in the active Google account.
 
         Returns:
             list: a list of Album instances

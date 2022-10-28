@@ -1,4 +1,4 @@
-"""Custom client for interacting with TrueLayer's API"""
+"""Custom client for interacting with TrueLayer's API."""
 from __future__ import annotations
 
 from collections.abc import Generator, Iterable
@@ -23,7 +23,7 @@ DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 
 class Bank(Enum):
-    """Enum for all banks supported by TrueLayer"""
+    """Enum for all banks supported by TrueLayer."""
 
     ALLIED_IRISH_BANK_CORPORATE = "Allied Irish Bank Corporate"
     AMEX = "Amex"
@@ -65,8 +65,11 @@ class Bank(Enum):
 
 
 class TransactionCategory(Enum):
-    """Enum for TrueLayer transaction types, including an overridden __init__
-    method for setting a description as well as the main value"""
+    """Enum for TrueLayer transaction types.
+
+    __init__ method is overridden to allow setting a description as well as the main
+     value.
+    """
 
     ATM = (
         "ATM",
@@ -178,8 +181,9 @@ class _TransactionInfo(TypedDict):
 
 
 class TrueLayerClient:
-    """Custom client for interacting with TrueLayer's APIs, including all necessary
-    authentication functionality
+    """Custom client for interacting with TrueLayer's APIs.
+
+    Includes all necessary authentication functionality.
 
     Args:
         client_id (str): the client ID for the TrueLayer application
@@ -253,7 +257,7 @@ class TrueLayerClient:
         entity_class: type[EntityByIdTypeVar],
         entity_instance_kwargs: dict[Any, Any] | None = None,
     ) -> EntityByIdTypeVar | None:
-        """Gets entity info based on a given ID
+        """Gets entity info based on a given ID.
 
         Args:
             entity_id (str): the unique ID for the account/card
@@ -286,7 +290,7 @@ class TrueLayerClient:
         return entity_class(results[0], self, **entity_instance_kwargs or {})
 
     def get_json_response(self, url: str, params: dict[str, str] | None = None) -> Any:
-        """Gets a simple JSON object from a URL
+        """Gets a simple JSON object from a URL.
 
         Args:
             url (str): the API endpoint to GET
@@ -303,7 +307,7 @@ class TrueLayerClient:
         instance_kwargs: None
         | (dict[str, dict[str, str] | TrueLayerClient | int]) = None,
     ) -> Account | None:
-        """Get an Account instance based on the ID
+        """Get an Account instance based on the ID.
 
         Args:
             account_id (str): the ID of the card
@@ -320,7 +324,7 @@ class TrueLayerClient:
         instance_kwargs: None
         | (dict[str, dict[str, str] | TrueLayerClient | int]) = None,
     ) -> Card | None:
-        """Get a Card instance based on the ID
+        """Get a Card instance based on the ID.
 
         Args:
             card_id (str): the ID of the card
@@ -332,7 +336,7 @@ class TrueLayerClient:
         return self._get_entity_by_id(card_id, Card, instance_kwargs)
 
     def list_accounts(self) -> Generator[Account, None, None]:
-        """Lists all accounts under the given bank account
+        """Lists all accounts under the given bank account.
 
         Yields:
             Account: Account instances, containing all related info
@@ -355,7 +359,7 @@ class TrueLayerClient:
             yield Account(result, self)
 
     def list_cards(self) -> Generator[Card, None, None]:
-        """Lists all accounts under the given bank account
+        """Lists all accounts under the given bank account.
 
         Yields:
             Account: Account instances, containing all related info
@@ -378,8 +382,11 @@ class TrueLayerClient:
             yield Card(result, self)
 
     def refresh_access_token(self) -> None:
-        """Uses the cached refresh token to submit a request to TL's API for a new
-        access token"""
+        """Refreshes the access token.
+
+        Uses the cached refresh token to submit a request to TL's API for a new
+        access token
+        """
 
         LOGGER.info("Refreshing access token for %s", self.bank.value)
 
@@ -403,7 +410,7 @@ class TrueLayerClient:
         }
 
     def authenticate_against_bank(self, code: str) -> None:
-        """Allows first-time (or repeated) authentication against the given bank
+        """Allows first-time (or repeated) authentication against the given bank.
 
         Args:
             code (str): the authorization code returned from the TrueLayer console
@@ -427,16 +434,19 @@ class TrueLayerClient:
 
     @property
     def authentication_link(self) -> str:
-        """
+        """A link to the TrueLayer console, to allow the user to authenticate.
+
         Returns:
             str: the authentication link, including the client ID
         """
         # pylint: disable=line-too-long
-        return f"https://auth.truelayer.com/?response_type=code&client_id={self.client_id}&scope=info%20accounts%20balance%20cards%20transactions%20direct_debits%20standing_orders%20offline_access&redirect_uri={self.redirect_uri}&providers=uk-ob-all%20uk-oauth-all"
+        return f"https://auth.truelayer.com/?response_type=code&client_id={self.client_id}&scope=info%20accounts%20balance%20cards%20transactions%20direct_debits%20standing_orders%20offline_access&redirect_uri={self.redirect_uri}&providers=uk-ob-all%20uk-oauth-all"  # noqa: E501
 
     @property
     def credentials(self) -> dict[str, str]:
-        """Attempts to retrieve credentials from local cache, creates new ones if
+        """Gets the credentials for the TrueLayer API.
+
+        Attempts to retrieve credentials from local cache, creates new ones if
         they're not found.
 
         Returns:
@@ -486,7 +496,7 @@ class TrueLayerClient:
 
     @credentials.setter
     def credentials(self, value: dict[str, str]) -> None:
-        """Update the creds, and write the value to the local cache file
+        """Update the creds, and write the value to the local cache file.
 
         Args:
             value (dict): the creds to set
@@ -510,7 +520,8 @@ class TrueLayerClient:
 
     @property
     def access_token(self) -> str | None:
-        """
+        """Access token property.
+
         Returns:
             str: the access token for this bank's API
         """
@@ -518,7 +529,7 @@ class TrueLayerClient:
 
     @property
     def access_token_has_expired(self) -> bool:
-        """Decodes the JWT access token and evaluates the expiry time
+        """Decodes the JWT access token and evaluates the expiry time.
 
         Returns:
             bool: has the access token expired?
@@ -538,7 +549,8 @@ class TrueLayerClient:
 
     @property
     def refresh_token(self) -> str | None:
-        """
+        """Refresh token property.
+
         Returns:
             str: the TL API refresh token
         """
@@ -546,7 +558,8 @@ class TrueLayerClient:
 
     @property
     def scope(self) -> list[str]:
-        """
+        """List of scopes that the access token has been granted.
+
         Returns:
             list: a list of active API scopes for the current application
         """
@@ -554,7 +567,7 @@ class TrueLayerClient:
 
 
 class TrueLayerEntity:
-    """Parent class for all TrueLayer entities (accounts, cards, etc.)
+    """Parent class for all TrueLayer entities (accounts, cards, etc.).
 
     Args:
         json (dict): the JSON returned from the TrueLayer API which defines the
@@ -594,7 +607,9 @@ class TrueLayerEntity:
         from_datetime: datetime | None = None,
         to_datetime: datetime | None = None,
     ) -> Generator[Transaction, None, None]:
-        """Polls the TL API to get all transactions under the given entity. If
+        """Gets transactions for this entity.
+
+        Polls the TL API to get all transactions under the given entity. If
         only one datetime parameter is provided, then the other is given a default
         value which maximises the range of results returned
 
@@ -625,8 +640,12 @@ class TrueLayerEntity:
             yield Transaction(result, self, self._truelayer_client)
 
     def update_balance_values(self) -> None:
-        """Updates the balance-related instance attributes with the latest values from
-        the API
+        """Updates the balance-related instance attributes.
+
+        Uses the latest values from the API. This is called automatically when
+        the balance-related attributes are accessed (if the attribute is None or
+        was updated more than `self.balance_update_threshold`minutes ago), but
+        can be called manually.
         """
 
         results = self._truelayer_client.get_json_response(
@@ -665,9 +684,11 @@ class TrueLayerEntity:
             "payment_due_date",
         ],
     ) -> str | float | int | None:
-        """Gets a value for a balance-specific property, updating the values if
-         necessary (i.e. if they don't already exist). This also has a check to see if
-         property is relevant for the given entity type and if not it just returns None
+        """Gets a value for a balance-specific property.
+
+        Updates the values if necessary (i.e. if they don't already exist). This also
+        has a check to see if property is relevant for the given entity type and if not
+        it just returns None.
 
         Args:
             prop_name (str): the name of the property
@@ -688,7 +709,8 @@ class TrueLayerEntity:
 
     @property
     def available_balance(self) -> str | float | int | None:
-        """
+        """Available balance for the entity.
+
         Returns:
             float: the amount of money available to the bank account holder
         """
@@ -696,7 +718,8 @@ class TrueLayerEntity:
 
     @property
     def current_balance(self) -> str | float | int | None:
-        """
+        """Current balance of the account.
+
         Returns:
             float: the total amount of money in the account, including pending
              transactions
@@ -705,7 +728,8 @@ class TrueLayerEntity:
 
     @property
     def overdraft(self) -> str | float | int | None:
-        """
+        """Overdraft limit for the account.
+
         Returns:
             float: the overdraft limit of the account
         """
@@ -713,7 +737,8 @@ class TrueLayerEntity:
 
     @property
     def credit_limit(self) -> str | float | int | None:
-        """
+        """Credit limit of the account.
+
         Returns:
             float: the credit limit available to the customer
         """
@@ -721,7 +746,8 @@ class TrueLayerEntity:
 
     @property
     def last_statement_balance(self) -> str | float | int | None:
-        """
+        """Balance of the account at the last statement date.
+
         Returns:
             float: the balance on the last statement
         """
@@ -729,7 +755,8 @@ class TrueLayerEntity:
 
     @property
     def last_statement_date(self) -> str | float | int | None:
-        """
+        """Date of the last statement.
+
         Returns:
             date: the date the last statement was issued on
         """
@@ -737,7 +764,8 @@ class TrueLayerEntity:
 
     @property
     def payment_due(self) -> str | float | int | None:
-        """
+        """Amount due on the next statement.
+
         Returns:
             float: the amount of any due payment
         """
@@ -745,7 +773,8 @@ class TrueLayerEntity:
 
     @property
     def payment_due_date(self) -> str | float | int | None:
-        """
+        """Date of the next statement.
+
         Returns:
             date: the date on which the next payment is due
         """
@@ -753,7 +782,8 @@ class TrueLayerEntity:
 
     @property
     def pretty_json(self) -> str:
-        """
+        """Provides a pretty-printed JSON representation of the entity.
+
         Returns:
             str: a "pretty" version of the JSON, used for debugging etc.
         """
@@ -761,7 +791,8 @@ class TrueLayerEntity:
 
     @property
     def currency(self) -> str | float | dict[Any, Any] | None:
-        """
+        """Currency of the entity.
+
         Returns:
             str: ISO 4217 alpha-3 currency code of this entity
         """
@@ -769,7 +800,8 @@ class TrueLayerEntity:
 
     @property
     def display_name(self) -> str | float | dict[Any, Any] | None:
-        """
+        """Human-readable name of the entity.
+
         Returns:
             str: human-readable name of the entity
         """
@@ -777,7 +809,8 @@ class TrueLayerEntity:
 
     @property
     def id(self) -> str | float | dict[Any, Any] | None:
-        """
+        """Unique identifier of the entity.
+
         Returns:
             str: the unique ID for this entity
         """
@@ -785,7 +818,8 @@ class TrueLayerEntity:
 
     @property
     def provider_name(self) -> str | None:
-        """
+        """Name of the provider that this entity belongs to.
+
         Returns:
             str: the name of the account provider
         """
@@ -793,7 +827,8 @@ class TrueLayerEntity:
 
     @property
     def provider_id(self) -> str | None:
-        """
+        """Unique ID of the provider.
+
         Returns:
             str: unique identifier for the provider
         """
@@ -801,7 +836,8 @@ class TrueLayerEntity:
 
     @property
     def provider_logo_uri(self) -> str | None:
-        """
+        """URI of the provider's logo.
+
         Returns:
             str: url for the account provider's logo
         """
@@ -834,7 +870,8 @@ class Transaction:
 
     @property
     def pretty_json(self) -> str:
-        """
+        """Provides a pretty-printed JSON representation of the entity.
+
         Returns:
             str: a "pretty" version of the JSON, used for debugging etc.
         """
@@ -842,7 +879,8 @@ class Transaction:
 
     @property
     def id(self) -> str | None:
-        """
+        """Unique identifier for the transaction.
+
         Returns:
             str: unique ID for this transaction, it may change between requests
         """
@@ -850,7 +888,8 @@ class Transaction:
 
     @property
     def currency(self) -> str | None:
-        """
+        """Currency of the transaction.
+
         Returns:
             str: ISO 4217 alpha-3 currency code of this entity
         """
@@ -858,7 +897,8 @@ class Transaction:
 
     @property
     def timestamp(self) -> datetime:
-        """
+        """Transaction timestamp.
+
         Returns:
             datetime: the timestamp this transaction was made at
         """
@@ -869,7 +909,8 @@ class Transaction:
 
     @property
     def description(self) -> str | None:
-        """
+        """Description of the transaction.
+
         Returns:
             str: the description of this transaction
         """
@@ -877,7 +918,8 @@ class Transaction:
 
     @property
     def type(self) -> str | None:
-        """
+        """Transaction type.
+
         Returns:
             str: the type of transaction
         """
@@ -885,7 +927,8 @@ class Transaction:
 
     @property
     def category(self) -> TransactionCategory:
-        """
+        """Transaction category.
+
         Returns:
             str: the category of this transaction
         """
@@ -893,7 +936,8 @@ class Transaction:
 
     @property
     def classifications(self) -> list[str] | None:
-        """
+        """List of classifications for this transaction.
+
         Returns:
             list: a list of classifications for this transaction
         """
@@ -901,7 +945,8 @@ class Transaction:
 
     @property
     def merchant_name(self) -> str | None:
-        """
+        """Name of the merchant for this transaction.
+
         Returns:
             str: the name of the merchant with which this transaction was made
         """
@@ -909,7 +954,8 @@ class Transaction:
 
     @property
     def amount(self) -> float | None:
-        """
+        """Transaction amount.
+
         Returns:
             float: the amount this transaction is for
         """
@@ -917,7 +963,8 @@ class Transaction:
 
     @property
     def provider_transaction_id(self) -> str | None:
-        """
+        """ID of the transaction as provided by the provider.
+
         Returns:
             str: the tx ID from the provider
         """
@@ -925,7 +972,8 @@ class Transaction:
 
     @property
     def normalised_provider_transaction_id(self) -> str | None:
-        """
+        """Normalised provider transaction ID.
+
         Returns:
             str: a normalised tx ID, less likely to change
         """
@@ -933,7 +981,8 @@ class Transaction:
 
     @property
     def provider_category(self) -> str | None:
-        """
+        """Category of the transaction as provided by the provider.
+
         Returns:
             str: the provider transaction category
         """
@@ -941,7 +990,8 @@ class Transaction:
 
     @property
     def provider_transaction_type(self) -> str | None:
-        """
+        """The provider transaction type.
+
         Returns:
             str: the type of transaction, as seen by the provider?
         """
@@ -949,7 +999,8 @@ class Transaction:
 
     @property
     def counter_party_preferred_name(self) -> str | None:
-        """
+        """Preferred name of the counter party.
+
         Returns:
             str: the preferred name of the merchant
         """
@@ -957,7 +1008,8 @@ class Transaction:
 
     @property
     def provider_id(self) -> str | None:
-        """
+        """ID of the provider.
+
         Returns:
             str: seems to be the same as `self.provider_transaction_id`
         """
@@ -965,7 +1017,8 @@ class Transaction:
 
     @property
     def debtor_account_name(self) -> str | None:
-        """
+        """Name of the account from which the money was taken.
+
         Returns:
             str: the account name of the debtor, if the tx is inbound
         """
@@ -976,14 +1029,15 @@ class Transaction:
 
 
 class Account(TrueLayerEntity):
-    """Class for managing individual bank accounts"""
+    """Class for managing individual bank accounts."""
 
     BALANCE_FIELDS = ("available_balance", "current_balance", "overdraft")
     json: _AccountInfo
 
     @property
     def type(self) -> str | None:
-        """
+        """Account type, e.g. "current" or "savings".
+
         Returns:
             str: type of the account
         """
@@ -991,7 +1045,8 @@ class Account(TrueLayerEntity):
 
     @property
     def iban(self) -> str | None:
-        """
+        """ISO 13616 International Bank Account Number.
+
         Returns:
             str: the International Bank Account Number for this account
         """
@@ -999,7 +1054,8 @@ class Account(TrueLayerEntity):
 
     @property
     def swift_bic(self) -> str | None:
-        """
+        """Swift BIC code for this account.
+
         Returns:
             str: ISO 9362:2009 Business Identifier Codes.
         """
@@ -1007,7 +1063,8 @@ class Account(TrueLayerEntity):
 
     @property
     def account_number(self) -> str | None:
-        """
+        """Account number for this account.
+
         Returns:
             str: the account's account number
         """
@@ -1015,7 +1072,8 @@ class Account(TrueLayerEntity):
 
     @property
     def sort_code(self) -> str | None:
-        """
+        """Sort code for UK accounts.
+
         Returns:
             str: the account's sort code
         """
@@ -1023,7 +1081,7 @@ class Account(TrueLayerEntity):
 
 
 class Card(TrueLayerEntity):
-    """Class for managing individual cards"""
+    """Class for managing individual cards."""
 
     BALANCE_FIELDS = (
         "available_balance",
@@ -1038,7 +1096,8 @@ class Card(TrueLayerEntity):
 
     @property
     def card_network(self) -> str | None:
-        """
+        """Card network, e.g. Visa, Mastercard, etc..
+
         Returns:
             str: card processor. For example, VISA
         """
@@ -1046,7 +1105,8 @@ class Card(TrueLayerEntity):
 
     @property
     def type(self) -> str | None:
-        """
+        """Type of card, e.g. credit, debit, etc..
+
         Returns:
             str: type of card: credit, debit
         """
@@ -1054,7 +1114,8 @@ class Card(TrueLayerEntity):
 
     @property
     def partial_card_number(self) -> str | None:
-        """
+        """Last 4 digits of the card number.
+
         Returns:
             str: last few digits of card number
         """
@@ -1062,7 +1123,8 @@ class Card(TrueLayerEntity):
 
     @property
     def name_on_card(self) -> str | None:
-        """
+        """Cardholder name.
+
         Returns:
             str: the name on the card
         """

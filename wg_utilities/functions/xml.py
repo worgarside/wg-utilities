@@ -1,4 +1,4 @@
-"""Helper functions specifically for parsing/manipulating XML"""
+"""Helper functions specifically for parsing/manipulating XML."""
 
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ def get_nsmap(
     xml_doc: str | None = None,
     warn_on_defaults: bool = False,
 ) -> dict[str, str]:
-    """Get the namespace map for an XML document
+    """Get the namespace map for an XML document.
 
     Args:
         root (Element): an lxml Element from an XML document

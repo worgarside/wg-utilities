@@ -1,4 +1,4 @@
-"""Useful functions"""
+"""Useful functions."""
 
 from __future__ import annotations
 

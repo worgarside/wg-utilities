@@ -1,4 +1,4 @@
-"""DHT22 sensor"""
+"""DHT22 sensor."""
 
 from __future__ import annotations
 

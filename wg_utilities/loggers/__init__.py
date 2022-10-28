@@ -1,4 +1,4 @@
-"""Useful constants and functions for use in logging in other projects"""
+"""Useful constants and functions for use in logging in other projects."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -26,7 +26,7 @@ FORMATTER = Formatter(
 
 
 class ListHandler(Handler):
-    """Custom handler to allow retrieval of log records after the fact
+    """Custom handler to allow retrieval of log records after the fact.
 
     Args:
         records_list (list): allows the user to pass in a pre-defined list to add
@@ -53,7 +53,7 @@ class ListHandler(Handler):
         self.on_expiry = on_expiry
 
     def emit(self, record: LogRecord) -> None:
-        """ "Emit" the record by adding it to the internal record store
+        """Add log record to the internal record store.
 
         Args:
             record (LogRecord): the new log record being "emitted"
@@ -66,8 +66,7 @@ class ListHandler(Handler):
             self.on_record(record)
 
     def expire_records(self) -> None:
-        """Remove records older than `self.ttl`, and call `self.on_expiry` on them"""
-
+        """Remove records older than `self.ttl`, and call `self.on_expiry` on them."""
         if self.ttl is None:
             return
 
@@ -85,7 +84,8 @@ class ListHandler(Handler):
 
     @property
     def debug_records(self) -> list[LogRecord]:
-        """
+        """Debug level records.
+
         Returns:
             list: a list of log records with the level DEBUG
         """
@@ -94,7 +94,8 @@ class ListHandler(Handler):
 
     @property
     def info_records(self) -> list[LogRecord]:
-        """
+        """Info level records.
+
         Returns:
             list: a list of log records with the level INFO
         """
@@ -103,7 +104,8 @@ class ListHandler(Handler):
 
     @property
     def warning_records(self) -> list[LogRecord]:
-        """
+        """Warning level records.
+
         Returns:
             list: a list of log records with the level WARNING
         """
@@ -112,7 +114,8 @@ class ListHandler(Handler):
 
     @property
     def error_records(self) -> list[LogRecord]:
-        """
+        """Error level records.
+
         Returns:
             list: a list of log records with the level ERROR
         """
@@ -121,7 +124,8 @@ class ListHandler(Handler):
 
     @property
     def critical_records(self) -> list[LogRecord]:
-        """
+        """Critical level records.
+
         Returns:
             list: a list of log records with the level CRITICAL
         """
@@ -130,7 +134,8 @@ class ListHandler(Handler):
 
     @property
     def records(self) -> list[LogRecord]:
-        """
+        """All records.
+
         Returns:
             list: a list of log records with the level CRITICAL
         """
@@ -141,7 +146,7 @@ class ListHandler(Handler):
 def create_file_handler(
     logfile_path: str, level: int = DEBUG, create_directory: bool = True
 ) -> FileHandler:
-    """Create a file handler for use in other loggers
+    """Create a file handler for use in other loggers.
 
     Args:
         logfile_path (str): the path to the logging file
@@ -169,7 +174,7 @@ def add_file_handler(
     level: int = DEBUG,
     create_directory: bool = True,
 ) -> Logger:
-    """Add a FileHandler to an existing logger
+    """Add a FileHandler to an existing logger.
 
     Args:
         logger (Logger): the logger to add a file handler to
@@ -200,7 +205,7 @@ def add_list_handler(
     log_ttl: int | None = 86400,
     on_expiry: Callable[[LogRecord], Any] | None = None,
 ) -> ListHandler:
-    """Add a ListHandler to an existing logger
+    """Add a ListHandler to an existing logger.
 
     Args:
         logger (Logger): the logger to add a file handler to
@@ -221,7 +226,7 @@ def add_list_handler(
 def add_stream_handler(
     logger: Logger, *, formatter: Formatter = FORMATTER, level: int = DEBUG
 ) -> Logger:
-    """Add a FileHandler to an existing logger
+    """Add a FileHandler to an existing logger.
 
     Args:
         logger (Logger): the logger to add a file handler to

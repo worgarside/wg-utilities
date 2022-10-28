@@ -1,4 +1,4 @@
-"""Custom client for interacting with Monzo's API"""
+"""Custom client for interacting with Monzo's API."""
 from __future__ import annotations
 
 from collections.abc import Generator
@@ -65,7 +65,7 @@ class _BalanceVariablesInfo(TypedDict):
 
 
 class Account:
-    """Class for managing individual bank accounts"""
+    """Class for managing individual bank accounts."""
 
     def __init__(
         self,
@@ -94,9 +94,11 @@ class Account:
             "total_balance",
         ],
     ) -> str | float | dict[str, str | int] | None:
-        """Gets a value for a balance-specific property, updating the values if
-         necessary (i.e. if they don't already exist). This also has a check to see if
-         property is relevant for the given entity type and if not it just returns None
+        """Gets a value for a balance-specific property.
+
+         Values are updated as necessary (i.e. if they don't already exist). This also
+         has a check to see if property is relevant for the given entity type and if
+         not it just returns None.
 
         Args:
             var_name (str): the name of the variable
@@ -120,8 +122,12 @@ class Account:
         return self._balance_variables[var_name]
 
     def update_balance_variables(self) -> None:
-        """Updates the balance-related instance attributes with the latest values from
-        the API
+        """Updates the balance-related instance attributes.
+
+        Latest values from the API are used. This is called automatically when
+        a balance property is accessed and the last update was more than
+        `balance_update_threshold` minutes ago, or if it is None. Can also be called
+        manually if required.
         """
         # pylint: disable=line-too-long
         self._balance_variables = self._monzo_client.get_json_response(  # type: ignore[assignment]
@@ -138,7 +144,8 @@ class Account:
 
     @property
     def account_number(self) -> str | None:
-        """
+        """Account number.
+
         Returns:
             str: the account's account number
         """
@@ -146,7 +153,8 @@ class Account:
 
     @property
     def balance(self) -> float | None:
-        """
+        """Current balance of the account.
+
         Returns:
             float: the currently available balance of the account
         """
@@ -154,7 +162,8 @@ class Account:
 
     @property
     def balance_including_flexible_savings(self) -> float | None:
-        """
+        """Balance including flexible savings.
+
         Returns:
             float: the currently available balance of the account, including flexible
              savings pots
@@ -165,7 +174,8 @@ class Account:
 
     @property
     def created_datetime(self) -> datetime | None:
-        """
+        """When the account was created.
+
         Returns:
             datetime: when the account was created
         """
@@ -176,7 +186,8 @@ class Account:
 
     @property
     def description(self) -> str | None:
-        """
+        """Description of the account.
+
         Returns:
             str: the description of the account
         """
@@ -184,7 +195,8 @@ class Account:
 
     @property
     def id(self) -> str | None:
-        """
+        """Account ID.
+
         Returns:
             str: the account's UUID
         """
@@ -192,7 +204,8 @@ class Account:
 
     @property
     def sort_code(self) -> str | None:
-        """
+        """Sort code.
+
         Returns:
             str: the account's sort code
         """
@@ -200,7 +213,8 @@ class Account:
 
     @property
     def spend_today(self) -> float | None:
-        """
+        """Amount spent today.
+
         Returns:
             float: the amount spent from this account today (considered from approx
              4am onwards)
@@ -209,7 +223,8 @@ class Account:
 
     @property
     def total_balance(self) -> str | None:
-        """
+        """Total balance of the account.
+
         Returns:
             str: the sum of the currently available balance of the account and the
              combined total of all the user’s pots
@@ -218,14 +233,15 @@ class Account:
 
 
 class Pot:
-    """Read-only class for Monzo pots"""
+    """Read-only class for Monzo pots."""
 
     def __init__(self, json: _MonzoPotInfo):
         self.json = json
 
     @property
     def available_for_bills(self) -> bool | None:
-        """
+        """Whether the pot is available for bills.
+
         Returns:
             bool: if the pot can be used directly for bills
         """
@@ -233,7 +249,8 @@ class Pot:
 
     @property
     def balance(self) -> float:
-        """
+        """Balance of the pot.
+
         Returns:
             float: the pot's balance in GBP
         """
@@ -241,7 +258,8 @@ class Pot:
 
     @property
     def charity_id(self) -> str | None:
-        """
+        """ID of the charity this Pot is for?
+
         Returns:
             str: not sure!
         """
@@ -249,7 +267,8 @@ class Pot:
 
     @property
     def cover_image_url(self) -> str | None:
-        """
+        """Cover image URL for the pot.
+
         Returns:
             str: URL for the cover image
         """
@@ -257,7 +276,8 @@ class Pot:
 
     @property
     def created_datetime(self) -> datetime | None:
-        """
+        """When the pot was created.
+
         Returns:
             datetime: when the pot was created
         """
@@ -268,7 +288,8 @@ class Pot:
 
     @property
     def currency(self) -> str | None:
-        """
+        """Pot currency.
+
         Returns:
             str: the currency of the pot
         """
@@ -276,7 +297,8 @@ class Pot:
 
     @property
     def current_account_id(self) -> str | None:
-        """
+        """UUID of the account the pot is linked to.
+
         Returns:
             str: the UUID of the parent account
         """
@@ -284,7 +306,8 @@ class Pot:
 
     @property
     def deleted(self) -> bool | None:
-        """
+        """Has the pot been deleted?
+
         Returns:
             bool: has the pot been deleted
         """
@@ -292,7 +315,8 @@ class Pot:
 
     @property
     def goal_amount(self) -> float | None:
-        """
+        """Goal amount of the pot.
+
         Returns:
             float: the user-set goal amount for the pot
         """
@@ -303,7 +327,8 @@ class Pot:
 
     @property
     def has_virtual_cards(self) -> bool | None:
-        """
+        """Any pot with virtual cards will have this set to True.
+
         Returns:
             bool: if the pot has virtual cards attached
         """
@@ -311,7 +336,8 @@ class Pot:
 
     @property
     def id(self) -> str:
-        """
+        """UUID of the pot.
+
         Returns:
             str: the pot's UUID
         """
@@ -319,7 +345,8 @@ class Pot:
 
     @property
     def is_tax_pot(self) -> bool | None:
-        """
+        """Is this a tax pot?
+
         Returns:
             bool: is the pot taxed? I'm not sure
         """
@@ -327,7 +354,8 @@ class Pot:
 
     @property
     def isa_wrapper(self) -> str | None:
-        """
+        """Whether the pot is ISA-wrapped.
+
         Returns:
             str: is the pot ISA-wrapped?
         """
@@ -335,7 +363,8 @@ class Pot:
 
     @property
     def locked(self) -> bool | None:
-        """
+        """Boolean indicating whether the pot is locked.
+
         Returns:
             bool: is the pot locked
         """
@@ -343,7 +372,8 @@ class Pot:
 
     @property
     def name(self) -> str:
-        """
+        """Name of the pot.
+
         Returns:
             str: the name of the pot
         """
@@ -351,7 +381,8 @@ class Pot:
 
     @property
     def product_id(self) -> str | None:
-        """
+        """Product ID of the pot.
+
         Returns:
             str: the ID of the product applied to the pot (e.g. savings)
         """
@@ -359,7 +390,8 @@ class Pot:
 
     @property
     def round_up(self) -> bool | None:
-        """
+        """Target pot for round-ups.
+
         Returns:
             bool: is the pot where all round ups go
         """
@@ -367,7 +399,8 @@ class Pot:
 
     @property
     def round_up_multiplier(self) -> float | None:
-        """
+        """Multiplier for round ups.
+
         Returns:
             float: the multiplier applied to the pot's round-ups
         """
@@ -375,7 +408,8 @@ class Pot:
 
     @property
     def style(self) -> str | None:
-        """
+        """Background style of the pot.
+
         Returns:
             str: the pot background image
         """
@@ -383,7 +417,8 @@ class Pot:
 
     @property
     def type(self) -> str | None:
-        """
+        """The type of pot.
+
         Returns:
             str: the type of pot (e.g. flex saver)
         """
@@ -391,7 +426,8 @@ class Pot:
 
     @property
     def updated_datetime(self) -> datetime | None:
-        """
+        """Datetime when the pot was last updated.
+
         Returns:
             datetime: when the pot was updated last
         """
@@ -405,7 +441,7 @@ class Pot:
 
 
 class MonzoClient(OauthClient):
-    """Custom client for interacting with Monzo's API"""
+    """Custom client for interacting with Monzo's API."""
 
     ACCESS_TOKEN_ENDPOINT = "https://api.monzo.com/oauth2/token"
     BASE_URL = "https://api.monzo.com"
@@ -437,8 +473,7 @@ class MonzoClient(OauthClient):
     def deposit_into_pot(
         self, pot: Pot, amount_pence: int, dedupe_id: str | None = None
     ) -> None:
-        """Move money from an account owned by the currently authorised user into one
-         of their pots
+        """Move money from the user's account into one of their pots.
 
         Args:
             pot (Pot): the target pot
@@ -463,7 +498,7 @@ class MonzoClient(OauthClient):
     def list_accounts(
         self, ignore_closed: bool = True, account_type: str | None = None
     ) -> Generator[Account, None, None]:
-        """Gets a list of the user's accounts
+        """Gets a list of the user's accounts.
 
         Args:
             ignore_closed (bool): whether to include closed accounts in the response
@@ -484,7 +519,7 @@ class MonzoClient(OauthClient):
             yield Account(account, self)
 
     def list_pots(self, ignore_deleted: bool = True) -> Generator[Pot, None, None]:
-        """Gets a list of the user's pots
+        """Gets a list of the user's pots.
 
         Args:
             ignore_deleted (bool): whether to include deleted pots in the response
@@ -503,7 +538,7 @@ class MonzoClient(OauthClient):
             yield Pot(pot)
 
     def get_pot_by_id(self, pot_id: str) -> Pot | None:
-        """Get a pot from its ID
+        """Get a pot from its ID.
 
         Args:
             pot_id (str): the ID of the pot to find
@@ -518,7 +553,7 @@ class MonzoClient(OauthClient):
         return None
 
     def get_pot_by_name(self, pot_name: str, exact_match: bool = False) -> Pot | None:
-        """Get a pot from its name
+        """Get a pot from its name.
 
         Args:
             pot_name (str): the name of the pot to find
@@ -540,8 +575,10 @@ class MonzoClient(OauthClient):
 
     @property
     def access_token_has_expired(self) -> bool:
-        """Custom expiry check for Monzo client as JWT doesn't seem to include expiry
-         time. Any errors/missing credentials result in a default value of True
+        """Custom expiry check for Monzo client.
+
+         The JWT doesn't seem to include expiry time. Any errors/missing credentials
+         result in a default value of True
 
         Returns:
             bool: expiry status of JWT
@@ -560,8 +597,9 @@ class MonzoClient(OauthClient):
 
     @property
     def current_account(self) -> Account:
-        """Get the main account for the Monzo user. We assume there'll only be one
-         main account per user
+        """Get the main account for the Monzo user.
+
+        We assume there'll only be one main account per user.
 
         Returns:
             Account: the user's main account, instantiated

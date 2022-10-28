@@ -1,4 +1,5 @@
-"""
+"""Config for the EPD.
+
 * | File        :	  epdconfig.py
 * | Author      :   Waveshare team
 * | Function    :   Hardware underlying interface
@@ -37,7 +38,7 @@ from typing import Literal
 
 
 # noinspection PyMissingOrEmptyDocstring
-class RaspberryPi:
+class RaspberryPi:  # noqa
     # Pin definition
     RST_PIN = 17
     DC_PIN = 25
@@ -55,21 +56,21 @@ class RaspberryPi:
         # SPI device, bus = 0, device = 0
         self.spi = SpiDev(0, 0)
 
-    def digital_write(self, pin: int, value: bool) -> None:
+    def digital_write(self, pin: int, value: bool) -> None:  # noqa: D102
         self.gpio.output(pin, value)
 
-    def digital_read(self, pin: int) -> bool:
+    def digital_read(self, pin: int) -> bool:  # noqa: D102
         return self.gpio.input(pin)  # type: ignore[no-any-return]
 
     @staticmethod
-    def delay_ms(delay_time: float | int) -> None:
+    def delay_ms(delay_time: float | int) -> None:  # noqa: D102
         sleep(delay_time / 1000.0)
 
-    def spi_writebyte(self, data: list[int]) -> None:
+    def spi_writebyte(self, data: list[int]) -> None:  # noqa: D102
         self.spi.writebytes(data)
 
     # noinspection DuplicatedCode
-    def module_init(self) -> Literal[0]:
+    def module_init(self) -> Literal[0]:  # noqa: D102
         self.gpio.setmode(self.gpio.BCM)
         self.gpio.setwarnings(False)
         self.gpio.setup(self.RST_PIN, self.gpio.OUT)
@@ -80,7 +81,7 @@ class RaspberryPi:
         self.spi.mode = 0b00
         return 0
 
-    def module_exit(self) -> None:
+    def module_exit(self) -> None:  # noqa: D102
         debug("spi end")
         self.spi.close()
 
@@ -176,7 +177,7 @@ except (RuntimeError, ImportError):
 
     # pylint: disable=too-few-public-methods
     class FakeImplementation:
-        """Class to cover functionality of implementations on non-supporting devices"""
+        """Class to cover functionality of implementations on non-supporting devices."""
 
     # for method in set().union(dir(RaspberryPi), dir(JetsonNano)):
     for method in dir(RaspberryPi):

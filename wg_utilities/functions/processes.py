@@ -1,4 +1,4 @@
-"""Functions for managing processes"""
+"""Functions for managing processes."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ COMMAND_PATTERN = compile_regex(r"""((?:[^\s"']|"[^"]*"|'[^']*')+)""")
 def run_cmd(
     cmd: str, exit_on_error: bool = True, shell: bool = False
 ) -> tuple[str, str]:
-    """Helper function for running commands on the command line
+    """Helper function for running commands on the command line.
 
     Args:
         cmd (str): the command to run in the user's terminal

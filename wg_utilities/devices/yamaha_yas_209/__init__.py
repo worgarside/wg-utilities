@@ -1,4 +1,4 @@
-"""Yamaha YAS-209 Soundbar"""
+"""Yamaha YAS-209 Soundbar."""
 
 
 from __future__ import annotations

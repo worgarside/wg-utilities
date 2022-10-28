@@ -1,4 +1,4 @@
-"""Custom client for interacting with Google's Drive API"""
+"""Custom client for interacting with Google's Drive API."""
 from __future__ import annotations
 
 from collections.abc import Collection, Iterable
@@ -11,7 +11,7 @@ from wg_utilities.exceptions import ResourceNotFound
 
 
 class File:
-    """A file object within Google Drive
+    """A file object within Google Drive.
 
     Args:
         id (str): the unique ID of this file
@@ -111,7 +111,7 @@ class File:
     def describe(
         self, force_update: bool = False
     ) -> dict[str, str | bool | float | int]:
-        """Describe the file by requesting all available fields from the Drive API
+        """Describe the file by requesting all available fields from the Drive API.
 
         Args:
             force_update (bool): re-pull the description from Google Drive, even if we
@@ -130,7 +130,8 @@ class File:
 
     @property
     def parent(self) -> Directory:
-        """
+        """Get the parent directory of this file.
+
         Returns:
             Directory: the parent directory of this file
         """
@@ -143,7 +144,8 @@ class File:
 
     @property
     def path(self) -> str:
-        """
+        """Path to this file, relative to the root directory.
+
         Returns:
             str: the path to this file in Google Drive
         """
@@ -182,7 +184,7 @@ class _DirectoryItemInfo(TypedDict):
 
 
 class Directory(File):
-    """A Google Drive directory - basically a File with extended functionality
+    """A Google Drive directory - basically a File with extended functionality.
 
     Attributes:
         children (set): the directories contained within this directory
@@ -204,7 +206,7 @@ class Directory(File):
         self._files: list[File] | None = None
 
     def add_child(self, directory: Directory) -> None:
-        """Adds a child directory to this directory's children record
+        """Adds a child directory to this directory's children record.
 
         Args:
             directory (Directory): the directory to add
@@ -213,7 +215,8 @@ class Directory(File):
 
     @property
     def children(self) -> list[Directory]:
-        """
+        """The directories contained within this directory.
+
         Returns:
             list: the directories contained within this directory
         """
@@ -221,7 +224,8 @@ class Directory(File):
 
     @property
     def files(self) -> list[File]:
-        """
+        """The files contained within this directory.
+
         Returns:
             list: the list of files contained within this directory
         """
@@ -248,7 +252,8 @@ class Directory(File):
 
     @property
     def parent(self) -> Directory:
-        """
+        """Parent directory of this directory.
+
         Returns:
             Directory: the parent directory of this directory
         """
@@ -256,12 +261,19 @@ class Directory(File):
 
     @parent.setter
     def parent(self, value: Directory) -> None:
+        """Set the parent directory of this directory.
+
+        Args:
+            value (Directory): the new parent directory
+        """
         self._parent = value
 
     @property
     def tree(self) -> str:
-        """A "simple" copy of the Linux `tree` command, this builds a directory tree in
-        text form for quick visualisation
+        """A "simple" copy of the Linux `tree` command.
+
+        This builds a directory tree in text form for quick visualisation. Not really
+        intended for use in production, but useful for debugging.
 
         Returns:
             str: the full directory tree in text form
@@ -275,7 +287,7 @@ class Directory(File):
             block_pipes_at_levels: list[int] | None = None,
             show_files: bool = True,
         ) -> None:
-            """Builds a subtree of a given directory
+            """Builds a subtree of a given directory.
 
             Args:
                 parent_dir (Directory): the directory to create the subtree of
@@ -333,7 +345,7 @@ class Directory(File):
 
 
 class GoogleDriveClient(GoogleClient):
-    """Custom client specifically for Google's Drive API
+    """Custom client specifically for Google's Drive API.
 
     Args:
         project (str): the name of the project which this client is being used for
@@ -371,9 +383,10 @@ class GoogleDriveClient(GoogleClient):
         self._directories: list[Directory] = []
 
     def _build_directory_structure(self) -> None:
-        """Build the complete tree of directories, including parent-child relationships
-        by listing all directories and then iterating through them to build the
-        relationships
+        """Build the complete tree of directories.
+
+        Parent-child relationships are included by listing all directories and then
+        iterating through them to build the relationships.
         """
         self._directories = [self.root_directory]
 
@@ -411,7 +424,7 @@ class GoogleDriveClient(GoogleClient):
                 parent_dir.add_child(directory_)
 
     def get_directory_by(self, attribute: str, value: Any) -> Directory:
-        """Get a Directory instance by any attribute
+        """Get a Directory instance by any attribute.
 
         Args:
             attribute (str): the name of the attribute to search for
@@ -436,7 +449,7 @@ class GoogleDriveClient(GoogleClient):
         file_id: str,
         params: dict[str, str | int | float | bool] | None = None,
     ) -> File:
-        """Find a file by its UUID
+        """Find a file by its UUID.
 
         Args:
             file_id (str): the unique ID of the file
@@ -463,7 +476,8 @@ class GoogleDriveClient(GoogleClient):
 
     @property
     def shared_drives(self) -> list[dict[str, str]]:
-        """
+        """Get a list of all shared drives.
+
         Returns:
             list: a list of Shared Drives the current user has access to
         """
@@ -474,7 +488,8 @@ class GoogleDriveClient(GoogleClient):
 
     @property
     def directories(self) -> list[Directory]:
-        """
+        """All directories in the user's Google Drive.
+
         Returns:
             list: a list of all directories in the user's Drive
         """
@@ -485,7 +500,8 @@ class GoogleDriveClient(GoogleClient):
 
     @property
     def root_directory(self) -> Directory:
-        """
+        """user's root directory.
+
         Returns:
             Directory: the user's root directory/main Drive
         """

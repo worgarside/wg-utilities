@@ -1,4 +1,4 @@
-"""Setup/config file for the package"""
+"""Setup/config file for the package."""
 
 from __future__ import annotations
 

@@ -20,8 +20,9 @@ from wg_utilities.functions import force_mkdir, user_data_dir
 
 
 class TempAuthServer:
-    """Temporary Flask server for auth flows, allowing the auth code to be retrieved
-    without manual intervention
+    """Temporary Flask server for auth flows.
+
+    This allows the auth code to be retrieved without manual intervention
 
     Args:
         name (str): the name of the application package
@@ -58,13 +59,15 @@ class TempAuthServer:
             self.run_server()
 
     def create_endpoints(self) -> None:
-        """Create all necessary endpoints. This is a single method (rather than one
-        method per endpoint) because of the need to use `self.app` as the decorator
+        """Create all necessary endpoints.
+
+        This is an "endpoint factory" (rather than one decorated method per endpoint)
+        because of the need to use `self.app` as the decorator
         """
 
         @self.app.route("/get_auth_code", methods=["GET"])
         def get_auth_code() -> str:
-            """Endpoint for getting auth code from third party callback
+            """Endpoint for getting auth code from third party callback.
 
             Returns:
                 dict: simple response dict
@@ -78,7 +81,7 @@ class TempAuthServer:
 
         @self.app.route("/kill", methods=["GET"])
         def kill() -> str:
-            """Workaround endpoint for killing the server from within a script
+            """Workaround endpoint for killing the server from within a script.
 
             Returns:
                 dict: simple response dict
@@ -99,8 +102,10 @@ class TempAuthServer:
     def wait_for_request(
         self, endpoint: str, max_wait: int = 300, kill_on_request: bool = False
     ) -> dict[str, Any]:
-        """Wait for a request to come into the server for when it is needed in a
-         synchronous flow
+        """Wait for a request.
+
+        Wait for a request to come into the server for when it is needed in a
+        synchronous flow
 
         Args:
             endpoint (str): the endpoint path to wait for a request to
@@ -131,11 +136,11 @@ class TempAuthServer:
         return self._request_args[endpoint]
 
     def run_server(self) -> None:
-        """Run the local server"""
+        """Run the local server."""
         self.app_thread.start()
 
     def stop_server(self) -> None:
-        """Stops the local server by hitting its `/kill` endpoint
+        """Stops the local server by hitting its `/kill` endpoint.
 
         See Also:
             self.create_endpoints: `/kill` endpoint
@@ -155,8 +160,10 @@ class _OauthCredentialsInfo(TypedDict):
 
 
 class OauthClient:
-    """Custom client for interacting with Oauth APIs, including all necessary/basic
-    authentication functionality"""
+    """Custom client for interacting with Oauth APIs.
+
+    Includes all necessary/basic authentication functionality
+    """
 
     def __init__(
         self,
@@ -227,7 +234,7 @@ class OauthClient:
             self._credentials = load(fin).get(self.client_id, {})
 
     def exchange_auth_code(self, code: str) -> None:
-        """Allows first-time (or repeated) authentication
+        """Allows first-time (or repeated) authentication.
 
         Args:
             code (str): the authorization code returned from the auth flow
@@ -251,7 +258,7 @@ class OauthClient:
     def get_json_response(
         self, url: str, params: dict[str, Any] | None = None
     ) -> dict[str, Any]:
-        """Gets a simple JSON object from a URL
+        """Gets a simple JSON object from a URL.
 
         Args:
             url (str): the API endpoint to GET
@@ -263,8 +270,11 @@ class OauthClient:
         return self._get(url, params=params).json()  # type: ignore[no-any-return]
 
     def refresh_access_token(self) -> None:
-        """Uses the cached refresh token to submit a request to TL's API for a new
-        access token"""
+        """Refreshes access token.
+
+        Uses the cached refresh token to submit a request to TL's API for a new
+        access token
+        """
 
         if not hasattr(self, "_credentials"):
             self._load_local_credentials()
@@ -292,7 +302,8 @@ class OauthClient:
 
     @property
     def access_token(self) -> str | None:
-        """
+        """Access token.
+
         Returns:
             str: the access token for this bank's API
         """
@@ -300,7 +311,7 @@ class OauthClient:
 
     @property
     def access_token_has_expired(self) -> bool:
-        """Decodes the JWT access token and evaluates the expiry time
+        """Decodes the JWT access token and evaluates the expiry time.
 
         Returns:
             bool: has the access token expired?
@@ -325,8 +336,7 @@ class OauthClient:
 
     @property
     def credentials(self) -> _OauthCredentialsInfo:
-        """Attempts to retrieve credentials from local cache, creates new ones if
-        they're not found.
+        """Gets creds as necessary (including first time setup) and authenticates them.
 
         Returns:
             dict: the credentials for the chosen bank
@@ -341,7 +351,7 @@ class OauthClient:
             self.logger.info("Performing first time login")
             state_token = "".join(choice(ascii_letters) for _ in range(32))
             # pylint: disable=line-too-long
-            auth_link = f"https://auth.monzo.com/?client_id={self.client_id}&redirect_uri={self.redirect_uri}&response_type=code&state={state_token}"
+            auth_link = f"https://auth.monzo.com/?client_id={self.client_id}&redirect_uri={self.redirect_uri}&response_type=code&state={state_token}"  # noqa: E501
             self.logger.debug("Opening %s", auth_link)
             open_browser(auth_link)
 
@@ -365,7 +375,8 @@ class OauthClient:
 
     @credentials.setter
     def credentials(self, value: _OauthCredentialsInfo) -> None:
-        """
+        """Setter for credentials.
+
         Args:
             value (dict): the new values to use for the creds for this project
         """
@@ -386,7 +397,8 @@ class OauthClient:
 
     @property
     def request_headers(self) -> dict[str, str]:
-        """
+        """Headers to be used in requests to the API.
+
         Returns:
             dict: auth headers for HTTP requests
         """
@@ -394,7 +406,8 @@ class OauthClient:
 
     @property
     def refresh_token(self) -> str | None:
-        """
+        """Refresh token.
+
         Returns:
             str: the API refresh token
         """

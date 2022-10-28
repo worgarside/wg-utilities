@@ -1,4 +1,4 @@
-"""Modules/classes for physical devices"""
+"""Modules/classes for physical devices."""
 
 from __future__ import annotations
 

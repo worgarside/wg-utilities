@@ -1,5 +1,4 @@
-"""This module contains one-off functions that are useful across many different
-projects/use-cases"""
+"""One-off functions that are useful across many different projects/use-cases."""
 from __future__ import annotations
 
 from collections.abc import Generator
@@ -7,7 +6,7 @@ from typing import Any
 
 
 def chunk_list(lst: list[Any], n: int) -> Generator[list[Any], None, None]:
-    """Yield successive n-sized chunks from lst
+    """Yield successive n-sized chunks from lst.
 
     Examples:
         >>> chunk_list(
@@ -38,7 +37,9 @@ def flatten_dict(
     exact_keys: bool = False,
     parent_key: str = "",
 ) -> dict[str, Any]:
-    """This function recursively traverses a dictionary and flattens any nested JSON
+    """Flattens a nested dictionary into a single level dictionary.
+
+    This function recursively traverses a dictionary and flattens any nested JSON
     so the resultant dict has no values of type dict. This allows for easier processing
     into Redshift
 
@@ -129,7 +130,7 @@ def flatten_dict(
 
 
 def try_float(v: Any, default: Any = 0.0) -> float | Any:
-    """Tries to cast a value to a float, and returns a default if it fails
+    """Tries to cast a value to a float, and returns a default if it fails.
 
     Examples:
         >>> try_float("12.34")

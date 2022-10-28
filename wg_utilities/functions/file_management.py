@@ -1,4 +1,4 @@
-"""Functions for specifically managing files and directories"""
+"""Functions for specifically managing files and directories."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from sys import platform
 def user_data_dir(
     *, project_name: str = "WgUtilities", file_name: str | None = None
 ) -> Path:
-    """Get OS specific data directory path
+    """Get OS specific data directory path.
 
     Typical user data directories are:
         macOS:    ~/Library/Application Support
@@ -46,7 +46,7 @@ def user_data_dir(
 
 
 def force_mkdir(target_path: str | Path, path_is_file: bool = False) -> str | Path:
-    """Creates all directories needed for the given path
+    """Creates all directories needed for the given path.
 
     Args:
         target_path (str): the path to the directory which needs to be created

@@ -1,4 +1,4 @@
-"""Helper functions for all things date and time related"""
+"""Helper functions for all things date and time related."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -7,6 +7,7 @@ from enum import Enum
 
 class DatetimeFixedUnit(Enum):
     """Enum for fixed units of time (i.e. not a month or a year).
+
     Values are in seconds.
 
     """
@@ -22,8 +23,10 @@ class DatetimeFixedUnit(Enum):
 
 
 def utcnow(unit: DatetimeFixedUnit | None = None) -> datetime | int:
-    """Gets the current UTC time and returns it in a chosen unit. If no unit is
-     provided then it is just returned as a datetime
+    """`datetime.utcnow` with optional unit conversion.
+
+    Gets the current UTC time and returns it in a chosen unit. If no unit is
+    provided then it is just returned as a datetime
 
     Args:
         unit (DatetimeFixedUnit): the unit in which to provide the current datetime

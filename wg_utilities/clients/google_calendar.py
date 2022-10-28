@@ -1,4 +1,4 @@
-"""Custom client for interacting with Google's Drive API"""
+"""Custom client for interacting with Google's Drive API."""
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -67,7 +67,7 @@ class _EventInfo(_GoogleCalendarEntityInfo):
 
 
 class ResponseStatus(Enum):
-    """Enumeration for event attendee response statuses"""
+    """Enumeration for event attendee response statuses."""
 
     ACCEPTED = "accepted"
     DECLINED = "declined"
@@ -77,7 +77,7 @@ class ResponseStatus(Enum):
 
 
 class EventType(Enum):
-    """Enumeration for event types"""
+    """Enumeration for event types."""
 
     DEFAULT = "default"
     FOCUS_TIME = "focusTime"
@@ -85,7 +85,7 @@ class EventType(Enum):
 
 
 class _GoogleCalendarEntity:
-    """
+    """Generic base class for Google Calendar entities.
 
     Args:
         json (dict): the JSON from Google's API
@@ -106,7 +106,8 @@ class _GoogleCalendarEntity:
 
     @property
     def id(self) -> str:
-        """
+        """Entity ID.
+
         Returns:
             str: identifier of the entity
         """
@@ -114,7 +115,8 @@ class _GoogleCalendarEntity:
 
     @property
     def kind(self) -> str:
-        """
+        """Resource type.
+
         Returns:
             str: type of the resource (e.g. "calendar#calendar", "calendar#event")
         """
@@ -122,7 +124,8 @@ class _GoogleCalendarEntity:
 
     @property
     def etag(self) -> str:
-        """
+        """Resource ETag.
+
         Returns:
             str: ETag of the resource
         """
@@ -130,7 +133,8 @@ class _GoogleCalendarEntity:
 
     @property
     def summary(self) -> str:
-        """
+        """The summary/title of the entity.
+
         Returns:
             str: title of the entity
         """
@@ -138,15 +142,17 @@ class _GoogleCalendarEntity:
 
     @property
     def description(self) -> str | None:
-        """
+        """Description of the entity.
+
         Returns:
-            str: description of the calendar. Optional
+            str: description of the entity. Optional
         """
         return self.json.get("description")
 
     @property
     def location(self) -> str | None:
-        """
+        """Location of the calendar. Optional.
+
         Returns:
             str: geographic location of the calendar as free-form text. Optional
         """
@@ -154,7 +160,7 @@ class _GoogleCalendarEntity:
 
 
 class Event(_GoogleCalendarEntity):
-    """Class for Google Calendar events"""
+    """Class for Google Calendar events."""
 
     json: _EventInfo
 
@@ -169,8 +175,7 @@ class Event(_GoogleCalendarEntity):
         self.calendar = calendar
 
     def delete(self) -> None:
-        """Deletes the event from the host calendar"""
-
+        """Deletes the event from the host calendar."""
         res = self.google_client.session.delete(
             f"{self.google_client.BASE_URL}/calendars/"
             f"{self.calendar.id}/events/{self.id}"
@@ -180,7 +185,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def attachments(self) -> list[dict[str, str]] | None:
-        """
+        """Attachments to the event. Optional.
+
         Returns:
             list: file attachments for the event (max 25)
         """
@@ -188,7 +194,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def attendees(self) -> list[dict[str, Any]]:
-        """
+        """List of attendees for the event.
+
         Returns:
             list: the attendees of the event
         """
@@ -196,7 +203,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def attendees_omitted(self) -> bool | None:
-        """
+        """Whether attendees may have been omitted from the event's representation.
+
         Returns:
             bool: whether attendees may have been omitted from the event's
              representation. When retrieving an event, this may be due to a restriction
@@ -206,7 +214,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def color_id(self) -> str | None:
-        """
+        """Color of the event. Optional.
+
         Returns:
             str:the color of the event. This is an ID referring to an entry in the
              event section of the colors definition
@@ -215,7 +224,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def conference_data(self) -> dict[str, str | dict[str, str]] | None:
-        """
+        """Conference-specific information, such as details for a Meet conference.
+
         Returns:
             dict: the conference-related information, such as details of a Google Meet
              conference
@@ -224,7 +234,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def created(self) -> str | None:
-        """
+        """Creation time of the event (as a RFC3339 timestamp).
+
         Returns:
             dtr: creation time of the event (as a RFC3339 timestamp)
         """
@@ -232,7 +243,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def creator(self) -> dict[str, str | bool]:
-        """
+        """Event creator.
+
         Returns:
             dict: the creator of the event
         """
@@ -240,7 +252,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def description(self) -> str:
-        """
+        """Description of the event.
+
         Returns:
             str: description of the event; can contain HTML
         """
@@ -248,7 +261,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def end(self) -> dict[str, str]:
-        """
+        """End time of the event.
+
         Returns:
             dict: the (exclusive) end time of the event. For a recurring event, this
              is the end time of the first instance
@@ -257,7 +271,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def end_datetime(self) -> datetime:
-        """
+        """End time of the event as a datetime object.
+
         Returns:
             datetime: the datetime at which this event ends/ed
 
@@ -286,7 +301,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def end_time_unspecified(self) -> bool | None:
-        """
+        """Boolean indicating whether the time is unspecified.
+
         Returns:
             bool: whether the end time is actually unspecified
         """
@@ -294,7 +310,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def event_type(self) -> EventType:
-        """
+        """Event type.
+
         Returns:
             EventType: specific type of the event
         """
@@ -302,7 +319,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def extended_properties(self) -> dict[str, dict[str, str]] | None:
-        """
+        """Extended properties of the event.
+
         Returns:
             dict: extended properties of the event
         """
@@ -310,7 +328,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def guests_can_invite_others(self) -> bool | None:
-        """
+        """Whether attendees other than the organizer can invite others to the event.
+
         Returns:
             bool: whether attendees other than the organizer can invite others to the
              event
@@ -319,7 +338,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def guests_can_modify(self) -> bool | None:
-        """
+        """Whether attendees other than the organizer can modify the event.
+
         Returns:
             bool: whether attendees other than the organizer can modify the event
         """
@@ -327,7 +347,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def guests_can_see_other_guests(self) -> bool | None:
-        """
+        """Whether attendees other than the organizer can see other attendees.
+
         Returns:
             bool: whether attendees other than the organizer can see who the event's
              attendees are
@@ -336,7 +357,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def hangout_link(self) -> str | None:
-        """
+        """Link to the event's hangout.
+
         Returns:
             str: an absolute link to the Google Hangout associated with this event
         """
@@ -344,7 +366,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def html_link(self) -> str | None:
-        """
+        """Link to this event on the Google Calendar Web UI.
+
         Returns:
             str: an absolute link to this event in the Google Calendar Web UI
         """
@@ -352,7 +375,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def ical_uid(self) -> str | None:
-        """
+        """iCal UID of the event.
+
         Returns:
             str: event unique identifier as defined in RFC5545. It is used to uniquely
              identify events across calendaring systems
@@ -361,7 +385,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def locked(self) -> bool | None:
-        """
+        """Whether this is a locked event.
+
         Returns:
             bool: whether this is a locked event copy where no changes can be made to
              the main event fields "summary", "description", "location", "start", "end"
@@ -371,7 +396,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def organizer(self) -> dict[str, str | bool] | None:
-        """
+        """Event organizer.
+
         Returns:
             dict: the organizer of the event
         """
@@ -379,7 +405,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def original_start_time(self) -> dict[str, str] | None:
-        """
+        """Original start time of the event.
+
         Returns:
             dict: for an instance of a recurring event, this is the time at which this
              event would start according to the recurrence data in the recurring event
@@ -389,7 +416,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def private_copy(self) -> bool | None:
-        """
+        """If set to True, Event propagation is disabled.
+
         Returns:
             bool: if set to True, Event propagation is disabled
         """
@@ -397,7 +425,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def recurrence(self) -> list[str] | None:
-        """
+        """Recurrence rules for the event.
+
         Returns:
             list: list of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event,
              as specified in RFC5545
@@ -406,7 +435,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def recurring_event_id(self) -> str | None:
-        """
+        """ID of the recurring event to which this instance belongs.
+
         Returns:
             str: for an instance of a recurring event, this is the id of the recurring
              event to which this instance belongs
@@ -415,7 +445,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def reminders(self) -> dict[str, bool | dict[str, str | int]] | None:
-        """
+        """Reminders for the event.
+
         Returns:
             dict: information about the event's reminders for the authenticated user
         """
@@ -423,7 +454,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def response_status(self) -> ResponseStatus:
-        """
+        """User's response status.
+
         Returns:
             ResponseStatus: the response status for the authenticated user
         """
@@ -439,7 +471,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def sequence(self) -> int | None:
-        """
+        """iCal sequence number.
+
         Returns:
             int: sequence number as per iCalendar
         """
@@ -447,7 +480,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def source(self) -> dict[str, str] | None:
-        """
+        """Source from which the event was created.
+
         Returns:
             dict: source from which the event was created
         """
@@ -455,7 +489,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def start(self) -> dict[str, str] | None:
-        """
+        """Start time of the event.
+
         Returns:
             dict: the (inclusive) start time of the event; for a recurring event, this
              is the start time of the first instance
@@ -464,7 +499,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def start_datetime(self) -> datetime:
-        """
+        """Datetime object for the start of the event.
+
         Returns:
             datetime: the datetime at which this event starts/ed
 
@@ -494,7 +530,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def status(self) -> Literal["cancelled", "confirmed", "tentative"] | None:
-        """
+        """Event status.
+
         Returns:
             str: status of the event (e.g. "confirmed")
         """
@@ -502,7 +539,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def transparency(self) -> bool:
-        """
+        """Whether the event blocks time on the calendar.
+
         Returns:
             bool: whether the event blocks time on the calendar
         """
@@ -510,7 +548,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def updated(self) -> datetime | None:
-        """
+        """Last modification time of the event.
+
         Returns:
             datetime: last modification time of the event
         """
@@ -521,7 +560,8 @@ class Event(_GoogleCalendarEntity):
 
     @property
     def visibility(self) -> str | None:
-        """
+        """Event visibility.
+
         Returns:
             str: visibility of the event
         """
@@ -551,7 +591,7 @@ class Event(_GoogleCalendarEntity):
 
 
 class Calendar(_GoogleCalendarEntity):
-    """Class for Google calendar instances"""
+    """Class for Google calendar instances."""
 
     json: _CalendarInfo
 
@@ -563,7 +603,7 @@ class Calendar(_GoogleCalendarEntity):
         to_datetime: datetime | None = None,
         combine_recurring_events: bool = False,
     ) -> list[Event]:
-        """Retrieve events from the calendar according to a set of criteria
+        """Retrieve events from the calendar according to a set of criteria.
 
         Args:
             page_size (int): the number of records to return on a single response page
@@ -620,7 +660,8 @@ class Calendar(_GoogleCalendarEntity):
 
     @property
     def time_zone(self) -> str | None:
-        """
+        """Calendar time zone.
+
         Returns:
             str: the time zone of the calendar, formatted as an IANA Time Zone
              Database name, e.g. "Europe/Zurich". Optional
@@ -636,7 +677,8 @@ class Calendar(_GoogleCalendarEntity):
             list[Literal["eventHangout", "eventNamedHangout", "hangoutsMeet"]],
         ]
     ):
-        """
+        """Conference properties of the calendar.
+
         Returns:
             dict: Conferencing properties for this calendar, for example what types
              of conferences are allowed
@@ -648,7 +690,7 @@ class Calendar(_GoogleCalendarEntity):
 
 
 class GoogleCalendarClient(GoogleClient):
-    """Custom client specifically for Google's Drive API
+    """Custom client specifically for Google's Drive API.
 
     Args:
         project (str): the name of the project which this client is being used for
@@ -692,7 +734,7 @@ class GoogleCalendarClient(GoogleClient):
         calendar: Calendar | None = None,
         extra_params: dict[str, str] | None = None,
     ) -> Event:
-        """Create an event
+        """Create an event.
 
         Args:
             summary (str): the summary (title) of the event
@@ -757,7 +799,7 @@ class GoogleCalendarClient(GoogleClient):
         return Event(json=res.json(), calendar=calendar, google_client=self)
 
     def delete_event(self, event_id: str, calendar: Calendar | None = None) -> None:
-        """Deletes an event from a calendar
+        """Deletes an event from a calendar.
 
         Args:
             event_id (str): the ID of the event to delete
@@ -772,7 +814,7 @@ class GoogleCalendarClient(GoogleClient):
         res.raise_for_status()
 
     def get_event(self, event_id: str, calendar: Calendar | None = None) -> Event:
-        """Get a specific event by ID
+        """Get a specific event by ID.
 
         Args:
             event_id (str): the ID of the event to delete
@@ -792,7 +834,8 @@ class GoogleCalendarClient(GoogleClient):
 
     @property
     def calendar_list(self) -> list[Calendar]:
-        """
+        """List of calendars.
+
         Returns:
             list: a list of Calendar instances that the user has access to
         """
@@ -808,7 +851,8 @@ class GoogleCalendarClient(GoogleClient):
 
     @property
     def primary_calendar(self) -> Calendar:
-        """
+        """Primary calendar for the user.
+
         Returns:
             Calendar: the current user's primary calendar
         """

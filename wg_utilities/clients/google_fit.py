@@ -1,4 +1,4 @@
-"""Custom client for interacting with Google's Fit API"""
+"""Custom client for interacting with Google's Fit API."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -40,16 +40,17 @@ class _GoogleFitDataPointInfo(TypedDict):
 
 
 class DataPointValueKeyLookupInfo(TypedDict):
-    """Typing info for the Data Point lookup dict"""
+    """Typing info for the Data Point lookup dict."""
 
     floatPoint: Literal["fpVal"]
     integer: Literal["intVal"]
 
 
 class DataSource:
-    """Class for interacting with Google Fit Data Sources. An example of a data source
-    is Strava, Google Fit, MyFitnessPal, etc. The ID is something _like_ "...weight",
-    "...calories burnt"
+    """Class for interacting with Google Fit Data Sources.
+
+    An example of a data source is Strava, Google Fit, MyFitnessPal, etc. The ID is
+    something _like_ "...weight", "...calories burnt".
 
     Args:
         data_source_id (str): the unique ID of the data source
@@ -73,7 +74,8 @@ class DataSource:
 
     @property
     def description(self) -> _DataSourceDescriptionInfo:
-        """
+        """Description of the data source, in JSON format.
+
         Returns:
             dict: the JSON description of this data source
         """
@@ -87,9 +89,10 @@ class DataSource:
         from_datetime: datetime | None = None,
         to_datetime: datetime | None = None,
     ) -> int:
-        """Gets the sum of data points in the given range: if no `from_datetime` is
-        provided, it defaults to the start of today; if no `to_datetime` is provided
-        then it defaults to now.
+        """Gets the sum of data points in the given range.
+
+        If no `from_datetime` is provided, it defaults to the start of today; if no
+        `to_datetime` is provided then it defaults to now.
 
         Args:
             from_datetime (datetime): lower boundary for step count
@@ -135,7 +138,9 @@ class DataSource:
     def data_type_field_format(
         self,
     ) -> Literal["floatPoint", "integer"]:
-        """Original return type on here was as follows, think it was for other endpoints
+        """Field format of the data type.
+
+        Original return type on here was as follows, think it was for other endpoints
         I haven't implemented
 
         ```
@@ -167,7 +172,8 @@ class DataSource:
 
     @property
     def data_point_value_key(self) -> Literal["fpVal", "intVal"]:
-        """
+        """Key to use when looking up the value of a data point.
+
         Returns:
             str: the key to use when extracting data from a data point
         """
@@ -176,7 +182,7 @@ class DataSource:
 
 
 class GoogleFitClient(GoogleClient):
-    """Custom client for interacting with the Google Fit API
+    """Custom client for interacting with the Google Fit API.
 
     See Also:
         GoogleClient: the base Google client, used for authentication and common
@@ -205,8 +211,9 @@ class GoogleFitClient(GoogleClient):
         self.data_sources: dict[str, DataSource] = {}
 
     def get_data_source(self, data_source_id: str) -> DataSource:
-        """Gets a data source based on its UID. DataSource instances are cached for the
-         lifetime of the GoogleClient instance
+        """Gets a data source based on its UID.
+
+        DataSource instances are cached for the lifetime of the GoogleClient instance
 
         Args:
             data_source_id (str): the UID of the data source

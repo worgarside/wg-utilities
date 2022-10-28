@@ -1,4 +1,4 @@
-"""Generic Google Client - having one client for all APIs is way too big"""
+"""Generic Google Client - having one client for all APIs is way too big."""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -59,7 +59,7 @@ class _SessionMethodCallable(Protocol):
 
 
 class GoogleClient:
-    """Custom client for interacting with the Google APIs
+    """Custom client for interacting with the Google APIs.
 
     Args:
         project (str): the name of the project which this client is being used for
@@ -117,7 +117,7 @@ class GoogleClient:
         *,
         params: Mapping[str, object] | None = None,
     ) -> list[_GoogleEntityInfo]:
-        """Generic method for listing items on Google's API(s)
+        """Generic method for listing items on Google's API(s).
 
         Args:
             method (Callable): the Google client session method to use
@@ -158,7 +158,7 @@ class GoogleClient:
         return item_list
 
     def delete_creds_file(self) -> None:
-        """Delete the local creds file"""
+        """Delete the local creds file."""
         try:
             remove(self.creds_cache_path)
         except FileNotFoundError:
@@ -171,7 +171,7 @@ class GoogleClient:
         *,
         params: Mapping[str, str | int | float | bool] | None = None,
     ) -> list[_GoogleEntityInfo]:
-        """Wrapper method for getting a list of items
+        """Wrapper method for getting a list of items.
 
         See Also:
             self._list_items: main worker method for this functionality
@@ -180,8 +180,11 @@ class GoogleClient:
         return self._list_items(self.session.get, url, list_key, params=params)
 
     def refresh_access_token(self) -> None:
-        """Uses the cached refresh token to submit a request to TL's API for a new
-        access token"""
+        """Refresh the access token for the current session.
+
+        Uses the cached refresh token to submit a request to TL's API for a new
+        access token
+        """
 
         self.logger.info("Refreshing access token")
 
@@ -206,7 +209,7 @@ class GoogleClient:
 
     @property
     def access_token_has_expired(self) -> bool:
-        """Decodes the JWT access token and evaluates the expiry time
+        """Decodes the JWT access token and evaluates the expiry time.
 
         Returns:
             bool: has the access token expired?
@@ -232,7 +235,8 @@ class GoogleClient:
 
     @property
     def client_id(self) -> str:
-        """
+        """Client ID for the Google API.
+
         Returns:
             str: the current client ID
         """
@@ -240,7 +244,8 @@ class GoogleClient:
 
     @property
     def client_secret(self) -> str:
-        """
+        """Client secret.
+
         Returns:
             str: the current client secret
         """
@@ -248,7 +253,7 @@ class GoogleClient:
 
     @property
     def credentials(self) -> Credentials:
-        """Gets creds as necessary (including first time setup) and authenticates them
+        """Gets creds as necessary (including first time setup) and authenticates them.
 
         Returns:
             Credentials: authorized credentials for use in creating a session
@@ -316,7 +321,8 @@ class GoogleClient:
 
     @credentials.setter
     def credentials(self, value: _GoogleCredentialsInfo) -> None:
-        """
+        """Setter for credentials.
+
         Args:
             value (dict): the new values to use for the creds for this project
         """
@@ -329,7 +335,8 @@ class GoogleClient:
 
     @property
     def refresh_token(self) -> str:
-        """
+        """Refresh token for the current project.
+
         Returns:
             str: the current refresh token
         """
@@ -337,7 +344,7 @@ class GoogleClient:
 
     @property
     def session(self) -> AuthorizedSession:
-        """Uses the Credentials object to sign in to an authorized Google API session
+        """Uses the Credentials object to sign in to an authorized Google API session.
 
         Returns:
             AuthorizedSession: an active, authorized Google API session

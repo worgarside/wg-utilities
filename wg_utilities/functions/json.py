@@ -1,4 +1,4 @@
-"""Useful functions for working with JSON/dictionaries"""
+"""Useful functions for working with JSON/dictionaries."""
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -16,7 +16,7 @@ def set_nested_value(
     target_value: Any,
     final_key: str | None = None,
 ) -> None:
-    """Update a nested value in a dictionary
+    """Update a nested value in a dictionary.
 
     Args:
         json_obj (dict): the JSON object to update
@@ -47,8 +47,7 @@ def process_list(
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,
 ) -> None:
-    """Iterates through a list and applies `list_op_func` to any instances of
-    `target_type`
+    """Iterates through a list, applying `list_op_func` to any `target_type` instances.
 
     Args:
         lst (list): the list to iterate through
@@ -101,8 +100,7 @@ def traverse_dict(
     single_keys_to_remove: Sequence[str] | None = None,
 ) -> None:
     # pylint: disable=too-many-branches,too-many-nested-blocks
-    """Recursively traverse a JSON object and apply `dict_op_func` to any values
-    of type `target_type`
+    """Traverse dict, applying`dict_op_func` to any values of type `target_type`.
 
     Args:
         payload_json (dict): the JSON object to traverse

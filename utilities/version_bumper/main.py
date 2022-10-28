@@ -1,4 +1,4 @@
-"""Script for creating (and deploying) a new version of WGUtils"""
+"""Script for creating (and deploying) a new version of wg-utilities."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ chdir(PROJECT_ROOT)
 
 
 class Bump(Enum):
-    """Enum for different version bump types"""
+    """Enum for different version bump types."""
 
     MAJOR = 0
     MINOR = 1
@@ -38,7 +38,7 @@ class Bump(Enum):
 
 
 def get_latest_version() -> str:
-    """Gets the latest release number (x.y.z) from GitHub
+    """Gets the latest release number (x.y.z) from GitHub.
 
     Returns:
         str: the latest release number (x.y.z)
@@ -60,7 +60,7 @@ def get_latest_version() -> str:
 
 
 def get_new_version(bump_type: Bump, latest_version: str) -> str:
-    """Builds a new version number
+    """Builds a new version number.
 
     Args:
         bump_type (Bump): the type of bump we're executing
@@ -81,7 +81,7 @@ def get_new_version(bump_type: Bump, latest_version: str) -> str:
 
 
 def create_release_branch(old: str, new: str) -> None:
-    """Creates (and completes!) a release branch with the new release number
+    """Creates (and completes!) a release branch with the new release number.
 
     Args:
         old (str): the old release number (x.y.z)
@@ -124,7 +124,7 @@ def create_release_branch(old: str, new: str) -> None:
 def _update_file(
     *, file_path: Path, version_line_prefix: str, old: str, new: str
 ) -> None:
-    """Updates the given file with the new version number
+    """Updates the given file with the new version number.
 
     Args:
         file_path (Path): the path to the file to update
@@ -148,7 +148,7 @@ def _update_file(
 
 
 def update_setup_py_file(old: str, new: str) -> None:
-    """Updates the `setup.py` file with the new version number
+    """Updates the `setup.py` file with the new version number.
 
     Args:
         old (str): the old release number (x.y.z)
@@ -163,7 +163,7 @@ def update_setup_py_file(old: str, new: str) -> None:
 
 
 def update_wg_utils_package_init_file(old: str, new: str) -> None:
-    """Updates the `wg_utilities/__init__.py` file with the new version number
+    """Updates the `wg_utilities/__init__.py` file with the new version number.
 
     Args:
         old (str): the old release number (x.y.z)
@@ -178,7 +178,7 @@ def update_wg_utils_package_init_file(old: str, new: str) -> None:
 
 
 def main() -> None:
-    """Main function for this script"""
+    """Main function for this script."""
     parser = ArgumentParser()
     parser.add_argument("--bump")
     args = parser.parse_args()
