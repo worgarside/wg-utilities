@@ -15,13 +15,15 @@ from logging import (
     LogRecord,
     StreamHandler,
 )
+from pathlib import Path
 from sys import stdout
 from typing import Any, Callable
 
 from wg_utilities.functions import force_mkdir
 
 FORMATTER = Formatter(
-    "%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s", "%Y-%m-%d %H:%M:%S"
+    fmt="%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 
 
@@ -144,7 +146,7 @@ class ListHandler(Handler):
 
 
 def create_file_handler(
-    logfile_path: str, level: int = DEBUG, create_directory: bool = True
+    logfile_path: str | Path, level: int = DEBUG, create_directory: bool = True
 ) -> FileHandler:
     """Create a file handler for use in other loggers.
 
@@ -170,7 +172,7 @@ def create_file_handler(
 def add_file_handler(
     logger: Logger,
     *,
-    logfile_path: str,
+    logfile_path: str | Path,
     level: int = DEBUG,
     create_directory: bool = True,
 ) -> Logger:
@@ -189,7 +191,7 @@ def add_file_handler(
     """
 
     f_handler = create_file_handler(
-        logfile_path, level, create_directory=create_directory
+        logfile_path=logfile_path, level=level, create_directory=create_directory
     )
 
     logger.addHandler(f_handler)
@@ -224,7 +226,7 @@ def add_list_handler(
 
 
 def add_stream_handler(
-    logger: Logger, *, formatter: Formatter = FORMATTER, level: int = DEBUG
+    logger: Logger, *, formatter: Formatter | None = FORMATTER, level: int = DEBUG
 ) -> Logger:
     """Add a FileHandler to an existing logger.
 
