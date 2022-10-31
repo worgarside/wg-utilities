@@ -13,6 +13,7 @@ from typing import Any, Callable
 
 from dotenv import load_dotenv
 from requests import post
+from requests.exceptions import ConnectionError as RequestsConnectionError
 
 from wg_utilities.loggers import add_stream_handler
 
@@ -47,9 +48,14 @@ def send_exception_to_home_assistant(exc: Exception) -> None:
         try:
             # If the host is on the same network as HA, then an HTTP local URL can be
             # used
-            post(f"http://{HA_LOG_ENDPOINT}/log/error", json=payload, timeout=10)
-        except Exception:  # pylint: disable=broad-except
-            post(f"https://{HA_LOG_ENDPOINT}/log/error", json=payload, timeout=10)
+            res = post(f"http://{HA_LOG_ENDPOINT}/log/error", json=payload, timeout=10)
+        except RequestsConnectionError as ha_exc:
+            if "Failed to establish a new connection" not in str(ha_exc):
+                raise
+
+            res = post(f"https://{HA_LOG_ENDPOINT}/log/error", json=payload, timeout=10)
+
+        res.raise_for_status()
     except Exception as send_exc:
         raise send_exc from exc
 
@@ -119,7 +125,7 @@ def on_exception(
                             or LOGGER
                             or (LOGGER := add_stream_handler(getLogger(__name__)))
                         ).warning(
-                            "Ignoring exception type %s in %s.%s. This function has"
+                            "Ignoring exception of type %s in %s.%s. This function has"
                             " ceased executing at line %i. To suppress these warnings"
                             " set the `_suppress_ignorant_warnings` parameter to True"
                             ' or env var `SUPPRESS_WG_UTILS_IGNORANCE` to "1".',
@@ -128,13 +134,11 @@ def on_exception(
                             func.__name__,
                             exc_info()[2].tb_lineno,  # type: ignore[union-attr]
                         )
+                else:
+                    exception_callback(exc)
 
-                    return None
-
-                exception_callback(exc)
-
-                if raise_after_callback:
-                    raise
+                    if raise_after_callback:
+                        raise
 
                 return None
 

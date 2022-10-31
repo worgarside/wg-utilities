@@ -103,3 +103,15 @@ extend-select = [
     "N814", # CamelcaseImportedAsConstant
     "N817", # CamelcaseImportedAsAcronym
 ]
+
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+xfail_strict = true
+log_cli_level = "warning"
+pythonpath = ["wg_utilities"]
+testpaths = ["tests"]
+env = [
+    "HA_LOG_ENDPOINT=www.homesassistant-unittest-url.com",
+]

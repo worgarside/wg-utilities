@@ -18,6 +18,10 @@ xmltodict = "*"
 pycln = "*"
 pylint-strict-informational = "*"
 pillow = "*"
+pytest = "*"
+pytest-env = "*"
+requests-mock = "*"
+coverage = "*"
 
 [packages]
 google-auth-oauthlib = ">=0.4.6"
