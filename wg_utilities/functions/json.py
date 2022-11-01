@@ -3,10 +3,13 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from logging import DEBUG, getLogger
-from typing import Any, Callable
+from typing import Any, Callable, Union
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
+
+
+JSONVal = Union[None, bool, str, float, int, list["JSONVal"], dict[str, "JSONVal"]]
 
 
 def set_nested_value(
@@ -39,15 +42,23 @@ def set_nested_value(
 
 
 def process_list(
-    lst: list[Any],
+    lst: list[JSONVal],
     *,
-    target_type: type[Any],
-    target_processor_func: Callable[[Any], Any],
+    target_type: type[object] | tuple[type[object], ...],
+    target_processor_func: Callable[[JSONVal], JSONVal],
     pass_on_fail: bool = True,
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,
 ) -> None:
     """Iterates through a list, applying `list_op_func` to any `target_type` instances.
+
+    This is used in close conjunction with `process_dict` to recursively process
+    a JSON object and apply a given function to any values of a given type across the
+    whole object.
+
+    Failures in the given function can be ignored by setting `pass_on_fail` to `True`,
+    and/or logged by setting `log_op_func_failures` to `True`. If both are set to
+    `True`, then the function will log the failure and then continue.
 
     Args:
         lst (list): the list to iterate through
@@ -68,7 +79,7 @@ def process_list(
                 lst[i] = target_processor_func(elem)
             except Exception as exc:  # pylint: disable=broad-except
                 if log_op_func_failures:
-                    LOGGER.debug(str(exc))
+                    LOGGER.error("Unable to process item at index %i: %s", i, repr(exc))
                 if not pass_on_fail:
                     raise
         elif isinstance(elem, dict):
@@ -91,10 +102,10 @@ def process_list(
 
 
 def traverse_dict(
-    payload_json: dict[Any, Any],
+    payload_json: dict[str, JSONVal],
     *,
-    target_type: type[Any],
-    target_processor_func: Callable[[Any], Any],
+    target_type: type[object] | tuple[type[object], ...],
+    target_processor_func: Callable[[JSONVal], JSONVal],
     pass_on_fail: bool = True,
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,
@@ -141,7 +152,7 @@ def traverse_dict(
                     )
             except Exception as exc:  # pylint: disable=broad-except
                 if log_op_func_failures:
-                    LOGGER.error(str(exc))
+                    LOGGER.error(repr(exc))
                 if not pass_on_fail:
                     raise
         elif isinstance(v, dict):
@@ -157,7 +168,7 @@ def traverse_dict(
                                 # Wrap the value, so that if the top level key is one
                                 # of `single_keys_to_remove` then it's processed
                                 # correctly
-                                tmp_wrapper = {"-": value}
+                                tmp_wrapper: dict[str, JSONVal] = {"-": value}
                                 traverse_dict(
                                     tmp_wrapper,
                                     target_type=target_type,
