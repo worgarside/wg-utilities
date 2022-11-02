@@ -9,7 +9,10 @@ from sys import platform
 
 
 def user_data_dir(
-    *, project_name: str = "WgUtilities", file_name: str | None = None
+    *,
+    project_name: str = "WgUtilities",
+    file_name: str | None = None,
+    _platform: str = platform,
 ) -> Path:
     """Get OS specific data directory path.
 
@@ -23,15 +26,16 @@ def user_data_dir(
     Args:
         project_name (str): the name of the project which the utils are running in
         file_name (Optional[str]): file to be fetched from the data dir
+        _platform (str): the platform to get the data dir for
 
     Returns:
         str: full path to the user-specific data dir
     """
 
     # get os specific path
-    if platform.startswith("win"):
+    if _platform.startswith("win"):
         os_path = environ["LOCALAPPDATA"]
-    elif platform.startswith("darwin"):
+    elif _platform.startswith("darwin"):
         os_path = "~/Library/Application Support"
     else:
         # linux
