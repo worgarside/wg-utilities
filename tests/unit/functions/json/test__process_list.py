@@ -233,11 +233,12 @@ def test_exceptions_are_logged_correctly(
     assert in_list == expected
 
     log_records = caplog.records
+    expected_exception_instance = exception_type(exception_message)
     for i in exception_indexes:
         log_record = log_records.pop(0)
         assert (
             log_record.message == f"Unable to process item at index {i}:"
-            f" {exception_type(exception_message)!r}"
+            f" {expected_exception_instance!r}"
         )
         assert log_record.levelno == ERROR
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Generator
+from json import load
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, LogRecord, getLogger
 from pathlib import Path
 from typing import Callable, TypeVar
@@ -12,6 +13,7 @@ from requests import get
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import MissingSchema
 
+from wg_utilities.functions.json import JSONObj
 from wg_utilities.loggers import ListHandler
 
 T = TypeVar("T")
@@ -44,6 +46,45 @@ EXCEPTION_GENERATORS: list[
     (ValueError, int, ("string",)),
     (ZeroDivisionError, lambda: 1 / 0, ()),
 ]
+
+
+def random_nested_json() -> JSONObj:
+    """Return a random nested JSON object."""
+    with open(
+        Path(__file__).parent / "tests" / "flat_files" / "json" / "random_nested.json",
+        encoding="utf-8",
+    ) as fin:
+        return load(fin)  # type: ignore[no-any-return]
+
+
+def random_nested_json_with_arrays() -> JSONObj:
+    """Return a random nested JSON object with lists as values."""
+    with open(
+        Path(__file__).parent
+        / "tests"
+        / "flat_files"
+        / "json"
+        / "random_nested_with_arrays.json",
+        encoding="utf-8",
+    ) as fin:
+        return load(fin)  # type: ignore[no-any-return]
+
+
+def random_nested_json_with_arrays_and_stringified_json() -> JSONObj:
+    """Return a random nested JSON object with lists and stringified JSON.
+
+    I've manually stringified the JSON and put it back into itself a couple of times
+    for more thorough testing.
+    """
+    with open(
+        Path(__file__).parent
+        / "tests"
+        / "flat_files"
+        / "json"
+        / "random_nested_with_arrays_and_stringified_json.json",
+        encoding="utf-8",
+    ) as fin:
+        return load(fin)  # type: ignore[no-any-return]
 
 
 @fixture(scope="function", name="list_handler")  # type: ignore[misc]

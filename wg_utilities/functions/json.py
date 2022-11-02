@@ -9,7 +9,8 @@ LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
 
-JSONVal = Union[None, bool, str, float, int, list["JSONVal"], dict[str, "JSONVal"]]
+JSONVal = Union[None, bool, str, float, int, list["JSONVal"], "JSONObj"]
+JSONObj = dict[str, JSONVal]
 
 
 def set_nested_value(
@@ -102,7 +103,7 @@ def process_list(
 
 
 def traverse_dict(
-    payload_json: dict[str, JSONVal],
+    payload_json: JSONObj,
     *,
     target_type: type[object] | tuple[type[object], ...],
     target_processor_func: Callable[[JSONVal], JSONVal],
@@ -121,11 +122,11 @@ def traverse_dict(
         pass_on_fail (bool): ignore failure in either op function
         log_op_func_failures (bool): log any failures in either op function
         single_keys_to_remove (list): a list of keys that can be "expanded" up to the
-         parent key, e.g.:
+         parent key from a dict of length one, e.g.:
             ... {
             ...     "parent_1": "something",
             ...     "parent_2": {
-            ...         "val": "actual value"
+            ...         "uselessKey": "actual value"
             ...     }
             ... }
             would go to
@@ -152,7 +153,7 @@ def traverse_dict(
                     )
             except Exception as exc:  # pylint: disable=broad-except
                 if log_op_func_failures:
-                    LOGGER.error(repr(exc))
+                    LOGGER.error("Unable to process item with key %s: %s", k, repr(exc))
                 if not pass_on_fail:
                     raise
         elif isinstance(v, dict):
@@ -163,27 +164,32 @@ def traverse_dict(
                     if isinstance(value := v.get(only_key), target_type):
                         try:
                             value = target_processor_func(value)
-
-                            if isinstance(value, dict):
-                                # Wrap the value, so that if the top level key is one
-                                # of `single_keys_to_remove` then it's processed
-                                # correctly
-                                tmp_wrapper: dict[str, JSONVal] = {"-": value}
-                                traverse_dict(
-                                    tmp_wrapper,
-                                    target_type=target_type,
-                                    target_processor_func=target_processor_func,
-                                    pass_on_fail=pass_on_fail,
-                                    log_op_func_failures=log_op_func_failures,
-                                    single_keys_to_remove=single_keys_to_remove,
-                                )
-
-                                value = tmp_wrapper["-"]
                         except Exception as exc:  # pylint: disable=broad-except
                             if log_op_func_failures:
-                                LOGGER.error(str(exc))
+                                LOGGER.error(
+                                    "Unable to process item with key %s: %s",
+                                    k,
+                                    repr(exc),
+                                )
                             if not pass_on_fail:
                                 raise
+
+                    if isinstance(value, dict):
+                        # Wrap the value, so that if the top level key is one
+                        # of `single_keys_to_remove` then it's processed
+                        # correctly
+                        tmp_wrapper: JSONObj = {"-": value}
+                        traverse_dict(
+                            tmp_wrapper,
+                            target_type=target_type,
+                            target_processor_func=target_processor_func,
+                            pass_on_fail=pass_on_fail,
+                            log_op_func_failures=log_op_func_failures,
+                            single_keys_to_remove=single_keys_to_remove,
+                        )
+
+                        value = tmp_wrapper["-"]
+
                     payload_json[k] = value
 
             if not matched_single_key:
