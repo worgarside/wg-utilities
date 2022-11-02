@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from os import environ, getenv
-from os.path import dirname
 from pathlib import Path
 from sys import platform
 
@@ -49,7 +48,7 @@ def user_data_dir(
     return path.expanduser()
 
 
-def force_mkdir(target_path: str | Path, path_is_file: bool = False) -> str | Path:
+def force_mkdir(target_path: Path, path_is_file: bool = False) -> str | Path:
     """Creates all directories needed for the given path.
 
     Args:
@@ -61,8 +60,8 @@ def force_mkdir(target_path: str | Path, path_is_file: bool = False) -> str | Pa
         str: directory_path that was passed in
     """
     if path_is_file:
-        Path(dirname(target_path)).mkdir(exist_ok=True, parents=True)
+        target_path.parent.mkdir(exist_ok=True, parents=True)
     else:
-        Path(target_path).mkdir(exist_ok=True, parents=True)
+        target_path.mkdir(exist_ok=True, parents=True)
 
     return target_path
