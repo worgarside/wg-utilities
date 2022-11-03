@@ -20,4 +20,5 @@ def test_command_throws_exception_on_error() -> None:
     with raises(RuntimeError) as exc_info:
         run_cmd("qwertyuiop", shell=True)
 
-    assert str(exc_info.value) == "/bin/sh: qwertyuiop: command not found"
+    assert "not found" in str(exc_info.value)
+    assert "qwertyuiop" in str(exc_info.value)
