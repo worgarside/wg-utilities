@@ -9,7 +9,6 @@ class DatetimeFixedUnit(Enum):
     """Enum for fixed units of time (i.e. not a month or a year).
 
     Values are in seconds.
-
     """
 
     WEEK = 604800
@@ -20,6 +19,9 @@ class DatetimeFixedUnit(Enum):
     MILLISECOND = 1e-3
     MICROSECOND = 1e-6
     NANOSECOND = 1e-9
+
+
+DTU = DatetimeFixedUnit
 
 
 def utcnow(unit: DatetimeFixedUnit | None = None) -> datetime | int:
@@ -39,3 +41,10 @@ def utcnow(unit: DatetimeFixedUnit | None = None) -> datetime | int:
         return datetime.utcnow()
 
     return int(datetime.utcnow().timestamp() / unit.value)
+
+
+__all__ = [
+    "DatetimeFixedUnit",
+    "DTU",
+    "utcnow",
+]

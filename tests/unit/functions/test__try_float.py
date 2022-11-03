@@ -32,7 +32,8 @@ from wg_utilities.functions import try_float
 def test_try_float_with_varying_input(user_input: Any, should_convert: bool) -> None:
     """Test a whole set of different inputs to the `try_float` function.
 
-    The test is run twice, once with a default value and once without."""
+    The test is run twice, once with a default value and once without.
+    """
 
     # With default
     assert try_float(user_input, user_input) == (

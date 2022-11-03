@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from ._functions import chunk_list, flatten_dict, try_float
-from .datetime_helpers import utcnow
+from .datetime_helpers import DTU, DatetimeFixedUnit, utcnow
 from .file_management import force_mkdir, user_data_dir
 from .json import process_list, set_nested_value, traverse_dict
 from .processes import run_cmd
@@ -14,6 +14,8 @@ __all__ = [
     "flatten_dict",
     "try_float",
     "utcnow",
+    "DTU",
+    "DatetimeFixedUnit",
     "force_mkdir",
     "user_data_dir",
     "set_nested_value",

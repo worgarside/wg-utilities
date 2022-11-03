@@ -49,7 +49,8 @@ def _send_fake_exception_to_home_assistant(
 
     expected_payload: PayloadInfo = {
         "client": str(gethostname()),
-        "message": f"{type(expected_exc).__name__} in `{stack()[1].filename}`: {repr(expected_exc)}",  # pylint: disable=line-too-long
+        "message": f"{type(expected_exc).__name__} in `{stack()[1].filename}`:"
+        f" {repr(expected_exc)}",
         # `format_exc` doesn't seem to work in unit tests
         "traceback": ANY,
     }
@@ -127,7 +128,7 @@ def test_payload_is_correctly_formed(
     raise_args: tuple[object, ...],
     **kwargs: Mocker,
 ) -> None:
-    """Tests the payload has the correct content when it's sent to HA"""
+    """Tests the payload has the correct content when it's sent to HA."""
 
     mock_requests = kwargs["mock_requests"]
     mock_requests.post(f"http://{HA_LOG_ENDPOINT}/log/error", status_code=200)
