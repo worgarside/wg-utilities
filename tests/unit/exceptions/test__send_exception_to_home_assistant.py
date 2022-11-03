@@ -43,9 +43,8 @@ def _send_fake_exception_to_home_assistant(
         # These won't be true connection errors, they'll be from the Mocker instance
         # instead
         assert isinstance(expected_exc, exception_type)
-
-    if expected_exc is None:
-        raise ValueError("Expected exception was not raised")
+    else:
+        assert expected_exc is not None
 
     expected_payload: PayloadInfo = {
         "client": str(gethostname()),
