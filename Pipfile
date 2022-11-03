@@ -42,9 +42,6 @@ pydantic = "*"
 python-dotenv = "*"
 pigpio = "*"
 
-[requires]
-python_version = "3.9"
-
 [scripts]
 major-release = "python utilities/version_bumper/main.py --bump major"
 minor-release = "python utilities/version_bumper/main.py --bump minor"
