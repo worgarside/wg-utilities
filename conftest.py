@@ -7,12 +7,15 @@ from json import load
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, LogRecord, getLogger
 from pathlib import Path
 from typing import Callable, TypeVar
+from unittest.mock import MagicMock
 
+from pigpio import _callback
 from pytest import fixture
 from requests import get
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import MissingSchema
 
+from wg_utilities.devices.dht22 import DHT22Sensor
 from wg_utilities.functions.json import JSONObj
 from wg_utilities.loggers import ListHandler
 
@@ -87,6 +90,13 @@ def random_nested_json_with_arrays_and_stringified_json() -> JSONObj:
         return load(fin)  # type: ignore[no-any-return]
 
 
+@fixture(scope="function")  # type: ignore[misc]
+def dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
+    """Fixture for DHT22 sensor."""
+
+    return DHT22Sensor(pigpio_pi, 4)
+
+
 @fixture(scope="function", name="list_handler")  # type: ignore[misc]
 def _list_handler() -> ListHandler:
     """Fixture for creating a ListHandler instance."""
@@ -148,3 +158,17 @@ def _sample_log_record_messages_with_level() -> list[tuple[int, str]]:
         (level, f"Test log message #{i} at level {level}")
         for i, level in enumerate(log_levels)
     ]
+
+
+@fixture(scope="function", name="pigpio_pi")  # type: ignore[misc]
+def _pigpio_pi() -> YieldFixture[MagicMock]:
+    """Fixture for creating a pigpio.pi instance."""
+
+    pi = MagicMock()
+
+    pi.INPUT = 0
+    pi.OUTPUT = 1
+
+    pi.callback.return_value = _callback(MagicMock(), 4)
+
+    return pi
