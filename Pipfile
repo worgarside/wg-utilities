@@ -23,6 +23,11 @@ pytest-env = "*"
 requests-mock = "*"
 coverage = "*"
 freezegun = "*"
+boto3 = "*"
+mypy-boto3-s3 = "*"
+mypy-boto3-lambda = "*"
+mypy-boto3-pinpoint = "*"
+moto = {extras = ["pinpoint"], version = "*"}
 
 [packages]
 google-auth-oauthlib = ">=0.4.6"

@@ -20,10 +20,11 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
+          # I'm developing on macOS, so this should be covered
+          # - macos-latest
         python-version:
           - '3.9'
           - '3.10'
-          - '3.11'
 
     steps:
       - name: Checkout Code
