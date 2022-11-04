@@ -9,8 +9,12 @@ from pathlib import Path
 from typing import Callable, TypeVar
 from unittest.mock import MagicMock
 
+from boto3 import client
+from mypy_boto3_lambda import LambdaClient
+from mypy_boto3_pinpoint import PinpointClient
+from mypy_boto3_s3 import S3Client
 from pigpio import _callback
-from pytest import fixture
+from pytest import FixtureRequest, fixture
 from requests import get
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import MissingSchema
@@ -18,6 +22,7 @@ from requests.exceptions import MissingSchema
 from wg_utilities.devices.dht22 import DHT22Sensor
 from wg_utilities.functions.json import JSONObj
 from wg_utilities.loggers import ListHandler
+from wg_utilities.testing import MockBoto3Client
 
 T = TypeVar("T")
 YieldFixture = Generator[T, None, None]
@@ -97,6 +102,12 @@ def dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
     return DHT22Sensor(pigpio_pi, 4)
 
 
+@fixture(scope="function", name="lambda_client")  # type: ignore[misc]
+def _lambda_client() -> LambdaClient:
+    """Fixture for creating a boto3 client instance for Lambda Functions."""
+    return client("lambda")
+
+
 @fixture(scope="function", name="list_handler")  # type: ignore[misc]
 def _list_handler() -> ListHandler:
     """Fixture for creating a ListHandler instance."""
@@ -132,6 +143,24 @@ def _logger() -> YieldFixture[Logger]:
     _logger.handlers.clear()
 
 
+@fixture(scope="function", name="mb3c")  # type: ignore[misc]
+def _mb3c(request: FixtureRequest) -> MockBoto3Client:
+    """Fixture for creating a MockBoto3Client instance."""
+    print(type(request))
+    if name_marker := request.node.get_closest_marker("mocked_operation_lookup"):
+        mocked_operation_lookup = name_marker.args[0]
+    else:
+        mocked_operation_lookup = {}
+
+    return MockBoto3Client(mocked_operation_lookup=mocked_operation_lookup)
+
+
+@fixture(scope="function", name="pinpoint_client")  # type: ignore[misc]
+def _pinpoint_client() -> PinpointClient:
+    """Fixture for creating a boto3 client instance for Pinpoint."""
+    return client("pinpoint")
+
+
 @fixture(scope="function")  # type: ignore[misc]
 def sample_log_record() -> LogRecord:
     """Fixture for creating a sample log record."""
@@ -158,6 +187,12 @@ def _sample_log_record_messages_with_level() -> list[tuple[int, str]]:
         (level, f"Test log message #{i} at level {level}")
         for i, level in enumerate(log_levels)
     ]
+
+
+@fixture(scope="function", name="s3_client")  # type: ignore[misc]
+def _s3_client() -> S3Client:
+    """Fixture for creating a boto3 client instance for S3."""
+    return client("s3")
 
 
 @fixture(scope="function", name="pigpio_pi")  # type: ignore[misc]

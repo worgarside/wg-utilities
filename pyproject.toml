@@ -32,18 +32,36 @@ no_implicit_reexport = true
 disallow_untyped_defs = true
 enable_recursive_aliases = true
 
-[tool.pydantic-mypy]
-init_forbid_extra = true
-init_typed = true
-warn_required_dynamic_aliases = true
-warn_untyped_fields = true
-
 [tool.pycln]
 path = "*"
 expand_stars = true
 all = true
 no_gitignore = false
 
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+xfail_strict = true
+log_cli_level = "warning"
+pythonpath = ["wg_utilities"]
+testpaths = ["tests"]
+env = [
+    "AWS_ACCESS_KEY_ID=AKIATESTTESTTESTTEST",
+    "AWS_SECRET_ACCESS_KEY=T3ST/S3CuR17Y*K3Y[S7R1NG!?L00K5.L1K3.17!",
+    "AWS_SECURITY_TOKEN=ANYVALUEWEWANTINHERE",
+    "AWS_SESSION_TOKEN=ASLONGASITISNOTREAL",
+    "AWS_DEFAULT_REGION=eu-west-1",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:boto.*:",
+]
+markers = ["mocked_operation_lookup: allows setting the mocks in the `mb3c` fixture"]
 
 [tool.ruff]
 # Longer line length to avoid throwing errors in case where black doesn't
