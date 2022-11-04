@@ -20,14 +20,14 @@ from wg_utilities.functions import user_data_dir
 @mark.parametrize(  # type: ignore[misc]
     "platform,expected",
     [
-        ("windows", Path("C:/Users/test/AppData/Local/WgUtilities")),
-        ("darwin", Path("/Users/will.garside/Library/Application Support/WgUtilities")),
-        ("linux", Path("/home/will/.local/share/WgUtilities")),
+        ("windows", "C:/Users/test/AppData/Local/WgUtilities"),
+        ("darwin", "Library/Application Support/WgUtilities"),
+        ("linux", "/home/will/.local/share/WgUtilities"),
     ],
 )
-def test_correct_value_returned_per_system(platform: str, expected: Path) -> None:
+def test_correct_value_returned_per_system(platform: str, expected: str) -> None:
     """Test that the correct value is returned for each OS."""
-    assert user_data_dir(_platform=platform) == expected
+    assert str(user_data_dir(_platform=platform)).endswith(expected)
 
 
 @patch.dict(
@@ -43,25 +43,25 @@ def test_correct_value_returned_per_system(platform: str, expected: Path) -> Non
         (
             "windows",
             "windows_project",
-            Path("C:/Users/test/AppData/Local/windows_project"),
+            "C:/Users/test/AppData/Local/windows_project",
         ),
         (
             "darwin",
             "macos_project",
-            Path("/Users/will.garside/Library/Application Support/macos_project"),
+            "/Library/Application Support/macos_project",
         ),
-        ("linux", "linux_project", Path("/home/will/.local/share/linux_project")),
+        ("linux", "linux_project", "/home/will/.local/share/linux_project"),
     ],
 )
 def test_project_name_processed_correctly(
-    platform: str, project_name: str, expected: Path
+    platform: str, project_name: str, expected: str
 ) -> None:
     """Test that the value passed in `project_name` is added to the path."""
 
     actual = user_data_dir(_platform=platform, project_name=project_name)
 
     assert project_name in str(actual)
-    assert actual == expected
+    assert str(actual).endswith(expected)
 
 
 @patch.dict(
@@ -82,9 +82,7 @@ def test_project_name_processed_correctly(
         (
             "darwin",
             "macos_file",
-            Path(
-                "/Users/will.garside/Library/Application Support/WgUtilities/macos_file"
-            ),
+            Path("/Library/Application Support/WgUtilities/macos_file"),
         ),
         ("linux", "linux_file", Path("/home/will/.local/share/WgUtilities/linux_file")),
     ],
@@ -97,4 +95,4 @@ def test_file_name_processed_correctly(
     actual = user_data_dir(_platform=platform, file_name=file_name)
 
     assert str(actual).endswith(file_name)
-    assert actual == expected
+    assert str(actual).endswith(str(expected))
