@@ -23,7 +23,6 @@ jobs:
           # I'm developing on macOS, so this should be covered
           # - macos-latest
         python-version:
-          - '3.9'
           - '3.10'
 
     steps:
