@@ -64,7 +64,10 @@ env = [
 filterwarnings = [
     "ignore::DeprecationWarning:boto.*:",
 ]
-markers = ["mocked_operation_lookup: allows setting the mocks in the `mb3c` fixture"]
+markers = [
+    "mocked_operation_lookup: allows setting the mocks in the `mb3c` fixture",
+    "upnp_value_path: file with content to set as the value in a `upnp_state_variable` fixture",
+]
 
 [tool.ruff]
 # Longer line length to avoid throwing errors in case where black doesn't

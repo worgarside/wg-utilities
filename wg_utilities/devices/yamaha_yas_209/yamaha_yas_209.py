@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from asyncio import new_event_loop, run
 from asyncio import sleep as async_sleep
-from collections.abc import Coroutine, Mapping, Sequence
+from collections.abc import Callable, Coroutine, Mapping, Sequence
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
@@ -11,14 +11,15 @@ from logging import DEBUG, getLogger
 from textwrap import dedent
 from threading import Thread
 from time import sleep, strptime
-from typing import Any, Callable, Literal, TypedDict, TypeVar
+from typing import Any, Literal, TypedDict, TypeVar
 
 from async_upnp_client.aiohttp import AiohttpNotifyServer, AiohttpRequester
 from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable
 from async_upnp_client.client_factory import UpnpFactory
 from async_upnp_client.exceptions import UpnpActionResponseError, UpnpResponseError
 from async_upnp_client.utils import get_local_ip
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, Extra, Field, ValidationError
+from pydantic.error_wrappers import ErrorWrapper
 from xmltodict import parse as parse_xml
 
 from wg_utilities.functions import traverse_dict
@@ -30,7 +31,7 @@ add_stream_handler(LOGGER)
 
 
 # pylint: disable=too-few-public-methods
-class StateVariable(BaseModel, extra=Extra.forbid):
+class StateVariable(BaseModel, extra=Extra.allow):
     """BaseModel for state variables in DLNA payload."""
 
     channel: str
@@ -38,7 +39,7 @@ class StateVariable(BaseModel, extra=Extra.forbid):
 
 
 # pylint: disable=too-few-public-methods
-class CurrentTrackMetaDataItemRes(BaseModel, extra=Extra.forbid):
+class CurrentTrackMetaDataItemRes(BaseModel, extra=Extra.allow):
     """BaseModel for part of the DLNA payload."""
 
     protocolInfo: str
@@ -47,42 +48,33 @@ class CurrentTrackMetaDataItemRes(BaseModel, extra=Extra.forbid):
 
 
 # pylint: disable=too-few-public-methods
-class TrackMetaDataItem(BaseModel, extra=Extra.forbid):
+class TrackMetaDataItem(BaseModel, extra=Extra.allow):
     """BaseModel for part of the DLNA payload."""
 
     id: str
-    song_subid: str | None = Field(..., alias="song:subid")
-    song_description: str | None = Field(..., alias="song:description")
-    song_skiplimit: str = Field(..., alias="song:skiplimit")
-    song_id: str | None = Field(..., alias="song:id")
-    song_like: str = Field(..., alias="song:like")
-    song_singerid: str = Field(..., alias="song:singerid")
-    song_albumid: str = Field(..., alias="song:albumid")
+    song_subid: str | None = Field("", alias="song:subid")
+    song_description: str | None = Field("", alias="song:description")
+    song_skiplimit: str = Field("", alias="song:skiplimit")
+    song_id: str | None = Field("", alias="song:id")
+    song_like: str = Field("", alias="song:like")
+    song_singerid: str = Field("", alias="song:singerid")
+    song_albumid: str = Field("", alias="song:albumid")
     res: CurrentTrackMetaDataItemRes
     dc_title: str | None = Field(..., alias="dc:title")
-    dc_creator: str | None = Field(..., alias="dc:creator")
+    dc_creator: str | None = Field("", alias="dc:creator")
     upnp_artist: str | None = Field(..., alias="upnp:artist")
     upnp_album: str | None = Field(..., alias="upnp:album")
     upnp_albumArtURI: str = Field(..., alias="upnp:albumArtURI")
 
 
 # pylint: disable=too-few-public-methods
-class TrackMetaData(BaseModel, extra=Extra.forbid):
+class TrackMetaData(BaseModel, extra=Extra.allow):
     """BaseModel for part of the DLNA payload."""
 
-    xmlns_dc: Literal["http://purl.org/dc/elements/1.1/"] = Field(..., alias="xmlns:dc")
-    xmlns_upnp: Literal["urn:schemas-upnp-org:metadata-1-0/upnp/"] = Field(
-        ..., alias="xmlns:upnp"
-    )
-    xmlns_song: Literal["www.wiimu.com/song/"] = Field(..., alias="xmlns:song")
-    xmlns: Literal["urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"]
-    upnp_class: Literal["object.item.audioItem.musicTrack"] = Field(
-        ..., alias="upnp:class"
-    )
     item: TrackMetaDataItem
 
 
-class InstanceIDAVTransport(BaseModel, extra=Extra.forbid):
+class InstanceIDAVTransport(BaseModel, extra=Extra.allow):
     """BaseModel for part of the DLNA payload."""
 
     val: str
@@ -113,7 +105,7 @@ class InstanceIDAVTransport(BaseModel, extra=Extra.forbid):
     CurrentTransportActions: str | None
 
 
-class InstanceIDRenderingControl(BaseModel, extra=Extra.forbid):
+class InstanceIDRenderingControl(BaseModel, extra=Extra.allow):
     """BaseModel for part of the DLNA payload."""
 
     val: str
@@ -127,27 +119,27 @@ class InstanceIDRenderingControl(BaseModel, extra=Extra.forbid):
     TimeStamp: str | None
 
 
-class EventAVTransport(BaseModel, extra=Extra.forbid):
+class EventAVTransport(BaseModel, extra=Extra.allow):
     """BaseModel for part of the DLNA payload."""
 
     xmlns: Literal["urn:schemas-upnp-org:metadata-1-0/AVT/"]
     InstanceID: InstanceIDAVTransport
 
 
-class EventRenderingControl(BaseModel, extra=Extra.forbid):
+class EventRenderingControl(BaseModel, extra=Extra.allow):
     """BaseModel for part of the DLNA payload."""
 
     xmlns: Literal["urn:schemas-upnp-org:metadata-1-0/RCS/"]
     InstanceID: InstanceIDRenderingControl
 
 
-class LastChange(BaseModel, extra=Extra.forbid):
+class LastChange(BaseModel, extra=Extra.allow):
     """BaseModel for the DLNA payload."""
 
     Event: Any
 
     @classmethod
-    def parse(cls, payload: dict[Literal["Event"], Any]) -> LastChange:
+    def parse(cls, payload: dict[Literal["Event"], object]) -> LastChange:
         """Parse a `LastChange` model from the payload dictionary.
 
         Args:
@@ -156,17 +148,25 @@ class LastChange(BaseModel, extra=Extra.forbid):
         Raises:
             ValidationError: If any of the specified model fields are empty or of the
              wrong type.
-            ValueError: if more than just "Event" is in the payload
+            ValidationError: if more than just "Event" is in the payload
 
         Returns:
             LastChange: The parsed `Case`.
         """
+        if not isinstance(payload, dict):
+            pass
+
+        payload = payload.copy()
 
         event = payload.pop("Event")
 
-        if len(payload) > 0:
-            raise ValueError(
-                f"""Unexpected keys in payload: '{"', '".join(payload.keys())}'"""
+        if payload:
+            raise ValidationError(
+                [
+                    ErrorWrapper(ValueError("extra fields not permitted"), loc=key)
+                    for key in payload.keys()
+                ],
+                model=cls,
             )
 
         return cls(Event=event)
@@ -296,6 +296,21 @@ class CurrentTrack:
             last_change.Event.InstanceID.CurrentTrackMetaData.item
         )
 
+    @classmethod
+    def null_track(cls) -> CurrentTrack:
+        """Create a null track.
+
+        Returns:
+            CurrentTrack: a CurrentTrack instance with all attributes set to None
+        """
+        return cls(
+            album_art_uri=None,
+            media_album_name=None,
+            media_artist=None,
+            media_duration=0.0,
+            media_title=None,
+        )
+
     @property
     def json(self) -> CurrentTrack.Info:
         """JSON representation of the current track.
@@ -310,6 +325,23 @@ class CurrentTrack:
             "media_duration": self.media_duration,
             "media_title": self.media_title,
         }
+
+    def __eq__(self, other: object) -> bool:
+        """Check equality of this instance with another object.
+
+        Args:
+            other (object): the object to compare to
+
+        Returns:
+            bool: True if the objects are equal, False otherwise
+        """
+        if not isinstance(other, CurrentTrack):
+            return False
+
+        return self.json == other.json
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.__str__()!r})"
 
     def __str__(self) -> str:
 
@@ -587,7 +619,7 @@ class YamahaYas209:
         self._active_service_ids: list[str] = []
 
         if self._listen_ip is not None and self._listen_port is None:
-            raise TypeError(
+            raise ValueError(
                 "Argument `listen_port` cannot be None when `listen_ip` is not None:"
                 f" {self._listen_ip!r}"
             )
@@ -644,7 +676,7 @@ class YamahaYas209:
             service_variables (list): a list of state variables that have updated
         """
 
-        xml_payloads: dict[str, str | dict[str, Any] | None] = {
+        xml_payloads: dict[str, object] = {
             sv.name: sv.value for sv in service_variables
         }
 
@@ -663,16 +695,15 @@ class YamahaYas209:
             "other_xml_payloads": xml_payloads,
         }
 
-        if event_payload["last_change"] is None:
-            return
-
         if service.service_id == "urn:upnp-org:serviceId:AVTransport":
             if last_change.Event.InstanceID.TransportState != self.state.name:
                 self.set_state(
                     Yas209State[last_change.Event.InstanceID.TransportState],
                     local_only=True,
                 )
-            if last_change.Event.InstanceID.CurrentTrackMetaData is not None:
+            if last_change.Event.InstanceID.CurrentTrackMetaData is None:
+                self.current_track = CurrentTrack.null_track()
+            else:
                 self.current_track = CurrentTrack.from_last_change(last_change)
         elif service.service_id == "urn:upnp-org:serviceId:RenderingControl":
             # The DLNA payload has volume as a string value between 0 and 100
@@ -811,7 +842,7 @@ class YamahaYas209:
             )
 
         @_needs_device
-        async def _worker(_: YamahaYas209) -> Mapping[str, Any]:
+        async def _worker(_: YamahaYas209) -> Mapping[str, Any]:  # noqa: N803
             res: Mapping[str, Any] = (
                 await self.device.services[service.service_name]
                 .action(action)
@@ -839,7 +870,7 @@ class YamahaYas209:
             return None
 
     @staticmethod
-    def _parse_xml_dict(xml_dict: dict[str, Any]) -> None:
+    def _parse_xml_dict(xml_dict: dict[str, object]) -> None:
         """Convert XML to JSON within dict in place.
 
         Parse a dictionary where some values are/could be XML strings, and unpack
@@ -851,8 +882,8 @@ class YamahaYas209:
         traverse_dict(
             xml_dict,
             target_type=str,
-            target_processor_func=lambda value: parse_xml(
-                value, attr_prefix="", cdata_key="text"
+            target_processor_func=lambda val: parse_xml(  # type: ignore[no-any-return]
+                val, attr_prefix="", cdata_key="text"
             ),
             single_keys_to_remove=["val", "DIDL-Lite"],
         )
@@ -985,7 +1016,6 @@ class YamahaYas209:
         """
         if not hasattr(self, "_current_track"):
             media_info = self.get_media_info()
-            self._parse_xml_dict(media_info)
             self._current_track = CurrentTrack.from_get_media_info(
                 GetMediaInfoResponse.parse_obj(media_info)
             )

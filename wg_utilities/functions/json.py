@@ -1,15 +1,15 @@
 """Useful functions for working with JSON/dictionaries."""
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from logging import DEBUG, getLogger
-from typing import Any, Callable, Union
+from typing import Any, Union
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
 
-JSONVal = Union[None, bool, str, float, int, list["JSONVal"], "JSONObj"]
+JSONVal = Union[None, object, bool, str, float, int, list["JSONVal"], "JSONObj"]
 JSONObj = dict[str, JSONVal]
 
 
@@ -105,13 +105,13 @@ def process_list(
 def traverse_dict(
     payload_json: JSONObj,
     *,
-    target_type: type[object] | tuple[type[object], ...],
+    target_type: type[object] | tuple[type[object], ...] | type[Callable[..., Any]],
     target_processor_func: Callable[[JSONVal], JSONVal],
     pass_on_fail: bool = True,
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,
 ) -> None:
-    # pylint: disable=too-many-branches,too-many-nested-blocks
+    # pylint: disable=too-many-branches
     """Traverse dict, applying`dict_op_func` to any values of type `target_type`.
 
     Args:

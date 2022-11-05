@@ -3,13 +3,24 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Generator
+from http import HTTPStatus
 from json import dumps, load, loads
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, LogRecord, getLogger
-from os import listdir
+from os import listdir, walk
+from os.path import join
 from pathlib import Path
+from textwrap import dedent
 from typing import TypeVar, cast
 from unittest.mock import MagicMock
+from xml.etree import ElementTree
 
+from aioresponses import aioresponses
+from async_upnp_client.client import UpnpRequester, UpnpService, UpnpStateVariable
+from async_upnp_client.const import (
+    ServiceInfo,
+    StateVariableInfo,
+    StateVariableTypeInfo,
+)
 from boto3 import client
 from mypy_boto3_lambda import LambdaClient
 from mypy_boto3_pinpoint import PinpointClient
@@ -19,6 +30,7 @@ from pytest import FixtureRequest, fixture
 from requests import get
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import MissingSchema
+from voluptuous import All, Schema
 
 from wg_utilities.devices.dht22 import DHT22Sensor
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
@@ -59,6 +71,10 @@ EXCEPTION_GENERATORS: list[
 ]
 
 FLAT_FILES_DIR = Path(__file__).parent / "tests" / "flat_files"
+
+
+YAS_209_IP = "192.168.1.1"
+YAS_209_HOST = f"http://{YAS_209_IP}:49152"
 
 # <editor-fold desc="JSON Objects">
 
@@ -157,10 +173,39 @@ def yamaha_yas_209_get_media_info_responses(
             yield (json, values)
 
 
+def yamaha_yas_209_last_change_av_transport_event_singular() -> JSONObj:
+    """Returns a single AVTransport LastChange payloads.
+
+    Returns:
+        JSONObj: a `LastChange` event
+    """
+
+    with open(
+        FLAT_FILES_DIR
+        / "json"
+        / "yamaha_yas_209"
+        / "event_payloads"
+        / "av_transport"
+        / "payload_20221013234843601604.json",
+        encoding="utf-8",
+    ) as fin:
+
+        # The files are what's saved in HA, but we only need the lastChange object
+        json_obj: JSONObj = fix_colon_keys(load(fin))[  # type: ignore[assignment]
+            "last_change"
+        ]
+
+        return json_obj
+
+
 def yamaha_yas_209_last_change_av_transport_events(
     other_test_parameters: dict[str, CurrentTrack.Info] | None = None
 ) -> YieldFixture[tuple[JSONObj, CurrentTrack.Info | None] | JSONObj]:
     """Yields values for testing against AVTransport payloads.
+
+    Args:
+        other_test_parameters (dict[str, CurrentTrack.Info], optional): a dictionary
+            of values which are returned for given files. Defaults to None.
 
     Yields:
         list: a list of `lastChange` events
@@ -193,6 +238,8 @@ def yamaha_yas_209_last_change_av_transport_events(
                 # all
                 yield json_obj, None
             else:
+                # Removing the parentheses here gives me typing errors, and removing
+                # the comma makes the `yield` statement fail for some reason
                 yield (json_obj,)  # type: ignore[misc]
 
 
@@ -231,11 +278,51 @@ def yamaha_yas_209_last_change_rendering_control_events(
                 # all
                 yield json_obj, None
             else:
+                # Removing the parentheses here gives me typing errors, and removing
+                # the comma makes the `yield` statement fail for some reason
                 yield (json_obj,)  # type: ignore[misc]
 
 
 # </editor-fold>
 # <editor-fold desc="Fixtures">
+
+
+@fixture(scope="function", name="mock_aiohttp")  # type: ignore[misc]
+def _mock_aiohttp() -> YieldFixture[aioresponses]:
+    """Fixture for mocking async HTTP requests."""
+
+    with aioresponses() as mock_aiohttp:
+        for root, _, files in walk(
+            get_dir := FLAT_FILES_DIR
+            / "xml"
+            / "yamaha_yas_209"
+            / "aiohttp_responses"
+            / "get"
+        ):
+            for file in files:
+                with open(join(root, file), "rb") as fin:
+                    body = fin.read()
+
+                mock_aiohttp.get(
+                    f"{YAS_209_HOST}{join(root, file).replace(str(get_dir), '') }",
+                    status=HTTPStatus.OK,
+                    reason=HTTPStatus.OK.phrase,
+                    body=body,
+                )
+
+        yield mock_aiohttp
+
+
+@fixture(scope="function", name="current_track_null")  # type: ignore[misc]
+def _current_track_null() -> CurrentTrack:
+    """Return a CurrentTrack object with null values."""
+    return CurrentTrack(
+        album_art_uri=None,
+        media_album_name=None,
+        media_artist=None,
+        media_duration=0.0,
+        media_title=None,
+    )
 
 
 @fixture(scope="function")  # type: ignore[misc]
@@ -289,7 +376,7 @@ def _logger() -> YieldFixture[Logger]:
 @fixture(scope="function", name="mb3c")  # type: ignore[misc]
 def _mb3c(request: FixtureRequest) -> MockBoto3Client:
     """Fixture for creating a MockBoto3Client instance."""
-    print(type(request))
+
     if name_marker := request.node.get_closest_marker("mocked_operation_lookup"):
         mocked_operation_lookup = name_marker.args[0]
     else:
@@ -340,7 +427,7 @@ def _s3_client() -> S3Client:
 
 @fixture(scope="function", name="pigpio_pi")  # type: ignore[misc]
 def _pigpio_pi() -> YieldFixture[MagicMock]:
-    """Fixture for creating a pigpio.pi instance."""
+    """Fixture for creating a `pigpio.pi` instance."""
 
     pi = MagicMock()
 
@@ -352,10 +439,116 @@ def _pigpio_pi() -> YieldFixture[MagicMock]:
     return pi
 
 
+@fixture(scope="function", name="upnp_service_av_transport")  # type: ignore[misc]
+def _upnp_service_av_transport() -> UpnpService:
+    """Fixture for creating an UpnpService instance."""
+    return UpnpService(
+        UpnpRequester(),
+        service_info=ServiceInfo(
+            control_url="/upnp/control/rendertransport1",
+            event_sub_url="/upnp/event/rendertransport1",
+            scpd_url="/upnp/scpd/rendertransport1",
+            service_id="urn:upnp-org:serviceId:AVTransport",
+            service_type="urn:schemas-upnp-org:service:AVTransport:1",
+            xml=ElementTree.fromstring(
+                dedent(
+                    # pylint: disable=line-too-long
+                    """
+                        <ns0:service xmlns:ns0="urn:schemas-upnp-org:device-1-0">
+                            <ns0:serviceType>urn:schemas-upnp-org:service:AVTransport:1
+                            </ns0:serviceType>
+                            <ns0:serviceId>urn:upnp-org:serviceId:AVTransport</ns0:serviceId>
+                            <ns0:SCPDURL>/upnp/rendertransportSCPD.xml</ns0:SCPDURL>
+                            <ns0:controlURL>/upnp/control/rendertransport1</ns0:controlURL>
+                            <ns0:eventSubURL>/upnp/event/rendertransport1</ns0:eventSubURL>
+                        </ns0:service>
+                    """
+                ).strip()
+            ),
+        ),
+        state_variables=[],
+        actions=[],
+    )
+
+
+@fixture(scope="function", name="upnp_service_rendering_control")  # type: ignore[misc]
+def _upnp_service_rendering_control() -> UpnpService:
+    """Fixture for creating an UpnpService instance."""
+    return UpnpService(
+        UpnpRequester(),
+        service_info=ServiceInfo(
+            control_url="/upnp/control/rendercontrol1",
+            event_sub_url="/upnp/event/rendercontrol1",
+            scpd_url="/upnp/rendercontrolSCPD.xml",
+            service_id="urn:upnp-org:serviceId:RenderingControl",
+            service_type="urn:schemas-upnp-org:service:RenderingControl:1",
+            xml=ElementTree.fromstring(
+                dedent(
+                    """
+            <ns0:service xmlns:ns0="urn:schemas-upnp-org:device-1-0">
+                <ns0:serviceType>urn:schemas-upnp-org:service:RenderingControl:1
+                </ns0:serviceType>
+                <ns0:serviceId>urn:upnp-org:serviceId:RenderingControl</ns0:serviceId>
+                <ns0:SCPDURL>/upnp/rendercontrolSCPD.xml</ns0:SCPDURL>
+                <ns0:controlURL>/upnp/control/rendercontrol1</ns0:controlURL>
+                <ns0:eventSubURL>/upnp/event/rendercontrol1</ns0:eventSubURL>
+            </ns0:service>
+                    """
+                ).strip()
+            ),
+        ),
+        state_variables=[],
+        actions=[],
+    )
+
+
+@fixture(scope="function", name="upnp_state_variable")  # type: ignore[misc]
+def _upnp_state_variable(request: FixtureRequest) -> UpnpStateVariable:
+    """Fixture for creating an UpnpStateVariable instance."""
+    state_var = UpnpStateVariable(
+        StateVariableInfo(
+            name="LastChange",
+            send_events=True,
+            type_info=StateVariableTypeInfo(
+                data_type="string",
+                data_type_mapping={"type": str, "in": str, "out": str},
+                default_value=None,
+                allowed_value_range={},
+                allowed_values=None,
+                xml=(
+                    last_change_xml := ElementTree.fromstring(
+                        dedent(
+                            # pylint: disable=line-too-long
+                            """
+                                <ns0:stateVariable xmlns:ns0="urn:schemas-upnp-org:service-1-0" sendEvents="yes">
+                                    <ns0:name>LastChange</ns0:name>
+                                    <ns0:dataType>string</ns0:dataType>
+                                </ns0:stateVariable>
+                            """
+                        ).strip()
+                    )
+                ),
+            ),
+            xml=last_change_xml,
+        ),
+        schema=Schema(
+            schema=All(),
+        ),
+    )
+
+    if name_marker := request.node.get_closest_marker("upnp_value_path"):
+        with open(name_marker.args[0], encoding="utf-8") as fin:
+            state_var.upnp_value = fin.read()
+
+    return state_var
+
+
 @fixture(scope="function", name="yamaha_yas_209")  # type: ignore[misc]
-def _yamaha_yas_209() -> YamahaYas209:
+def _yamaha_yas_209() -> YieldFixture[YamahaYas209]:
     """Fixture for creating a YamahaYAS209 instance."""
-    return YamahaYas209("192.168.1.1", start_listener=False, logging=True)
+
+    yas_209 = YamahaYas209(YAS_209_IP, start_listener=False, logging=True)
+    yield yas_209
 
 
 # </editor-fold>
