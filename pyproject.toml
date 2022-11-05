@@ -15,6 +15,9 @@ exclude = '''
 )/
 '''
 
+[tool.codespell]
+skip = '*.json,*.csv,*.xml'
+
 [tool.isort]
 profile = "black"
 

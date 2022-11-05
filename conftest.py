@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Generator
-from json import load
+from collections.abc import Callable, Generator
+from json import dumps, load, loads
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, LogRecord, getLogger
+from os import listdir
 from pathlib import Path
-from typing import Callable, TypeVar
+from typing import TypeVar, cast
 from unittest.mock import MagicMock
 
 from boto3 import client
@@ -20,6 +21,8 @@ from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import MissingSchema
 
 from wg_utilities.devices.dht22 import DHT22Sensor
+from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
+from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import CurrentTrack
 from wg_utilities.functions.json import JSONObj
 from wg_utilities.loggers import ListHandler
 from wg_utilities.testing import MockBoto3Client
@@ -55,11 +58,55 @@ EXCEPTION_GENERATORS: list[
     (ZeroDivisionError, lambda: 1 / 0, ()),
 ]
 
+FLAT_FILES_DIR = Path(__file__).parent / "tests" / "flat_files"
+
+# <editor-fold desc="JSON Objects">
+
+
+def fix_colon_keys(json_obj: JSONObj) -> JSONObj:
+    """Fix colons replaced with underscores in keys.
+
+    Some keys have colons changed for underscores when they're parsed into Pydantic
+    models, this undoes that.
+
+    Args:
+        json_obj (dict): the JSON object to fix
+
+    Returns:
+        dict: the fixed JSON object
+    """
+
+    json_str = dumps(json_obj)
+
+    for key in (
+        "xmlns_dc",
+        "xmlns_upnp",
+        "xmlns_song",
+        "upnp_class",
+        "song_subid",
+        "song_description",
+        "song_skiplimit",
+        "song_id",
+        "song_like",
+        "song_singerid",
+        "song_albumid",
+        "dc_title",
+        "dc_creator",
+        "upnp_artist",
+        "upnp_album",
+        "upnp_albumArtURI",
+        "dc_creator",
+        "song_controls",
+    ):
+        json_str = json_str.replace(key, key.replace("_", ":"))
+
+    return cast(JSONObj, loads(json_str))
+
 
 def random_nested_json() -> JSONObj:
     """Return a random nested JSON object."""
     with open(
-        Path(__file__).parent / "tests" / "flat_files" / "json" / "random_nested.json",
+        FLAT_FILES_DIR / "json" / "random_nested.json",
         encoding="utf-8",
     ) as fin:
         return load(fin)  # type: ignore[no-any-return]
@@ -68,11 +115,7 @@ def random_nested_json() -> JSONObj:
 def random_nested_json_with_arrays() -> JSONObj:
     """Return a random nested JSON object with lists as values."""
     with open(
-        Path(__file__).parent
-        / "tests"
-        / "flat_files"
-        / "json"
-        / "random_nested_with_arrays.json",
+        FLAT_FILES_DIR / "json" / "random_nested_with_arrays.json",
         encoding="utf-8",
     ) as fin:
         return load(fin)  # type: ignore[no-any-return]
@@ -83,16 +126,116 @@ def random_nested_json_with_arrays_and_stringified_json() -> JSONObj:
 
     I've manually stringified the JSON and put it back into itself a couple of times
     for more thorough testing.
+
+    Returns:
+        JSONObj: randomly generated JSON
     """
     with open(
-        Path(__file__).parent
-        / "tests"
-        / "flat_files"
-        / "json"
-        / "random_nested_with_arrays_and_stringified_json.json",
+        FLAT_FILES_DIR / "json" / "random_nested_with_arrays_and_stringified_json.json",
         encoding="utf-8",
     ) as fin:
         return load(fin)  # type: ignore[no-any-return]
+
+
+def yamaha_yas_209_get_media_info_responses(
+    other_test_parameters: dict[str, CurrentTrack.Info]
+) -> YieldFixture[tuple[JSONObj, CurrentTrack.Info | None]]:
+    """Yields values for testing against GetMediaInfo responses.
+
+    Yields:
+        list: a list of `getMediaInfo` responses
+    """
+    for file in listdir(
+        get_media_info_dir := (
+            FLAT_FILES_DIR / "json" / "yamaha_yas_209" / "get_media_info"
+        )
+    ):
+        with open(get_media_info_dir / file, encoding="utf-8") as fin:
+            json: JSONObj = load(fin)
+            values: CurrentTrack.Info | None = other_test_parameters.get(file)
+
+            yield (json, values)
+
+
+def yamaha_yas_209_last_change_av_transport_events(
+    other_test_parameters: dict[str, CurrentTrack.Info] | None = None
+) -> YieldFixture[tuple[JSONObj, CurrentTrack.Info | None] | JSONObj]:
+    """Yields values for testing against AVTransport payloads.
+
+    Yields:
+        list: a list of `lastChange` events
+    """
+    other_test_parameters = other_test_parameters or {}
+    for file in sorted(
+        listdir(
+            last_change_dir := (
+                FLAT_FILES_DIR
+                / "json"
+                / "yamaha_yas_209"
+                / "event_payloads"
+                / "av_transport"
+            )
+        )
+    ):
+        with open(last_change_dir / file, encoding="utf-8") as fin:
+
+            # The files are what's saved in HA, but we only need the lastChange object
+            json_obj: JSONObj = fix_colon_keys(load(fin))[  # type: ignore[assignment]
+                "last_change"
+            ]
+
+            if values := other_test_parameters.get(
+                file,
+            ):
+                yield json_obj, values
+            elif other_test_parameters:
+                # If we're sending 2 arguments for any, we need to send 2 arguments for
+                # all
+                yield json_obj, None
+            else:
+                yield (json_obj,)  # type: ignore[misc]
+
+
+def yamaha_yas_209_last_change_rendering_control_events(
+    other_test_parameters: dict[str, CurrentTrack.Info] | None = None
+) -> YieldFixture[tuple[JSONObj, CurrentTrack.Info | None] | JSONObj]:
+    """Yields values for testing against RenderingControl payloads.
+
+    Yields:
+        dict: a `lastChange` event
+    """
+    other_test_parameters = other_test_parameters or {}
+    for file in sorted(
+        listdir(
+            last_change_dir := (
+                FLAT_FILES_DIR
+                / "json"
+                / "yamaha_yas_209"
+                / "event_payloads"
+                / "rendering_control"
+            )
+        )
+    ):
+        with open(last_change_dir / file, encoding="utf-8") as fin:
+            # The files are what's saved in HA, but we only need the lastChange object
+            json_obj: JSONObj = fix_colon_keys(load(fin))[  # type: ignore[assignment]
+                "last_change"
+            ]
+
+            if values := other_test_parameters.get(
+                file,
+            ):
+                yield json_obj, values
+            elif other_test_parameters:
+                # If we're sending 2 arguments for any, we need to send 2 arguments for
+                # all
+                yield json_obj, None
+            else:
+                yield (json_obj,)  # type: ignore[misc]
+
+
+# </editor-fold>
+# <editor-fold desc="Fixtures">
 
 
 @fixture(scope="function")  # type: ignore[misc]
@@ -207,3 +350,12 @@ def _pigpio_pi() -> YieldFixture[MagicMock]:
     pi.callback.return_value = _callback(MagicMock(), 4)
 
     return pi
+
+
+@fixture(scope="function", name="yamaha_yas_209")  # type: ignore[misc]
+def _yamaha_yas_209() -> YamahaYas209:
+    """Fixture for creating a YamahaYAS209 instance."""
+    return YamahaYas209("192.168.1.1", start_listener=False, logging=True)
+
+
+# </editor-fold>

@@ -1,0 +1,38 @@
+{
+  "NrTracks": 0,
+  "MediaDuration": "00:08:41",
+  "CurrentURI": "spotify:track:0B2GWovtxzsh0a02PBbNl7",
+  "CurrentURIMetaData": {
+    "xmlns:dc": "http://purl.org/dc/elements/1.1/",
+    "xmlns:upnp": "urn:schemas-upnp-org:metadata-1-0/upnp/",
+    "xmlns:song": "www.wiimu.com/song/",
+    "xmlns": "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/",
+    "upnp:class": "object.item.audioItem.musicTrack",
+    "item": {
+      "id": "0",
+      "song:subid": "idk",
+      "song:description": null,
+      "song:skiplimit": "0",
+      "song:id": "0B2GWovtxzsh0a02PBbNl7",
+      "song:like": "0",
+      "song:singerid": "0",
+      "song:albumid": "0",
+      "res": {
+        "protocolInfo": "http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;",
+        "duration": "00:08:41.000",
+        "text": "spotify:track:0B2GWovtxzsh0a02PBbNl7"
+      },
+      "dc:title": "Aura",
+      "dc:creator": "Avoure",
+      "upnp:artist": "Avoure",
+      "upnp:album": "U",
+      "upnp:albumArtURI": "https://i.scdn.co/image/ab67616d0000b2735889215746f6e9de26b85d60"
+    }
+  },
+  "NextURI": "",
+  "NextURIMetaData": "",
+  "TrackSource": "spotify:playlist:1oAjkkf6CEG3va9yslzckg",
+  "PlayMedium": "SPOTIFY",
+  "RecordMedium": "NOT_IMPLEMENTED",
+  "WriteStatus": "NOT_IMPLEMENTED"
+}

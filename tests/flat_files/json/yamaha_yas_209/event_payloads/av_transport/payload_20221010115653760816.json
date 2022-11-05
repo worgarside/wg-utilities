@@ -1,0 +1,91 @@
+{
+  "timestamp": "2022-10-10 11:56:53.760816",
+  "service_id": "urn:upnp-org:serviceId:AVTransport",
+  "service_type": "urn:schemas-upnp-org:service:AVTransport:1",
+  "last_change": {
+    "Event": {
+      "xmlns": "urn:schemas-upnp-org:metadata-1-0/AVT/",
+      "InstanceID": {
+        "val": "0",
+        "TransportState": "PLAYING",
+        "TransportStatus": null,
+        "NumberOfTracks": "0",
+        "CurrentTrack": "0",
+        "CurrentTrackDuration": null,
+        "CurrentMediaDuration": null,
+        "CurrentTrackURI": "spotify:track:6giQSCiUkjiYkMsCXZ3ZAy",
+        "AVTransportURI": "spotify:track:6giQSCiUkjiYkMsCXZ3ZAy",
+        "TrackSource": "spotify:playlist:2lMx8FU0SeQ7eA5kcMlNpX",
+        "CurrentTrackMetaData": {
+          "xmlns_dc": "http://purl.org/dc/elements/1.1/",
+          "xmlns_upnp": "urn:schemas-upnp-org:metadata-1-0/upnp/",
+          "xmlns_song": "www.wiimu.com/song/",
+          "xmlns": "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/",
+          "upnp_class": "object.item.audioItem.musicTrack",
+          "item": {
+            "id": "0",
+            "song_subid": "Chill Electronica",
+            "song_description": null,
+            "song_skiplimit": "0",
+            "song_id": "6giQSCiUkjiYkMsCXZ3ZAy",
+            "song_like": "0",
+            "song_singerid": "0",
+            "song_albumid": "0",
+            "res": {
+              "protocolInfo": "http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;",
+              "duration": "00:05:59.000",
+              "text": "spotify:track:6giQSCiUkjiYkMsCXZ3ZAy"
+            },
+            "dc_title": "All Under One Roof Raving",
+            "dc_creator": "Jamie xx",
+            "upnp_artist": "Jamie xx",
+            "upnp_album": "All Under One Roof Raving",
+            "upnp_albumArtURI": "https://i.scdn.co/image/ab67616d0000b2734506b8d7af0e3b7406f6b5df"
+          }
+        },
+        "AVTransportURIMetaData": {
+          "xmlns_dc": "http://purl.org/dc/elements/1.1/",
+          "xmlns_upnp": "urn:schemas-upnp-org:metadata-1-0/upnp/",
+          "xmlns_song": "www.wiimu.com/song/",
+          "xmlns": "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/",
+          "upnp_class": "object.item.audioItem.musicTrack",
+          "item": {
+            "id": "0",
+            "song_subid": "Chill Electronica",
+            "song_description": null,
+            "song_skiplimit": "0",
+            "song_id": "6giQSCiUkjiYkMsCXZ3ZAy",
+            "song_like": "0",
+            "song_singerid": "0",
+            "song_albumid": "0",
+            "res": {
+              "protocolInfo": "http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;",
+              "duration": "00:05:59.000",
+              "text": "spotify:track:6giQSCiUkjiYkMsCXZ3ZAy"
+            },
+            "dc_title": "All Under One Roof Raving",
+            "dc_creator": "Jamie xx",
+            "upnp_artist": "Jamie xx",
+            "upnp_album": "All Under One Roof Raving",
+            "upnp_albumArtURI": "https://i.scdn.co/image/ab67616d0000b2734506b8d7af0e3b7406f6b5df"
+          }
+        },
+        "PlaybackStorageMedium": "SPOTIFY",
+        "PossiblePlaybackStorageMedia": null,
+        "PossibleRecordStorageMedia": null,
+        "RecordStorageMedium": null,
+        "CurrentPlayMode": null,
+        "TransportPlaySpeed": null,
+        "RecordMediumWriteStatus": null,
+        "CurrentRecordQualityMode": null,
+        "PossibleRecordQualityModes": null,
+        "RelativeTimePosition": null,
+        "AbsoluteTimePosition": null,
+        "RelativeCounterPosition": null,
+        "AbsoluteCounterPosition": null,
+        "CurrentTransportActions": null
+      }
+    }
+  },
+  "other_xml_payloads": {}
+}

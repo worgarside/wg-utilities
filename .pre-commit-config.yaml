@@ -129,7 +129,7 @@ repos:
       - id: codespell
         args:
           - --skip
-          - '*.svg'
+          - '**/flat_files/**'
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.0.99

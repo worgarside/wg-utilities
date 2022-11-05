@@ -1,0 +1,65 @@
+{
+  "timestamp": "2022-10-06 15:30:11.540795",
+  "service_id": "urn:upnp-org:serviceId:AVTransport",
+  "service_type": "urn:schemas-upnp-org:service:AVTransport:1",
+  "last_change": {
+    "Event": {
+      "xmlns": "urn:schemas-upnp-org:metadata-1-0/AVT/",
+      "InstanceID": {
+        "val": "0",
+        "TransportState": "PLAYING",
+        "TransportStatus": "OK",
+        "NumberOfTracks": "0",
+        "CurrentTrack": "0",
+        "CurrentTrackDuration": "00:04:58",
+        "CurrentMediaDuration": "00:04:58",
+        "CurrentTrackURI": "spotify:track:6pWgRkpqVfxnj3WuIcJ7WP",
+        "AVTransportURI": "spotify:track:6pWgRkpqVfxnj3WuIcJ7WP",
+        "TrackSource": null,
+        "CurrentTrackMetaData": {
+          "xmlns_dc": "http://purl.org/dc/elements/1.1/",
+          "xmlns_upnp": "urn:schemas-upnp-org:metadata-1-0/upnp/",
+          "xmlns_song": "www.wiimu.com/song/",
+          "xmlns": "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/",
+          "upnp_class": "object.item.audioItem.musicTrack",
+          "item": {
+            "id": "0",
+            "song_subid": "Interstellar (Original Motion Picture Soundtrack) [Expanded Edi",
+            "song_description": null,
+            "song_skiplimit": "0",
+            "song_id": "6pWgRkpqVfxnj3WuIcJ7WP",
+            "song_like": "0",
+            "song_singerid": "0",
+            "song_albumid": "0",
+            "res": {
+              "protocolInfo": "http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;",
+              "duration": "00:02:06.000",
+              "text": "spotify:track:6pWgRkpqVfxnj3WuIcJ7WP"
+            },
+            "dc_title": "Cornfield Chase",
+            "dc_creator": "Hans Zimmer",
+            "upnp_artist": "Hans Zimmer",
+            "upnp_album": "Interstellar (Original Motion Picture Soundtrack) [Expanded Edi",
+            "upnp_albumArtURI": "https://i.scdn.co/image/ab67616d0000b273ac29a65e7ffcfa6f9cb0d342"
+          }
+        },
+        "AVTransportURIMetaData": null,
+        "PlaybackStorageMedium": "SPOTIFY",
+        "PossiblePlaybackStorageMedia": "NONE,STATION-NETWORK,SONGLIST-NETWORK,SONGLIST-LOCAL,SONGLIST-LOCAL_TF,THIRD-DLNA,AIRPLAY,UNKNOWN",
+        "PossibleRecordStorageMedia": "NOT_IMPLEMENTED",
+        "RecordStorageMedium": "NOT_IMPLEMENTED",
+        "CurrentPlayMode": "NORMAL",
+        "TransportPlaySpeed": "1",
+        "RecordMediumWriteStatus": "NOT_IMPLEMENTED",
+        "CurrentRecordQualityMode": "NOT_IMPLEMENTED",
+        "PossibleRecordQualityModes": "NOT_IMPLEMENTED",
+        "RelativeTimePosition": "00:00:00",
+        "AbsoluteTimePosition": "NOT_IMPLEMENTED",
+        "RelativeCounterPosition": "-1",
+        "AbsoluteCounterPosition": "-1",
+        "CurrentTransportActions": "Stop,Seek,X_DLNA_SeekTime,Pause"
+      }
+    }
+  },
+  "other_xml_payloads": {}
+}

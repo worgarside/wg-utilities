@@ -1,0 +1,39 @@
+{
+  "timestamp": "2022-07-05 16:51:25.085377",
+  "service_id": "urn:upnp-org:serviceId:AVTransport",
+  "service_type": "urn:schemas-upnp-org:service:AVTransport:1",
+  "last_change": {
+    "Event": {
+      "xmlns": "urn:schemas-upnp-org:metadata-1-0/AVT/",
+      "InstanceID": {
+        "val": "0",
+        "TransportState": "PLAYING",
+        "TransportStatus": null,
+        "NumberOfTracks": null,
+        "CurrentTrack": null,
+        "CurrentTrackDuration": "00:03:18",
+        "CurrentMediaDuration": "00:03:18",
+        "CurrentTrackURI": null,
+        "AVTransportURI": null,
+        "TrackSource": null,
+        "CurrentTrackMetaData": null,
+        "AVTransportURIMetaData": null,
+        "PlaybackStorageMedium": null,
+        "PossiblePlaybackStorageMedia": null,
+        "PossibleRecordStorageMedia": null,
+        "RecordStorageMedium": null,
+        "CurrentPlayMode": null,
+        "TransportPlaySpeed": null,
+        "RecordMediumWriteStatus": null,
+        "CurrentRecordQualityMode": null,
+        "PossibleRecordQualityModes": null,
+        "RelativeTimePosition": null,
+        "AbsoluteTimePosition": null,
+        "RelativeCounterPosition": null,
+        "AbsoluteCounterPosition": null,
+        "CurrentTransportActions": "Stop,Seek,X_DLNA_SeekTime,Pause"
+      }
+    }
+  },
+  "other_xml_payloads": {}
+}
