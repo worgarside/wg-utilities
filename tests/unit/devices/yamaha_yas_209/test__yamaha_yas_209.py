@@ -1,6 +1,8 @@
+# pylint: disable=protected-access,too-many-lines
 """Unit Tests for `wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.YamahaYas209`."""
 from __future__ import annotations
 
+from collections.abc import Mapping
 from copy import deepcopy
 from datetime import datetime
 from http import HTTPStatus
@@ -10,10 +12,13 @@ from unittest.mock import MagicMock, patch
 from xml.etree import ElementTree
 
 from aioresponses import aioresponses
+from aioresponses.core import RequestCall
 from async_upnp_client.client import UpnpService, UpnpStateVariable
 from async_upnp_client.const import StateVariableInfo, StateVariableTypeInfo
 from freezegun import freeze_time
 from pytest import LogCaptureFixture, mark, raises
+from xmltodict import parse as parse_xml
+from yarl import URL
 
 from conftest import FLAT_FILES_DIR
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
@@ -23,6 +28,75 @@ from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import (
     Yas209Service,
     Yas209State,
 )
+
+ON_TOP = CurrentTrack(
+    album_art_uri="https://i.scdn.co/image/ab67616d0000b2733198dc8920850509e8a07d8c",
+    media_album_name="Flume",
+    media_artist="Flume",
+    media_duration=(3 * 60) + 51,
+    media_title="On Top",
+)
+
+
+def assert_only_post_request_is(
+    url: str,
+    requests: dict[tuple[str, URL], list[RequestCall]],
+    yamaha_yas_209: YamahaYas209,
+) -> None:
+    """Run assertion for multiple tests.
+
+    Args:
+        url (str): The URL that the request should be made to.
+        requests (dict[tuple[str, URL], list[RequestCall]]): The requests that were
+            made.
+        yamaha_yas_209 (YamahaYas209): The instance of the class that was tested.
+    """
+
+    assert requests.pop(("POST", URL(url))) == [
+        RequestCall(
+            args=(),
+            kwargs={
+                "headers": {
+                    # pylint: disable=line-too-long
+                    "SOAPAction": '"urn:schemas-upnp-org:service:AVTransport:1#GetMediaInfo"',
+                    "Host": f"{yamaha_yas_209.ip}:49152",
+                    "Content-Type": 'text/xml; charset="utf-8"',
+                },
+                # pylint: disable=line-too-long
+                "data": """<?xml version="1.0"?><s:Envelope s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><u:GetMediaInfo xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID></u:GetMediaInfo></s:Body></s:Envelope>""",  # noqa: E501
+            },
+        )
+    ]
+    all(key[0] == "GET" for key in requests.keys())
+
+
+def mock_get_info_response(
+    file_name: str, mock_aiohttp: aioresponses, yamaha_yas_209: YamahaYas209
+) -> str:
+    """Mock the response for `get_info`.
+
+    Args:
+        file_name (str): The name of the file to read the response from.
+        mock_aiohttp (aioresponses): The `aioresponses` instance to mock the response
+            with.
+        yamaha_yas_209 (YamahaYas209): The instance of the class that was tested.
+
+    Returns:
+        str: The URL that the response was mocked for.
+    """
+
+    with open(
+        FLAT_FILES_DIR / "xml" / "yamaha_yas_209" / "get_media_info" / file_name,
+        encoding="utf-8",
+    ) as fin:
+        mock_aiohttp.post(
+            url := f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1",
+            status=HTTPStatus.OK,
+            reason=HTTPStatus.OK.phrase,
+            body=fin.read(),
+        )
+
+    return url
 
 
 def test_instantiation() -> None:
@@ -56,7 +130,7 @@ def test_listen_exits_early_if_already_listening(
     yamaha_yas_209: YamahaYas209, caplog: LogCaptureFixture
 ) -> None:
     """Test that `listen` exits early if already `self._listening` is True."""
-    yamaha_yas_209._listening = True  # pylint: disable=protected-access
+    yamaha_yas_209._listening = True
 
     yamaha_yas_209.listen()
 
@@ -91,8 +165,8 @@ def test_listen_starts_listening(
         """Mock async function."""
         nonlocal async_call_count
 
-        yamaha_yas_209._listening = True  # pylint: disable=protected-access
-        yamaha_yas_209._active_service_ids = [  # pylint: disable=protected-access
+        yamaha_yas_209._listening = True
+        yamaha_yas_209._active_service_ids = [
             v.service_id for v in Yas209Service.__members__.values()
         ]
 
@@ -137,8 +211,8 @@ def test_listen_reraises_exception_from_subscribe_worker(
         """Mock async function."""
         nonlocal call_count
 
-        yamaha_yas_209._listening = True  # pylint: disable=protected-access
-        yamaha_yas_209._active_service_ids = [  # pylint: disable=protected-access
+        yamaha_yas_209._listening = True
+        yamaha_yas_209._active_service_ids = [
             v.service_id for v in Yas209Service.__members__.values()
         ]
 
@@ -215,7 +289,7 @@ def test_av_transport_state_change_updates_local_state(
         state: Yas209State, local_only: bool = False
     ) -> None:
         _ = local_only
-        yamaha_yas_209._state = state  # pylint: disable=protected-access
+        yamaha_yas_209._state = state
 
     mock_set_state.side_effect = _mock_set_state_side_effect
 
@@ -316,21 +390,6 @@ def test_av_transport_ctm_updates_current_track(
     assert yamaha_yas_209.state == Yas209State.STOPPED
     assert yamaha_yas_209.current_track == current_track_null
 
-    with open(
-        FLAT_FILES_DIR
-        / "xml"
-        / "yamaha_yas_209"
-        / "get_media_info"
-        / "different_people_spotify.xml",
-        encoding="utf-8",
-    ) as fin:
-        mock_aiohttp.post(
-            f"http://{yamaha_yas_209.ip}/upnp/control/rendertransport1",
-            status=HTTPStatus.OK,
-            reason=HTTPStatus.OK.phrase,
-            body=fin.read(),
-        )
-
     yamaha_yas_209.on_event_wrapper(upnp_service_av_transport, [upnp_state_variable])
     assert yamaha_yas_209.state == Yas209State.PLAYING
     assert yamaha_yas_209.current_track == CurrentTrack(
@@ -341,21 +400,6 @@ def test_av_transport_ctm_updates_current_track(
         media_duration=231.0,
         media_title="Obvs",
     )
-
-    with open(
-        FLAT_FILES_DIR
-        / "xml"
-        / "yamaha_yas_209"
-        / "get_media_info"
-        / "nothing_playing.xml",
-        encoding="utf-8",
-    ) as fin:
-        mock_aiohttp.post(
-            f"http://{yamaha_yas_209.ip}/upnp/control/rendertransport1",
-            status=HTTPStatus.OK,
-            reason=HTTPStatus.OK.phrase,
-            body=fin.read(),
-        )
 
     yamaha_yas_209.on_event_wrapper(
         upnp_service_av_transport, [new_upnp_state_variable]
@@ -387,7 +431,7 @@ def test_rendering_control_updates_volume(
         value: float, local_only: bool = False
     ) -> None:
         _ = local_only
-        # pylint: disable=protected-access
+
         yamaha_yas_209._volume_level = round(value, 2)
 
     mock_set_volume_level.side_effect = _mock_set_volume_level_side_effect
@@ -474,7 +518,7 @@ def test_on_event_callback_called_correctly(
         upnp_state_variable_av_transport.upnp_value = fin.read()
         # The `AVTransport` state variable needs to be re-written, mainly to change the
         # name from `LastChange` to something else
-        # pylint: disable=protected-access
+
         upnp_state_variable_av_transport._state_variable_info = StateVariableInfo(
             name="SomethingElse",
             send_events=True,
@@ -512,7 +556,7 @@ def test_on_event_callback_called_correctly(
         }
 
         # Those "XML-dicts" can then be parsed into full "JSON-dicts"
-        # pylint: disable=protected-access
+
         yamaha_yas_209._parse_xml_dict(last_change_value)
         yamaha_yas_209._parse_xml_dict(something_else_value)
 
@@ -544,3 +588,614 @@ def test_on_event_callback_called_correctly(
     )
 
     assert call_count == 1
+
+
+def test_call_service_action_value_error(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that an unknown action raise a `ValueError`."""
+
+    with raises(ValueError) as exc_info:
+        yamaha_yas_209._call_service_action(
+            Yas209Service.AVT,
+            "GetCurrentConnectionIDs",
+        )
+
+    assert str(exc_info.value) == (
+        "Unexpected action 'GetCurrentConnectionIDs' for service 'AVTransport'. Must "
+        "be one of 'GetCurrentTransportActions', 'GetDeviceCapabilities', 'GetInfoEx', "
+        "'GetMediaInfo', 'GetPlayType', 'GetPositionInfo', 'GetTransportInfo', "
+        "'GetTransportSettings', 'Next', 'Pause', 'Play', 'Previous', 'Seek', "
+        "'SeekBackward', 'SeekForward', 'SetAVTransportURI', 'SetPlayMode', 'Stop'"
+    )
+
+
+def test_call_service_routes_call_correctly(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses
+) -> None:
+    """Test that a service action is called correctly."""
+
+    with open(
+        FLAT_FILES_DIR
+        / "xml"
+        / "yamaha_yas_209"
+        / "get_media_info"
+        / "different_people_spotify.xml",
+        "rb",
+    ) as fin:
+        get_media_info_response = fin.read()
+
+    mock_aiohttp.post(
+        url := f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1",
+        status=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        body=get_media_info_response,
+    )
+
+    yamaha_yas_209._call_service_action(Yas209Service.AVT, "GetMediaInfo", InstanceID=0)
+
+    assert_only_post_request_is(url, mock_aiohttp.requests, yamaha_yas_209)
+
+
+def test_call_service_action_callback(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses
+) -> None:
+    """Test that a service action is called correctly."""
+
+    with open(
+        FLAT_FILES_DIR
+        / "xml"
+        / "yamaha_yas_209"
+        / "get_media_info"
+        / "different_people_spotify.xml",
+        "rb",
+    ) as fin:
+        get_media_info_response = fin.read()
+
+    mock_aiohttp.post(
+        f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1",
+        status=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        body=get_media_info_response,
+    )
+
+    call_count = 0
+
+    def _cb(res: Mapping[str, object]) -> None:
+        nonlocal call_count
+        assert (
+            str(res["CurrentURIMetaData"]).strip()
+            == parse_xml(get_media_info_response)["s:Envelope"]["s:Body"][
+                "u:GetMediaInfoResponse"
+            ]["CurrentURIMetaData"].strip()
+        )
+        call_count += 1
+
+    yamaha_yas_209._call_service_action(
+        Yas209Service.AVT, "GetMediaInfo", InstanceID=0, callback=_cb
+    )
+
+    assert call_count == 1
+
+
+def test_pause_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the pause method calls the correct service action."""
+
+    with patch.object(
+        yamaha_yas_209, "_call_service_action"
+    ) as mock_call_service_action:
+        yamaha_yas_209.pause()
+
+        mock_call_service_action.assert_called_once_with(
+            Yas209Service.AVT, "Pause", InstanceID=0
+        )
+
+
+def test_play_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the play method calls the correct service action."""
+
+    with patch.object(
+        yamaha_yas_209, "_call_service_action"
+    ) as mock_call_service_action:
+        yamaha_yas_209.play()
+
+        mock_call_service_action.assert_called_once_with(
+            Yas209Service.AVT, "Play", InstanceID=0, Speed="1"
+        )
+
+
+def test_play_pause_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the play_pause method calls the correct service action."""
+
+    with patch.object(yamaha_yas_209, "pause") as mock_pause, patch.object(
+        yamaha_yas_209, "play"
+    ) as mock_play:
+        yamaha_yas_209.play_pause()
+
+        assert yamaha_yas_209.state == Yas209State.UNKNOWN
+        mock_play.assert_called_once()
+
+        yamaha_yas_209.set_state(Yas209State.PLAYING, local_only=True)
+        assert yamaha_yas_209.state == Yas209State.PLAYING
+
+        yamaha_yas_209.play_pause()
+        mock_play.assert_called_once()
+        mock_pause.assert_called_once()
+
+
+def test_mute_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the mute method calls the correct service action."""
+
+    with patch.object(
+        yamaha_yas_209, "_call_service_action"
+    ) as mock_call_service_action:
+        yamaha_yas_209.mute()
+
+        mock_call_service_action.assert_called_once_with(
+            Yas209Service.RC,
+            "SetMute",
+            InstanceID=0,
+            Channel="Master",
+            DesiredMute=True,
+        )
+
+
+def test_next_track_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the next_track method calls the correct service action."""
+
+    with patch.object(
+        yamaha_yas_209, "_call_service_action"
+    ) as mock_call_service_action:
+        yamaha_yas_209.next_track()
+
+        mock_call_service_action.assert_called_once_with(
+            Yas209Service.AVT, "Next", InstanceID=0
+        )
+
+
+def test_previous_track_calls_correct_service_action(
+    yamaha_yas_209: YamahaYas209,
+) -> None:
+    """Test that the previous_track method calls the correct service action."""
+
+    with patch.object(
+        yamaha_yas_209, "_call_service_action"
+    ) as mock_call_service_action:
+        yamaha_yas_209.previous_track()
+
+        mock_call_service_action.assert_called_once_with(
+            Yas209Service.AVT, "Previous", InstanceID=0
+        )
+
+
+def test_set_state_sets_local_state(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the set_state method sets the local state."""
+
+    yamaha_yas_209.set_state(Yas209State.PLAYING, local_only=True)
+
+    assert yamaha_yas_209.state == Yas209State.PLAYING
+
+    with patch.object(yamaha_yas_209, "play") as mock_play, patch.object(
+        yamaha_yas_209, "pause"
+    ) as mock_pause, patch.object(yamaha_yas_209, "stop") as mock_stop:
+        yamaha_yas_209.set_state(Yas209State.PLAYING, local_only=True)
+
+        mock_play.assert_not_called()
+
+        yamaha_yas_209.set_state(Yas209State.PAUSED_PLAYBACK, local_only=True)
+
+        mock_pause.assert_not_called()
+
+        yamaha_yas_209.set_state(Yas209State.STOPPED, local_only=True)
+
+        mock_stop.assert_not_called()
+
+
+def test_set_state_sets_correct_state_property(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the set_state method sets the correct state property."""
+
+    with patch.object(yamaha_yas_209, "play") as mock_play, patch.object(
+        yamaha_yas_209, "pause"
+    ) as mock_pause, patch.object(yamaha_yas_209, "stop") as mock_stop:
+
+        yamaha_yas_209.set_state(Yas209State.PLAYING, local_only=False)
+
+        assert yamaha_yas_209.state == Yas209State.PLAYING
+        mock_play.assert_called_once()
+
+        yamaha_yas_209.set_state(Yas209State.PAUSED_PLAYBACK, local_only=False)
+
+        assert yamaha_yas_209.state == Yas209State.PAUSED_PLAYBACK
+        mock_pause.assert_called_once()
+
+        yamaha_yas_209.set_state(Yas209State.STOPPED, local_only=False)
+
+        assert yamaha_yas_209.state == Yas209State.STOPPED
+        mock_stop.assert_called_once()
+
+
+def test_set_state_on_state_update(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the set_state method calls the state callback."""
+
+    call_count = 0
+    active_state = None
+
+    def _cb(state_value: str) -> None:
+        nonlocal call_count
+
+        assert active_state is not None
+        assert state_value == active_state.value
+        call_count += 1
+
+    yamaha_yas_209.on_state_update = _cb
+
+    yamaha_yas_209.set_state(active_state := Yas209State.PLAYING, local_only=True)
+    assert call_count == 1
+
+    yamaha_yas_209.set_state(
+        active_state := Yas209State.PAUSED_PLAYBACK, local_only=True
+    )
+    assert call_count == 2
+
+    yamaha_yas_209.set_state(active_state := Yas209State.STOPPED, local_only=True)
+    assert call_count == 3
+
+
+def test_set_volume_level_calls_correct_service_action(
+    yamaha_yas_209: YamahaYas209,
+) -> None:
+    """Test that the set_volume_level method calls the correct service action."""
+
+    with patch.object(
+        yamaha_yas_209, "_call_service_action"
+    ) as mock_call_service_action:
+        yamaha_yas_209.set_volume_level(0.5)
+
+        mock_call_service_action.assert_called_once_with(
+            Yas209Service.RC,
+            "SetVolume",
+            InstanceID=0,
+            Channel="Master",
+            DesiredVolume=50,
+        )
+
+
+def test_set_volume_level_raises_value_error(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the `set_volume_level` method raises a ValueError."""
+
+    with raises(ValueError) as exc_info:
+        yamaha_yas_209.set_volume_level(1.1)
+
+    assert str(exc_info.value) == "Volume level must be between 0 and 1"
+
+    with raises(ValueError) as exc_info:
+        yamaha_yas_209.set_volume_level(-0.1)
+
+    assert str(exc_info.value) == "Volume level must be between 0 and 1"
+
+
+def test_set_volume_level_on_volume_update(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the set_volume_level method calls the volume_level callback."""
+
+    call_count = 0
+    active_volume_level = 0.0
+
+    def _cb(volume_level_value: float) -> None:
+        nonlocal call_count
+
+        assert volume_level_value == active_volume_level
+        call_count += 1
+
+    yamaha_yas_209.on_volume_update = _cb
+
+    yamaha_yas_209.set_volume_level(active_volume_level := 0.5, local_only=True)
+    assert call_count == 1
+
+    yamaha_yas_209.set_volume_level(active_volume_level := 0.25, local_only=True)
+    assert call_count == 2
+
+    yamaha_yas_209.set_volume_level(active_volume_level := 0.75, local_only=True)
+    assert call_count == 3
+
+
+def test_stop_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the stop method calls the correct service action."""
+
+    with patch.object(
+        yamaha_yas_209, "_call_service_action"
+    ) as mock_call_service_action:
+        yamaha_yas_209.stop()
+
+        mock_call_service_action.assert_called_once_with(
+            Yas209Service.AVT, "Stop", InstanceID=0, Speed="1"
+        )
+
+
+def test_stop_listening_sets_attribute(
+    yamaha_yas_209: YamahaYas209, caplog: LogCaptureFixture
+) -> None:
+    """Test the `stop_listening` sets the attribute as expected."""
+
+    yamaha_yas_209._listening = True
+
+    yamaha_yas_209.stop_listening()
+
+    assert yamaha_yas_209._listening is False
+    assert len(caplog.records) == 1
+    assert caplog.records[0].levelno == DEBUG
+    assert (
+        caplog.records[0].message == "Stopping event listener (will take <= 2 minutes)"
+    )
+
+
+@mark.xfail()  # type: ignore[misc]
+def test_stop_listening_stops_listener(yamaha_yas_209: YamahaYas209) -> None:
+    """Test the `stop_listening` method stops the listener."""
+
+    yamaha_yas_209._listening = True
+
+    with patch.object(yamaha_yas_209, "_listener") as mock_listener:
+        yamaha_yas_209.stop_listening()
+
+        mock_listener.stop.assert_called_once()
+
+
+def test_unmute_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the unmute method calls the correct service action."""
+
+    with patch.object(
+        yamaha_yas_209, "_call_service_action"
+    ) as mock_call_service_action:
+        yamaha_yas_209.unmute()
+
+        mock_call_service_action.assert_called_once_with(
+            Yas209Service.RC,
+            "SetMute",
+            InstanceID=0,
+            Channel="Master",
+            DesiredMute=False,
+        )
+
+
+def test_volume_down_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the volume_down method calls the correct service action."""
+
+    yamaha_yas_209.set_volume_level(current_level := 0.5, local_only=True)
+
+    def _set_volume(volume_level: float) -> None:
+        yamaha_yas_209._volume_level = volume_level
+
+    with patch.object(yamaha_yas_209, "set_volume_level") as mock_set_volume_level:
+        mock_set_volume_level.side_effect = _set_volume
+        for _ in range(10):
+            yamaha_yas_209.volume_down()
+            mock_set_volume_level.assert_called_once_with(
+                current_level := round(current_level - 0.02, 2)
+            )
+            mock_set_volume_level.reset_mock()
+
+
+def test_volume_up_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the volume_up method calls the correct service action."""
+
+    yamaha_yas_209.set_volume_level(current_level := 0.5, local_only=True)
+
+    def _set_volume(volume_level: float) -> None:
+        yamaha_yas_209._volume_level = volume_level
+
+    with patch.object(yamaha_yas_209, "set_volume_level") as mock_set_volume_level:
+        mock_set_volume_level.side_effect = _set_volume
+        for _ in range(10):
+            yamaha_yas_209.volume_up()
+            mock_set_volume_level.assert_called_once_with(
+                current_level := round(current_level + 0.02, 2)
+            )
+            mock_set_volume_level.reset_mock()
+
+
+def test_album_art_uri_property(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses
+) -> None:
+    """Test that the album_art_uri property returns the expected value."""
+
+    with open(
+        FLAT_FILES_DIR
+        / "xml"
+        / "yamaha_yas_209"
+        / "get_media_info"
+        / "different_people_spotify.xml",
+        encoding="utf-8",
+    ) as fin:
+        mock_aiohttp.post(
+            url := f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1",
+            status=HTTPStatus.OK,
+            reason=HTTPStatus.OK.phrase,
+            body=fin.read(),
+        )
+
+        assert (
+            yamaha_yas_209.album_art_uri
+            == "https://i.scdn.co/image/ab67616d0000b273c565a3629c5def95a0f85668"
+        )
+        assert_only_post_request_is(url, mock_aiohttp.requests, yamaha_yas_209)
+
+
+def test_current_track_property_gets_correct_info(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses
+) -> None:
+    """Test that the current_track property gets the correct info."""
+
+    url = mock_get_info_response("on_top_spotify.xml", mock_aiohttp, yamaha_yas_209)
+
+    assert not hasattr(yamaha_yas_209, "_current_track")
+    assert yamaha_yas_209.current_track == ON_TOP
+    assert hasattr(yamaha_yas_209, "_current_track")
+    assert_only_post_request_is(url, mock_aiohttp.requests, yamaha_yas_209)
+
+    with patch.object(yamaha_yas_209, "get_media_info") as mock_get_media_info:
+        assert yamaha_yas_209.current_track == ON_TOP
+        mock_get_media_info.assert_not_called()
+
+
+def test_current_track_setter_on_track_update(yamaha_yas_209: YamahaYas209) -> None:
+    """Test the `current_track` setter calls the callback with the correct value."""
+
+    call_count = 0
+
+    def _cb(value: CurrentTrack.Info) -> None:
+        nonlocal call_count
+        assert value == ON_TOP.json
+        call_count += 1
+
+    yamaha_yas_209.on_track_update = _cb
+    yamaha_yas_209.current_track = ON_TOP
+
+    assert call_count == 1
+
+
+def test_media_album_name_property_gets_correct_info(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses
+) -> None:
+    """Test that the media_album_name property gets the correct info."""
+
+    url = mock_get_info_response("on_top_spotify.xml", mock_aiohttp, yamaha_yas_209)
+
+    assert not hasattr(yamaha_yas_209, "_current_track")
+    assert yamaha_yas_209.media_album_name == "Flume"
+    assert yamaha_yas_209._current_track == ON_TOP
+    assert_only_post_request_is(url, mock_aiohttp.requests, yamaha_yas_209)
+
+    with patch.object(yamaha_yas_209, "get_media_info") as mock_get_media_info:
+        assert yamaha_yas_209.media_album_name == "Flume"
+        mock_get_media_info.assert_not_called()
+
+
+def test_media_artist_property_gets_correct_info(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses
+) -> None:
+    """Test that the media_artist property gets the correct info."""
+
+    url = mock_get_info_response("on_top_spotify.xml", mock_aiohttp, yamaha_yas_209)
+
+    assert not hasattr(yamaha_yas_209, "_current_track")
+    assert yamaha_yas_209.media_artist == "Flume"
+    assert yamaha_yas_209._current_track == ON_TOP
+    assert_only_post_request_is(url, mock_aiohttp.requests, yamaha_yas_209)
+
+    with patch.object(yamaha_yas_209, "get_media_info") as mock_get_media_info:
+        assert yamaha_yas_209.media_artist == "Flume"
+        mock_get_media_info.assert_not_called()
+
+
+def test_media_duration_property_gets_correct_info(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses
+) -> None:
+    """Test that the media_duration property gets the correct info."""
+
+    url = mock_get_info_response("on_top_spotify.xml", mock_aiohttp, yamaha_yas_209)
+
+    assert not hasattr(yamaha_yas_209, "_current_track")
+    assert yamaha_yas_209.media_duration == 231
+    assert yamaha_yas_209._current_track == ON_TOP
+    assert_only_post_request_is(url, mock_aiohttp.requests, yamaha_yas_209)
+
+    with patch.object(yamaha_yas_209, "get_media_info") as mock_get_media_info:
+        assert yamaha_yas_209.media_duration == 231
+        mock_get_media_info.assert_not_called()
+
+
+def test_get_media_info(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses
+) -> None:
+    """Test that the get_media_info method returns the correct info."""
+
+    url = mock_get_info_response("on_top_spotify.xml", mock_aiohttp, yamaha_yas_209)
+
+    assert yamaha_yas_209.get_media_info() == {
+        "CurrentURI": "spotify:track:42Kznon0GBYL1bU24DkZSm",
+        "CurrentURIMetaData": {
+            "item": {
+                "dc:creator": "Flume",
+                "dc:title": "On Top",
+                "id": "0",
+                "res": {
+                    "duration": "00:03:51.000",
+                    # pylint: disable=line-too-long
+                    "protocolInfo": "http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;",
+                    "text": "spotify:track:42Kznon0GBYL1bU24DkZSm",
+                },
+                "song:albumid": "0",
+                "song:description": None,
+                "song:id": "42Kznon0GBYL1bU24DkZSm",
+                "song:like": "0",
+                "song:singerid": "0",
+                "song:skiplimit": "0",
+                "song:subid": "Outrun",
+                "upnp:album": "Flume",
+                # pylint: disable=line-too-long
+                "upnp:albumArtURI": "https://i.scdn.co/image/ab67616d0000b2733198dc8920850509e8a07d8c",
+                "upnp:artist": "Flume",
+            },
+            "upnp:class": "object.item.audioItem.musicTrack",
+            "xmlns": "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/",
+            "xmlns:dc": "http://purl.org/dc/elements/1.1/",
+            "xmlns:song": "www.wiimu.com/song/",
+            "xmlns:upnp": "urn:schemas-upnp-org:metadata-1-0/upnp/",
+        },
+        "MediaDuration": "00:03:51",
+        "NextURI": "",
+        "NextURIMetaData": "",
+        "NrTracks": 0,
+        "PlayMedium": "SPOTIFY",
+        "RecordMedium": "NOT_IMPLEMENTED",
+        "TrackSource": "spotify:playlist:0rByozJfX63TyYLWoMVnrl",
+        "WriteStatus": "NOT_IMPLEMENTED",
+    }
+    assert_only_post_request_is(url, mock_aiohttp.requests, yamaha_yas_209)
+
+
+def test_media_title_property_gets_correct_info(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses
+) -> None:
+    """Test that the media_title property gets the correct info."""
+    url = mock_get_info_response("on_top_spotify.xml", mock_aiohttp, yamaha_yas_209)
+
+    assert not hasattr(yamaha_yas_209, "_current_track")
+    assert yamaha_yas_209.media_title == "On Top"
+
+    assert yamaha_yas_209._current_track == ON_TOP
+    assert_only_post_request_is(url, mock_aiohttp.requests, yamaha_yas_209)
+
+    with patch.object(yamaha_yas_209, "get_media_info") as mock_get_media_info:
+        assert yamaha_yas_209.media_title == "On Top"
+        mock_get_media_info.assert_not_called()
+
+
+def test_state_property(yamaha_yas_209: YamahaYas209) -> None:
+    """Test the state property returns the correct value."""
+    assert not hasattr(yamaha_yas_209, "_state")
+    assert yamaha_yas_209.state == Yas209State.UNKNOWN
+
+    yamaha_yas_209.set_state(Yas209State.PLAYING, local_only=True)
+
+    assert yamaha_yas_209.state == yamaha_yas_209._state == Yas209State.PLAYING
+
+
+def test_volume_level_property_returns_correct_value(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses
+) -> None:
+    """Test the volume_level property returns the correct value."""
+
+    with open(
+        FLAT_FILES_DIR / "xml" / "yamaha_yas_209" / "get_volume" / "50.xml",
+        encoding="utf-8",
+    ) as fin:
+        get_volume_response = fin.read()
+
+    mock_aiohttp.post(
+        f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendercontrol1",
+        status=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        body=get_volume_response,
+    )
+
+    assert not hasattr(yamaha_yas_209, "_volume_level")
+    assert yamaha_yas_209.volume_level == yamaha_yas_209._volume_level == 0.5

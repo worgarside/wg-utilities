@@ -302,3 +302,81 @@ def test_str() -> None:
         )
         == "NULL"
     )
+
+
+def test_repr() -> None:
+    """Test that `repr` returns the expected values."""
+    assert (
+        repr(
+            CurrentTrack(
+                # pylint: disable=line-too-long
+                album_art_uri="https://i.scdn.co/image/ab67616d0000b273f56d363d03630bf3ee50b705",
+                media_album_name="Clara (the night is dark)",
+                media_artist="Fred again..",
+                media_duration=278,
+                media_title="Clara (the night is dark)",
+            )
+        )
+        == "CurrentTrack(\"'Clara (the night is dark)' by Fred again..\")"
+    )
+
+    assert (
+        repr(
+            CurrentTrack(
+                album_art_uri=None,
+                media_album_name=None,
+                media_artist=None,
+                media_duration=0,
+                media_title=None,
+            )
+        )
+        == "CurrentTrack('NULL')"
+    )
+
+
+def test_eq() -> None:
+    """Test that `__eq__` returns the expected values."""
+
+    clara = CurrentTrack(
+        # pylint: disable=line-too-long
+        album_art_uri="https://i.scdn.co/image/ab67616d0000b273f56d363d03630bf3ee50b705",
+        media_album_name="Clara (the night is dark)",
+        media_artist="Fred again..",
+        media_duration=278,
+        media_title="Clara (the night is dark)",
+    )
+
+    null_track = CurrentTrack(
+        album_art_uri=None,
+        media_album_name=None,
+        media_artist=None,
+        media_duration=0,
+        media_title=None,
+    )
+
+    assert clara == CurrentTrack(
+        # pylint: disable=line-too-long
+        album_art_uri="https://i.scdn.co/image/ab67616d0000b273f56d363d03630bf3ee50b705",
+        media_album_name="Clara (the night is dark)",
+        media_artist="Fred again..",
+        media_duration=278,
+        media_title="Clara (the night is dark)",
+    )
+
+    assert (
+        null_track
+        == CurrentTrack(
+            album_art_uri=None,
+            media_album_name=None,
+            media_artist=None,
+            media_duration=0,
+            media_title=None,
+        )
+        == CurrentTrack.null_track()
+    )
+
+    assert null_track != clara
+
+    assert clara != "wrong type"
+    # pylint: disable=unnecessary-dunder-call
+    assert clara.__eq__("wrong type") is NotImplemented

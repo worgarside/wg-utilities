@@ -16,7 +16,7 @@ from typing import Any, Literal, TypedDict, TypeVar
 from async_upnp_client.aiohttp import AiohttpNotifyServer, AiohttpRequester
 from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable
 from async_upnp_client.client_factory import UpnpFactory
-from async_upnp_client.exceptions import UpnpActionResponseError, UpnpResponseError
+from async_upnp_client.exceptions import UpnpResponseError
 from async_upnp_client.utils import get_local_ip
 from pydantic import BaseModel, Extra, Field, ValidationError
 from pydantic.error_wrappers import ErrorWrapper
@@ -336,7 +336,7 @@ class CurrentTrack:
             bool: True if the objects are equal, False otherwise
         """
         if not isinstance(other, CurrentTrack):
-            return False
+            return NotImplemented
 
         return self.json == other.json
 
@@ -831,14 +831,14 @@ class YamahaYas209:
         self,
         service: Yas209Service,
         action: str,
-        callback: Callable[[Mapping[str, Any]], Any] | None = None,
+        callback: Callable[[Mapping[str, object]], None] | None = None,
         **call_kwargs: str | int,
     ) -> dict[str, Any] | None:
 
         if action not in service.actions:
             raise ValueError(
                 f"Unexpected action {action!r} for service {service.value!r}. "
-                f"""Must be one of {"', '".join(service.actions)!r}"""
+                f"""Must be one of '{"', '".join(service.actions)}'"""
             )
 
         @_needs_device
@@ -854,20 +854,7 @@ class YamahaYas209:
 
             return res
 
-        if action not in service.actions:
-            raise ValueError(
-                f"Unknown action {action!r}, must be one of:"
-                f" {', '.join(service.actions)}"
-            )
-        try:
-            return run(_worker(self))  # type: ignore[no-any-return]
-        except UpnpActionResponseError:
-            # if not trying to transition to the current state (and current state is
-            # known)
-            if self.state != Yas209State.UNKNOWN and self.state.action != action:
-                raise
-
-            return None
+        return run(_worker(self))  # type: ignore[no-any-return]
 
     @staticmethod
     def _parse_xml_dict(xml_dict: dict[str, object]) -> None:
@@ -888,6 +875,7 @@ class YamahaYas209:
             single_keys_to_remove=["val", "DIDL-Lite"],
         )
 
+    # TODO: @on_exception()
     def pause(self) -> None:
         """Pause the current media."""
         self._call_service_action(Yas209Service.AVT, "Pause", InstanceID=0)
@@ -945,13 +933,20 @@ class YamahaYas209:
             self.on_state_update(self._state.value)
 
     def set_volume_level(self, value: float, local_only: bool = False) -> None:
-        """Set's the soundbar's volume level.
+        """Sets the soundbar's volume level.
 
         Args:
             value (float): the new volume level, as a float between 0 and 1
             local_only (bool): only change the local value of the volume level (i.e.
              don't update the soundbar)
+
+        Raises:
+            ValueError: if the value is not between 0 and 1
         """
+
+        if not 0 <= value <= 1:
+            raise ValueError("Volume level must be between 0 and 1")
+
         self._volume_level = round(value, 2)
 
         if not local_only:
@@ -989,11 +984,11 @@ class YamahaYas209:
 
     def volume_down(self) -> None:
         """Decrease the volume by 2 points."""
-        self.set_volume_level(self.volume_level - 0.02)
+        self.set_volume_level(round(self.volume_level - 0.02, 2))
 
     def volume_up(self) -> None:
         """Increase the volume by 2 points."""
-        self.set_volume_level(self.volume_level + 0.02)
+        self.set_volume_level(round(self.volume_level + 0.02, 2))
 
     @property
     def album_art_uri(self) -> str | None:
@@ -1002,13 +997,10 @@ class YamahaYas209:
         Returns:
             str: URL for the current album's artwork
         """
-        if self.current_track is not None:
-            return self._current_track.album_art_uri
-
-        return None
+        return self.current_track.album_art_uri
 
     @property
-    def current_track(self) -> CurrentTrack | None:
+    def current_track(self) -> CurrentTrack:
         """Currently playing track.
 
         Returns:
@@ -1029,6 +1021,11 @@ class YamahaYas209:
         Args:
             value (CurrentTrack): the new current track
         """
+
+        # TODO
+        # if not isinstance(value, CurrentTrack):
+        #     raise TypeError("Value must be a CurrentTrack")
+
         self._current_track = value
 
         if self.on_track_update is not None:
@@ -1041,10 +1038,7 @@ class YamahaYas209:
         Returns:
             str: the current media_title
         """
-        if self.current_track is not None:
-            return self._current_track.media_album_name
-
-        return None
+        return self.current_track.media_album_name
 
     @property
     def media_artist(self) -> str | None:
@@ -1053,10 +1047,7 @@ class YamahaYas209:
         Returns:
             str: the current media_artist
         """
-        if self.current_track is not None:
-            return self._current_track.media_artist
-
-        return None
+        return self.current_track.media_artist
 
     @property
     def media_duration(self) -> float | None:
@@ -1065,10 +1056,7 @@ class YamahaYas209:
         Returns:
             str: the current media_duration
         """
-        if self.current_track is not None:
-            return self._current_track.media_duration
-
-        return None
+        return self.current_track.media_duration
 
     def get_media_info(self) -> dict[str, Any]:
         """Get the current media info from the soundbar.
@@ -1093,10 +1081,7 @@ class YamahaYas209:
         Returns:
             str: the current media_album_name
         """
-        if self.current_track is not None:
-            return self._current_track.media_title
-
-        return None
+        return self.current_track.media_title
 
     @property
     def state(self) -> Yas209State:
