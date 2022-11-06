@@ -459,6 +459,7 @@ def _server_thread(flask_app: Flask) -> YieldFixture[TempAuthServer.ServerThread
     yield server_thread
 
     server_thread.shutdown()
+    del server_thread
 
 
 @fixture(scope="function", name="temp_auth_server")  # type: ignore[misc]
