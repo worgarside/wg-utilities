@@ -16,7 +16,7 @@ from typing import Any, Literal, TypedDict, TypeVar
 from async_upnp_client.aiohttp import AiohttpNotifyServer, AiohttpRequester
 from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable
 from async_upnp_client.client_factory import UpnpFactory
-from async_upnp_client.exceptions import UpnpResponseError
+from async_upnp_client.exceptions import UpnpCommunicationError
 from async_upnp_client.utils import get_local_ip
 from pydantic import BaseModel, Extra, Field, ValidationError
 from pydantic.error_wrappers import ErrorWrapper
@@ -145,16 +145,17 @@ class LastChange(BaseModel, extra=Extra.allow):
         Args:
             payload (Dict[str, Any]): the DLNA DMR payload
 
+        Returns:
+            LastChange: The parsed `Case`.
+
         Raises:
+            TypeError: if the payload isn't a dict
             ValidationError: If any of the specified model fields are empty or of the
              wrong type.
             ValidationError: if more than just "Event" is in the payload
-
-        Returns:
-            LastChange: The parsed `Case`.
         """
         if not isinstance(payload, dict):
-            pass
+            raise TypeError("Expected a dict")
 
         payload = payload.copy()
 
@@ -565,8 +566,8 @@ class YamahaYas209:
     )
 
     LAST_CHANGE_PAYLOAD_PARSERS = {
-        "urn:upnp-org:serviceId:AVTransport": LastChangeAVTransport.parse,
-        "urn:upnp-org:serviceId:RenderingControl": LastChangeRenderingControl.parse,
+        Yas209Service.AVT.service_id: LastChangeAVTransport.parse,
+        Yas209Service.RC.service_id: LastChangeRenderingControl.parse,
     }
 
     class EventPayloadInfo(TypedDict):
@@ -756,25 +757,22 @@ class YamahaYas209:
             )
 
         # create service subscriptions
-        services = []
         failed_subscriptions = []
         for service in self.device.services.values():
             if service.service_id not in self.SUBSCRIPTION_SERVICES:
                 continue
 
             service.on_event = self.on_event_wrapper
-            services.append(service)
             try:
                 await server.event_handler.async_subscribe(service)
                 self._active_service_ids.append(service.service_id)
-                LOGGER.debug("Subscribed to %s", service.service_id)
-            except UpnpResponseError as exc:
+                LOGGER.info("Subscribed to %s", service.service_id)
+            except UpnpCommunicationError as exc:
                 if self._logging:
                     LOGGER.exception(
-                        "Unable to subscribe to %s: %s - %s",
+                        "Unable to subscribe to %s: %s",
                         service.service_id,
-                        type(exc).__name__,
-                        str(exc),
+                        repr(exc),
                     )
                 failed_subscriptions.append(service)
 
@@ -783,11 +781,15 @@ class YamahaYas209:
         # keep the webservice running (force resubscribe)
         while self._listening:
             for _ in range(120):
-                if self._listening is False:
+                if not self._listening:
                     if self._logging:
                         LOGGER.debug("Exiting listener loop")
-                    return
+                    break
                 await async_sleep(1)
+
+            # The break above only covers the for loop, this is for the while loop
+            if not self._listening:
+                break
 
             LOGGER.debug("Resubscribing to all services")
             await server.event_handler.async_resubscribe_all()
@@ -804,7 +806,7 @@ class YamahaYas209:
                     await server.event_handler.async_subscribe(service)
                     self._active_service_ids.append(service.service_id)
                     services_to_remove.append(service)
-                except UpnpResponseError as exc:
+                except UpnpCommunicationError as exc:
                     log_message = (
                         f"Still unable to subscribe to {service.service_id}:"
                         f" {exc!r}"
@@ -818,13 +820,14 @@ class YamahaYas209:
 
             # This needs to be separate because `.remove` is the cleanest way to remove
             # the items, but can't be done within the loop, and I can't `deepcopy`
-            # `failed_subscriptions` and it's threaded content
+            # `failed_subscriptions` and its threaded content
             for service in services_to_remove:
                 failed_subscriptions.remove(service)
 
         if self._logging:
             LOGGER.debug(
-                "Exiting subscription loop, `self._listening` is `%s`", self._listening
+                "Exiting subscription loop, `self._listening` is `%s`",
+                str(self._listening),
             )
 
     def _call_service_action(
@@ -1111,7 +1114,6 @@ class YamahaYas209:
             float: the current volume level
         """
         if not hasattr(self, "_volume_level"):
-
             res = (
                 self._call_service_action(
                     Yas209Service.RC,

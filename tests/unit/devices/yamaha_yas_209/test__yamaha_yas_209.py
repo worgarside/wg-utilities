@@ -2,19 +2,25 @@
 """Unit Tests for `wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.YamahaYas209`."""
 from __future__ import annotations
 
+from asyncio import new_event_loop
 from collections.abc import Mapping
 from copy import deepcopy
 from datetime import datetime
 from http import HTTPStatus
-from logging import DEBUG, INFO
+from logging import DEBUG, ERROR, INFO, WARNING
 from textwrap import dedent
+from threading import Thread
+from time import sleep
 from unittest.mock import MagicMock, patch
 from xml.etree import ElementTree
 
 from aioresponses import aioresponses
 from aioresponses.core import RequestCall
-from async_upnp_client.client import UpnpService, UpnpStateVariable
+from async_upnp_client.aiohttp import AiohttpNotifyServer
+from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable
 from async_upnp_client.const import StateVariableInfo, StateVariableTypeInfo
+from async_upnp_client.exceptions import UpnpResponseError
+from async_upnp_client.utils import get_local_ip
 from freezegun import freeze_time
 from pytest import LogCaptureFixture, mark, raises
 from xmltodict import parse as parse_xml
@@ -27,6 +33,7 @@ from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import (
     LastChangeRenderingControl,
     Yas209Service,
     Yas209State,
+    _needs_device,
 )
 
 ON_TOP = CurrentTrack(
@@ -36,6 +43,109 @@ ON_TOP = CurrentTrack(
     media_duration=(3 * 60) + 51,
     media_title="On Top",
 )
+
+
+FRESH_SUBSCRIPTION_CALL = RequestCall(
+    args=(),
+    kwargs={
+        "headers": {
+            "NT": "upnp:event",
+            "TIMEOUT": "Second-1800",
+            "HOST": "192.168.1.1:49152",
+            "CALLBACK": "<http://192.168.1.2:12345/notify>",
+        },
+        "data": None,
+    },
+)
+RESUBSCRIPTION_CALL_AV = RequestCall(
+    args=(),
+    kwargs={
+        "headers": {
+            "HOST": "192.168.1.1:49152",
+            "SID": "uuid:e80e4092-5dd0-11ed-8ec1-b1deb019e391",
+            "TIMEOUT": "Second-1800.0",
+        },
+        "data": None,
+    },
+)
+
+RESUBSCRIPTION_CALL_RC = RequestCall(
+    args=(),
+    kwargs={
+        "headers": {
+            "HOST": "192.168.1.1:49152",
+            "SID": "uuid:e80e4092-5dd0-11ed-8ec1-b1deb019e392",
+            "TIMEOUT": "Second-1800.0",
+        },
+        "data": None,
+    },
+)
+
+
+def add_av_subscription_call(
+    mock_aiohttp: aioresponses,
+    yamaha_yas_209: YamahaYas209,
+    *,
+    repeat: bool = False,
+    exception: Exception | None = None,
+) -> None:
+    """Add a mocked subscription call response for the AVT service.
+
+    Args:
+        mock_aiohttp (aioresponses): The `aioresponses` instance to mock the response
+            with.
+        yamaha_yas_209 (YamahaYas209): The instance of the class that was tested.
+        repeat (bool, optional): Whether to repeat the response. Defaults to False.
+        exception (Exception, optional): An exception to raise. Defaults to None.
+    """
+    mock_aiohttp.add(
+        f"http://{yamaha_yas_209.ip}:49152/upnp/event/rendertransport1",
+        headers={
+            "Date": "Sun, 06 Nov 2022 12:38:25 GMT",
+            "Server": "Linux/4.4.22",
+            "Content-Length": "0",
+            "SID": "uuid:e80e4092-5dd0-11ed-8ec1-b1deb019e391",
+            "TIMEOUT": "Second-1800",
+        },
+        status=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        method="SUBSCRIBE",
+        repeat=repeat,
+        exception=exception,
+    )
+
+
+def add_rc_subscription_call(
+    mock_aiohttp: aioresponses,
+    yamaha_yas_209: YamahaYas209,
+    *,
+    repeat: bool = False,
+    exception: Exception | None = None,
+) -> None:
+    """Add a mocked subscription call response for the RC service.
+
+    Args:
+        mock_aiohttp (aioresponses): The `aioresponses` instance to mock the response
+            with.
+        yamaha_yas_209 (YamahaYas209): The instance of the class that was tested.
+        repeat (bool, optional): Whether to repeat the response. Defaults to False.
+        exception (Exception, optional): An exception to raise. Defaults to None.
+    """
+    mock_aiohttp.add(
+        f"http://{yamaha_yas_209.ip}:49152/upnp/event/rendercontrol1",
+        headers={
+            "Date": "Sun, 06 Nov 2022 12:45:34 GMT",
+            "Server": "Linux/4.4.22",
+            "Content-Length": "0",
+            "SID": "uuid:e80e4092-5dd0-11ed-8ec1-b1deb019e392",
+            "TIMEOUT": "Second-1800",
+        },
+        status=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        method="SUBSCRIBE",
+        repeat=repeat,
+        exception=exception,
+    )
 
 
 def assert_only_post_request_is(
@@ -67,7 +177,7 @@ def assert_only_post_request_is(
             },
         )
     ]
-    all(key[0] == "GET" for key in requests.keys())
+    assert all(key[0] == "GET" for key in requests.keys())
 
 
 def mock_get_info_response(
@@ -255,17 +365,13 @@ def test_on_event_wrapper_parses_xml_dicts(
 
     mock_parse_xml_dict.side_effect = _mock_parse_xml_dict_side_effect
 
-    with raises(AttributeError) as exc_info:
+    with raises(TypeError) as exc_info:
         yamaha_yas_209.on_event_wrapper(
             upnp_service_av_transport, [upnp_state_variable]
         )
 
     assert called
-
-    assert str(exc_info.value) == "'NoneType' object has no attribute 'copy'"
-    assert (
-        exc_info.traceback[2].statement.lines[0].strip() == "payload = payload.copy()"
-    )
+    assert str(exc_info.value) == "Expected a dict"
 
 
 @mark.upnp_value_path(  # type: ignore[misc]
@@ -805,7 +911,6 @@ def test_set_state_sets_correct_state_property(yamaha_yas_209: YamahaYas209) -> 
     with patch.object(yamaha_yas_209, "play") as mock_play, patch.object(
         yamaha_yas_209, "pause"
     ) as mock_pause, patch.object(yamaha_yas_209, "stop") as mock_stop:
-
         yamaha_yas_209.set_state(Yas209State.PLAYING, local_only=False)
 
         assert yamaha_yas_209.state == Yas209State.PLAYING
@@ -934,18 +1039,6 @@ def test_stop_listening_sets_attribute(
     assert (
         caplog.records[0].message == "Stopping event listener (will take <= 2 minutes)"
     )
-
-
-@mark.xfail()  # type: ignore[misc]
-def test_stop_listening_stops_listener(yamaha_yas_209: YamahaYas209) -> None:
-    """Test the `stop_listening` method stops the listener."""
-
-    yamaha_yas_209._listening = True
-
-    with patch.object(yamaha_yas_209, "_listener") as mock_listener:
-        yamaha_yas_209.stop_listening()
-
-        mock_listener.stop.assert_called_once()
 
 
 def test_unmute_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
@@ -1218,3 +1311,391 @@ def test_volume_level_property_returns_correct_value(
 
     assert not hasattr(yamaha_yas_209, "_volume_level")
     assert yamaha_yas_209.volume_level == yamaha_yas_209._volume_level == 0.5
+
+
+def test_needs_device_decorator(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses
+) -> None:
+    """Test that the needs_device decorator works."""
+
+    assert not hasattr(yamaha_yas_209, "device")
+
+    @_needs_device  # type: ignore[arg-type]
+    def _worker(self: YamahaYas209) -> None:
+        """Dummy function to test the decorator."""
+        assert self == yamaha_yas_209
+
+    _worker(yamaha_yas_209)
+
+    assert hasattr(yamaha_yas_209, "device")
+    assert isinstance(yamaha_yas_209.device, UpnpDevice)
+    assert yamaha_yas_209.device.device_url == yamaha_yas_209.description_url
+    assert yamaha_yas_209.device.friendly_name == "Will's YAS-209"
+
+    assert list(mock_aiohttp.requests.keys())[0] == (
+        "GET",
+        URL("http://192.168.1.1:49152/description.xml"),
+    )
+
+    mock_aiohttp.requests.clear()
+
+    # Calling the function once the device already exists should not make a new request
+    _worker(yamaha_yas_209)
+
+    assert not mock_aiohttp.requests
+
+
+def test_subscribe_creates_notify_server_with_correct_subscriptions(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses, caplog: LogCaptureFixture
+) -> None:
+    """Test that the `_subscribe` method creates a notify server.
+
+    THe subscription calls and logging are also tested.
+    """
+
+    add_av_subscription_call(mock_aiohttp, yamaha_yas_209)
+    add_rc_subscription_call(mock_aiohttp, yamaha_yas_209)
+
+    fake_aiohttp_server: AiohttpNotifyServer | None = None
+
+    def _sleep_side_effect(_: int) -> None:  # noqa: N803
+        """When the `async_sleep` call is made, force-stop the subscription loop."""
+        yamaha_yas_209._listening = False
+
+    def _fake_server(
+        *args: tuple[object], **kwargs: dict[str, object]
+    ) -> AiohttpNotifyServer:
+        """Create a real/fake(?) server for use in the test."""
+        nonlocal fake_aiohttp_server
+        fake_aiohttp_server = AiohttpNotifyServer(*args, **kwargs)
+        return fake_aiohttp_server
+
+    local_ip = get_local_ip("")
+
+    with patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer"
+    ) as mock_aiohttp_notify_server, patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
+    ) as mock_sleep:
+        mock_aiohttp_notify_server.side_effect = _fake_server
+        mock_sleep.side_effect = _sleep_side_effect
+
+        new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
+
+        assert fake_aiohttp_server is not None
+
+        mock_aiohttp_notify_server.assert_called_once_with(
+            yamaha_yas_209.device.requester,
+            source=(local_ip, yamaha_yas_209._source_port),
+            callback_url="http://192.168.1.2:12345/notify",
+        )
+
+    assert (first_record := caplog.records.pop(0)).levelno == DEBUG
+    assert first_record.message == dedent(
+        f"""
+        Listen IP:          192.168.1.2
+        Listen Port:        12345
+        Source IP:          {local_ip}
+        Source Port:        0
+        Callback URL:       http://192.168.1.2:12345/notify
+        Server Listen IP:   {local_ip}
+        Server Listen Port: {fake_aiohttp_server.listen_port}
+        """
+    )
+    assert (second_record := caplog.records.pop(0)).levelno == INFO
+    assert second_record.message == f"Subscribed to {Yas209Service.AVT.service_id}"
+    assert (third_record := caplog.records.pop(0)).levelno == INFO
+    assert third_record.message == f"Subscribed to {Yas209Service.RC.service_id}"
+
+    mock_aiohttp.requests.pop(
+        ("SUBSCRIBE", URL("http://192.168.1.1:49152/upnp/event/rendertransport1"))
+    )
+    mock_aiohttp.requests.pop(
+        ("SUBSCRIBE", URL("http://192.168.1.1:49152/upnp/event/rendercontrol1"))
+    )
+    assert all(key[0] == "GET" for key in mock_aiohttp.requests.keys())
+
+
+def test_subscribe_creates_notify_server_logs_subscription_errors(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses, caplog: LogCaptureFixture
+) -> None:
+    """Test the `_subscribe` method logs any exceptions when subscribing to services."""
+
+    add_av_subscription_call(mock_aiohttp, yamaha_yas_209)
+    add_rc_subscription_call(
+        mock_aiohttp,
+        yamaha_yas_209,
+        exception=(
+            response_exception := UpnpResponseError(
+                status=HTTPStatus.INTERNAL_SERVER_ERROR
+            )
+        ),
+    )
+
+    def _sleep_side_effect(_: int) -> None:  # noqa: N803
+        """When the `async_sleep` call is made, force-stop the subscription loop."""
+        yamaha_yas_209._listening = False
+
+    def _fake_server(
+        *args: tuple[object], **kwargs: dict[str, object]
+    ) -> AiohttpNotifyServer:
+        """Create a real/fake(?) server for use in the test."""
+        return AiohttpNotifyServer(*args, **kwargs)
+
+    with patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer"
+    ) as mock_aiohttp_notify_server, patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
+    ) as mock_sleep:
+        mock_aiohttp_notify_server.side_effect = _fake_server
+        mock_sleep.side_effect = _sleep_side_effect
+
+        new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
+
+    # Verbose debug log
+    caplog.records.pop(0)
+
+    assert (second_record := caplog.records.pop(0)).levelno == INFO
+    assert second_record.message == f"Subscribed to {Yas209Service.AVT.service_id}"
+    assert (third_record := caplog.records.pop(0)).levelno == ERROR
+    assert (
+        third_record.message
+        == f"Unable to subscribe to {Yas209Service.RC.service_id}: "
+        f'UpnpCommunicationError("{repr(response_exception)}", None)'
+    )
+
+    assert mock_aiohttp.requests.pop(
+        ("SUBSCRIBE", URL("http://192.168.1.1:49152/upnp/event/rendertransport1"))
+    ) == [FRESH_SUBSCRIPTION_CALL]
+    assert mock_aiohttp.requests.pop(
+        ("SUBSCRIBE", URL("http://192.168.1.1:49152/upnp/event/rendercontrol1"))
+    ) == [FRESH_SUBSCRIPTION_CALL]
+    assert all(key[0] == "GET" for key in mock_aiohttp.requests.keys())
+
+
+def test_subscribe_resubscribes_to_active_services(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses, caplog: LogCaptureFixture
+) -> None:
+    """Test the `_subscribe` method logs any exceptions when subscribing to services."""
+
+    add_av_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
+    add_rc_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
+
+    call_count = 0
+
+    def _sleep_side_effect(_: int) -> None:  # noqa: N803
+        """Dummy function to skip sleep delays.
+
+        Will cause the loop to exit after 121 calls (i.e. after the first main
+        subscription loop).
+        """
+        nonlocal call_count
+        call_count += 1
+        if call_count > 120:
+            yamaha_yas_209._listening = False
+
+    def _fake_server(
+        *args: tuple[object], **kwargs: dict[str, object]
+    ) -> AiohttpNotifyServer:
+        """Create a real/fake(?) server for use in the test."""
+        return AiohttpNotifyServer(*args, **kwargs)
+
+    with patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer"
+    ) as mock_aiohttp_notify_server, patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
+    ) as mock_sleep:
+        mock_aiohttp_notify_server.side_effect = _fake_server
+        mock_sleep.side_effect = _sleep_side_effect
+
+        new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
+
+    assert mock_aiohttp.requests.pop(
+        ("SUBSCRIBE", URL("http://192.168.1.1:49152/upnp/event/rendertransport1"))
+    ) == [FRESH_SUBSCRIPTION_CALL, RESUBSCRIPTION_CALL_AV]
+
+    assert mock_aiohttp.requests.pop(
+        ("SUBSCRIBE", URL("http://192.168.1.1:49152/upnp/event/rendercontrol1"))
+    ) == [FRESH_SUBSCRIPTION_CALL, RESUBSCRIPTION_CALL_RC]
+    assert all(key[0] == "GET" for key in mock_aiohttp.requests.keys())
+    assert "Resubscribing to all services" in caplog.text
+
+
+def test_subscribe_resubscribes_to_failed_services(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses, caplog: LogCaptureFixture
+) -> None:
+    """Test the `_subscribe` method logs any exceptions when subscribing to services."""
+
+    add_av_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
+    add_rc_subscription_call(
+        mock_aiohttp,
+        yamaha_yas_209,
+        exception=UpnpResponseError(status=HTTPStatus.INTERNAL_SERVER_ERROR),
+    )
+    add_rc_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
+
+    call_count = 0
+
+    def _sleep_side_effect(_: int) -> None:  # noqa: N803
+        """Dummy function to skip sleep delays.
+
+        Will cause the loop to exit after 121 calls (i.e. after the first main
+        subscription loop).
+        """
+        nonlocal call_count
+        call_count += 1
+        if call_count > 120:
+            yamaha_yas_209._listening = False
+
+    def _fake_server(
+        *args: tuple[object], **kwargs: dict[str, object]
+    ) -> AiohttpNotifyServer:
+        """Create a real/fake(?) server for use in the test."""
+        return AiohttpNotifyServer(*args, **kwargs)
+
+    with patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer"
+    ) as mock_aiohttp_notify_server, patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
+    ) as mock_sleep:
+        mock_aiohttp_notify_server.side_effect = _fake_server
+        mock_sleep.side_effect = _sleep_side_effect
+
+        new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
+
+    assert caplog.records[-1].levelno == DEBUG
+    assert (
+        caplog.records[-1].message
+        == "Exiting subscription loop, `self._listening` is `False`"
+    )
+
+    assert caplog.records[-2].levelno == DEBUG
+    assert caplog.records[-2].message == "Exiting listener loop"
+
+    assert caplog.records[-3].levelno == DEBUG
+    assert (
+        caplog.records[-3].message
+        == f"Attempting to create originally failed subscription for"
+        f" {Yas209Service.RC.service_id}"
+    )
+
+
+@mark.parametrize(  # type: ignore[misc]
+    ["logging", "expected_level"],
+    (
+        (True, ERROR),
+        (False, WARNING),
+    ),
+)
+def test_subscribe_keeps_retrying_failed_subscriptions(
+    yamaha_yas_209: YamahaYas209,
+    mock_aiohttp: aioresponses,
+    caplog: LogCaptureFixture,
+    logging: bool,
+    expected_level: int,
+) -> None:
+    """Test the `_subscribe` method logs any exceptions when subscribing to services."""
+
+    yamaha_yas_209._logging = logging
+
+    add_av_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
+
+    # Mock the RC subscription call to fail on the first two attempts
+    add_rc_subscription_call(
+        mock_aiohttp,
+        yamaha_yas_209,
+        exception=(
+            response_exception := UpnpResponseError(
+                status=HTTPStatus.INTERNAL_SERVER_ERROR
+            )
+        ),
+    )
+    add_rc_subscription_call(mock_aiohttp, yamaha_yas_209, exception=response_exception)
+
+    # Mock the RC subscription call to succeed thereafter
+    add_rc_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
+
+    call_count = 0
+
+    def _sleep_side_effect(_: int) -> None:  # noqa: N803
+        """Dummy function to skip sleep delays.
+
+        Will cause the loop to exit after 121 calls (i.e. after the first main
+        subscription loop).
+        """
+        nonlocal call_count
+        call_count += 1
+        if call_count > 120:
+            yamaha_yas_209._listening = False
+
+    def _fake_server(
+        *args: tuple[object], **kwargs: dict[str, object]
+    ) -> AiohttpNotifyServer:
+        """Create a real/fake(?) server for use in the test."""
+        return AiohttpNotifyServer(*args, **kwargs)
+
+    with patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer"
+    ) as mock_aiohttp_notify_server, patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
+    ) as mock_sleep:
+        mock_aiohttp_notify_server.side_effect = _fake_server
+        mock_sleep.side_effect = _sleep_side_effect
+
+        new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
+
+    assert mock_aiohttp.requests.pop(
+        ("SUBSCRIBE", URL("http://192.168.1.1:49152/upnp/event/rendertransport1"))
+    ) == [
+        FRESH_SUBSCRIPTION_CALL,
+        RESUBSCRIPTION_CALL_AV,
+    ]
+
+    assert mock_aiohttp.requests.pop(
+        ("SUBSCRIBE", URL("http://192.168.1.1:49152/upnp/event/rendercontrol1"))
+    ) == [FRESH_SUBSCRIPTION_CALL, FRESH_SUBSCRIPTION_CALL]
+
+    warning_log_index = -3 if logging else -1
+
+    assert caplog.records[warning_log_index].levelno == expected_level
+    assert caplog.records[warning_log_index].message == (
+        f"Still unable to subscribe to {Yas209Service.RC.service_id}: "
+        f'UpnpCommunicationError("{repr(response_exception)}", None)'
+    )
+
+
+def test_stop_listening_stops_listener(
+    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses, caplog: LogCaptureFixture
+) -> None:
+    """Test the `stop_listening` method stops the listener."""
+
+    add_av_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
+    add_rc_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
+
+    def _fake_server(
+        *args: tuple[object], **kwargs: dict[str, object]
+    ) -> AiohttpNotifyServer:
+        """Create a real/fake(?) server for use in the test."""
+        return AiohttpNotifyServer(*args, **kwargs)
+
+    with patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer"
+    ) as mock_aiohttp_notify_server:
+        mock_aiohttp_notify_server.side_effect = _fake_server
+
+        def _worker() -> None:
+            new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
+
+        stopper_thread = Thread(target=_worker)
+        stopper_thread.start()
+        sleep(1)
+        yamaha_yas_209.stop_listening()
+
+    # These are the only real meaningful assertion; just the fact that the tests gets
+    # this far is a passing scenario (i.e. the listener loop has exited)
+    assert yamaha_yas_209._listening is False
+
+    assert caplog.records[-1].levelno == DEBUG
+    assert (
+        caplog.records[-1].message == "Stopping event listener (will take <= 2 minutes)"
+    )

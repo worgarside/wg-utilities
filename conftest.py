@@ -308,6 +308,7 @@ def _mock_aiohttp() -> YieldFixture[aioresponses]:
                     status=HTTPStatus.OK,
                     reason=HTTPStatus.OK.phrase,
                     body=body,
+                    repeat=True,
                 )
 
         yield mock_aiohttp
@@ -547,7 +548,14 @@ def _upnp_state_variable(request: FixtureRequest) -> UpnpStateVariable:
 def _yamaha_yas_209() -> YieldFixture[YamahaYas209]:
     """Fixture for creating a YamahaYAS209 instance."""
 
-    yas_209 = YamahaYas209(YAS_209_IP, start_listener=False, logging=True)
+    yas_209 = YamahaYas209(
+        YAS_209_IP,
+        start_listener=False,
+        logging=True,
+        listen_ip="192.168.1.2",
+        listen_port=12345,
+    )
+
     yield yas_209
 
 
