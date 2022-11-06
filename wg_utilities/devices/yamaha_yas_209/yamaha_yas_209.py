@@ -916,7 +916,13 @@ class YamahaYas209:
             value (Yas209State): the new state of the YAS-209
             local_only (bool): only change the local value of the state (i.e. don't
              update the soundbar)
+
+        Raises:
+            TypeError: if the value is not a valid state
         """
+        if not isinstance(value, Yas209State):
+            raise TypeError("Expected a Yas209State instance.")
+
         self._state = value
 
         if not local_only:
@@ -1020,11 +1026,13 @@ class YamahaYas209:
 
         Args:
             value (CurrentTrack): the new current track
+
+        Raises:
+            TypeError: if the value is not a CurrentTrack instance
         """
 
-        # TODO
-        # if not isinstance(value, CurrentTrack):
-        #     raise TypeError("Value must be a CurrentTrack")
+        if not isinstance(value, CurrentTrack):
+            raise TypeError("Expected a CurrentTrack instance.")
 
         self._current_track = value
 

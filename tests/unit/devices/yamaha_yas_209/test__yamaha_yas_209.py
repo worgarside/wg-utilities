@@ -149,6 +149,7 @@ def test_auto_listening_works() -> None:
     ) as mock_listen:
         YamahaYas209("192.168.1.1", start_listener=False)
         mock_listen.assert_not_called()
+
         YamahaYas209("192.168.1.1", start_listener=True)
         mock_listen.assert_called_once()
 
@@ -766,6 +767,15 @@ def test_previous_track_calls_correct_service_action(
         )
 
 
+def test_set_state_raises_type_error(yamaha_yas_209: YamahaYas209) -> None:
+    """Test that the set_state method raises a TypeError for an invalid state."""
+
+    with raises(TypeError) as exc_info:
+        yamaha_yas_209.set_state("invalid_state")  # type: ignore[arg-type]
+
+    assert str(exc_info.value) == "Expected a Yas209State instance."
+
+
 def test_set_state_sets_local_state(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the set_state method sets the local state."""
 
@@ -1049,6 +1059,15 @@ def test_current_track_setter_on_track_update(yamaha_yas_209: YamahaYas209) -> N
     yamaha_yas_209.current_track = ON_TOP
 
     assert call_count == 1
+
+
+def test_current_track_setter_raises_type_error(yamaha_yas_209: YamahaYas209) -> None:
+    """Test the `current_track` setter raises a `TypeError` with invalid types."""
+
+    with raises(TypeError) as exc_info:
+        yamaha_yas_209.current_track = "invalid"  # type: ignore[assignment]
+
+    assert str(exc_info.value) == "Expected a CurrentTrack instance."
 
 
 def test_media_album_name_property_gets_correct_info(

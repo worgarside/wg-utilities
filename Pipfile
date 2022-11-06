@@ -30,6 +30,7 @@ mypy-boto3-pinpoint = "*"
 moto = {extras = ["pinpoint"], version = "*"}
 deepdiff = "*"
 aioresponses = "*"
+pytest-cov = "*"
 
 [packages]
 google-auth-oauthlib = ">=0.4.6"

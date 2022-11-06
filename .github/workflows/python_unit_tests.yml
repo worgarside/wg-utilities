@@ -40,4 +40,12 @@ jobs:
           pipenv sync --dev
 
       - name: Run Tests
-        run: pipenv run pytest
+        run: pipenv run pytest --cov=./ --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          flags: unittests
+          fail_ci_if_error: true
+          verbose: true
