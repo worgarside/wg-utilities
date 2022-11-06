@@ -17,7 +17,7 @@ from google_auth_oauthlib.flow import Flow
 from jwt import DecodeError, decode
 from requests import Response, post
 
-from wg_utilities.clients._generic import TempAuthServer
+from wg_utilities.api import TempAuthServer
 from wg_utilities.functions import force_mkdir, user_data_dir
 
 if TYPE_CHECKING:

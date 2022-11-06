@@ -22,6 +22,7 @@ from async_upnp_client.const import (
     StateVariableTypeInfo,
 )
 from boto3 import client
+from flask import Flask
 from mypy_boto3_lambda import LambdaClient
 from mypy_boto3_pinpoint import PinpointClient
 from mypy_boto3_s3 import S3Client
@@ -32,6 +33,7 @@ from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import MissingSchema
 from voluptuous import All, Schema
 
+from wg_utilities.api import TempAuthServer
 from wg_utilities.devices.dht22 import DHT22Sensor
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
 from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import CurrentTrack
@@ -287,33 +289,6 @@ def yamaha_yas_209_last_change_rendering_control_events(
 # <editor-fold desc="Fixtures">
 
 
-@fixture(scope="function", name="mock_aiohttp")  # type: ignore[misc]
-def _mock_aiohttp() -> YieldFixture[aioresponses]:
-    """Fixture for mocking async HTTP requests."""
-
-    with aioresponses() as mock_aiohttp:
-        for root, _, files in walk(
-            get_dir := FLAT_FILES_DIR
-            / "xml"
-            / "yamaha_yas_209"
-            / "aiohttp_responses"
-            / "get"
-        ):
-            for file in files:
-                with open(join(root, file), "rb") as fin:
-                    body = fin.read()
-
-                mock_aiohttp.get(
-                    f"{YAS_209_HOST}{join(root, file).replace(str(get_dir), '') }",
-                    status=HTTPStatus.OK,
-                    reason=HTTPStatus.OK.phrase,
-                    body=body,
-                    repeat=True,
-                )
-
-        yield mock_aiohttp
-
-
 @fixture(scope="function", name="current_track_null")  # type: ignore[misc]
 def _current_track_null() -> CurrentTrack:
     """Return a CurrentTrack object with null values."""
@@ -326,11 +301,18 @@ def _current_track_null() -> CurrentTrack:
     )
 
 
-@fixture(scope="function")  # type: ignore[misc]
-def dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
+@fixture(scope="function", name="dht22_sensor")  # type: ignore[misc]
+def _dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
     """Fixture for DHT22 sensor."""
 
     return DHT22Sensor(pigpio_pi, 4)
+
+
+@fixture(scope="session", name="flask_app")  # type: ignore[misc]
+def _flask_app() -> Flask:
+    """Fixture for Flask app."""
+
+    return Flask(__name__)
 
 
 @fixture(scope="function", name="lambda_client")  # type: ignore[misc]
@@ -347,8 +329,8 @@ def _list_handler() -> ListHandler:
     return l_handler
 
 
-@fixture(scope="function")  # type: ignore[misc]
-def list_handler_prepopulated(
+@fixture(scope="function", name="list_handler_prepopulated")  # type: ignore[misc]
+def _list_handler_prepopulated(
     logger: Logger,
     list_handler: ListHandler,
     sample_log_record_messages_with_level: list[tuple[int, str]],
@@ -386,14 +368,61 @@ def _mb3c(request: FixtureRequest) -> MockBoto3Client:
     return MockBoto3Client(mocked_operation_lookup=mocked_operation_lookup)
 
 
+@fixture(scope="function", name="mock_aiohttp")  # type: ignore[misc]
+def _mock_aiohttp() -> YieldFixture[aioresponses]:
+    """Fixture for mocking async HTTP requests."""
+
+    with aioresponses() as mock_aiohttp:
+        for root, _, files in walk(
+            get_dir := FLAT_FILES_DIR
+            / "xml"
+            / "yamaha_yas_209"
+            / "aiohttp_responses"
+            / "get"
+        ):
+            for file in files:
+                with open(join(root, file), "rb") as fin:
+                    body = fin.read()
+
+                mock_aiohttp.get(
+                    f"{YAS_209_HOST}{join(root, file).replace(str(get_dir), '') }",
+                    status=HTTPStatus.OK,
+                    reason=HTTPStatus.OK.phrase,
+                    body=body,
+                    repeat=True,
+                )
+
+        yield mock_aiohttp
+
+
+@fixture(scope="function", name="pigpio_pi")  # type: ignore[misc]
+def _pigpio_pi() -> YieldFixture[MagicMock]:
+    """Fixture for creating a `pigpio.pi` instance."""
+
+    pi = MagicMock()
+
+    pi.INPUT = 0
+    pi.OUTPUT = 1
+
+    pi.callback.return_value = _callback(MagicMock(), 4)
+
+    return pi
+
+
 @fixture(scope="function", name="pinpoint_client")  # type: ignore[misc]
 def _pinpoint_client() -> PinpointClient:
     """Fixture for creating a boto3 client instance for Pinpoint."""
     return client("pinpoint")
 
 
-@fixture(scope="function")  # type: ignore[misc]
-def sample_log_record() -> LogRecord:
+@fixture(scope="function", name="s3_client")  # type: ignore[misc]
+def _s3_client() -> S3Client:
+    """Fixture for creating a boto3 client instance for S3."""
+    return client("s3")
+
+
+@fixture(scope="function", name="sample_log_record")  # type: ignore[misc]
+def _sample_log_record() -> LogRecord:
     """Fixture for creating a sample log record."""
     return LogRecord(
         name="test_logger",
@@ -420,24 +449,27 @@ def _sample_log_record_messages_with_level() -> list[tuple[int, str]]:
     ]
 
 
-@fixture(scope="function", name="s3_client")  # type: ignore[misc]
-def _s3_client() -> S3Client:
-    """Fixture for creating a boto3 client instance for S3."""
-    return client("s3")
+@fixture(scope="function", name="server_thread")  # type: ignore[misc]
+def _server_thread(flask_app: Flask) -> YieldFixture[TempAuthServer.ServerThread]:
+    """Fixture for creating a server thread."""
+
+    server_thread = TempAuthServer.ServerThread(flask_app)
+    server_thread.start()
+
+    yield server_thread
+
+    server_thread.shutdown()
 
 
-@fixture(scope="function", name="pigpio_pi")  # type: ignore[misc]
-def _pigpio_pi() -> YieldFixture[MagicMock]:
-    """Fixture for creating a `pigpio.pi` instance."""
+@fixture(scope="function", name="temp_auth_server")  # type: ignore[misc]
+def _temp_auth_server() -> YieldFixture[TempAuthServer]:
+    """Fixture for creating a temporary auth server."""
 
-    pi = MagicMock()
+    temp_auth_server = TempAuthServer(__name__, auto_run=False, debug=True)
 
-    pi.INPUT = 0
-    pi.OUTPUT = 1
+    yield temp_auth_server
 
-    pi.callback.return_value = _callback(MagicMock(), 4)
-
-    return pi
+    temp_auth_server.stop_server()
 
 
 @fixture(scope="function", name="upnp_service_av_transport")  # type: ignore[misc]

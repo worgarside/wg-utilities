@@ -136,7 +136,7 @@ def test_false_raise_after_callback_does_not_raise(
         nonlocal called, finished
         called = True
         raise_func(*raise_args)
-        finished = True
+        finished = True  # pragma: no cover
 
     worker()
     assert called is True
@@ -165,7 +165,7 @@ def test_ignore_exception_types(
         nonlocal called, finished
         called = True
         raise_func(*raise_args)
-        finished = True
+        finished = True  # pragma: no cover
 
     worker()
     assert called is True
@@ -198,7 +198,7 @@ def test_ignoring_exceptions_is_logged_as_warning(
         nonlocal called, finished
         called = True
         raise_func(*raise_args)
-        finished = True
+        finished = True  # pragma: no cover
 
     worker()
     assert called is True
