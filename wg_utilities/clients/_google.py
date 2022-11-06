@@ -6,6 +6,7 @@ from copy import deepcopy
 from json import dump, dumps, load
 from logging import DEBUG, Logger, getLogger
 from os import remove
+from pathlib import Path
 from time import time
 from typing import TYPE_CHECKING, Literal, Protocol, TypedDict, TypeVar, Union
 from webbrowser import open as open_browser
@@ -80,8 +81,8 @@ class GoogleClient:
         self,
         project: str,
         scopes: list[str] | None = None,
-        client_id_json_path: str | None = None,
-        creds_cache_path: str | None = None,
+        client_id_json_path: Path | None = None,
+        creds_cache_path: Path | None = None,
         access_token_expiry_threshold: int = 60,
         logger: Logger | None = None,
     ):
@@ -278,10 +279,12 @@ class GoogleClient:
                 "Performing first time login for project `%s`", self.project
             )
 
-            self.client_id_json_path = self.client_id_json_path or input(
-                "Download your Client ID JSON from https://console.cloud.google.com/"
-                f"apis/credentials?project={self.project} and paste the file path"
-                " here: "
+            self.client_id_json_path = self.client_id_json_path or Path(
+                input(
+                    "Download your Client ID JSON from https://console.cloud."
+                    f"google.com/apis/credentials?project={self.project} and paste"
+                    " the file path here: "
+                )
             )
 
             flow = Flow.from_client_secrets_file(

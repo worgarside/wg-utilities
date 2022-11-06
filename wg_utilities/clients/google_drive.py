@@ -4,6 +4,7 @@ from __future__ import annotations
 from collections.abc import Collection, Iterable
 from copy import deepcopy
 from logging import Logger
+from pathlib import Path
 from typing import Any, TypedDict, cast
 
 from wg_utilities.clients._google import GoogleClient
@@ -98,7 +99,7 @@ class File:
         name: str,
         google_client: GoogleDriveClient,
         parents: list[str] | None = None,
-        **_: Any,
+        **_: Any,  # noqa: N803
     ):
         self.file_id = id
         self.name = name
@@ -199,7 +200,7 @@ class Directory(File):
         name: str,
         google_client: GoogleDriveClient,
         parents: list[str] | None = None,
-        **_: Any,
+        **_: Any,  # noqa: N803
     ):
         super().__init__(id=id, name=name, parents=parents, google_client=google_client)
         self._children: set[Directory] = set()
@@ -365,8 +366,8 @@ class GoogleDriveClient(GoogleClient):
         self,
         project: str,
         scopes: list[str] | None = None,
-        client_id_json_path: str | None = None,
-        creds_cache_path: str | None = None,
+        client_id_json_path: Path | None = None,
+        creds_cache_path: Path | None = None,
         access_token_expiry_threshold: int = 60,
         logger: Logger | None = None,
     ):

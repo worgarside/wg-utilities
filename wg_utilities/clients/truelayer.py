@@ -7,6 +7,7 @@ from enum import Enum
 from json import dump, dumps, load
 from logging import DEBUG, getLogger
 from os import getenv
+from pathlib import Path
 from time import time
 from typing import Any, Literal, TypedDict, TypeVar
 from webbrowser import open as open_browser
@@ -209,7 +210,7 @@ class TrueLayerClient:
         redirect_uri: str = "https://console.truelayer.com/redirect-page",
         access_token_expiry_threshold: int = 60,
         log_requests: bool = False,
-        creds_cache_path: str | None = None,
+        creds_cache_path: Path | None = None,
     ):
         self.client_id = client_id
         self.client_secret = client_secret

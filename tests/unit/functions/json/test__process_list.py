@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from logging import ERROR
-from typing import Callable
 from unittest.mock import ANY, MagicMock, _Call, call, patch
 
 from pytest import LogCaptureFixture, mark, raises

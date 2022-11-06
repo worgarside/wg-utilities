@@ -4,6 +4,7 @@ from __future__ import annotations
 from collections.abc import Generator
 from datetime import datetime, timedelta
 from logging import DEBUG, getLogger
+from pathlib import Path
 from typing import Literal, TypedDict
 
 from requests import get, put
@@ -455,7 +456,7 @@ class MonzoClient(OauthClient):
         redirect_uri: str = "http://0.0.0.0:5001/get_auth_code",
         access_token_expiry_threshold: int = 60,
         log_requests: bool = False,
-        creds_cache_path: str | None = None,
+        creds_cache_path: Path | None = None,
     ):
         super().__init__(
             client_id=client_id,

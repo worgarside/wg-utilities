@@ -2,14 +2,14 @@
 """Custom client for interacting with Spotify's Web API."""
 from __future__ import annotations
 
-from collections.abc import Collection
+from collections.abc import Callable, Collection
 from datetime import date, datetime, timedelta
 from enum import Enum
 from http import HTTPStatus
 from json import JSONDecodeError, dumps
 from logging import DEBUG, getLogger
 from re import sub
-from typing import Any, Callable, Literal, TypedDict
+from typing import Any, Literal, TypedDict
 
 from pydantic import BaseModel, Extra
 from requests import Response, get, post
@@ -53,7 +53,7 @@ class _SpotifyEntityInfo(TypedDict):
 
 class _AlbumTracksItemInfo(TypedDict):
     href: str
-    items: list[_TrackInfo]  # type: ignore[misc]
+    items: list[_TrackInfo]
     limit: int
     next: str | None
     offset: int
@@ -89,7 +89,7 @@ class _PlaylistInfo(_SpotifyEntityInfo):
     owner: _UserInfo
     public: bool
     snapshot_id: str
-    tracks: list[_TrackInfo]  # type: ignore[misc]
+    tracks: list[_TrackInfo]
     type: Literal["playlist"]
 
 

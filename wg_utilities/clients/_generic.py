@@ -175,7 +175,7 @@ class OauthClient:
         redirect_uri: str = "http://0.0.0.0:5001/get_auth_code",
         access_token_expiry_threshold: int = 60,
         log_requests: bool = False,
-        creds_cache_path: str | Path | None = None,
+        creds_cache_path: Path | None = None,
         logger: Logger | None = None,
     ):
         self.client_id = client_id

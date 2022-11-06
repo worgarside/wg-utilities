@@ -1,10 +1,10 @@
 """Unit Tests for the `wg_utilities.functions.json.traverse_dict` function."""
 from __future__ import annotations
 
+from collections.abc import Callable
 from json import dumps, loads
 from logging import ERROR
 from re import sub
-from typing import Callable
 from unittest.mock import ANY
 
 from pytest import LogCaptureFixture, mark, raises

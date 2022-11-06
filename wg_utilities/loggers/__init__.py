@@ -1,6 +1,7 @@
 """Useful constants and functions for use in logging in other projects."""
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import datetime
 from logging import (
     CRITICAL,
@@ -17,7 +18,7 @@ from logging import (
 )
 from pathlib import Path
 from sys import stdout
-from typing import Any, Callable
+from typing import Any
 
 from wg_utilities.functions import force_mkdir
 
@@ -146,7 +147,7 @@ class ListHandler(Handler):
 
 
 def create_file_handler(
-    logfile_path: str | Path, level: int = DEBUG, create_directory: bool = True
+    logfile_path: Path, level: int = DEBUG, create_directory: bool = True
 ) -> FileHandler:
     """Create a file handler for use in other loggers.
 
@@ -172,7 +173,7 @@ def create_file_handler(
 def add_file_handler(
     logger: Logger,
     *,
-    logfile_path: str | Path,
+    logfile_path: Path,
     level: int = DEBUG,
     create_directory: bool = True,
 ) -> Logger:

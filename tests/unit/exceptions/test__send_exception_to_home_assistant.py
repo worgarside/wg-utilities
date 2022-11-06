@@ -5,9 +5,10 @@ containing useful exception information.
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from inspect import stack
 from socket import gethostname
-from typing import Any, Callable, TypedDict
+from typing import Any, TypedDict
 from unittest.mock import ANY
 
 from pytest import mark, raises

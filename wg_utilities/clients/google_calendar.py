@@ -6,6 +6,7 @@ from datetime import date, datetime, timedelta
 from enum import Enum
 from json import dumps
 from logging import Logger
+from pathlib import Path
 from typing import Any, Literal, TypedDict, cast
 
 from pytz import UTC, timezone
@@ -709,8 +710,8 @@ class GoogleCalendarClient(GoogleClient):
         self,
         project: str,
         scopes: list[str] | None = None,
-        client_id_json_path: str | None = None,
-        creds_cache_path: str | None = None,
+        client_id_json_path: Path | None = None,
+        creds_cache_path: Path | None = None,
         access_token_expiry_threshold: int = 60,
         logger: Logger | None = None,
     ):

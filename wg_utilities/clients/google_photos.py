@@ -7,7 +7,8 @@ from enum import Enum, auto
 from json import dumps
 from logging import Logger
 from os import getenv
-from os.path import isfile, join
+from os.path import isfile
+from pathlib import Path
 from typing import TypedDict, cast
 
 from requests import get
@@ -15,8 +16,8 @@ from requests import get
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.functions import force_mkdir, user_data_dir
 
-LOCAL_MEDIA_DIRECTORY = getenv(
-    "LOCAL_MEDIA_DIRECTORY", user_data_dir(file_name="media_downloads")
+LOCAL_MEDIA_DIRECTORY = Path(
+    getenv("LOCAL_MEDIA_DIRECTORY", user_data_dir(file_name="media_downloads"))
 )
 
 
@@ -153,10 +154,10 @@ class MediaItem:
                 json["mediaMetadata"]["creationTime"], "%Y-%m-%dT%H:%M:%SZ"
             )
 
-        self.local_path = join(
-            LOCAL_MEDIA_DIRECTORY,
-            self.creation_datetime.strftime("%Y/%m/%d"),
-            json["filename"],
+        self.local_path = (
+            LOCAL_MEDIA_DIRECTORY
+            / self.creation_datetime.strftime("%Y/%m/%d")
+            / json["filename"]
         )
 
     def download(
@@ -164,7 +165,7 @@ class MediaItem:
         width_override: int | None = None,
         height_override: int | None = None,
         force_download: bool = False,
-    ) -> str:
+    ) -> Path:
         """Download the media item to local storage.
 
         Notes:
@@ -283,8 +284,8 @@ class GooglePhotosClient(GoogleClient):
         self,
         project: str,
         scopes: list[str] | None = None,
-        client_id_json_path: str | None = None,
-        creds_cache_path: str | None = None,
+        client_id_json_path: Path | None = None,
+        creds_cache_path: Path | None = None,
         access_token_expiry_threshold: int = 60,
         logger: Logger | None = None,
     ):

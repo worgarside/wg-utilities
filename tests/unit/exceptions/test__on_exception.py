@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from os import environ
-from typing import Callable
 from unittest.mock import patch
 
 from pytest import LogCaptureFixture, mark, raises
@@ -23,7 +23,7 @@ def test_decorated_function_is_called_correctly_without_exception() -> None:
     called_args = None
     called_kwargs = None
 
-    @on_exception(exception_callback=lambda _: None)
+    @on_exception(exception_callback=lambda _: None)  # noqa: N803
     def worker(*args: int, **kwargs: int) -> None:
         nonlocal called_args, called_kwargs
         called_args = args
@@ -42,7 +42,7 @@ def test_decorated_functions_value_is_returned() -> None:
     exception is raised.
     """
 
-    @on_exception(exception_callback=lambda _: None)
+    @on_exception(exception_callback=lambda _: None)  # noqa: N803
     def worker(*args: int) -> int:
         return sum(args)
 
@@ -158,7 +158,7 @@ def test_ignore_exception_types(
 
     @on_exception(
         raise_after_callback=True,
-        exception_callback=lambda _: None,
+        exception_callback=lambda _: None,  # noqa: N803
         ignore_exception_types=[exception_type],
     )
     def worker() -> None:
@@ -191,7 +191,7 @@ def test_ignoring_exceptions_is_logged_as_warning(
 
     @on_exception(
         raise_after_callback=True,
-        exception_callback=lambda _: None,
+        exception_callback=lambda _: None,  # noqa: N803
         ignore_exception_types=[exception_type],
     )
     def worker() -> None:
@@ -234,7 +234,7 @@ def test_ignorant_warning_suppression_via_parameter(
 
     @on_exception(
         raise_after_callback=True,
-        exception_callback=lambda _: None,
+        exception_callback=lambda _: None,  # noqa: N803
         ignore_exception_types=[exception_type],
         _suppress_ignorant_warnings=True,
     )
@@ -266,7 +266,7 @@ def test_ignorant_warning_suppression_via_env_var(
 
     @on_exception(
         raise_after_callback=True,
-        exception_callback=lambda _: None,
+        exception_callback=lambda _: None,  # noqa: N803
         ignore_exception_types=[exception_type],
     )
     def worker() -> None:
