@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from threading import Thread
+from time import sleep
 from unittest.mock import patch
 
 from flask import Flask
@@ -208,6 +209,8 @@ def test_wait_for_request_starts_server(temp_auth_server: TempAuthServer) -> Non
 
     t = Thread(target=_make_assertions)
     t.start()
+
+    sleep(1)
 
     get(GET_AUTH_URL + "?code=abcdefghijklmnopqrstuvwxyz")
 
