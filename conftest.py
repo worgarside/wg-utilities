@@ -36,7 +36,9 @@ from requests_mock import Mocker
 from voluptuous import All, Schema
 
 from wg_utilities.api import TempAuthServer
+from wg_utilities.clients import MonzoClient
 from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
+from wg_utilities.clients.monzo import Account as MonzoAccount
 from wg_utilities.devices.dht22 import DHT22Sensor
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
 from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import CurrentTrack
@@ -415,26 +417,96 @@ def _mock_aiohttp() -> YieldFixture[aioresponses]:
 
 
 @fixture(scope="function", name="mock_requests")  # type: ignore[misc]
-def _mock_requests() -> YieldFixture[Mocker]:
+def _mock_requests(request: FixtureRequest) -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 
     with Mocker(real_http=False) as mock_requests:
+        if request.node.parent.name in ("tests/unit/clients/monzo/test__account.py"):
+            mock_requests.get(
+                f"{MonzoClient.BASE_URL}/ping/whoami",
+                status_code=HTTPStatus.OK,
+                reason=HTTPStatus.OK.phrase,
+                json={
+                    "authenticated": True,
+                    "client_id": "test_client_id",
+                    "user_id": "test_user_id",
+                },
+            )
+
+            mock_requests.get(
+                f"{MonzoClient.BASE_URL}/balance?account_id=test_account_id",
+                status_code=HTTPStatus.OK,
+                reason=HTTPStatus.OK.phrase,
+                json={
+                    "balance": 10000,
+                    "balance_including_flexible_savings": 50000,
+                    "currency": "GBP",
+                    "local_currency": "",
+                    "local_exchange_rate": "",
+                    "local_spend": [{"spend_today": -115, "currency": "GBP"}],
+                    "spend_today": -115,
+                    "total_balance": 10000,
+                },
+            )
+
         yield mock_requests
 
         mock_requests.reset()
 
 
+@fixture(scope="function", name="monzo_account")  # type: ignore[misc]
+def _monzo_account(monzo_client: MonzoClient) -> MonzoAccount:
+    """Fixture for creating a MonzoAccount instance."""
+
+    return MonzoAccount(
+        json={
+            "account_number": "12345678",
+            "balance": 10000,
+            "balance_including_flexible_savings": 50000,
+            "created": "2020-01-01T00:00:00Z",
+            "description": "test_user_id",
+            "id": "test_account_id",
+            "sort_code": "123456",
+            "spend_today": 0.0,
+            "total_balance": 50000,
+        },
+        monzo_client=monzo_client,
+    )
+
+
+@fixture(scope="function", name="monzo_client")  # type: ignore[misc]
+def _monzo_client(
+    temp_dir: Path,
+    fake_oauth_credentials: dict[str, OAuthCredentialsInfo],
+    mock_requests: Mocker,  # pylint: disable=unused-argument
+) -> MonzoClient:
+    """Fixture for creating a MonzoClient instance."""
+
+    with open(
+        creds_cache_path := temp_dir / "monzo_credentials.json",
+        "w",
+        encoding="utf-8",
+    ) as fout:
+        dump(fake_oauth_credentials, fout)
+
+    return MonzoClient(
+        client_id="test_client_id",
+        client_secret="test_client_secret",
+        log_requests=True,
+        creds_cache_path=Path(creds_cache_path),
+    )
+
+
 @fixture(scope="function", name="oauth_client")  # type: ignore[misc]
 def _oauth_client(
     logger: Logger,
-    temp_dir: TemporaryDirectory[str],
+    temp_dir: Path,
     fake_oauth_credentials: dict[str, OAuthCredentialsInfo],
 ) -> OAuthClient:
     """Fixture for creating an OAuthClient instance."""
 
-    # creds_cache_path=f"{temp_dir.name}/oauth_credentials.json"
     with open(
-        creds_cache_path := f"{temp_dir}/oauth_credentials.json",
+        creds_cache_path := temp_dir / "oauth_credentials.json",
         "w",
         encoding="utf-8",
     ) as fout:

@@ -31,7 +31,6 @@ moto = {extras = ["pinpoint"], version = "*"}
 deepdiff = "*"
 aioresponses = "*"
 pytest-cov = "*"
-pytest-xdist = "*"
 
 [packages]
 google-auth-oauthlib = ">=0.4.6"

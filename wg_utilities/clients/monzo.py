@@ -98,6 +98,7 @@ class Account:
             "total_balance",
         ],
     ) -> str | float | dict[str, str | int] | None:
+        # TODO overload(?) this too for typing stuff
         """Gets a value for a balance-specific property.
 
          Values are updated as necessary (i.e. if they don't already exist). This also
@@ -121,6 +122,9 @@ class Account:
         if self.last_balance_update <= (
             datetime.utcnow() - timedelta(minutes=self.balance_update_threshold)
         ):
+            LOGGER.debug(
+                "Balance variable update threshold crossed, getting new values"
+            )
             self.update_balance_variables()
 
         return self._balance_variables[var_name]
@@ -138,12 +142,6 @@ class Account:
             "/balance", params={"account_id": self.id}
         )
 
-        # convert values from pence to pounds
-        for key, value in self._balance_variables.items():
-            if isinstance(value, (int, float)):
-                # pylint: disable=line-too-long
-                self._balance_variables[key] = value / 100  # type: ignore[literal-required]
-
         self.last_balance_update = datetime.utcnow()
 
     @property
@@ -156,8 +154,8 @@ class Account:
         return self.json.get("account_number")
 
     @property
-    def balance(self) -> float | None:
-        """Current balance of the account.
+    def balance(self) -> int | None:
+        """Current balance of the account, in pence.
 
         Returns:
             float: the currently available balance of the account
@@ -165,8 +163,8 @@ class Account:
         return self._get_balance_property("balance")  # type: ignore[return-value]
 
     @property
-    def balance_including_flexible_savings(self) -> float | None:
-        """Balance including flexible savings.
+    def balance_including_flexible_savings(self) -> int | None:
+        """Balance including flexible savings, in pence.
 
         Returns:
             float: the currently available balance of the account, including flexible
@@ -216,18 +214,18 @@ class Account:
         return self.json.get("sort_code")
 
     @property
-    def spend_today(self) -> float | None:
-        """Amount spent today.
+    def spend_today(self) -> int | None:
+        """Amount spent today, in pence.
 
         Returns:
-            float: the amount spent from this account today (considered from approx
+            int: the amount spent from this account today (considered from approx
              4am onwards)
         """
         return self._get_balance_property("spend_today")  # type: ignore[return-value]
 
     @property
-    def total_balance(self) -> str | None:
-        """Total balance of the account.
+    def total_balance(self) -> int | None:
+        """Total balance of the account, in pence.
 
         Returns:
             str: the sum of the currently available balance of the account and the
