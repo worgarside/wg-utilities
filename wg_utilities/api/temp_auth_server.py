@@ -105,6 +105,9 @@ class TempAuthServer:
             TimeoutError: if no request is received within the timeout limit
         """
 
+        if not self.running:
+            self.start_server()
+
         start_time = datetime.now()
         while (
             time_elapsed := (datetime.now() - start_time).seconds

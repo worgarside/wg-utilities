@@ -63,12 +63,11 @@ def _send_fake_exception_to_home_assistant(
 @mark.parametrize(  # type: ignore[misc]
     "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
 )
-@Mocker(kw="mock_requests", real_http=False)  # type: ignore[misc]
 def test_url_is_correct(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
     raise_args: tuple[object, ...],
-    **kwargs: Mocker,
+    mock_requests: Mocker,
 ) -> None:
     """Tests the payload is sent to the correct URL.
 
@@ -76,7 +75,6 @@ def test_url_is_correct(
     I've included it for completeness anyway.
     """
 
-    mock_requests = kwargs["mock_requests"]
     mock_requests.post(f"http://{HA_LOG_ENDPOINT}/log/error", status_code=200)
 
     _send_fake_exception_to_home_assistant(
@@ -89,16 +87,14 @@ def test_url_is_correct(
 @mark.parametrize(  # type: ignore[misc]
     "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
 )
-@Mocker(kw="mock_requests", real_http=False)  # type: ignore[misc]
 def test_https_url_is_used_on_error(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
     raise_args: tuple[object, ...],
-    **kwargs: Mocker,
+    mock_requests: Mocker,
 ) -> None:
     """Test that when a ConnectionError is raised, the URL is changed to HTTPS."""
 
-    mock_requests = kwargs["mock_requests"]
     mock_requests.post(
         f"http://{HA_LOG_ENDPOINT}/log/error",
         exc=RequestsConnectionError("Failed to establish a new connection"),
@@ -121,16 +117,14 @@ def test_https_url_is_used_on_error(
 @mark.parametrize(  # type: ignore[misc]
     "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
 )
-@Mocker(kw="mock_requests", real_http=False)  # type: ignore[misc]
 def test_payload_is_correctly_formed(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
     raise_args: tuple[object, ...],
-    **kwargs: Mocker,
+    mock_requests: Mocker,
 ) -> None:
     """Tests the payload has the correct content when it's sent to HA."""
 
-    mock_requests = kwargs["mock_requests"]
     mock_requests.post(f"http://{HA_LOG_ENDPOINT}/log/error", status_code=200)
 
     expected_payload = _send_fake_exception_to_home_assistant(
@@ -143,16 +137,14 @@ def test_payload_is_correctly_formed(
 @mark.parametrize(  # type: ignore[misc]
     "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
 )
-@Mocker(kw="mock_requests", real_http=False)  # type: ignore[misc]
 def test_send_failure_raises_exception(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
     raise_args: tuple[object, ...],
-    **kwargs: Mocker,
+    mock_requests: Mocker,
 ) -> None:
     """Test that a failure to send the payload to HA will raise an exception."""
 
-    mock_requests = kwargs["mock_requests"]
     mock_requests.post(
         f"http://{HA_LOG_ENDPOINT}/log/error",
         status_code=500,
@@ -173,18 +165,16 @@ def test_send_failure_raises_exception(
 @mark.parametrize(  # type: ignore[misc]
     "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
 )
-@Mocker(kw="mock_requests", real_http=False)  # type: ignore[misc]
 def test_unexpected_connection_error_exception_is_raised(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
     raise_args: tuple[object, ...],
-    **kwargs: Mocker,
+    mock_requests: Mocker,
 ) -> None:
     """Test that a failure to send the payload to HA will raise an exception."""
 
     unexpected_exc = RequestsConnectionError("The server has exploded")
 
-    mock_requests = kwargs["mock_requests"]
     mock_requests.post(
         f"http://{HA_LOG_ENDPOINT}/log/error",
         exc=unexpected_exc,

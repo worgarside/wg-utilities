@@ -5,11 +5,14 @@ from collections.abc import Generator
 from datetime import datetime, timedelta
 from logging import DEBUG, getLogger
 from pathlib import Path
+from random import choice
+from string import ascii_letters
 from typing import Literal, TypedDict
+from webbrowser import open as open_browser
 
 from requests import get, put
 
-from wg_utilities.clients._generic import OauthClient
+from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
 from wg_utilities.functions import cleanse_string, user_data_dir
 
 LOGGER = getLogger(__name__)
@@ -441,7 +444,7 @@ class Pot:
         return f"{self.name} | {self.id}"
 
 
-class MonzoClient(OauthClient):
+class MonzoClient(OAuthClient):
     """Custom client for interacting with Monzo's API."""
 
     ACCESS_TOKEN_ENDPOINT = "https://api.monzo.com/oauth2/token"
@@ -595,6 +598,53 @@ class MonzoClient(OauthClient):
         )
 
         return res.json().get("authenticated", False) is False
+
+    @property
+    def credentials(self) -> OAuthCredentialsInfo:
+        """Gets creds as necessary (including first time setup) and authenticates them.
+
+        Returns:
+            dict: the credentials for the chosen bank
+
+        Raises:
+            ValueError: if the state token returned from the request doesn't match the
+             expected value
+        """
+        if not hasattr(self, "_credentials"):
+            self._load_local_credentials()
+
+        if not self._credentials:
+            self.logger.info("Performing first time login")
+            state_token = "".join(choice(ascii_letters) for _ in range(32))
+            # pylint: disable=line-too-long
+            auth_link = f"https://auth.monzo.com/?client_id={self.client_id}&redirect_uri={self.redirect_uri}&response_type=code&state={state_token}"  # noqa: E501
+            self.logger.debug("Opening %s", auth_link)
+            open_browser(auth_link)
+
+            request_args = self.temp_auth_server.wait_for_request(
+                "/get_auth_code", kill_on_request=True
+            )
+
+            if state_token != request_args.get("state"):
+                raise ValueError(
+                    "State token received in request doesn't match expected value"
+                )
+
+            self.exchange_auth_code(request_args["code"])
+
+        if self.access_token_has_expired:
+            self.refresh_access_token()
+
+        return self._credentials
+
+    @credentials.setter
+    def credentials(self, value: OAuthCredentialsInfo) -> None:
+        """Setter for credentials.
+
+        Args:
+            value (dict): the new values to use for the creds for this project
+        """
+        self._set_credentials(value)
 
     @property
     def current_account(self) -> Account:

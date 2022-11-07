@@ -132,14 +132,14 @@ def test_wait_for_request(temp_auth_server: TempAuthServer) -> None:
 
     called = False
 
-    def make_assertion() -> None:
+    def _make_assertions() -> None:
         nonlocal called
         assert temp_auth_server.wait_for_request("/get_auth_code", max_wait=5) == {
             "code": "abcdefghijklmnopqrstuvwxyz",
         }
         called = True
 
-    t = Thread(target=make_assertion)
+    t = Thread(target=_make_assertions)
     t.start()
 
     get(GET_AUTH_URL + "?code=abcdefghijklmnopqrstuvwxyz")
@@ -169,7 +169,7 @@ def test_wait_for_request_kill_on_request(temp_auth_server: TempAuthServer) -> N
 
     called = False
 
-    def make_assertion() -> None:
+    def _make_assertions() -> None:
         nonlocal called
         assert temp_auth_server.running
         assert temp_auth_server.wait_for_request(
@@ -180,7 +180,7 @@ def test_wait_for_request_kill_on_request(temp_auth_server: TempAuthServer) -> N
         assert not temp_auth_server.running
         called = True
 
-    t = Thread(target=make_assertion)
+    t = Thread(target=_make_assertions)
     t.start()
 
     get(GET_AUTH_URL + "?code=abcdefghijklmnopqrstuvwxyz")
@@ -188,3 +188,30 @@ def test_wait_for_request_kill_on_request(temp_auth_server: TempAuthServer) -> N
     t.join()
 
     assert called
+
+
+def test_wait_for_request_starts_server(temp_auth_server: TempAuthServer) -> None:
+    """Test the `wait_for_request` method starts the server if it is not running."""
+
+    assert not temp_auth_server.running
+
+    called = False
+
+    def _make_assertions() -> None:
+        nonlocal called
+        assert not temp_auth_server.running
+        assert temp_auth_server.wait_for_request("/get_auth_code", max_wait=5) == {
+            "code": "abcdefghijklmnopqrstuvwxyz",
+        }
+        assert temp_auth_server.running
+        called = True
+
+    t = Thread(target=_make_assertions)
+    t.start()
+
+    get(GET_AUTH_URL + "?code=abcdefghijklmnopqrstuvwxyz")
+
+    t.join()
+
+    assert called
+    assert temp_auth_server.running

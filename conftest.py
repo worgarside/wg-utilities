@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from collections.abc import Callable, Generator
 from http import HTTPStatus
-from json import dumps, load, loads
+from json import dump, dumps, load, loads
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, LogRecord, getLogger
 from os import listdir, walk
 from os.path import join
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from textwrap import dedent
 from typing import TypeVar, cast
 from unittest.mock import MagicMock
@@ -31,9 +32,11 @@ from pytest import FixtureRequest, fixture
 from requests import get
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import MissingSchema
+from requests_mock import Mocker
 from voluptuous import All, Schema
 
 from wg_utilities.api import TempAuthServer
+from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
 from wg_utilities.devices.dht22 import DHT22Sensor
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
 from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import CurrentTrack
@@ -308,6 +311,22 @@ def _dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
     return DHT22Sensor(pigpio_pi, 4)
 
 
+@fixture(scope="function", name="fake_oauth_credentials")  # type: ignore[misc]
+def _fake_oauth_credentials() -> dict[str, OAuthCredentialsInfo]:
+    """Fixture for fake OAuth credentials."""
+    return {
+        "test_client_id": {
+            "access_token": "test_access_token",
+            "client_id": "test_client_id2",
+            "expires_in": 3600,
+            "refresh_token": "test_refresh_token",
+            "scope": "test_scope,test_scope_two",
+            "token_type": "Bearer",
+            "user_id": "test_user_id",
+        }
+    }
+
+
 @fixture(scope="session", name="flask_app")  # type: ignore[misc]
 def _flask_app() -> Flask:
     """Fixture for Flask app."""
@@ -395,6 +414,43 @@ def _mock_aiohttp() -> YieldFixture[aioresponses]:
         yield mock_aiohttp
 
 
+@fixture(scope="function", name="mock_requests")  # type: ignore[misc]
+def _mock_requests() -> YieldFixture[Mocker]:
+    """Fixture for mocking sync HTTP requests."""
+
+    with Mocker(real_http=False) as mock_requests:
+        yield mock_requests
+
+        mock_requests.reset()
+
+
+@fixture(scope="function", name="oauth_client")  # type: ignore[misc]
+def _oauth_client(
+    logger: Logger,
+    temp_dir: TemporaryDirectory[str],
+    fake_oauth_credentials: dict[str, OAuthCredentialsInfo],
+) -> OAuthClient:
+    """Fixture for creating an OAuthClient instance."""
+
+    # creds_cache_path=f"{temp_dir.name}/oauth_credentials.json"
+    with open(
+        creds_cache_path := f"{temp_dir}/oauth_credentials.json",
+        "w",
+        encoding="utf-8",
+    ) as fout:
+        dump(fake_oauth_credentials, fout)
+
+    return OAuthClient(
+        client_id="test_client_id",
+        client_secret="test_client_secret",
+        base_url="https://api.example.com",
+        access_token_endpoint="https://api.example.com/oauth2/token",
+        log_requests=True,
+        creds_cache_path=Path(creds_cache_path),
+        logger=logger,
+    )
+
+
 @fixture(scope="function", name="pigpio_pi")  # type: ignore[misc]
 def _pigpio_pi() -> YieldFixture[MagicMock]:
     """Fixture for creating a `pigpio.pi` instance."""
@@ -471,6 +527,14 @@ def _temp_auth_server() -> YieldFixture[TempAuthServer]:
     yield temp_auth_server
 
     temp_auth_server.stop_server()
+
+
+@fixture(scope="session", name="temp_dir")  # type: ignore[misc]
+def _temp_dir() -> YieldFixture[Path]:
+    """Fixture for creating a temporary directory."""
+
+    with TemporaryDirectory() as temp_dir:
+        yield Path(temp_dir)
 
 
 @fixture(scope="function", name="upnp_service_av_transport")  # type: ignore[misc]

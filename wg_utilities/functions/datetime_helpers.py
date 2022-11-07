@@ -25,6 +25,7 @@ DTU = DatetimeFixedUnit
 
 
 def utcnow(unit: DatetimeFixedUnit | None = None) -> datetime | int:
+    # TODO overload(?) this function for the type hinting
     """`datetime.utcnow` with optional unit conversion.
 
     Gets the current UTC time and returns it in a chosen unit. If no unit is
