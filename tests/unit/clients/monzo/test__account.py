@@ -34,13 +34,13 @@ def test_instantiation(monzo_client: MonzoClient) -> None:
     assert account.json == {
         "account_number": "12345678",
         "balance": 10000,
-        "balance_including_flexible_savings": "",
+        "balance_including_flexible_savings": 50000,
         "created": "2020-01-01T00:00:00.000Z",
         "description": "user_00001AbcdEfghIjklMnopQ",
         "id": "acc_00001AbcdEfghIjklMnopQ",
         "sort_code": "123456",
         "spend_today": 0.0,
-        "total_balance": 10000,
+        "total_balance": 50000,
     }
     assert account._monzo_client == monzo_client
     assert account.last_balance_update == datetime(1970, 1, 1)
