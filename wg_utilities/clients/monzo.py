@@ -18,7 +18,7 @@ from wg_utilities.functions import cleanse_string, user_data_dir
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
-DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
 class _MonzoAccountInfo(TypedDict):
@@ -36,13 +36,13 @@ class _MonzoAccountInfo(TypedDict):
 class _MonzoPotInfo(TypedDict):
     available_for_bills: bool
     balance: float
-    charity_id: str
+    charity_id: str | None
     cover_image_url: str
     created: str
     currency: str
     current_account_id: str
     deleted: bool
-    goal_amount: float
+    goal_amount: float | None
     has_virtual_cards: bool
     id: str
     is_tax_pot: bool
@@ -51,7 +51,7 @@ class _MonzoPotInfo(TypedDict):
     name: str
     product_id: str
     round_up: bool
-    round_up_multiplier: float
+    round_up_multiplier: float | None
     style: str
     type: str
     updated: str
@@ -237,6 +237,8 @@ class Account:
 class Pot:
     """Read-only class for Monzo pots."""
 
+    # TODO change this to Pydantic model
+
     def __init__(self, json: _MonzoPotInfo):
         self.json = json
 
@@ -251,12 +253,12 @@ class Pot:
 
     @property
     def balance(self) -> float:
-        """Balance of the pot.
+        """Balance of the pot, in pence.
 
         Returns:
             float: the pot's balance in GBP
         """
-        return float(self.json.get("balance", 0)) / 100
+        return float(self.json.get("balance", 0))
 
     @property
     def charity_id(self) -> str | None:
@@ -317,7 +319,7 @@ class Pot:
 
     @property
     def goal_amount(self) -> float | None:
-        """Goal amount of the pot.
+        """Goal amount of the pot, in pence.
 
         Returns:
             float: the user-set goal amount for the pot
@@ -325,7 +327,7 @@ class Pot:
         if not (goal_amount := self.json.get("goal_amount")):
             return None
 
-        return goal_amount / 100
+        return goal_amount
 
     @property
     def has_virtual_cards(self) -> bool | None:

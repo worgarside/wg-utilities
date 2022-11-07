@@ -39,6 +39,7 @@ from wg_utilities.api import TempAuthServer
 from wg_utilities.clients import MonzoClient
 from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
 from wg_utilities.clients.monzo import Account as MonzoAccount
+from wg_utilities.clients.monzo import Pot
 from wg_utilities.devices.dht22 import DHT22Sensor
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
 from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import CurrentTrack
@@ -421,7 +422,10 @@ def _mock_requests(request: FixtureRequest) -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 
     with Mocker(real_http=False) as mock_requests:
-        if request.node.parent.name in ("tests/unit/clients/monzo/test__account.py"):
+        if request.node.parent.name in (
+            "tests/unit/clients/monzo/test__account.py",
+            "tests/unit/clients/monzo/test__pot.py",
+        ):
             mock_requests.get(
                 f"{MonzoClient.BASE_URL}/ping/whoami",
                 status_code=HTTPStatus.OK,
@@ -463,7 +467,7 @@ def _monzo_account(monzo_client: MonzoClient) -> MonzoAccount:
             "account_number": "12345678",
             "balance": 10000,
             "balance_including_flexible_savings": 50000,
-            "created": "2020-01-01T00:00:00Z",
+            "created": "2020-01-01T00:00:00.000Z",
             "description": "test_user_id",
             "id": "test_account_id",
             "sort_code": "123456",
@@ -494,6 +498,37 @@ def _monzo_client(
         client_secret="test_client_secret",
         log_requests=True,
         creds_cache_path=Path(creds_cache_path),
+    )
+
+
+@fixture(scope="function", name="monzo_pot")  # type: ignore[misc]
+def _monzo_pot() -> Pot:
+    """Fixture for creating a Pot instance."""
+
+    return Pot(
+        json={
+            "id": "test_pot_id",
+            "name": "Pot Name",
+            "style": "",
+            "balance": 50,
+            "currency": "GBP",
+            "type": "default",
+            "product_id": "default",
+            "current_account_id": "test_account_id",
+            "cover_image_url": "https://via.placeholder.com/200x100",
+            "isa_wrapper": "",
+            "round_up": True,
+            "round_up_multiplier": None,
+            "is_tax_pot": False,
+            "created": "2020-01-01T01:00:00.000Z",
+            "updated": "2020-01-01T02:00:00.000Z",
+            "deleted": False,
+            "locked": False,
+            "available_for_bills": True,
+            "has_virtual_cards": False,
+            "goal_amount": None,
+            "charity_id": None,
+        }
     )
 
 

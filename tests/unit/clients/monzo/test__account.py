@@ -126,7 +126,7 @@ def test_created_datetime_property(monzo_account: Account) -> None:
 
     assert monzo_account.created_datetime == datetime(2020, 1, 1)
 
-    monzo_account.json["created"] = "2021-02-02T00:00:00Z"
+    monzo_account.json["created"] = "2021-02-02T00:00:00.000Z"
     assert monzo_account.created_datetime == datetime(2021, 2, 2)
 
     del monzo_account.json["created"]  # type: ignore[misc]
