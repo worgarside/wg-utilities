@@ -1,0 +1,16 @@
+{
+  "id": "test_account_id_uk_prepaid",
+  "closed": true,
+  "created": "2017-08-18T17:11:18.128Z",
+  "description": "test_user_id",
+  "type": "uk_prepaid",
+  "currency": "GBP",
+  "country_code": "GB",
+  "owners": [
+    {
+      "user_id": "test_user_id",
+      "preferred_name": "Will Garside",
+      "preferred_first_name": "Will"
+    }
+  ]
+}

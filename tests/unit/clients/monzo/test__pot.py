@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from conftest import monzo_pot_json
 from wg_utilities.clients.monzo import Pot
 
 
@@ -95,6 +96,9 @@ def test_created_datetime_property(monzo_pot: Pot) -> None:
     assert monzo_pot.created_datetime == datetime(2020, 1, 1, 1)
     monzo_pot.json["created"] = "2020-01-01T02:00:00.000Z"
     assert monzo_pot.created_datetime == datetime(2020, 1, 1, 2)
+
+    del monzo_pot.json["created"]  # type: ignore[misc]
+    assert monzo_pot.created_datetime is None
 
 
 def test_currency_property(monzo_pot: Pot) -> None:
@@ -207,3 +211,24 @@ def test_updated_datetime_property(monzo_pot: Pot) -> None:
     assert monzo_pot.updated_datetime == datetime(2020, 1, 1, 2)
     monzo_pot.json["updated"] = "2020-01-01T03:00:00.000Z"
     assert monzo_pot.updated_datetime == datetime(2020, 1, 1, 3)
+
+    del monzo_pot.json["updated"]  # type: ignore[misc]
+    assert monzo_pot.updated_datetime is None
+
+
+def test_str_representation(monzo_pot: Pot) -> None:
+    """Test the string representation of the object."""
+    assert str(monzo_pot) == "Pot Name | test_pot_id"
+
+
+def test_eq(monzo_pot: Pot) -> None:
+    """Test the equality operator."""
+    assert monzo_pot == monzo_pot  # pylint: disable=comparison-with-itself
+    assert monzo_pot == Pot(monzo_pot.json)
+    assert monzo_pot != Pot(monzo_pot_json()["pots"][4])
+    assert monzo_pot != "test"
+
+
+def test_repr(monzo_pot: Pot) -> None:
+    """Test the repr representation of the object."""
+    assert repr(monzo_pot) == f"<Pot {monzo_pot.id}>"

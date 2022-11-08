@@ -1,0 +1,28 @@
+{
+  "account_number": "12345678",
+  "balance": 10000,
+  "balance_including_flexible_savings": 50000,
+  "closed": false,
+  "created": "2020-01-01T00:00:00.000Z",
+  "country_code": "GB",
+  "currency": "GBP",
+  "description": "test_user_id",
+  "id": "test_account_id",
+  "owners": [
+    {
+      "user_id": "test_user_id",
+      "preferred_name": "Will Garside",
+      "preferred_first_name": "Will"
+    }
+  ],
+  "payment_details": {
+    "locale_uk": {
+      "account_number": "12345678",
+      "sort_code": "123456"
+    }
+  },
+  "sort_code": "123456",
+  "spend_today": 0.0,
+  "total_balance": 50000,
+  "type": "uk_retail"
+}

@@ -1,7 +1,6 @@
 """Custom client for interacting with Monzo's API."""
 from __future__ import annotations
 
-from collections.abc import Generator
 from datetime import datetime, timedelta
 from logging import DEBUG, getLogger
 from pathlib import Path
@@ -13,7 +12,7 @@ from webbrowser import open as open_browser
 from requests import get, put
 
 from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
-from wg_utilities.functions import cleanse_string, user_data_dir
+from wg_utilities.functions import DTU, cleanse_string, user_data_dir, utcnow
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -25,6 +24,7 @@ class _MonzoAccountInfo(TypedDict):
     account_number: str
     balance: float
     balance_including_flexible_savings: float
+    closed: bool | None
     created: str
     description: str
     id: str
@@ -175,6 +175,15 @@ class Account:
         )  # type: ignore[return-value]
 
     @property
+    def closed(self) -> bool:
+        """Whether the account is closed.
+
+        Returns:
+            bool: the description of the account
+        """
+        return self.json.get("closed") or False
+
+    @property
     def created_datetime(self) -> datetime | None:
         """When the account was created.
 
@@ -232,6 +241,17 @@ class Account:
              combined total of all the user’s pots
         """
         return self._get_balance_property("total_balance")  # type: ignore[return-value]
+
+    def __eq__(self, other: object) -> bool:
+        """Checks if two accounts are equal."""
+        if not isinstance(other, Account):
+            return NotImplemented
+
+        return self.id == other.id
+
+    def __repr__(self) -> str:
+        """Representation of the account."""
+        return f"<Account {self.id}>"
 
 
 class Pot:
@@ -443,6 +463,17 @@ class Pot:
     def __str__(self) -> str:
         return f"{self.name} | {self.id}"
 
+    def __eq__(self, other: object) -> bool:
+        """Checks if two accounts are equal."""
+        if not isinstance(other, Pot):
+            return NotImplemented
+
+        return self.id == other.id
+
+    def __repr__(self) -> str:
+        """Representation of the account."""
+        return f"<Pot {self.id}>"
+
 
 class MonzoClient(OAuthClient):
     """Custom client for interacting with Monzo's API."""
@@ -472,7 +503,7 @@ class MonzoClient(OAuthClient):
             creds_cache_path=creds_cache_path or self.CREDS_FILE_PATH,
         )
 
-        self._current_account: Account | None = None
+        self._current_account: Account
 
     def deposit_into_pot(
         self, pot: Pot, amount_pence: int, dedupe_id: str | None = None
@@ -486,7 +517,9 @@ class MonzoClient(OAuthClient):
              created if not provided
         """
 
-        dedupe_id = dedupe_id or "|".join([pot.id, str(amount_pence)])
+        dedupe_id = dedupe_id or "|".join(
+            [pot.id, str(amount_pence), str(utcnow(DTU.SECOND))]
+        )
 
         res = put(
             f"{self.BASE_URL}/pots/{pot.id}/deposit",
@@ -500,46 +533,48 @@ class MonzoClient(OAuthClient):
         res.raise_for_status()
 
     def list_accounts(
-        self, ignore_closed: bool = True, account_type: str | None = None
-    ) -> Generator[Account, None, None]:
+        self, *, include_closed: bool = False, account_type: str | None = None
+    ) -> list[Account]:
         """Gets a list of the user's accounts.
 
         Args:
-            ignore_closed (bool): whether to include closed accounts in the response
+            include_closed (bool): whether to include closed accounts in the response
             account_type (str): the type of account(s) to find; submitted as param in
              request
 
-        Yields:
-            Account: Account instances, containing all related info
+        Returns:
+            list: Account instances, containing all related info
         """
 
         res = self.get_json_response(
             "/accounts", params={"account_type": account_type} if account_type else None
         )
 
-        for account in res.get("accounts", []):
-            if ignore_closed and account.get("closed", False) is True:
-                continue
-            yield Account(account, self)
+        return [
+            Account(account, self)
+            for account in res.get("accounts", [])
+            if not account.get("closed", True) or include_closed
+        ]
 
-    def list_pots(self, ignore_deleted: bool = True) -> Generator[Pot, None, None]:
+    def list_pots(self, *, include_deleted: bool = False) -> list[Pot]:
         """Gets a list of the user's pots.
 
         Args:
-            ignore_deleted (bool): whether to include deleted pots in the response
+            include_deleted (bool): whether to include deleted pots in the response
 
-        Yields:
-            Pot: Pot instances, containing all related info
+        Returns:
+            list: Pot instances, containing all related info
         """
 
         res = self.get_json_response(
             "/pots", params={"current_account_id": self.current_account.id}
         )
 
-        for pot in res.get("pots", []):
-            if ignore_deleted and pot.get("deleted", False) is True:
-                continue
-            yield Pot(pot)
+        return [
+            Pot(pot)
+            for pot in res.get("pots", [])
+            if not pot.get("deleted", True) or include_deleted
+        ]
 
     def get_pot_by_id(self, pot_id: str) -> Pot | None:
         """Get a pot from its ID.
@@ -550,7 +585,7 @@ class MonzoClient(OAuthClient):
         Returns:
             Pot: the Pot instance
         """
-        for pot in self.list_pots():
+        for pot in self.list_pots(include_deleted=True):
             if pot.id == pot_id:
                 return pot
 
@@ -570,8 +605,8 @@ class MonzoClient(OAuthClient):
         if not exact_match:
             pot_name = cleanse_string(pot_name)
 
-        for pot in self.list_pots():
-            found_name = pot_name if exact_match else cleanse_string(pot.name).lower()
+        for pot in self.list_pots(include_deleted=True):
+            found_name = pot.name if exact_match else cleanse_string(pot.name)
             if found_name.lower() == pot_name.lower():
                 return pot
 
@@ -587,7 +622,8 @@ class MonzoClient(OAuthClient):
         Returns:
             bool: expiry status of JWT
         """
-        self._load_local_credentials()
+        if not hasattr(self, "_credentials"):
+            self._load_local_credentials()
 
         if not (access_token := self._credentials.get("access_token", False)):
             return True
@@ -627,7 +663,8 @@ class MonzoClient(OAuthClient):
 
             if state_token != request_args.get("state"):
                 raise ValueError(
-                    "State token received in request doesn't match expected value"
+                    "State token received in request doesn't match expected value: "
+                    f"{request_args.get('state')} != {state_token}"
                 )
 
             self.exchange_auth_code(request_args["code"])
@@ -655,9 +692,7 @@ class MonzoClient(OAuthClient):
         Returns:
             Account: the user's main account, instantiated
         """
-        if not self._current_account:
-            self._current_account = list(self.list_accounts(account_type="uk_retail"))[
-                0
-            ]
+        if not hasattr(self, "_current_account"):
+            self._current_account = self.list_accounts(account_type="uk_retail")[0]
 
         return self._current_account

@@ -260,7 +260,8 @@ def test_nested_callable_override(
     }
 )
 def test_non_mocked_calls_still_go_to_aws(
-    mb3c: MockBoto3Client, s3_client: S3Client
+    mb3c: MockBoto3Client,
+    s3_client: S3Client,
 ) -> None:
     """Test that non-mocked calls still go to AWS."""
     with patch(

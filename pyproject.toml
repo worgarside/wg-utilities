@@ -55,11 +55,6 @@ log_cli_level = "warning"
 pythonpath = ["wg_utilities"]
 testpaths = ["tests"]
 env = [
-    "AWS_ACCESS_KEY_ID=AKIATESTTESTTESTTEST",
-    "AWS_SECRET_ACCESS_KEY=T3ST/S3CuR17Y*K3Y[S7R1NG!?L00K5.L1K3.17!",
-    "AWS_SECURITY_TOKEN=ANYVALUEWEWANTINHERE",
-    "AWS_SESSION_TOKEN=ASLONGASITISNOTREAL",
-    "AWS_DEFAULT_REGION=eu-west-1",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:boto.*:",

@@ -1,0 +1,29 @@
+{
+  "id": "test_account_id_uk_retail_joint",
+  "closed": true,
+  "created": "2018-10-06T18:47:43.118Z",
+  "description": "Joint account between test_user_id and test_user_id_2",
+  "type": "uk_retail_joint",
+  "currency": "GBP",
+  "country_code": "GB",
+  "owners": [
+    {
+      "user_id": "test_user_id",
+      "preferred_name": "Will Garside",
+      "preferred_first_name": "Will"
+    },
+    {
+      "user_id": "test_user_id_2",
+      "preferred_name": "Scarlett Johannson",
+      "preferred_first_name": "ScarJo"
+    }
+  ],
+  "account_number": "22446688",
+  "sort_code": "123456",
+  "payment_details": {
+    "locale_uk": {
+      "account_number": "22446688",
+      "sort_code": "123456"
+    }
+  }
+}

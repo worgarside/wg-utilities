@@ -6,13 +6,13 @@ from collections.abc import Callable, Generator
 from http import HTTPStatus
 from json import dump, dumps, load, loads
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, LogRecord, getLogger
-from os import listdir, walk
+from os import environ, listdir, walk
 from os.path import join
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from textwrap import dedent
-from typing import TypeVar, cast
-from unittest.mock import MagicMock
+from typing import Literal, TypeVar, cast
+from unittest.mock import MagicMock, patch
 from xml.etree import ElementTree
 
 from aioresponses import aioresponses
@@ -33,13 +33,15 @@ from requests import get
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import MissingSchema
 from requests_mock import Mocker
+from requests_mock.request import _RequestObjectProxy
+from requests_mock.response import _Context
 from voluptuous import All, Schema
 
 from wg_utilities.api import TempAuthServer
 from wg_utilities.clients import MonzoClient
 from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
 from wg_utilities.clients.monzo import Account as MonzoAccount
-from wg_utilities.clients.monzo import Pot
+from wg_utilities.clients.monzo import Pot, _MonzoAccountInfo, _MonzoPotInfo
 from wg_utilities.devices.dht22 import DHT22Sensor
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
 from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import CurrentTrack
@@ -49,6 +51,7 @@ from wg_utilities.testing import MockBoto3Client
 
 T = TypeVar("T")
 YieldFixture = Generator[T, None, None]
+
 
 EXCEPTION_GENERATORS: list[
     tuple[
@@ -85,6 +88,17 @@ YAS_209_IP = "192.168.1.1"
 YAS_209_HOST = f"http://{YAS_209_IP}:49152"
 
 # <editor-fold desc="JSON Objects">
+
+
+def read_json_file(json_dir_path: str) -> JSONObj:
+    """Read a JSON file from the flat files `json` subdirectory.
+
+    Args:
+        json_dir_path (str): the path to the JSON file, relative to the flat files
+            `json` subdirectory
+    """
+    with open(FLAT_FILES_DIR / "json" / json_dir_path, encoding="utf-8") as fin:
+        return cast(JSONObj, load(fin))
 
 
 def fix_colon_keys(json_obj: JSONObj) -> JSONObj:
@@ -127,22 +141,151 @@ def fix_colon_keys(json_obj: JSONObj) -> JSONObj:
     return cast(JSONObj, loads(json_str))
 
 
+def monzo_account_json(
+    request: _RequestObjectProxy = None,
+    _: _Context = None,  # noqa: N803
+    *,
+    account_type: str = "uk_prepaid",
+) -> dict[Literal["accounts"], list[_MonzoAccountInfo]]:
+    """Return sample Monzo account JSON.
+
+    Returns:
+        dict: the JSON object
+
+    Raises:
+        ValueError: if the account type is invalid
+    """
+    uk_retail = read_json_file("monzo/account/uk_retail.json")
+
+    if request is not None:
+        account_type = request.qs.get("account_type")[0]
+
+    account_list = []
+
+    if account_type == "uk_prepaid":
+        account_list.append(read_json_file("monzo/account/uk_prepaid.json"))
+    elif account_type == "uk_retail":
+        account_list.append(uk_retail)
+        account_list.append(read_json_file("monzo/account/uk_retail_closed.json"))
+
+    elif account_type == "uk_monzo_flex":
+        account_list.append(read_json_file("monzo/account/uk_monzo_flex.json"))
+
+    elif account_type == "uk_monzo_flex_backing_loan":
+        account_list.append(
+            read_json_file("monzo/account/uk_monzo_flex_backing_loan_1.json")
+        )
+        account_list.append(
+            read_json_file("monzo/account/uk_monzo_flex_backing_loan_2.json")
+        )
+        account_list.append(
+            read_json_file("monzo/account/uk_monzo_flex_backing_loan_3.json")
+        )
+
+    elif account_type == "uk_retail_joint":
+        account_list.append(read_json_file("monzo/account/uk_retail_joint.json"))
+    else:
+        raise ValueError(f"Unknown account type: {account_type!r}")
+
+    return {"accounts": cast(list[_MonzoAccountInfo], account_list)}
+
+
+def monzo_pot_json() -> dict[Literal["pots"], list[_MonzoPotInfo]]:
+    """Return a list of sample Monzo Pot JSON objects.
+
+    Returns:
+        list[dict]: the JSON objects
+    """
+    default_pot_values = {
+        "currency": "GBP",
+        "type": "default",
+        "product_id": "default",
+        "isa_wrapper": "",
+        "cover_image_url": "https://via.placeholder.com/200x100",
+        "round_up": False,
+        "round_up_multiplier": None,
+        "is_tax_pot": False,
+        "locked": False,
+        "available_for_bills": True,
+        "has_virtual_cards": False,
+    }
+
+    return {
+        "pots": [
+            {
+                **default_pot_values,  # type: ignore[misc]
+                "id": "test_pot_id_1",
+                "name": "Bills",
+                "style": "",
+                "balance": 50000,
+                "current_account_id": "test_account_id",
+                "created": "2018-08-23T22:34:19.122Z",
+                "updated": "2020-07-10T22:39:33.262Z",
+                "deleted": False,
+            },
+            {
+                **default_pot_values,  # type: ignore[misc]
+                "id": "test_pot_id_savings",
+                "name": "Savings",
+                "style": "piggy_bank",
+                "balance": 2000000,
+                "type": "flexible_savings",
+                "product_id": "BigBank_2015-01-01_ISA",
+                "isa_wrapper": "ISA",
+                "created": "2019-05-15T06:54:56.762Z",
+                "updated": "2020-07-10T22:39:34.638Z",
+                "deleted": False,
+                "available_for_bills": False,
+            },
+            {
+                **default_pot_values,  # type: ignore[misc]
+                "id": "test_pot_id_2",
+                "name": "New Car",
+                "style": "",
+                "balance": 0,
+                "goal_amount": 100000000,
+                "created": "2019-06-05T06:59:17.502Z",
+                "updated": "2020-07-10T22:39:34.703Z",
+                "deleted": True,
+            },
+            {
+                **default_pot_values,  # type: ignore[misc]
+                "id": "test_pot_id_3",
+                "name": "Ibiza Mad One",
+                "style": "teal",
+                "balance": 0,
+                "goal_amount": 50000,
+                "created": "2019-05-14T16:51:39.657Z",
+                "updated": "2020-07-10T22:39:34.529Z",
+                "deleted": True,
+            },
+            {
+                **default_pot_values,  # type: ignore[misc]
+                "id": "test_pot_id_4",
+                "name": "Round Ups",
+                "style": "cactus",
+                "balance": 5000,
+                "round_up": True,
+                "round_up_multiplier": 1,
+                "created": "2020-11-05T22:55:54.031Z",
+                "updated": "2021-06-15T09:50:39.238Z",
+                "deleted": False,
+                "locked": True,
+                "lock_type": "until_date",
+                "locked_until": "2026-04-20T00:00:00Z",
+            },
+        ]
+    }
+
+
 def random_nested_json() -> JSONObj:
     """Return a random nested JSON object."""
-    with open(
-        FLAT_FILES_DIR / "json" / "random_nested.json",
-        encoding="utf-8",
-    ) as fin:
-        return load(fin)  # type: ignore[no-any-return]
+    return read_json_file("random_nested.json")
 
 
 def random_nested_json_with_arrays() -> JSONObj:
     """Return a random nested JSON object with lists as values."""
-    with open(
-        FLAT_FILES_DIR / "json" / "random_nested_with_arrays.json",
-        encoding="utf-8",
-    ) as fin:
-        return load(fin)  # type: ignore[no-any-return]
+    return read_json_file("random_nested_with_arrays.json")
 
 
 def random_nested_json_with_arrays_and_stringified_json() -> JSONObj:
@@ -154,11 +297,7 @@ def random_nested_json_with_arrays_and_stringified_json() -> JSONObj:
     Returns:
         JSONObj: randomly generated JSON
     """
-    with open(
-        FLAT_FILES_DIR / "json" / "random_nested_with_arrays_and_stringified_json.json",
-        encoding="utf-8",
-    ) as fin:
-        return load(fin)  # type: ignore[no-any-return]
+    return read_json_file("random_nested_with_arrays_and_stringified_json.json")
 
 
 def yamaha_yas_209_get_media_info_responses(
@@ -169,16 +308,11 @@ def yamaha_yas_209_get_media_info_responses(
     Yields:
         list: a list of `getMediaInfo` responses
     """
-    for file in listdir(
-        get_media_info_dir := (
-            FLAT_FILES_DIR / "json" / "yamaha_yas_209" / "get_media_info"
-        )
-    ):
-        with open(get_media_info_dir / file, encoding="utf-8") as fin:
-            json: JSONObj = load(fin)
-            values: CurrentTrack.Info | None = other_test_parameters.get(file)
+    for file in listdir(FLAT_FILES_DIR / "json" / "yamaha_yas_209" / "get_media_info"):
+        json = read_json_file(f"yamaha_yas_209/get_media_info/{file}")
+        values: CurrentTrack.Info | None = other_test_parameters.get(file)
 
-            yield (json, values)
+        yield (json, values)
 
 
 def yamaha_yas_209_last_change_av_transport_event_singular() -> JSONObj:
@@ -188,22 +322,18 @@ def yamaha_yas_209_last_change_av_transport_event_singular() -> JSONObj:
         JSONObj: a `LastChange` event
     """
 
-    with open(
-        FLAT_FILES_DIR
-        / "json"
-        / "yamaha_yas_209"
-        / "event_payloads"
-        / "av_transport"
-        / "payload_20221013234843601604.json",
-        encoding="utf-8",
-    ) as fin:
+    json_obj = fix_colon_keys(
+        read_json_file(
+            join(
+                "yamaha_yas_209",
+                "event_payloads",
+                "av_transport",
+                "payload_20221013234843601604.json",
+            )
+        )
+    )["last_change"]
 
-        # The files are what's saved in HA, but we only need the lastChange object
-        json_obj: JSONObj = fix_colon_keys(load(fin))[  # type: ignore[assignment]
-            "last_change"
-        ]
-
-        return json_obj
+    return cast(JSONObj, json_obj)
 
 
 def yamaha_yas_209_last_change_av_transport_events(
@@ -221,34 +351,31 @@ def yamaha_yas_209_last_change_av_transport_events(
     other_test_parameters = other_test_parameters or {}
     for file in sorted(
         listdir(
-            last_change_dir := (
-                FLAT_FILES_DIR
-                / "json"
-                / "yamaha_yas_209"
-                / "event_payloads"
-                / "av_transport"
-            )
+            FLAT_FILES_DIR
+            / "json"
+            / "yamaha_yas_209"
+            / "event_payloads"
+            / "av_transport"
         )
     ):
-        with open(last_change_dir / file, encoding="utf-8") as fin:
+        json_obj = cast(
+            JSONObj,
+            fix_colon_keys(
+                read_json_file(f"yamaha_yas_209/event_payloads/av_transport/{file}")
+            )["last_change"],
+        )
 
-            # The files are what's saved in HA, but we only need the lastChange object
-            json_obj: JSONObj = fix_colon_keys(load(fin))[  # type: ignore[assignment]
-                "last_change"
-            ]
-
-            if values := other_test_parameters.get(
-                file,
-            ):
-                yield json_obj, values
-            elif other_test_parameters:
-                # If we're sending 2 arguments for any, we need to send 2 arguments for
-                # all
-                yield json_obj, None
-            else:
-                # Removing the parentheses here gives me typing errors, and removing
-                # the comma makes the `yield` statement fail for some reason
-                yield (json_obj,)  # type: ignore[misc]
+        if values := other_test_parameters.get(
+            file,
+        ):
+            yield json_obj, values
+        elif other_test_parameters:
+            # If we're sending 2 arguments for any, we need to send 2 arguments for all
+            yield json_obj, None
+        else:
+            # Removing the parentheses here gives me typing errors, and removing
+            # the comma makes the `yield` statement fail for some reason
+            yield (json_obj,)  # type: ignore[misc]
 
 
 def yamaha_yas_209_last_change_rendering_control_events(
@@ -262,37 +389,57 @@ def yamaha_yas_209_last_change_rendering_control_events(
     other_test_parameters = other_test_parameters or {}
     for file in sorted(
         listdir(
-            last_change_dir := (
-                FLAT_FILES_DIR
-                / "json"
-                / "yamaha_yas_209"
-                / "event_payloads"
-                / "rendering_control"
-            )
+            FLAT_FILES_DIR
+            / "json"
+            / "yamaha_yas_209"
+            / "event_payloads"
+            / "rendering_control"
         )
     ):
-        with open(last_change_dir / file, encoding="utf-8") as fin:
-            # The files are what's saved in HA, but we only need the lastChange object
-            json_obj: JSONObj = fix_colon_keys(load(fin))[  # type: ignore[assignment]
-                "last_change"
-            ]
+        json_obj = cast(
+            JSONObj,
+            fix_colon_keys(
+                read_json_file(
+                    f"yamaha_yas_209/event_payloads/rendering_control/{file}"
+                )
+            )["last_change"],
+        )
 
-            if values := other_test_parameters.get(
-                file,
-            ):
-                yield json_obj, values
-            elif other_test_parameters:
-                # If we're sending 2 arguments for any, we need to send 2 arguments for
-                # all
-                yield json_obj, None
-            else:
-                # Removing the parentheses here gives me typing errors, and removing
-                # the comma makes the `yield` statement fail for some reason
-                yield (json_obj,)  # type: ignore[misc]
+        if values := other_test_parameters.get(
+            file,
+        ):
+            yield json_obj, values
+        elif other_test_parameters:
+            # If we're sending 2 arguments for any, we need to send 2 arguments for all
+            yield json_obj, None
+        else:
+            # Removing the parentheses here gives me typing errors, and removing
+            # the comma makes the `yield` statement fail for some reason
+            yield (json_obj,)  # type: ignore[misc]
 
 
 # </editor-fold>
 # <editor-fold desc="Fixtures">
+
+
+@fixture(scope="function", name="aws_credentials_env_vars")  # type: ignore[misc]
+def _aws_credentials_env_vars() -> YieldFixture[None]:
+    """Mocks environment variables.
+
+    This is done here instead of in`pyproject.toml` because `pytest-aws-config` blocks
+    consuming AWS credentials from all env vars.
+    """
+    with patch.dict(
+        environ,
+        {
+            "AWS_ACCESS_KEY_ID": "AKIATESTTESTTESTTEST",
+            "AWS_SECRET_ACCESS_KEY": "T3ST/S3CuR17Y*K3Y[S7R1NG!?L00K5.L1K3.17!",
+            "AWS_SECURITY_TOKEN": "ANYVALUEWEWANTINHERE",
+            "AWS_SESSION_TOKEN": "ASLONGASITISNOTREAL",
+            "AWS_DEFAULT_REGION": "eu-west-1",
+        },
+    ):
+        yield
 
 
 @fixture(scope="function", name="current_track_null")  # type: ignore[misc]
@@ -320,7 +467,7 @@ def _fake_oauth_credentials() -> dict[str, OAuthCredentialsInfo]:
     return {
         "test_client_id": {
             "access_token": "test_access_token",
-            "client_id": "test_client_id2",
+            "client_id": "test_client_id",
             "expires_in": 3600,
             "refresh_token": "test_refresh_token",
             "scope": "test_scope,test_scope_two",
@@ -338,7 +485,9 @@ def _flask_app() -> Flask:
 
 
 @fixture(scope="function", name="lambda_client")  # type: ignore[misc]
-def _lambda_client() -> LambdaClient:
+def _lambda_client(
+    aws_credentials_env_vars: None,  # pylint: disable=unused-argument
+) -> LambdaClient:
     """Fixture for creating a boto3 client instance for Lambda Functions."""
     return client("lambda")
 
@@ -421,24 +570,30 @@ def _mock_aiohttp() -> YieldFixture[aioresponses]:
 def _mock_requests(request: FixtureRequest) -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 
+    def _whoami_json_cb(
+        request: _RequestObjectProxy = None,
+        _: _Context = None,  # noqa: N803
+    ) -> dict[Literal["authenticated"], bool]:
+        return {
+            "authenticated": request.headers["Authorization"]
+            != "Bearer expired_access_token",
+        }
+
     with Mocker(real_http=False) as mock_requests:
         if request.node.parent.name in (
             "tests/unit/clients/monzo/test__account.py",
+            "tests/unit/clients/monzo/test__monzo_client.py",
             "tests/unit/clients/monzo/test__pot.py",
         ):
             mock_requests.get(
                 f"{MonzoClient.BASE_URL}/ping/whoami",
                 status_code=HTTPStatus.OK,
                 reason=HTTPStatus.OK.phrase,
-                json={
-                    "authenticated": True,
-                    "client_id": "test_client_id",
-                    "user_id": "test_user_id",
-                },
+                json=_whoami_json_cb,
             )
 
             mock_requests.get(
-                f"{MonzoClient.BASE_URL}/balance?account_id=test_account_id",
+                f"{MonzoClient.BASE_URL}/balance",
                 status_code=HTTPStatus.OK,
                 reason=HTTPStatus.OK.phrase,
                 json={
@@ -453,9 +608,42 @@ def _mock_requests(request: FixtureRequest) -> YieldFixture[Mocker]:
                 },
             )
 
-        yield mock_requests
+            mock_requests.put(
+                f"{MonzoClient.BASE_URL}/pots/test_pot_id/deposit",
+                status_code=HTTPStatus.OK,
+                reason=HTTPStatus.OK.phrase,
+            )
 
-        mock_requests.reset()
+            mock_requests.get(
+                f"{MonzoClient.BASE_URL}/accounts",
+                status_code=HTTPStatus.OK,
+                reason=HTTPStatus.OK.phrase,
+                json=monzo_account_json,
+            )
+
+            mock_requests.get(
+                f"{MonzoClient.BASE_URL}/pots",
+                status_code=HTTPStatus.OK,
+                reason=HTTPStatus.OK.phrase,
+                json=monzo_pot_json(),
+            )
+
+            mock_requests.post(
+                MonzoClient.ACCESS_TOKEN_ENDPOINT,
+                status_code=HTTPStatus.OK,
+                reason=HTTPStatus.OK.phrase,
+                json={
+                    "access_token": "test_access_token_new",
+                    "client_id": "test_client_id",
+                    "expires_in": 3600,
+                    "refresh_token": "test_refresh_token_new",
+                    "scope": "test_scope,test_scope_two",
+                    "token_type": "Bearer",
+                    "user_id": "test_user_id",
+                },
+            )
+
+        yield mock_requests
 
 
 @fixture(scope="function", name="monzo_account")  # type: ignore[misc]
@@ -463,17 +651,7 @@ def _monzo_account(monzo_client: MonzoClient) -> MonzoAccount:
     """Fixture for creating a MonzoAccount instance."""
 
     return MonzoAccount(
-        json={
-            "account_number": "12345678",
-            "balance": 10000,
-            "balance_including_flexible_savings": 50000,
-            "created": "2020-01-01T00:00:00.000Z",
-            "description": "test_user_id",
-            "id": "test_account_id",
-            "sort_code": "123456",
-            "spend_today": 0.0,
-            "total_balance": 50000,
-        },
+        json=monzo_account_json(account_type="uk_retail")["accounts"][0],
         monzo_client=monzo_client,
     )
 
@@ -579,7 +757,9 @@ def _pinpoint_client() -> PinpointClient:
 
 
 @fixture(scope="function", name="s3_client")  # type: ignore[misc]
-def _s3_client() -> S3Client:
+def _s3_client(
+    aws_credentials_env_vars: None,  # pylint: disable=unused-argument
+) -> S3Client:
     """Fixture for creating a boto3 client instance for S3."""
     return client("s3")
 

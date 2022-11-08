@@ -5,11 +5,13 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from unittest.mock import patch
+from urllib.parse import urlencode
 
 from freezegun import freeze_time
 from pytest import LogCaptureFixture
 from requests_mock import Mocker
 
+from conftest import monzo_account_json
 from wg_utilities.clients.monzo import Account, MonzoClient
 
 
@@ -20,6 +22,7 @@ def test_instantiation(monzo_client: MonzoClient) -> None:
             "account_number": "12345678",
             "balance": 10000,
             "balance_including_flexible_savings": 50000,
+            "closed": False,
             "created": "2020-01-01T00:00:00.000Z",
             "description": "user_00001AbcdEfghIjklMnopQ",
             "id": "acc_00001AbcdEfghIjklMnopQ",
@@ -35,6 +38,7 @@ def test_instantiation(monzo_client: MonzoClient) -> None:
         "account_number": "12345678",
         "balance": 10000,
         "balance_including_flexible_savings": 50000,
+        "closed": False,
         "created": "2020-01-01T00:00:00.000Z",
         "description": "user_00001AbcdEfghIjklMnopQ",
         "id": "acc_00001AbcdEfghIjklMnopQ",
@@ -84,10 +88,10 @@ def test_update_balance_variables(
         "spend_today": -115,
         "total_balance": 10000,
     }
-    assert (
-        mock_requests.request_history[1].url
-        == f"{monzo_account._monzo_client.base_url}/balance?"
-        f"account_id={monzo_account.id}"
+    assert mock_requests.request_history[
+        1
+    ].url == f"{monzo_account._monzo_client.base_url}/balance?" + urlencode(
+        {"account_id": monzo_account.id}
     )
     assert mock_requests.request_history[1].method == "GET"
 
@@ -121,6 +125,15 @@ def test_balance_including_flexible_savings_property(
     )
 
 
+def test_closed_property(monzo_account: Account) -> None:
+    """Test that the `closed` property returns the correct value."""
+
+    assert monzo_account.closed is False
+
+    monzo_account.json["closed"] = True
+    assert monzo_account.closed is True
+
+
 def test_created_datetime_property(monzo_account: Account) -> None:
     """Test that the `created_datetime` property returns the correct value."""
 
@@ -138,11 +151,17 @@ def test_description_property(monzo_account: Account) -> None:
 
     assert monzo_account.description == "test_user_id"
 
+    monzo_account.json["description"] = "yeehaw"
+    assert monzo_account.description == "yeehaw"
+
 
 def test_id_property(monzo_account: Account) -> None:
     """Test that the `id` property returns the correct value."""
 
     assert monzo_account.id == "test_account_id"
+
+    monzo_account.json["id"] = "test_account_id_2"
+    assert monzo_account.id == "test_account_id_2"
 
 
 def test_sort_code_property(monzo_account: Account) -> None:
@@ -174,3 +193,19 @@ def test_total_balance_property(
     assert (
         "Balance variable update threshold crossed, getting new values" in caplog.text
     )
+
+
+def test_eq(monzo_account: Account, monzo_client: MonzoClient) -> None:
+    """Test the equality operator."""
+    assert monzo_account == monzo_account  # pylint: disable=comparison-with-itself
+    assert monzo_account == Account(monzo_account.json, monzo_client=monzo_client)
+    assert monzo_account != Account(
+        monzo_account_json(account_type="uk_monzo_flex")["accounts"][0],
+        monzo_client=monzo_client,
+    )
+    assert monzo_account != "test"
+
+
+def test_repr(monzo_account: Account) -> None:
+    """Test the repr representation of the object."""
+    assert repr(monzo_account) == f"<Account {monzo_account.id}>"

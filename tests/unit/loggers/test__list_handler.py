@@ -1,5 +1,5 @@
-"""Unit Tests for the `ListHandler` class and its methods."""
 # pylint: disable=protected-access
+"""Unit Tests for the `ListHandler` class and its methods."""
 from __future__ import annotations
 
 from copy import deepcopy

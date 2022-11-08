@@ -14,7 +14,7 @@ def test_file_handler_is_added_to_logger() -> None:
 
     file_handler = create_file_handler(log_path := Path(__file__).parent / "foo.log")
 
-    logger = getLogger(__name__)
+    logger = getLogger("test_file_handler_is_added_to_logger")
 
     with patch("wg_utilities.loggers.create_file_handler") as mock_create_file_handler:
         mock_create_file_handler.return_value = file_handler
@@ -29,9 +29,9 @@ def test_file_handler_is_added_to_logger() -> None:
 def test_create_file_handler_is_called() -> None:
     """Test that the create_file_handler function is called."""
 
-    file_handler = create_file_handler(log_path := Path(__file__).parent / "foo.log")
+    file_handler = create_file_handler(log_path := Path(__file__).parent / "bar.log")
 
-    logger = getLogger(__name__)
+    logger = getLogger("test_create_file_handler_is_called")
 
     with patch("wg_utilities.loggers.create_file_handler") as mock_create_file_handler:
         mock_create_file_handler.return_value = file_handler

@@ -1066,8 +1066,9 @@ def test_volume_down_calls_correct_service_action(yamaha_yas_209: YamahaYas209) 
     def _set_volume(volume_level: float) -> None:
         yamaha_yas_209._volume_level = volume_level
 
-    with patch.object(yamaha_yas_209, "set_volume_level") as mock_set_volume_level:
-        mock_set_volume_level.side_effect = _set_volume
+    with patch.object(
+        yamaha_yas_209, "set_volume_level", side_effect=_set_volume
+    ) as mock_set_volume_level:
         for _ in range(10):
             yamaha_yas_209.volume_down()
             mock_set_volume_level.assert_called_once_with(
@@ -1084,8 +1085,9 @@ def test_volume_up_calls_correct_service_action(yamaha_yas_209: YamahaYas209) ->
     def _set_volume(volume_level: float) -> None:
         yamaha_yas_209._volume_level = volume_level
 
-    with patch.object(yamaha_yas_209, "set_volume_level") as mock_set_volume_level:
-        mock_set_volume_level.side_effect = _set_volume
+    with patch.object(
+        yamaha_yas_209, "set_volume_level", side_effect=_set_volume
+    ) as mock_set_volume_level:
         for _ in range(10):
             yamaha_yas_209.volume_up()
             mock_set_volume_level.assert_called_once_with(
@@ -1373,12 +1375,12 @@ def test_subscribe_creates_notify_server_with_correct_subscriptions(
     local_ip = get_local_ip("")
 
     with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer"
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
+        side_effect=_fake_server,
     ) as mock_aiohttp_notify_server, patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
-    ) as mock_sleep:
-        mock_aiohttp_notify_server.side_effect = _fake_server
-        mock_sleep.side_effect = _sleep_side_effect
+        side_effect=_sleep_side_effect,
+    ):
 
         new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
 
@@ -1443,12 +1445,12 @@ def test_subscribe_creates_notify_server_logs_subscription_errors(
         return AiohttpNotifyServer(*args, **kwargs)
 
     with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer"
-    ) as mock_aiohttp_notify_server, patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
+        side_effect=_fake_server,
+    ), patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
-    ) as mock_sleep:
-        mock_aiohttp_notify_server.side_effect = _fake_server
-        mock_sleep.side_effect = _sleep_side_effect
+        side_effect=_sleep_side_effect,
+    ):
 
         new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
 
@@ -1501,12 +1503,12 @@ def test_subscribe_resubscribes_to_active_services(
         return AiohttpNotifyServer(*args, **kwargs)
 
     with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer"
-    ) as mock_aiohttp_notify_server, patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
+        side_effect=_fake_server,
+    ), patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
-    ) as mock_sleep:
-        mock_aiohttp_notify_server.side_effect = _fake_server
-        mock_sleep.side_effect = _sleep_side_effect
+        side_effect=_sleep_side_effect,
+    ):
 
         new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
 
@@ -1554,12 +1556,12 @@ def test_subscribe_resubscribes_to_failed_services(
         return AiohttpNotifyServer(*args, **kwargs)
 
     with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer"
-    ) as mock_aiohttp_notify_server, patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
+        side_effect=_fake_server,
+    ), patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
-    ) as mock_sleep:
-        mock_aiohttp_notify_server.side_effect = _fake_server
-        mock_sleep.side_effect = _sleep_side_effect
+        side_effect=_sleep_side_effect,
+    ):
 
         new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
 
@@ -1635,12 +1637,12 @@ def test_subscribe_keeps_retrying_failed_subscriptions(
         return AiohttpNotifyServer(*args, **kwargs)
 
     with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer"
-    ) as mock_aiohttp_notify_server, patch(
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
+        side_effect=_fake_server,
+    ), patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
-    ) as mock_sleep:
-        mock_aiohttp_notify_server.side_effect = _fake_server
-        mock_sleep.side_effect = _sleep_side_effect
+        side_effect=_sleep_side_effect,
+    ):
 
         new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
 
@@ -1679,9 +1681,9 @@ def test_stop_listening_stops_listener(
         return AiohttpNotifyServer(*args, **kwargs)
 
     with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer"
-    ) as mock_aiohttp_notify_server:
-        mock_aiohttp_notify_server.side_effect = _fake_server
+        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
+        side_effect=_fake_server,
+    ):
 
         def _worker() -> None:
             new_event_loop().run_until_complete(yamaha_yas_209._subscribe())

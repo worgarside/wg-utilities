@@ -75,7 +75,7 @@ def test_get_method_sends_correct_request(
         json={"key": "value"},
     )
 
-    res = oauth_client._get(  # pylint: disable=protected-access
+    res = oauth_client._get(
         "/test_endpoint",
         params={"test_param": "test_value"},
     )
@@ -112,7 +112,7 @@ def test_get_raises_exception_for_non_200_response(
     )
 
     with raises(HTTPError) as exc_info:
-        oauth_client._get(  # pylint: disable=protected-access
+        oauth_client._get(
             "/test_endpoint",
             params={"test_param": "test_value"},
         )
@@ -135,12 +135,9 @@ def test_load_local_credentials(
 
     assert not hasattr(oauth_client, "_credentials")
 
-    oauth_client._load_local_credentials()  # pylint: disable=protected-access
+    oauth_client._load_local_credentials()
 
-    assert (
-        oauth_client._credentials  # pylint: disable=protected-access
-        == fake_oauth_credentials["test_client_id"]
-    )
+    assert oauth_client._credentials == fake_oauth_credentials["test_client_id"]
 
     oauth_client.client_id = "test_client_id_2"
     oauth_client._load_local_credentials()
@@ -294,9 +291,10 @@ def test_refresh_access_token(
         }
 
     with patch.object(
-        oauth_client, "_load_local_credentials"
+        oauth_client,
+        "_load_local_credentials",
+        side_effect=_load_local_credentials_side_effect,
     ) as mock_load_local_credentials:
-        mock_load_local_credentials.side_effect = _load_local_credentials_side_effect
         oauth_client.refresh_access_token()
 
     mock_load_local_credentials.assert_called_once()
@@ -342,9 +340,10 @@ def test_access_token_has_expired_with_invalid_token(
         assert exc_info.value.args[0] == "Invalid token header"
 
     with patch.object(
-        oauth_client, "_load_local_credentials"
-    ) as mock_load_local_credentials:
-        mock_load_local_credentials.side_effect = _load_local_credentials_side_effect
+        oauth_client,
+        "_load_local_credentials",
+        side_effect=_load_local_credentials_side_effect,
+    ):
         assert oauth_client.access_token_has_expired is True
 
     # Now just to prove that `KeyError`s are caught too
@@ -356,10 +355,8 @@ def test_access_token_has_expired_with_invalid_token(
 def test_access_token_has_expired_with_valid_token(oauth_client: OAuthClient) -> None:
     """Test the `access_token_has_expired` property returns the expected value."""
 
-    oauth_client._load_local_credentials()  # pylint: disable=protected-access
-    oauth_client._credentials[  # pylint: disable=protected-access
-        "access_token"
-    ] = encode(
+    oauth_client._load_local_credentials()
+    oauth_client._credentials["access_token"] = encode(
         # TODO remove the `int` cast once the overloading is done
         {"exp": utcnow(DatetimeFixedUnit.SECOND) + 120},  # type: ignore[operator]
         "secret",
