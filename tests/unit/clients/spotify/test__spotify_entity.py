@@ -140,7 +140,7 @@ def test_gt(spotify_entity: SpotifyEntity) -> None:
     )
 
     assert spotify_entity > new_entity
-    assert not spotify_entity > new_entity  # pylint: disable=unneeded-not
+    assert not new_entity > spotify_entity  # pylint: disable=unneeded-not
 
     with raises(TypeError) as exc_info:
         assert spotify_entity > "not a SpotifyEntity"
