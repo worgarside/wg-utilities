@@ -8,6 +8,7 @@ from enum import Enum
 from http import HTTPStatus
 from json import JSONDecodeError, dumps
 from logging import DEBUG, getLogger
+from pathlib import Path
 from re import sub
 from typing import Any, Literal, TypedDict
 
@@ -153,7 +154,7 @@ class SpotifyEntity:
         Returns:
             str: a "pretty" version of the JSON, used for debugging etc.
         """
-        return dumps(self.json, indent=4, default=str)
+        return dumps(self.json, indent=2, default=str)
 
     @property
     def description(self) -> str | None:
@@ -227,10 +228,12 @@ class SpotifyEntity:
         return hash(repr(self))
 
     def __lt__(self, other: SpotifyEntity) -> bool:
+        if not isinstance(other, SpotifyEntity):
+            return NotImplemented
         return self.name.lower() < other.name.lower()
 
     def __repr__(self) -> str:
-        return f'{type(self).__name__}(id="{self.id}")'
+        return f'{type(self).__name__}(id="{self.id}", name="{self.name}")'
 
     def __str__(self) -> str:
         return f"{self.name} ({self.id})"
@@ -688,7 +691,7 @@ class SpotifyClient:
         scope: str | list[str] | None = None,
         oauth_manager: SpotifyOAuth | None = None,
         log_requests: bool = False,
-        creds_cache_path: str | None = None,
+        creds_cache_path: Path | None = None,
     ):
         self.oauth_manager = oauth_manager or SpotifyOAuth(
             client_id=client_id,

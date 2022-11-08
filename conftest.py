@@ -38,10 +38,11 @@ from requests_mock.response import _Context
 from voluptuous import All, Schema
 
 from wg_utilities.api import TempAuthServer
-from wg_utilities.clients import MonzoClient
+from wg_utilities.clients import MonzoClient, SpotifyClient
 from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
 from wg_utilities.clients.monzo import Account as MonzoAccount
 from wg_utilities.clients.monzo import Pot, _MonzoAccountInfo, _MonzoPotInfo
+from wg_utilities.clients.spotify import SpotifyEntity
 from wg_utilities.devices.dht22 import DHT22Sensor
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
 from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import CurrentTrack
@@ -803,6 +804,46 @@ def _server_thread(flask_app: Flask) -> YieldFixture[TempAuthServer.ServerThread
 
     server_thread.shutdown()
     del server_thread
+
+
+@fixture(scope="function", name="spotify_entity")  # type: ignore[misc]
+def _spotify_entity(spotify_client: SpotifyClient) -> SpotifyEntity:
+    """Fixture for creating a SpotifyEntity instance."""
+
+    return SpotifyEntity(
+        json={
+            "description": "The official number one song of all time.",
+            "href": "https://api.spotify.com/v1/artists/0gxyHStUsqpMadRV0Di1Qt",
+            "id": "0gxyHStUsqpMadRV0Di1Qt",
+            "name": "Rick Astley",
+            "uri": "spotify:artist:0gxyHStUsqpMadRV0Di1Qt",
+            "external_urls": {
+                "spotify": "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt"
+            },
+        },
+        spotify_client=spotify_client,
+    )
+
+
+@fixture(scope="function", name="spotify_client")  # type: ignore[misc]
+def _spotify_client(
+    fake_oauth_credentials: dict[str, OAuthCredentialsInfo], temp_dir: Path
+) -> SpotifyClient:
+    """Fixture for creating a SpotifyClient instance."""
+
+    with open(
+        creds_cache_path := temp_dir / "oauth_credentials.json",
+        "w",
+        encoding="utf-8",
+    ) as fout:
+        dump(fake_oauth_credentials, fout)
+
+    return SpotifyClient(
+        client_id="test_client_id",
+        client_secret="test_client_secret",
+        log_requests=True,
+        creds_cache_path=Path(creds_cache_path),
+    )
 
 
 @fixture(scope="function", name="temp_auth_server")  # type: ignore[misc]
