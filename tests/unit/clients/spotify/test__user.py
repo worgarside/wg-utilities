@@ -84,7 +84,7 @@ def test_current_playlist_property(
     ) as mock_get_playlist_by_id:
         assert spotify_user.current_playlist == spotify_playlist
 
-    mock_get_playlist_by_id.assert_called_once_with("37i9dQZF1E8Pj76JxE3EGf")
+    mock_get_playlist_by_id.assert_called_once_with("37i9dqzf1e8pj76jxe3egf")
 
     assert (
         mock_requests.request_history[0].url
@@ -97,7 +97,7 @@ def test_current_playlist_property(
     )
     assert (
         mock_requests.request_history[1].url
-        == "https://api.spotify.com/v1/playlists/37i9dQZF1E8Pj76JxE3EGf"
+        == "https://api.spotify.com/v1/playlists/37i9dqzf1e8pj76jxe3egf"
     )
 
 
@@ -145,7 +145,7 @@ def test_current_track_property(
 
     assert spotify_user.current_track == Track(
         json=read_json_file(  # type: ignore[arg-type]
-            "spotify/tracks/5wakjJAy1qMk5h8y1DUEhJ.json"
+            "spotify/tracks/5wakjjay1qmk5h8y1duehj.json"
         ),
         spotify_client=spotify_user._spotify_client,
     )
@@ -194,7 +194,7 @@ def test_followed_artists_property(
             ][  # type: ignore[call-overload]
                 "items"  # type: ignore[index]
             ],
-            *read_json_file(f"{prefix}after=77BznF1Dr1k5KyEZ6Nn3jB&limit=50.json")[
+            *read_json_file(f"{prefix}after=77bznf1dr1k5kyez6nn3jb&limit=50.json")[
                 "artists"
             ][  # type: ignore[call-overload]
                 "items"  # type: ignore[index]

@@ -107,7 +107,9 @@ def read_json_file(json_dir_path: str) -> JSONObj:
         json_dir_path (str): the path to the JSON file, relative to the flat files
             `json` subdirectory
     """
-    with open(FLAT_FILES_DIR / "json" / json_dir_path, encoding="utf-8") as fin:
+    with open(
+        str(FLAT_FILES_DIR / "json" / json_dir_path).lower(), encoding="utf-8"
+    ) as fin:
         return cast(JSONObj, load(fin))
 
 
@@ -931,7 +933,7 @@ def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
 
     return Playlist(
         json=read_json_file(  # type: ignore[arg-type]
-            "spotify/playlists/37i9dQZF1E8Pj76JxE3EGf.json"
+            "spotify/playlists/37i9dqzf1e8pj76jxe3egf.json"
         ),
         spotify_client=spotify_client,
     )
@@ -943,7 +945,7 @@ def _spotify_track(spotify_client: SpotifyClient) -> Track:
 
     return Track(
         json=read_json_file(  # type: ignore[arg-type]
-            "spotify/tracks/27cgqh0VRhVeM61ugTnorD.json"
+            "spotify/tracks/27cgqh0vrhvem61ugtnord.json"
         ),
         spotify_client=spotify_client,
     )
