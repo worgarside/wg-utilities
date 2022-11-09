@@ -7,8 +7,11 @@ from http import HTTPStatus
 from json import dump, dumps, load, loads
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, LogRecord, getLogger
 from os import environ, listdir, walk
-from os.path import join
+from os.path import isdir, join
 from pathlib import Path
+from random import choice
+from re import IGNORECASE
+from re import compile as compile_regex
 from tempfile import TemporaryDirectory
 from textwrap import dedent
 from typing import Literal, TypeVar, cast
@@ -35,6 +38,7 @@ from requests.exceptions import MissingSchema
 from requests_mock import Mocker
 from requests_mock.request import _RequestObjectProxy
 from requests_mock.response import _Context
+from spotipy import SpotifyOAuth
 from voluptuous import All, Schema
 
 from wg_utilities.api import TempAuthServer
@@ -42,7 +46,7 @@ from wg_utilities.clients import MonzoClient, SpotifyClient
 from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
 from wg_utilities.clients.monzo import Account as MonzoAccount
 from wg_utilities.clients.monzo import Pot, _MonzoAccountInfo, _MonzoPotInfo
-from wg_utilities.clients.spotify import SpotifyEntity
+from wg_utilities.clients.spotify import Playlist, SpotifyEntity, Track, User
 from wg_utilities.devices.dht22 import DHT22Sensor
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
 from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import CurrentTrack
@@ -84,6 +88,11 @@ EXCEPTION_GENERATORS: list[
 
 FLAT_FILES_DIR = Path(__file__).parent / "tests" / "flat_files"
 
+SPOTIFY_CLIENT_GET_ENTITY_BY_ID_PATTERN = compile_regex(
+    # pylint: disable=line-too-long
+    r"^https:\/\/api\.spotify\.com\/v1\/(playlists|tracks|albums|artists)\/([a-z0-9]{22})$",
+    flags=IGNORECASE,
+)
 
 YAS_209_IP = "192.168.1.1"
 YAS_209_HOST = f"http://{YAS_209_IP}:49152"
@@ -142,6 +151,34 @@ def fix_colon_keys(json_obj: JSONObj) -> JSONObj:
     return cast(JSONObj, loads(json_str))
 
 
+def get_flat_file_from_url(
+    request: _RequestObjectProxy = None, context: _Context = None
+) -> JSONObj:
+    """Retrieves the content of a flat JSON file for a mocked request response.
+
+    Args:
+        request (_RequestObjectProxy): the request object from the `requests` session
+        context: the context object from the `requests` session
+
+    Returns:
+        dict: the content of the flat JSON file
+    """
+    context.status_code = HTTPStatus.OK
+    context.reason = HTTPStatus.OK.phrase
+
+    file_path = f"spotify/{request.path.replace('/v1/', '')}/{request.query}".rstrip(
+        "/"
+    )
+
+    if isdir(dir_path := FLAT_FILES_DIR / "json" / file_path):
+        file = choice(listdir(dir_path))
+        file_path = file_path + "/" + str(file)
+    else:
+        file_path += ".json"
+
+    return read_json_file(file_path)
+
+
 def monzo_account_json(
     request: _RequestObjectProxy = None,
     _: _Context = None,  # noqa: N803
@@ -149,6 +186,11 @@ def monzo_account_json(
     account_type: str = "uk_prepaid",
 ) -> dict[Literal["accounts"], list[_MonzoAccountInfo]]:
     """Return sample Monzo account JSON.
+
+    Args:
+        request (_RequestObjectProxy): the request object from the `requests` session
+        _: the context object from the `requests` session (unused)
+        account_type (str): the type of account to return (if called manually)
 
     Returns:
         dict: the JSON object
@@ -299,6 +341,22 @@ def random_nested_json_with_arrays_and_stringified_json() -> JSONObj:
         JSONObj: randomly generated JSON
     """
     return read_json_file("random_nested_with_arrays_and_stringified_json.json")
+
+
+def spotify_get_entity_by_id_json_callback(
+    request: _RequestObjectProxy, _: _Context  # noqa: N803
+) -> JSONObj:
+    """Return a Spotify entity JSON object.
+
+    Args:
+        request (_RequestObjectProxy): the request object from the `requests` session
+        _: the context object from the `requests` session (unused)
+
+    Returns:
+        JSONObj: the JSON object
+    """
+    *_, entity_type, entity_id = request.path.split("/")
+    return read_json_file(f"spotify/{entity_type}/{entity_id}.json")
 
 
 def yamaha_yas_209_get_media_info_responses(
@@ -643,6 +701,23 @@ def _mock_requests(request: FixtureRequest) -> YieldFixture[Mocker]:
                     "user_id": "test_user_id",
                 },
             )
+        elif request.node.parent.name in ("tests/unit/clients/spotify/test__user.py",):
+            # Matches `https://api.spotify.com/v1/<entity_type>/<entity_id>
+            mock_requests.get(
+                SPOTIFY_CLIENT_GET_ENTITY_BY_ID_PATTERN,
+                json=get_flat_file_from_url,
+            )
+
+            for url in (
+                "/me/player/currently-playing",
+                "/me/following",
+                "/me/top/artists",
+                "/me/top/tracks",
+                "/me/player/devices",
+            ):
+                mock_requests.get(
+                    SpotifyClient.BASE_URL + url, json=get_flat_file_from_url
+                )
 
         yield mock_requests
 
@@ -812,10 +887,8 @@ def _spotify_entity(spotify_client: SpotifyClient) -> SpotifyEntity:
 
     return SpotifyEntity(
         json={
-            "description": "The official number one song of all time.",
             "href": "https://api.spotify.com/v1/artists/0gxyHStUsqpMadRV0Di1Qt",
             "id": "0gxyHStUsqpMadRV0Di1Qt",
-            "name": "Rick Astley",
             "uri": "spotify:artist:0gxyHStUsqpMadRV0Di1Qt",
             "external_urls": {
                 "spotify": "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt"
@@ -827,7 +900,9 @@ def _spotify_entity(spotify_client: SpotifyClient) -> SpotifyEntity:
 
 @fixture(scope="function", name="spotify_client")  # type: ignore[misc]
 def _spotify_client(
-    fake_oauth_credentials: dict[str, OAuthCredentialsInfo], temp_dir: Path
+    fake_oauth_credentials: dict[str, OAuthCredentialsInfo],
+    temp_dir: Path,
+    mock_requests: Mocker,  # pylint: disable=unused-argument
 ) -> SpotifyClient:
     """Fixture for creating a SpotifyClient instance."""
 
@@ -838,11 +913,49 @@ def _spotify_client(
     ) as fout:
         dump(fake_oauth_credentials, fout)
 
+    spotify_oauth_manager = MagicMock(auto_spec=SpotifyOAuth)
+    spotify_oauth_manager.get_access_token.return_value = "test_access_token"
+
     return SpotifyClient(
         client_id="test_client_id",
         client_secret="test_client_secret",
         log_requests=True,
         creds_cache_path=Path(creds_cache_path),
+        oauth_manager=spotify_oauth_manager,
+    )
+
+
+@fixture(scope="function", name="spotify_playlist")  # type: ignore[misc]
+def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
+    """Fixture for creating a Playlist instance."""
+
+    return Playlist(
+        json=read_json_file(  # type: ignore[arg-type]
+            "spotify/playlists/37i9dQZF1E8Pj76JxE3EGf.json"
+        ),
+        spotify_client=spotify_client,
+    )
+
+
+@fixture(scope="function", name="spotify_track")  # type: ignore[misc]
+def _spotify_track(spotify_client: SpotifyClient) -> Track:
+    """Fixture for creating a Track instance."""
+
+    return Track(
+        json=read_json_file(  # type: ignore[arg-type]
+            "spotify/tracks/27cgqh0VRhVeM61ugTnorD.json"
+        ),
+        spotify_client=spotify_client,
+    )
+
+
+@fixture(scope="function", name="spotify_user")  # type: ignore[misc]
+def _spotify_user(spotify_client: SpotifyClient) -> User:
+    """Fixture for creating a Spotify User instance."""
+
+    return User(
+        json=read_json_file("spotify/me/test_user_id.json"),  # type: ignore[arg-type]
+        spotify_client=spotify_client,
     )
 
 

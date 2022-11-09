@@ -13,12 +13,12 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
     """Test instantiation of the SpotifyEntity class."""
     spotify_entity = SpotifyEntity(
         {
-            "description": "tbd",
-            "href": "tbd",
-            "id": "tbd",
-            "name": "tbd",
-            "uri": "tbd",
-            "external_urls": {"spotify": "tbd"},
+            "href": "https://www.example.com",
+            "id": "unique identity value",
+            "uri": "entity:unique identity value",
+            "external_urls": {
+                "spotify": "https://www.example.com",
+            },
         },
         spotify_client=spotify_client,
         metadata={"key": "value"},
@@ -27,12 +27,12 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
     assert isinstance(spotify_entity, SpotifyEntity)
 
     assert spotify_entity.json == {
-        "description": "tbd",
-        "href": "tbd",
-        "id": "tbd",
-        "name": "tbd",
-        "uri": "tbd",
-        "external_urls": {"spotify": "tbd"},
+        "href": "https://www.example.com",
+        "id": "unique identity value",
+        "uri": "entity:unique identity value",
+        "external_urls": {
+            "spotify": "https://www.example.com",
+        },
     }
     assert spotify_entity._spotify_client == spotify_client
     assert spotify_entity.metadata == {"key": "value"}
@@ -46,10 +46,8 @@ def test_pretty_json_property(spotify_entity: SpotifyEntity) -> None:
         == dedent(
             """
     {
-      "description": "The official number one song of all time.",
       "href": "https://api.spotify.com/v1/artists/0gxyHStUsqpMadRV0Di1Qt",
       "id": "0gxyHStUsqpMadRV0Di1Qt",
-      "name": "Rick Astley",
       "uri": "spotify:artist:0gxyHStUsqpMadRV0Di1Qt",
       "external_urls": {
         "spotify": "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt"
@@ -63,7 +61,7 @@ def test_pretty_json_property(spotify_entity: SpotifyEntity) -> None:
 def test_description_property(spotify_entity: SpotifyEntity) -> None:
     """Test the description property of the SpotifyEntity class."""
 
-    assert spotify_entity.description == "The official number one song of all time."
+    assert spotify_entity.description == ""
 
 
 def test_endpoint_property(spotify_entity: SpotifyEntity) -> None:
@@ -84,7 +82,7 @@ def test_id_property(spotify_entity: SpotifyEntity) -> None:
 def test_name_property(spotify_entity: SpotifyEntity) -> None:
     """Test the name property of the SpotifyEntity class."""
 
-    assert spotify_entity.name == "Rick Astley"
+    assert spotify_entity.name == ""
 
 
 def test_uri_property(spotify_entity: SpotifyEntity) -> None:
@@ -130,17 +128,15 @@ def test_gt(spotify_entity: SpotifyEntity) -> None:
     new_entity = SpotifyEntity(
         {
             "id": "12345",
-            "description": "",
             "href": "",
-            "name": "",
             "uri": "",
             "external_urls": {"spotify": ""},
         },
         spotify_client=spotify_entity._spotify_client,
     )
 
-    assert spotify_entity > new_entity
-    assert not new_entity > spotify_entity  # pylint: disable=unneeded-not
+    assert new_entity > spotify_entity
+    assert not spotify_entity > new_entity
 
     with raises(TypeError) as exc_info:
         assert spotify_entity > "not a SpotifyEntity"
@@ -155,7 +151,7 @@ def test_hash(spotify_entity: SpotifyEntity) -> None:
     """Test the __hash__ method of the SpotifyEntity class."""
 
     assert hash(spotify_entity) == hash(
-        'SpotifyEntity(id="0gxyHStUsqpMadRV0Di1Qt", name="Rick Astley")'
+        'SpotifyEntity(id="0gxyHStUsqpMadRV0Di1Qt", name="")'
     )
 
 
@@ -165,17 +161,15 @@ def test_lt(spotify_entity: SpotifyEntity) -> None:
     new_entity = SpotifyEntity(
         {
             "id": "12345",
-            "description": "",
             "href": "",
-            "name": "",
             "uri": "",
             "external_urls": {"spotify": ""},
         },
         spotify_client=spotify_entity._spotify_client,
     )
 
-    assert new_entity < spotify_entity
-    assert not spotify_entity < new_entity  # pylint: disable=unneeded-not
+    assert spotify_entity < new_entity
+    assert not new_entity < spotify_entity
 
     with raises(TypeError) as exc_info:
         assert spotify_entity < "not a SpotifyEntity"  # type: ignore[operator]
@@ -189,13 +183,10 @@ def test_lt(spotify_entity: SpotifyEntity) -> None:
 def test_repr(spotify_entity: SpotifyEntity) -> None:
     """Test the __repr__ method of the SpotifyEntity class."""
 
-    assert (
-        repr(spotify_entity)
-        == 'SpotifyEntity(id="0gxyHStUsqpMadRV0Di1Qt", name="Rick Astley")'
-    )
+    assert repr(spotify_entity) == 'SpotifyEntity(id="0gxyHStUsqpMadRV0Di1Qt", name="")'
 
 
 def test_str(spotify_entity: SpotifyEntity) -> None:
     """Test the __str__ method of the SpotifyEntity class."""
 
-    assert str(spotify_entity) == "Rick Astley (0gxyHStUsqpMadRV0Di1Qt)"
+    assert str(spotify_entity) == "SpotifyEntity (0gxyHStUsqpMadRV0Di1Qt)"

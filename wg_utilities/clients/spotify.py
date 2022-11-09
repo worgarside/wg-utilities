@@ -11,6 +11,7 @@ from logging import DEBUG, getLogger
 from pathlib import Path
 from re import sub
 from typing import Any, Literal, TypedDict
+from urllib.parse import urlencode
 
 from pydantic import BaseModel, Extra
 from requests import Response, get, post
@@ -44,10 +45,8 @@ class Device(BaseModel, extra=Extra.allow):
 
 
 class _SpotifyEntityInfo(TypedDict):
-    description: str
     href: str
     id: str
-    name: str
     uri: str
     external_urls: dict[Literal["spotify"], str]
 
@@ -63,6 +62,8 @@ class _AlbumTracksItemInfo(TypedDict):
 
 
 class _AlbumInfo(_SpotifyEntityInfo):
+    description: str
+    name: str
     album_type: Literal["album", "single", "compilation"]
     artists: list[_ArtistInfo]
     available_markets: list[str]
@@ -76,6 +77,8 @@ class _AlbumInfo(_SpotifyEntityInfo):
 
 
 class _ArtistInfo(_SpotifyEntityInfo):
+    description: str
+    name: str
     followers: dict[str, str | None | int]
     genres: list[str]
     images: list[dict[str, str | int]]
@@ -84,6 +87,8 @@ class _ArtistInfo(_SpotifyEntityInfo):
 
 
 class _PlaylistInfo(_SpotifyEntityInfo):
+    description: str
+    name: str
     collaborative: bool
     followers: dict[str, str | None | int]
     images: list[dict[str, str | int]]
@@ -95,12 +100,21 @@ class _PlaylistInfo(_SpotifyEntityInfo):
 
 
 class _TrackInfo(_SpotifyEntityInfo):
+    description: str
+    name: str
     album: _AlbumInfo
     artists: list[_ArtistInfo]
 
 
 class _UserInfo(_SpotifyEntityInfo):
     display_name: str
+    country: str
+    email: str
+    explicit_content: dict[str, bool]
+    followers: dict[str, int | None]
+    images: list[dict[str, str | None]]
+    product: str
+    type: str
 
 
 class _TrackAudioFeaturesInfo(TypedDict):
@@ -157,13 +171,13 @@ class SpotifyEntity:
         return dumps(self.json, indent=2, default=str)
 
     @property
-    def description(self) -> str | None:
+    def description(self) -> str:
         """Description of the entity.
 
         Returns:
             str: the description of the entity
         """
-        return self.json.get("description")
+        return self.json.get("description", "")  # type: ignore[return-value]
 
     @property
     def endpoint(self) -> str | None:
@@ -175,13 +189,13 @@ class SpotifyEntity:
         return self.json.get("href")
 
     @property
-    def id(self) -> str | None:
+    def id(self) -> str:
         """ID of the entity.
 
         Returns:
             str: The base-62 identifier for the entity
         """
-        return self.json.get("id")
+        return self.json["id"]
 
     @property
     def name(self) -> str:
@@ -190,7 +204,7 @@ class SpotifyEntity:
         Returns:
             str: the name of the entity
         """
-        return self.json["name"]
+        return self.json.get("name", "")  # type: ignore[return-value]
 
     @property
     def uri(self) -> str:
@@ -222,7 +236,7 @@ class SpotifyEntity:
     def __gt__(self, other: object) -> bool:
         if not isinstance(other, SpotifyEntity):
             return NotImplemented
-        return self.name.lower() > other.name.lower()
+        return (self.name or self.id).lower() > (other.name or other.id).lower()
 
     def __hash__(self) -> int:
         return hash(repr(self))
@@ -230,13 +244,13 @@ class SpotifyEntity:
     def __lt__(self, other: SpotifyEntity) -> bool:
         if not isinstance(other, SpotifyEntity):
             return NotImplemented
-        return self.name.lower() < other.name.lower()
+        return (self.name or self.id).lower() < (other.name or other.id).lower()
 
     def __repr__(self) -> str:
         return f'{type(self).__name__}(id="{self.id}", name="{self.name}")'
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.id})"
+        return f"{self.name or type(self).__name__} ({self.id})"
 
 
 class User(SpotifyEntity):
@@ -278,9 +292,9 @@ class User(SpotifyEntity):
         """
         return [
             Device.parse_obj(device_json)
-            for device_json in self._spotify_client.get_json_response(
-                "/me/player/devices"
-            ).get("devices", [])
+            for device_json in self._spotify_client.get_items_from_url(
+                "/me/player/devices", list_key="devices"
+            )
         ]
 
     @property
@@ -293,8 +307,8 @@ class User(SpotifyEntity):
 
         res = self._spotify_client.get_json_response("/me/player/currently-playing")
 
-        if res.get("is_playing", False):
-            return Track(res["item"], spotify_client=self._spotify_client)
+        if item := res.get("item"):
+            return Track(item, spotify_client=self._spotify_client)
 
         return None
 
@@ -315,6 +329,7 @@ class User(SpotifyEntity):
                 params={
                     "type": "artist",
                 },
+                top_level_key="artists",
             )
         ]
 
@@ -792,6 +807,8 @@ class SpotifyClient:
         *,
         hard_limit: int = 1000000,
         limit_func: Callable[[dict[str, Any]], bool] | None = None,
+        top_level_key: str | None = None,
+        list_key: str = "items",
     ) -> list[
         (
             _PlaylistInfo
@@ -807,17 +824,36 @@ class SpotifyClient:
             url (str): the API endpoint which we're listing
             params (dict): any params to pass with the API request
             hard_limit (int): a hard limit to apply to the number of items returned (as
-             opposed to the "soft" limit of 50 imposed by the API)
+                opposed to the "soft" limit of 50 imposed by the API)
             limit_func (Callable): a function which is used to evaluate each item in
-             turn: if it returns False, the item is added to the output list; if it
-             returns True then the iteration stops and the list is returned as-is
+                turn: if it returns False, the item is added to the output list; if it
+                returns True then the iteration stops and the list is returned as-is
+            top_level_key (str): an optional key to use when the items in the response
+                are nested 1 level deeper than normal
+            list_key (str): the key in the response which contains the list of items
 
         Returns:
             list: a list of dicts representing the Spotify items
         """
 
+        class _GetItemsFromUrlDataInfo(TypedDict):
+            items: list[
+                (
+                    _PlaylistInfo
+                    | _TrackInfo
+                    | _AlbumInfo
+                    | _ArtistInfo
+                    | list[dict[Literal["album"], _AlbumInfo]]
+                )
+            ]
+            next: str | None
+            total: int
+            cursors: dict[Literal["after"], str] | None
+            limit: int
+            href: str
+
         params = params or {}
-        params["limit"] = min(50, hard_limit)
+        params["limit"] = min(20, hard_limit)
 
         items: list[
             (
@@ -828,20 +864,24 @@ class SpotifyClient:
                 | list[dict[Literal["album"], _AlbumInfo]]
             )
         ] = []
-        res = Response()
-        # pylint: disable=protected-access
-        res._content = dumps({"next": url}).encode()
 
-        while (next_url := res.json().get("next")) and len(items) < hard_limit:
-            params["limit"] = min(50, hard_limit - len(items))
-            # remove hardcoded limit from next URL in favour of JSON param version
-            next_url = sub(r"limit=\d{1,2}&?", "", next_url).rstrip("?&")
+        data: _GetItemsFromUrlDataInfo = {  # type: ignore[typeddict-item]
+            "next": f"{url}?{urlencode(params)}"
+        }
 
-            res = self._get(next_url, params=params)
+        while (next_url := data.get("next")) and len(items) < hard_limit:
+            # Ensure we don't bother getting more items than we need
+            limit = min(50, hard_limit - len(items))
+            next_url = sub(r"(?<=limit=)(\d{1,2})(?=&?)", str(limit), next_url)
+
+            res = self._get(next_url)
+
+            data = res.json().get(top_level_key, {}) if top_level_key else res.json()
+
             if limit_func is None:
-                items.extend(res.json().get("items", []))
+                items.extend(data.get(list_key, []))  # type: ignore[arg-type]
             else:
-                for item in res.json().get("items", []):
+                for item in data.get(list_key, []):  # type: ignore[attr-defined]
                     if limit_func(item):
                         return items
 
@@ -1175,7 +1215,9 @@ class SpotifyClient:
                 if plist.id == id_:
                     return plist
 
-        return Playlist(self._get(f"/playlists/{id_}").json(), self)
+        return Playlist(
+            self.get_json_response(f"/playlists/{id_}"), self  # type: ignore[arg-type]
+        )
 
     def get_track_by_id(self, id_: str) -> Track:
         """Get a track from Spotify based on the ID.

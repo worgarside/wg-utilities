@@ -9,7 +9,9 @@ LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
 
-JSONVal = Union[None, object, bool, str, float, int, list["JSONVal"], "JSONObj"]
+JSONVal = Union[
+    None, object, bool, str, float, int, list["JSONVal"], "JSONObj", dict[str, object]
+]
 JSONObj = dict[str, JSONVal]
 
 
