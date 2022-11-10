@@ -12,6 +12,7 @@ from pathlib import Path
 from random import choice
 from re import IGNORECASE
 from re import compile as compile_regex
+from re import fullmatch
 from tempfile import TemporaryDirectory
 from textwrap import dedent
 from typing import Literal, TypeVar, cast
@@ -46,7 +47,8 @@ from wg_utilities.clients import MonzoClient, SpotifyClient
 from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
 from wg_utilities.clients.monzo import Account as MonzoAccount
 from wg_utilities.clients.monzo import Pot, _MonzoAccountInfo, _MonzoPotInfo
-from wg_utilities.clients.spotify import Playlist, SpotifyEntity, Track, User
+from wg_utilities.clients.spotify import Album as SpotifyAlbum
+from wg_utilities.clients.spotify import Artist, Playlist, SpotifyEntity, Track, User
 from wg_utilities.devices.dht22 import DHT22Sensor
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
 from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import CurrentTrack
@@ -88,15 +90,50 @@ EXCEPTION_GENERATORS: list[
 
 FLAT_FILES_DIR = Path(__file__).parent / "tests" / "flat_files"
 
-SPOTIFY_CLIENT_GET_ENTITY_BY_ID_PATTERN = compile_regex(
-    # pylint: disable=line-too-long
-    r"^https:\/\/api\.spotify\.com\/v1\/(playlists|tracks|albums|artists)\/([a-z0-9]{22})$",
-    flags=IGNORECASE,
-)
+
+SPOTIFY_PATHS_TO_MOCK = [
+    _dir_path  # pylint: disable=used-before-assignment
+    for root, *_ in walk(f"{FLAT_FILES_DIR}/json/spotify")
+    if (_dir_path := root.replace(f"{FLAT_FILES_DIR}/json/spotify", ""))
+]
+SPOTIFY_PATTERNS_TO_MOCK = [
+    # Matches `https://api.spotify.com/v1/<entity_type>s/<entity_id>`
+    compile_regex(
+        # pylint: disable=line-too-long
+        r"^https:\/\/api\.spotify\.com\/v1\/(playlists|tracks|albums|artists|audio\-features)\/([a-z0-9]{22})$",
+        flags=IGNORECASE,
+    ),
+    # Matches `https://api.spotify.com/v1/artists/<entity_id>/albums`
+    compile_regex(
+        # pylint: disable=line-too-long
+        r"^https:\/\/api\.spotify\.com\/v1\/artists/([a-z0-9]{22})/albums(\?limit=50)?$",
+        flags=IGNORECASE,
+    ),
+]
 
 YAS_209_IP = "192.168.1.1"
 YAS_209_HOST = f"http://{YAS_209_IP}:49152"
 
+
+# <editor-fold desc="Functions">
+
+
+def assert_mock_requests_request_history(
+    request_history: list[_RequestObjectProxy],
+    expected: list[dict[str, str | dict[str, str]]],
+) -> None:
+    """Assert that the request history matches the expected data."""
+
+    for i, expected_values in enumerate(expected):
+        assert request_history[i].method == expected_values["method"]
+        assert request_history[i].url == expected_values["url"]
+        for k, v in expected_values["headers"].items():  # type: ignore[union-attr]
+            assert request_history[i].headers[k] == v
+
+    assert len(request_history) == len(expected)
+
+
+# </editor-fold>
 # <editor-fold desc="JSON Objects">
 
 
@@ -641,10 +678,8 @@ def _mock_requests(request: FixtureRequest) -> YieldFixture[Mocker]:
         }
 
     with Mocker(real_http=False) as mock_requests:
-        if request.node.parent.name in (
-            "tests/unit/clients/monzo/test__account.py",
-            "tests/unit/clients/monzo/test__monzo_client.py",
-            "tests/unit/clients/monzo/test__pot.py",
+        if fullmatch(
+            r"^tests/unit/clients/monzo/test__[a-z_]+\.py$", request.node.parent.name
         ):
             mock_requests.get(
                 f"{MonzoClient.BASE_URL}/ping/whoami",
@@ -703,22 +738,45 @@ def _mock_requests(request: FixtureRequest) -> YieldFixture[Mocker]:
                     "user_id": "test_user_id",
                 },
             )
-        elif request.node.parent.name in ("tests/unit/clients/spotify/test__user.py",):
-            # Matches `https://api.spotify.com/v1/<entity_type>/<entity_id>
+        elif fullmatch(
+            r"^tests/unit/clients/spotify/test__[a-z_]+\.py$", request.node.parent.name
+        ):
+            for url in SPOTIFY_PATHS_TO_MOCK:
+                mock_requests.get(
+                    SpotifyClient.BASE_URL + url, json=get_flat_file_from_url
+                )
+            for pattern in SPOTIFY_PATTERNS_TO_MOCK:
+                mock_requests.get(
+                    pattern,
+                    json=get_flat_file_from_url,
+                )
+
+            # Special case because it goes to a single file, not a directory with
+            # querystring-files
             mock_requests.get(
-                SPOTIFY_CLIENT_GET_ENTITY_BY_ID_PATTERN,
+                SpotifyClient.BASE_URL + "/me/player/currently-playing",
                 json=get_flat_file_from_url,
             )
 
-            for url in (
-                "/me/player/currently-playing",
-                "/me/following",
-                "/me/top/artists",
-                "/me/top/tracks",
-                "/me/player/devices",
-            ):
-                mock_requests.get(
-                    SpotifyClient.BASE_URL + url, json=get_flat_file_from_url
+            for method in ("put", "delete"):
+                for entity_type in ("albums", "following", "tracks"):
+                    mock_requests.register_uri(
+                        method,
+                        SpotifyClient.BASE_URL + f"/me/{entity_type}",
+                        status_code=HTTPStatus.OK,
+                        reason=HTTPStatus.OK.phrase,
+                    )
+
+                mock_requests.register_uri(
+                    method,
+                    # Matches `/v1/playlists/<playlist id>/followers`
+                    compile_regex(
+                        # pylint: disable=line-too-long
+                        r"^https:\/\/api\.spotify\.com\/v1\/playlists/([a-z0-9]{22})/followers",
+                        flags=IGNORECASE,
+                    ),
+                    status_code=HTTPStatus.OK,
+                    reason=HTTPStatus.OK.phrase,
                 )
 
         yield mock_requests
@@ -883,19 +941,26 @@ def _server_thread(flask_app: Flask) -> YieldFixture[TempAuthServer.ServerThread
     del server_thread
 
 
-@fixture(scope="function", name="spotify_entity")  # type: ignore[misc]
-def _spotify_entity(spotify_client: SpotifyClient) -> SpotifyEntity:
-    """Fixture for creating a SpotifyEntity instance."""
+@fixture(scope="function", name="spotify_album")  # type: ignore[misc]
+def _spotify_album(spotify_client: SpotifyClient) -> SpotifyAlbum:
+    """Fixture for creating a Spotify `Album` instance."""
 
-    return SpotifyEntity(
-        json={
-            "href": "https://api.spotify.com/v1/artists/0gxyHStUsqpMadRV0Di1Qt",
-            "id": "0gxyHStUsqpMadRV0Di1Qt",
-            "uri": "spotify:artist:0gxyHStUsqpMadRV0Di1Qt",
-            "external_urls": {
-                "spotify": "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt"
-            },
-        },
+    return SpotifyAlbum(
+        json=read_json_file(  # type: ignore[arg-type]
+            "spotify/albums/4julBAGYv4WmRXwhjJ2LPD.json"
+        ),
+        spotify_client=spotify_client,
+    )
+
+
+@fixture(scope="function", name="spotify_artist")  # type: ignore[misc]
+def _spotify_artist(spotify_client: SpotifyClient) -> Artist:
+    """Fixture for creating a Spotify `Artist` instance."""
+
+    return Artist(
+        json=read_json_file(  # type: ignore[arg-type]
+            "spotify/artists/1Ma3pJzPIrAyYPNRkp3SUF.json"
+        ),
         spotify_client=spotify_client,
     )
 
@@ -906,7 +971,7 @@ def _spotify_client(
     temp_dir: Path,
     mock_requests: Mocker,  # pylint: disable=unused-argument
 ) -> SpotifyClient:
-    """Fixture for creating a SpotifyClient instance."""
+    """Fixture for creating a `SpotifyClient` instance."""
 
     with open(
         creds_cache_path := temp_dir / "oauth_credentials.json",
@@ -927,9 +992,26 @@ def _spotify_client(
     )
 
 
+@fixture(scope="function", name="spotify_entity")  # type: ignore[misc]
+def _spotify_entity(spotify_client: SpotifyClient) -> SpotifyEntity:
+    """Fixture for creating a `SpotifyEntity` instance."""
+
+    return SpotifyEntity(
+        json={
+            "href": "https://api.spotify.com/v1/artists/0gxyHStUsqpMadRV0Di1Qt",
+            "id": "0gxyHStUsqpMadRV0Di1Qt",
+            "uri": "spotify:artist:0gxyHStUsqpMadRV0Di1Qt",
+            "external_urls": {
+                "spotify": "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt"
+            },
+        },
+        spotify_client=spotify_client,
+    )
+
+
 @fixture(scope="function", name="spotify_playlist")  # type: ignore[misc]
 def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
-    """Fixture for creating a Playlist instance."""
+    """Fixture for creating a `Playlist` instance."""
 
     return Playlist(
         json=read_json_file(  # type: ignore[arg-type]
@@ -941,7 +1023,7 @@ def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
 
 @fixture(scope="function", name="spotify_track")  # type: ignore[misc]
 def _spotify_track(spotify_client: SpotifyClient) -> Track:
-    """Fixture for creating a Track instance."""
+    """Fixture for creating a `Track` instance."""
 
     return Track(
         json=read_json_file(  # type: ignore[arg-type]

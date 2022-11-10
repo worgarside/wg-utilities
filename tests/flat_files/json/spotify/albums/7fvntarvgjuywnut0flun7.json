@@ -1,0 +1,390 @@
+{
+  "album_type": "album",
+  "artists": [
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+      },
+      "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+      "id": "37YzpfBeFju8QRZ3g0Ha1Q",
+      "name": "DJ Seinfeld",
+      "type": "artist",
+      "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q"
+    }
+  ],
+  "available_markets": [],
+  "copyrights": [
+    {
+      "text": "2021 Ninja Tune",
+      "type": "C"
+    },
+    {
+      "text": "2021 Ninja Tune",
+      "type": "P"
+    }
+  ],
+  "external_ids": {
+    "upc": "5054429148763"
+  },
+  "external_urls": {
+    "spotify": "https://open.spotify.com/album/7FvnTARvgjUyWnUT0flUN7"
+  },
+  "genres": [],
+  "href": "https://api.spotify.com/v1/albums/7FvnTARvgjUyWnUT0flUN7",
+  "id": "7FvnTARvgjUyWnUT0flUN7",
+  "images": [
+    {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab67616d0000b27357751ae9890e997676b998f2",
+      "width": 640
+    },
+    {
+      "height": 300,
+      "url": "https://i.scdn.co/image/ab67616d00001e0257751ae9890e997676b998f2",
+      "width": 300
+    },
+    {
+      "height": 64,
+      "url": "https://i.scdn.co/image/ab67616d0000485157751ae9890e997676b998f2",
+      "width": 64
+    }
+  ],
+  "label": "Ninja Tune",
+  "name": "Mirrors",
+  "popularity": 48,
+  "release_date": "2021-09-03",
+  "release_date_precision": "day",
+  "total_tracks": 10,
+  "tracks": {
+    "href": "https://api.spotify.com/v1/albums/7FvnTARvgjUyWnUT0flUN7/tracks?offset=0&limit=50",
+    "items": [
+      {
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+            },
+            "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+            "id": "37YzpfBeFju8QRZ3g0Ha1Q",
+            "name": "DJ Seinfeld",
+            "type": "artist",
+            "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/4dPeWqBSnhunEI2okArvwD"
+            },
+            "href": "https://api.spotify.com/v1/artists/4dPeWqBSnhunEI2okArvwD",
+            "id": "4dPeWqBSnhunEI2okArvwD",
+            "name": "Stella Explorer",
+            "type": "artist",
+            "uri": "spotify:artist:4dPeWqBSnhunEI2okArvwD"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 248226,
+        "explicit": false,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/2eiXRfxpCBSr4zz2qArd1z"
+        },
+        "href": "https://api.spotify.com/v1/tracks/2eiXRfxpCBSr4zz2qArd1z",
+        "id": "2eiXRfxpCBSr4zz2qArd1z",
+        "is_local": false,
+        "name": "She Loves Me",
+        "preview_url": "https://p.scdn.co/mp3-preview/d54eeaef9c6b292cd1f2ebeb350ec22731d22a58?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 1,
+        "type": "track",
+        "uri": "spotify:track:2eiXRfxpCBSr4zz2qArd1z"
+      },
+      {
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+            },
+            "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+            "id": "37YzpfBeFju8QRZ3g0Ha1Q",
+            "name": "DJ Seinfeld",
+            "type": "artist",
+            "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 222253,
+        "explicit": false,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/469tf6NgOf4nscrty0G9Us"
+        },
+        "href": "https://api.spotify.com/v1/tracks/469tf6NgOf4nscrty0G9Us",
+        "id": "469tf6NgOf4nscrty0G9Us",
+        "is_local": false,
+        "name": "Walking With Ur Smile",
+        "preview_url": "https://p.scdn.co/mp3-preview/b8a304a35c4acb8dc32d98686c2e9e906c63db80?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:469tf6NgOf4nscrty0G9Us"
+      },
+      {
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+            },
+            "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+            "id": "37YzpfBeFju8QRZ3g0Ha1Q",
+            "name": "DJ Seinfeld",
+            "type": "artist",
+            "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/3M6tK86Oc9mTbCH2kw3RWh"
+            },
+            "href": "https://api.spotify.com/v1/artists/3M6tK86Oc9mTbCH2kw3RWh",
+            "id": "3M6tK86Oc9mTbCH2kw3RWh",
+            "name": "Teira",
+            "type": "artist",
+            "uri": "spotify:artist:3M6tK86Oc9mTbCH2kw3RWh"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 252693,
+        "explicit": false,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/5sUWfe7eSoapj9d6zgjJEe"
+        },
+        "href": "https://api.spotify.com/v1/tracks/5sUWfe7eSoapj9d6zgjJEe",
+        "id": "5sUWfe7eSoapj9d6zgjJEe",
+        "is_local": false,
+        "name": "U Already Know",
+        "preview_url": "https://p.scdn.co/mp3-preview/be3fa5afced68280c4f9b3aad657b4564003a35e?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 3,
+        "type": "track",
+        "uri": "spotify:track:5sUWfe7eSoapj9d6zgjJEe"
+      },
+      {
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+            },
+            "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+            "id": "37YzpfBeFju8QRZ3g0Ha1Q",
+            "name": "DJ Seinfeld",
+            "type": "artist",
+            "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/3M6tK86Oc9mTbCH2kw3RWh"
+            },
+            "href": "https://api.spotify.com/v1/artists/3M6tK86Oc9mTbCH2kw3RWh",
+            "id": "3M6tK86Oc9mTbCH2kw3RWh",
+            "name": "Teira",
+            "type": "artist",
+            "uri": "spotify:artist:3M6tK86Oc9mTbCH2kw3RWh"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 272346,
+        "explicit": false,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/3BOoEOCwmEw0c7C9UXGkwH"
+        },
+        "href": "https://api.spotify.com/v1/tracks/3BOoEOCwmEw0c7C9UXGkwH",
+        "id": "3BOoEOCwmEw0c7C9UXGkwH",
+        "is_local": false,
+        "name": "The Right Place (feat. Teira)",
+        "preview_url": "https://p.scdn.co/mp3-preview/286dae58f72244bc0137444ae9211d0df53a1205?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 4,
+        "type": "track",
+        "uri": "spotify:track:3BOoEOCwmEw0c7C9UXGkwH"
+      },
+      {
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+            },
+            "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+            "id": "37YzpfBeFju8QRZ3g0Ha1Q",
+            "name": "DJ Seinfeld",
+            "type": "artist",
+            "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 139800,
+        "explicit": false,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/69rDY4EJvbeDckwyVPVSWm"
+        },
+        "href": "https://api.spotify.com/v1/tracks/69rDY4EJvbeDckwyVPVSWm",
+        "id": "69rDY4EJvbeDckwyVPVSWm",
+        "is_local": false,
+        "name": "Home Calling",
+        "preview_url": "https://p.scdn.co/mp3-preview/738d208d16d65344035d0f806f3897b8ea39c80a?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 5,
+        "type": "track",
+        "uri": "spotify:track:69rDY4EJvbeDckwyVPVSWm"
+      },
+      {
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+            },
+            "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+            "id": "37YzpfBeFju8QRZ3g0Ha1Q",
+            "name": "DJ Seinfeld",
+            "type": "artist",
+            "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 296360,
+        "explicit": false,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/27cgqh0VRhVeM61ugTnorD"
+        },
+        "href": "https://api.spotify.com/v1/tracks/27cgqh0VRhVeM61ugTnorD",
+        "id": "27cgqh0VRhVeM61ugTnorD",
+        "is_local": false,
+        "name": "These Things Will Come To Be",
+        "preview_url": "https://p.scdn.co/mp3-preview/6e7e31ce91fa7523d807ef6aee98d93e4fe4c8ba?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 6,
+        "type": "track",
+        "uri": "spotify:track:27cgqh0VRhVeM61ugTnorD"
+      },
+      {
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+            },
+            "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+            "id": "37YzpfBeFju8QRZ3g0Ha1Q",
+            "name": "DJ Seinfeld",
+            "type": "artist",
+            "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 276413,
+        "explicit": false,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/4CvkMAs51YsSdBhe7BEMjp"
+        },
+        "href": "https://api.spotify.com/v1/tracks/4CvkMAs51YsSdBhe7BEMjp",
+        "id": "4CvkMAs51YsSdBhe7BEMjp",
+        "is_local": false,
+        "name": "Tell Me One More Time",
+        "preview_url": "https://p.scdn.co/mp3-preview/4f6913de6df352de6f2042cde1471383726ecc38?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 7,
+        "type": "track",
+        "uri": "spotify:track:4CvkMAs51YsSdBhe7BEMjp"
+      },
+      {
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+            },
+            "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+            "id": "37YzpfBeFju8QRZ3g0Ha1Q",
+            "name": "DJ Seinfeld",
+            "type": "artist",
+            "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 277106,
+        "explicit": false,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/6YawXOEFctUeNm9FMuYASI"
+        },
+        "href": "https://api.spotify.com/v1/tracks/6YawXOEFctUeNm9FMuYASI",
+        "id": "6YawXOEFctUeNm9FMuYASI",
+        "is_local": false,
+        "name": "Someday",
+        "preview_url": "https://p.scdn.co/mp3-preview/2bd6adde7e9bddb93d1c11b69d57d393bbc6e625?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 8,
+        "type": "track",
+        "uri": "spotify:track:6YawXOEFctUeNm9FMuYASI"
+      },
+      {
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+            },
+            "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+            "id": "37YzpfBeFju8QRZ3g0Ha1Q",
+            "name": "DJ Seinfeld",
+            "type": "artist",
+            "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 205293,
+        "explicit": false,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/61khLd1CVdumcFpWmgZH4D"
+        },
+        "href": "https://api.spotify.com/v1/tracks/61khLd1CVdumcFpWmgZH4D",
+        "id": "61khLd1CVdumcFpWmgZH4D",
+        "is_local": false,
+        "name": "I Feel Better",
+        "preview_url": "https://p.scdn.co/mp3-preview/2502fafdcf2843b6dd4eff45fe40b705003499d0?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 9,
+        "type": "track",
+        "uri": "spotify:track:61khLd1CVdumcFpWmgZH4D"
+      },
+      {
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+            },
+            "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+            "id": "37YzpfBeFju8QRZ3g0Ha1Q",
+            "name": "DJ Seinfeld",
+            "type": "artist",
+            "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 339106,
+        "explicit": false,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/2lP0uCoLEsVEt1ZeFz80w6"
+        },
+        "href": "https://api.spotify.com/v1/tracks/2lP0uCoLEsVEt1ZeFz80w6",
+        "id": "2lP0uCoLEsVEt1ZeFz80w6",
+        "is_local": false,
+        "name": "Song For The Lonely",
+        "preview_url": "https://p.scdn.co/mp3-preview/914f28c0bb8c16be87515972f18877372ebc678d?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 10,
+        "type": "track",
+        "uri": "spotify:track:2lP0uCoLEsVEt1ZeFz80w6"
+      }
+    ],
+    "limit": 50,
+    "next": null,
+    "offset": 0,
+    "previous": null,
+    "total": 10
+  },
+  "type": "album",
+  "uri": "spotify:album:7FvnTARvgjUyWnUT0flUN7"
+}

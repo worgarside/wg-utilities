@@ -14,8 +14,9 @@ from typing import Any, Literal, TypedDict
 from urllib.parse import urlencode
 
 from pydantic import BaseModel, Extra
-from requests import Response, get, post
+from requests import Response, delete, get, post, put
 from spotipy import CacheFileHandler, SpotifyOAuth
+from typing_extensions import NotRequired
 
 from wg_utilities.functions import chunk_list
 
@@ -49,6 +50,8 @@ class _SpotifyEntityInfo(TypedDict):
     id: str
     uri: str
     external_urls: dict[Literal["spotify"], str]
+    description: NotRequired[str]
+    name: NotRequired[str]
 
 
 class _AlbumTracksItemInfo(TypedDict):
@@ -62,33 +65,27 @@ class _AlbumTracksItemInfo(TypedDict):
 
 
 class _AlbumInfo(_SpotifyEntityInfo):
-    description: str
-    name: str
     album_type: Literal["album", "single", "compilation"]
     artists: list[_ArtistInfo]
     available_markets: list[str]
     images: list[dict[str, str | int]]
     release_date: str
     release_date_precision: Literal["year", "month", "day", None]
-    restrictions: dict[str, str]
+    restrictions: NotRequired[dict[str, str]]
     total_tracks: int
-    tracks: _AlbumTracksItemInfo
+    tracks: NotRequired[_AlbumTracksItemInfo]
     type: Literal["album"]
 
 
 class _ArtistInfo(_SpotifyEntityInfo):
-    description: str
-    name: str
-    followers: dict[str, str | None | int]
-    genres: list[str]
-    images: list[dict[str, str | int]]
-    popularity: int
+    followers: NotRequired[dict[str, str | None | int]]
+    genres: NotRequired[list[str]]
+    images: NotRequired[list[dict[str, str | int]]]
+    popularity: NotRequired[int]
     type: Literal["artist"]
 
 
 class _PlaylistInfo(_SpotifyEntityInfo):
-    description: str
-    name: str
     collaborative: bool
     followers: dict[str, str | None | int]
     images: list[dict[str, str | int]]
@@ -100,10 +97,21 @@ class _PlaylistInfo(_SpotifyEntityInfo):
 
 
 class _TrackInfo(_SpotifyEntityInfo):
-    description: str
-    name: str
     album: _AlbumInfo
     artists: list[_ArtistInfo]
+    available_markets: list[str]
+    disc_number: int
+    duration_ms: int
+    explicit: bool
+    external_ids: dict[str, str]
+    is_local: bool
+    is_playable: NotRequired[str]
+    linked_from: NotRequired[_TrackInfo]
+    popularity: int
+    preview_url: str | None
+    restrictions: NotRequired[str]
+    track_number: int
+    type: Literal["track"]
 
 
 class _UserInfo(_SpotifyEntityInfo):
@@ -177,7 +185,7 @@ class SpotifyEntity:
         Returns:
             str: the description of the entity
         """
-        return self.json.get("description", "")  # type: ignore[return-value]
+        return self.json.get("description", "")
 
     @property
     def endpoint(self) -> str | None:
@@ -204,7 +212,7 @@ class SpotifyEntity:
         Returns:
             str: the name of the entity
         """
-        return self.json.get("name", "")  # type: ignore[return-value]
+        return self.json.get("name", "")
 
     @property
     def uri(self) -> str:
@@ -250,7 +258,7 @@ class SpotifyEntity:
         return f'{type(self).__name__}(id="{self.id}", name="{self.name}")'
 
     def __str__(self) -> str:
-        return f"{self.name or type(self).__name__} ({self.id})"
+        return self.name or f"{type(self).__name__} ({self.id})"
 
 
 class User(SpotifyEntity):
@@ -261,10 +269,158 @@ class User(SpotifyEntity):
     def __init__(
         self,
         json: _UserInfo,
+        *,
         spotify_client: SpotifyClient,
         metadata: dict[str, Any] | None = None,
     ):
         super().__init__(json=json, spotify_client=spotify_client, metadata=metadata)
+
+        self._albums: list[Album]
+        self._artists: list[Artist]
+        self._followed_artists: list[Artist]
+        self._playlists: list[Playlist]
+        self._top_artists: tuple[Artist, ...]
+        self._tracks: list[Track]
+
+    def save(self, entity: Album | Artist | Playlist | Track) -> None:
+        """Save an entity to the user's library.
+
+        Args:
+            entity (Album|Artist|Playlist|Track): the entity to save
+
+        Raises:
+            TypeError: if the entity is not of a supported type
+        """
+
+        if isinstance(entity, Album):
+            url = f"{self._spotify_client.BASE_URL}/me/albums"
+            params = {"ids": entity.id}
+        elif isinstance(entity, Artist):
+            url = f"{self._spotify_client.BASE_URL}/me/following"
+            params = {"type": "artist", "ids": entity.id}
+        elif isinstance(entity, Playlist):
+            url = f"{self._spotify_client.BASE_URL}/playlists/{entity.id}/followers"
+            params = {"ids": self.id}
+        elif isinstance(entity, Track):
+            url = f"{self._spotify_client.BASE_URL}/me/tracks"
+            params = {"ids": entity.id}
+        else:
+            raise TypeError(
+                f"Cannot save entity of type `{type(entity).__name__}`. "
+                f"Must be one of: Album, Artist, Playlist, Track"
+            )
+
+        res = put(
+            url,
+            params=params,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self._spotify_client.access_token}",
+                "Host": "api.spotify.com",
+            },
+        )
+        res.raise_for_status()
+
+    def unsave(self, entity: Album | Artist | Playlist | Track) -> None:
+        """Remove an entity from the user's library.
+
+        Args:
+            entity (Album|Artist|Playlist|Track): the entity to remove
+
+        Raises:
+            TypeError: if the entity is not of a supported type
+        """
+
+        if isinstance(entity, Album):
+            url = f"{self._spotify_client.BASE_URL}/me/albums"
+            params = {"ids": entity.id}
+        elif isinstance(entity, Artist):
+            url = f"{self._spotify_client.BASE_URL}/me/following"
+            params = {"type": "artist", "ids": entity.id}
+        elif isinstance(entity, Playlist):
+            url = f"{self._spotify_client.BASE_URL}/playlists/{entity.id}/followers"
+            params = {"ids": self.id}
+        elif isinstance(entity, Track):
+            url = f"{self._spotify_client.BASE_URL}/me/tracks"
+            params = {"ids": entity.id}
+        else:
+            raise TypeError(
+                f"Cannot unsave entity of type `{type(entity).__name__}`. "
+                f"Must be one of: Album, Artist, Playlist, Track"
+            )
+
+        res = delete(
+            url,
+            params=params,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self._spotify_client.access_token}",
+                "Host": "api.spotify.com",
+            },
+        )
+        if res.status_code != HTTPStatus.BAD_REQUEST:
+            res.raise_for_status()
+
+    @property
+    def albums(self) -> list[Album]:
+        """List of albums in the user's library.
+
+        Returns:
+            list: a list of albums owned by the current user
+        """
+
+        if not hasattr(self, "_albums"):
+            self._albums = [
+                Album(
+                    item["album"],  # type: ignore[call-overload,typeddict-item]
+                    spotify_client=self._spotify_client,
+                )
+                for item in self._spotify_client.get_items_from_url("/me/albums")
+            ]
+
+        return self._albums
+
+    @property
+    def artists(self) -> list[Artist]:
+        """List of artists in the user's library.
+
+        Returns:
+            list: a list of artists owned by the current user
+        """
+
+        if not hasattr(self, "_artists"):
+            self._artists = [
+                Artist(
+                    artist_json,  # type: ignore[arg-type]
+                    spotify_client=self._spotify_client,
+                )
+                for artist_json in self._spotify_client.get_items_from_url(
+                    "/me/following",
+                    params={
+                        "type": "artist",
+                    },
+                    top_level_key="artists",
+                )
+            ]
+
+        return self._artists
+
+    @property
+    def current_track(self) -> Track | None:
+        """Gets the currently playing track for the given user.
+
+        Returns:
+            Track: the track currently being listened to
+        """
+
+        res = self._spotify_client.get_json_response("/me/player/currently-playing")
+
+        if item := res.get("item"):
+            return Track(
+                item, spotify_client=self._spotify_client  # type: ignore[arg-type]
+            )
+
+        return None
 
     @property
     def current_playlist(self) -> Playlist | None:
@@ -276,9 +432,11 @@ class User(SpotifyEntity):
 
         res = self._spotify_client.get_json_response("/me/player/currently-playing")
 
-        if (context := res.get("context", {})).get("type") == "playlist":
+        if (context := res.get("context", {})).get(  # type: ignore[attr-defined]
+            "type"
+        ) == "playlist":
             return self._spotify_client.get_playlist_by_id(
-                context["uri"].split(":")[-1]
+                context["uri"].split(":")[-1]  # type: ignore[index]
             )
 
         return None
@@ -298,42 +456,6 @@ class User(SpotifyEntity):
         ]
 
     @property
-    def current_track(self) -> Track | None:
-        """Gets the currently playing track for the given user.
-
-        Returns:
-            Track: the track currently being listened to
-        """
-
-        res = self._spotify_client.get_json_response("/me/player/currently-playing")
-
-        if item := res.get("item"):
-            return Track(item, spotify_client=self._spotify_client)
-
-        return None
-
-    @property
-    def followed_artists(self) -> list[Artist]:
-        """Artists that the user is following.
-
-        Returns:
-            list[Artist]: artists that the user is following
-        """
-        return [
-            Artist(
-                artist_json,  # type: ignore[arg-type]
-                spotify_client=self._spotify_client,
-            )
-            for artist_json in self._spotify_client.get_items_from_url(
-                "/me/following",
-                params={
-                    "type": "artist",
-                },
-                top_level_key="artists",
-            )
-        ]
-
-    @property
     def name(self) -> str:
         """Display name of the user.
 
@@ -344,21 +466,46 @@ class User(SpotifyEntity):
         return self.json["display_name"]
 
     @property
+    def playlists(self) -> list[Playlist]:
+        """Playlists owned by the current user.
+
+        Returns:
+            list: a list of playlists owned by the current user
+        """
+
+        if not hasattr(self, "_playlists"):
+            item: _PlaylistInfo
+            self._playlists = [
+                Playlist(
+                    item, spotify_client=self._spotify_client  # type: ignore[arg-type]
+                )
+                for item in self._spotify_client.get_items_from_url("/me/playlists")
+                if item["owner"]["id"]  # type: ignore[call-overload,typeddict-item]
+                == self.id
+            ]
+
+        return self._playlists
+
+    @property
     def top_artists(self) -> tuple[Artist, ...]:
         """Top artists for the user.
 
         Returns:
             tuple[Artist, ...]: the top artists for the user
         """
-        return tuple(
-            Artist(
-                artist_json,  # type: ignore[arg-type]
-                spotify_client=self._spotify_client,
+
+        if not hasattr(self, "_top_artists"):
+            self._top_artists = tuple(
+                Artist(
+                    artist_json,  # type: ignore[arg-type]
+                    spotify_client=self._spotify_client,
+                )
+                for artist_json in self._spotify_client.get_items_from_url(
+                    "/me/top/artists", params={"time_range": "short_term"}
+                )
             )
-            for artist_json in self._spotify_client.get_items_from_url(
-                "/me/top/artists", params={"time_range": "short_term"}
-            )
-        )
+
+        return self._top_artists
 
     @property
     def top_tracks(self) -> tuple[Track, ...]:
@@ -377,6 +524,25 @@ class User(SpotifyEntity):
             )
         )
 
+    @property
+    def tracks(self) -> list[Track]:
+        """Liked Songs.
+
+        Returns:
+            list: a list of tracks owned by the current user
+        """
+
+        if not hasattr(self, "_tracks"):
+            self._tracks = [
+                Track(
+                    item["track"],  # type: ignore[call-overload,typeddict-item]
+                    spotify_client=self._spotify_client,
+                )
+                for item in self._spotify_client.get_items_from_url("/me/tracks")
+            ]
+
+        return self._tracks
+
 
 class Track(SpotifyEntity):
     """A track on Spotify."""
@@ -386,6 +552,7 @@ class Track(SpotifyEntity):
     def __init__(
         self,
         json: _TrackInfo,
+        *,
         spotify_client: SpotifyClient,
         metadata: dict[str, Any] | None = None,
     ):
@@ -401,7 +568,7 @@ class Track(SpotifyEntity):
             Album: the album which this track is from
         """
 
-        return Album(self.json["album"], self._spotify_client)
+        return Album(self.json["album"], spotify_client=self._spotify_client)
 
     @property
     def artists(self) -> list[Artist]:
@@ -413,7 +580,7 @@ class Track(SpotifyEntity):
 
         if self._artists is None:
             self._artists = [
-                Artist(item, self._spotify_client)
+                Artist(item, spotify_client=self._spotify_client)
                 for item in self.json.get("artists", [])
             ]
 
@@ -459,9 +626,9 @@ class Artist(SpotifyEntity):
 
     json: _ArtistInfo
 
-    def __init__(self, json: _ArtistInfo, spotify_client: SpotifyClient):
+    def __init__(self, json: _ArtistInfo, *, spotify_client: SpotifyClient):
         super().__init__(json=json, spotify_client=spotify_client)
-        self._albums: list[Album] | None = None
+        self._albums: list[Album]
 
     @property
     def albums(self) -> list[Album]:
@@ -470,9 +637,11 @@ class Artist(SpotifyEntity):
         Returns:
             list: A list of albums this artist has contributed to
         """
-        if not self._albums:
+        if not hasattr(self, "_albums"):
             self._albums = [
-                Album(item, self._spotify_client)  # type: ignore[arg-type]
+                Album(
+                    item, spotify_client=self._spotify_client  # type: ignore[arg-type]
+                )
                 for item in self._spotify_client.get_items_from_url(
                     f"/artists/{self.id}/albums"
                 )
@@ -486,7 +655,7 @@ class Album(SpotifyEntity):
 
     json: _AlbumInfo
 
-    def __init__(self, json: _AlbumInfo, spotify_client: SpotifyClient):
+    def __init__(self, json: _AlbumInfo, *, spotify_client: SpotifyClient):
         super().__init__(json, spotify_client)
         self._artists: list[Artist]
         self._tracks: list[Track]
@@ -501,7 +670,7 @@ class Album(SpotifyEntity):
 
         if not hasattr(self, "_artists"):
             self._artists = [
-                Artist(item, self._spotify_client)
+                Artist(item, spotify_client=self._spotify_client)
                 for item in self.json.get("artists", [])
             ]
 
@@ -514,12 +683,14 @@ class Album(SpotifyEntity):
         Returns:
             date: the date the album was first released
         """
-        if (release_date_str := self.json.get("release_date")) is not None:
-            for _format in ("%Y-%m-%d", "%Y-%m", "%Y"):
-                try:
-                    return datetime.strptime(release_date_str, _format).date()
-                except ValueError:
-                    pass
+        if (
+            release_date_str := self.json.get("release_date")
+        ) is not None and self.release_date_precision:
+            dttm_format = {"day": "%Y-%m-%d", "month": "%Y-%m", "year": "%Y"}[
+                self.release_date_precision
+            ]
+
+            return datetime.strptime(release_date_str, dttm_format).date()
 
         return release_date_str
 
@@ -542,7 +713,7 @@ class Album(SpotifyEntity):
 
         if not hasattr(self, "_tracks"):
             self._tracks = [
-                Track(item, self._spotify_client)
+                Track(item, spotify_client=self._spotify_client)
                 for item in self.json.get("tracks", {}).get("items", [])
             ]
 
@@ -550,7 +721,10 @@ class Album(SpotifyEntity):
             # the rest if we need to
             if next_url := self.json.get("tracks", {}).get("next"):
                 self._tracks.extend(
-                    Track(item, self._spotify_client)  # type: ignore[arg-type]
+                    Track(
+                        item,  # type: ignore[arg-type]
+                        spotify_client=self._spotify_client,
+                    )
                     for item in self._spotify_client.get_items_from_url(next_url)
                 )
 
@@ -575,6 +749,7 @@ class Playlist(SpotifyEntity):
     def __init__(
         self,
         json: _PlaylistInfo,
+        *,
         spotify_client: SpotifyClient,
         metadata: dict[str, Any] | None = None,
     ):
@@ -593,7 +768,7 @@ class Playlist(SpotifyEntity):
             self._tracks = [
                 Track(
                     item.get("track", {}),  # type: ignore[arg-type,union-attr]
-                    self._spotify_client,
+                    spotify_client=self._spotify_client,
                 )
                 for item in self._spotify_client.get_items_from_url(
                     f"/playlists/{self.id}/tracks"
@@ -610,7 +785,7 @@ class Playlist(SpotifyEntity):
             User: the Spotify user who owns this playlist
         """
 
-        return User(self.json["owner"], self._spotify_client)
+        return User(self.json["owner"], spotify_client=self._spotify_client)
 
     def __contains__(self, track: Track) -> bool:
         return track in self.tracks
@@ -720,10 +895,6 @@ class SpotifyClient:
 
         self._current_user: User
 
-        self._albums: list[Album]
-        self._playlists: list[Playlist]
-        self._tracks: list[Track]
-
     def _get(
         self,
         url: str,
@@ -815,7 +986,7 @@ class SpotifyClient:
             | _TrackInfo
             | _AlbumInfo
             | _ArtistInfo
-            | list[dict[Literal["album"], _AlbumInfo]]
+            | list[dict[str, object]]
         )
     ]:
         """Retrieve a list of items from a given URL, including pagination.
@@ -853,7 +1024,7 @@ class SpotifyClient:
             href: str
 
         params = params or {}
-        params["limit"] = min(20, hard_limit)
+        params["limit"] = min(50, hard_limit)
 
         items: list[
             (
@@ -861,12 +1032,12 @@ class SpotifyClient:
                 | _TrackInfo
                 | _AlbumInfo
                 | _ArtistInfo
-                | list[dict[Literal["album"], _AlbumInfo]]
+                | list[dict[str, object]]
             )
         ] = []
 
         data: _GetItemsFromUrlDataInfo = {  # type: ignore[typeddict-item]
-            "next": f"{url}?{urlencode(params)}"
+            "next": url + ("?" if "?" not in url else "&") + urlencode(params)
         }
 
         while (next_url := data.get("next")) and len(items) < hard_limit:
@@ -893,7 +1064,9 @@ class SpotifyClient:
         self,
         url: str,
         params: None | (dict[str, str | int | float | bool | dict[str, Any]]) = None,
-    ) -> dict[str, Any]:
+    ) -> _AlbumInfo | _ArtistInfo | _PlaylistInfo | _TrackInfo | _UserInfo | dict[
+        str, _AlbumInfo | _ArtistInfo | _PlaylistInfo | _TrackInfo | _UserInfo | object
+    ]:
         """Gets a simple JSON object from a URL.
 
         Args:
@@ -961,7 +1134,7 @@ class SpotifyClient:
             params={
                 "q": search_term,
                 "type": ",".join(entity_types),
-                "limit": 50,
+                "limit": 1 if get_best_match_only else 50,
             },
         )
 
@@ -991,12 +1164,16 @@ class SpotifyClient:
             entity_instances.setdefault(entity_type, []).extend(
                 [
                     instance_class(entity_json, spotify_client=self)
-                    for entity_json in entities_json.get("items", [])
+                    for entity_json in entities_json.get(  # type: ignore[attr-defined]
+                        "items", []
+                    )
                 ]
             )
 
             # Each entity type has its own type-specific next URL
-            if (next_url := entities_json.get("next")) is not None:
+            if (
+                next_url := entities_json.get("next")  # type: ignore[attr-defined]
+            ) is not None:
                 entity_instances[entity_type].extend(
                     [
                         instance_class(
@@ -1018,54 +1195,6 @@ class SpotifyClient:
         return str(self.oauth_manager.get_access_token(as_dict=False))
 
     @property
-    def albums(self) -> list[Album]:
-        """List of albums in the user's library.
-
-        Returns:
-            list: a list of albums owned by the current user
-        """
-
-        if not hasattr(self, "_albums"):
-            self._albums = [
-                Album(item["album"], self)  # type: ignore[call-overload,typeddict-item]
-                for item in self.get_items_from_url("/me/albums")
-            ]
-
-        return self._albums
-
-    @property
-    def playlists(self) -> list[Playlist]:
-        """Playlists owned by the current user.
-
-        Returns:
-            list: a list of playlists owned by the current user
-        """
-
-        if not hasattr(self, "_playlists"):
-            self._playlists = [
-                Playlist(item, self)  # type: ignore[arg-type]
-                for item in self.get_items_from_url("/me/playlists")
-            ]
-
-        return self._playlists
-
-    @property
-    def tracks(self) -> list[Track]:
-        """Liked Songs.
-
-        Returns:
-            list: a list of tracks owned by the current user
-        """
-
-        if not hasattr(self, "_tracks"):
-            self._tracks = [
-                Track(item["track"], self)  # type: ignore[call-overload,typeddict-item]
-                for item in self.get_items_from_url("/me/tracks")
-            ]
-
-        return self._tracks
-
-    @property
     def current_user(self) -> User:
         """Gets the current user's info.
 
@@ -1073,7 +1202,10 @@ class SpotifyClient:
             User: an instance of the current Spotify user
         """
         if not hasattr(self, "_current_user"):
-            self._current_user = User(self._get(f"{self.BASE_URL}/me").json(), self)
+            self._current_user = User(
+                self.get_json_response(f"{self.BASE_URL}/me"),  # type: ignore[arg-type]
+                spotify_client=self,
+            )
 
         return self._current_user
 
@@ -1145,7 +1277,7 @@ class SpotifyClient:
             },
         )
 
-        return Playlist(res.json(), self)
+        return Playlist(res.json(), spotify_client=self)
 
     def get_playlists_by_name(
         self, name: str, return_all: bool = False
@@ -1163,7 +1295,9 @@ class SpotifyClient:
             Union([list, Playlist]): the matched playlist(s)
         """
 
-        matched_playlists = sorted(filter(lambda p: p.name == name, self.playlists))
+        matched_playlists = sorted(
+            filter(lambda p: p.name == name, self.current_user.playlists)
+        )
 
         # Return a list of all matches
         if return_all:
@@ -1186,7 +1320,10 @@ class SpotifyClient:
             Album: an instantiated Album, from the API's response
         """
 
-        return Album(self._get(f"/albums/{id_}").json(), self)
+        return Album(
+            self.get_json_response(f"/albums/{id_}"),  # type: ignore[arg-type]
+            spotify_client=self,
+        )
 
     def get_artist_by_id(self, id_: str) -> Artist:
         """Get an artist from Spotify based on the ID.
@@ -1198,7 +1335,10 @@ class SpotifyClient:
             Artist: an instantiated Artist, from the API's response
         """
 
-        return Artist(self._get(f"/artists/{id_}").json(), self)
+        return Artist(
+            self.get_json_response(f"/artists/{id_}"),  # type: ignore[arg-type]
+            spotify_client=self,
+        )
 
     def get_playlist_by_id(self, id_: str) -> Playlist:
         """Get a playlist from Spotify based on the ID.
@@ -1211,12 +1351,13 @@ class SpotifyClient:
         """
 
         if hasattr(self, "_playlists"):
-            for plist in self.playlists:
+            for plist in self.current_user.playlists:
                 if plist.id == id_:
                     return plist
 
         return Playlist(
-            self.get_json_response(f"/playlists/{id_}"), self  # type: ignore[arg-type]
+            self.get_json_response(f"/playlists/{id_}"),  # type: ignore[arg-type]
+            spotify_client=self,
         )
 
     def get_track_by_id(self, id_: str) -> Track:
@@ -1229,7 +1370,10 @@ class SpotifyClient:
             Track: an instantiated Track, from the API's response
         """
 
-        return Track(self._get(f"/tracks/{id_}").json(), self)
+        return Track(
+            self.get_json_response(f"/tracks/{id_}"),  # type: ignore[arg-type]
+            spotify_client=self,
+        )
 
     def get_recently_liked_tracks(
         self, track_limit: int = 100, *, day_limit: float | None = None
@@ -1262,7 +1406,7 @@ class SpotifyClient:
         return [
             Track(
                 item["track"],  # type: ignore[call-overload,typeddict-item]
-                self,
+                spotify_client=self,
                 metadata={
                     "liked_at": item[
                         "added_at"  # type: ignore[typeddict-item]
@@ -1280,18 +1424,3 @@ class SpotifyClient:
             del self._current_user
         except AttributeError as exc:
             print(str(exc))
-
-        try:
-            del self._albums
-        except AttributeError as exc:
-            print(repr(exc))
-
-        try:
-            del self._playlists
-        except AttributeError:
-            pass
-
-        try:
-            del self._tracks
-        except AttributeError:
-            pass

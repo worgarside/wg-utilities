@@ -1,19 +1,19 @@
 {
   "country": "GB",
   "display_name": "Will Garside",
-  "email": "test_user_id@gmail.com",
+  "email": "test_email_address@gmail.com",
   "explicit_content": {
     "filter_enabled": false,
     "filter_locked": false
   },
   "external_urls": {
-    "spotify": "https://open.spotify.com/user/test_user_id"
+    "spotify": "https://open.spotify.com/user/worgarside"
   },
   "followers": {
     "href": null,
     "total": 13
   },
-  "href": "https://api.spotify.com/v1/users/test_user_id",
+  "href": "https://api.spotify.com/v1/users/worgarside",
   "id": "worgarside",
   "images": [
     {
@@ -24,5 +24,5 @@
   ],
   "product": "premium",
   "type": "user",
-  "uri": "spotify:user:test_user_id"
+  "uri": "spotify:user:worgarside"
 }
