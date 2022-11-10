@@ -27,18 +27,22 @@ repos:
     rev: v4.3.0
     hooks:
       - id: check-added-large-files
+        args:
+          - --maxkb=1000
       - id: check-case-conflict
       - id: check-merge-conflict
       - id: debug-statements
       - id: end-of-file-fixer
       - id: mixed-line-ending
-      - id: trailing-whitespace
+      - id: name-tests-test
       - id: pretty-format-json
         args:
           - --no-sort-keys
           - --autofix
           - --indent
           - '2'
+      - id: requirements-txt-fixer
+      - id: trailing-whitespace
 
   - repo: https://github.com/pycqa/isort
     rev: 5.10.1
@@ -129,7 +133,7 @@ repos:
       - id: codespell
         args:
           - --skip
-          - '**/flat_files/**'
+          - '*.svg'
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.0.99
