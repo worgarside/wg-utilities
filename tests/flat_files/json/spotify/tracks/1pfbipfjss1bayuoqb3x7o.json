@@ -1,0 +1,97 @@
+{
+  "album": {
+    "album_type": "single",
+    "artists": [
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/0q8eApZJs5WDBxayY9769C"
+        },
+        "href": "https://api.spotify.com/v1/artists/0q8eApZJs5WDBxayY9769C",
+        "id": "0q8eApZJs5WDBxayY9769C",
+        "name": "Jeshi",
+        "type": "artist",
+        "uri": "spotify:artist:0q8eApZJs5WDBxayY9769C"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+        },
+        "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+        "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+        "name": "Ross from Friends",
+        "type": "artist",
+        "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+      }
+    ],
+    "available_markets": [],
+    "external_urls": {
+      "spotify": "https://open.spotify.com/album/4julBAGYv4WmRXwhjJ2LPD"
+    },
+    "href": "https://api.spotify.com/v1/albums/4julBAGYv4WmRXwhjJ2LPD",
+    "id": "4julBAGYv4WmRXwhjJ2LPD",
+    "images": [
+      {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab67616d0000b2733cfa0900ae06850b927cc97e",
+        "width": 640
+      },
+      {
+        "height": 300,
+        "url": "https://i.scdn.co/image/ab67616d00001e023cfa0900ae06850b927cc97e",
+        "width": 300
+      },
+      {
+        "height": 64,
+        "url": "https://i.scdn.co/image/ab67616d000048513cfa0900ae06850b927cc97e",
+        "width": 64
+      }
+    ],
+    "name": "3210 (Ross from Friends Remix)",
+    "release_date": "2022-03-30",
+    "release_date_precision": "day",
+    "total_tracks": 2,
+    "type": "album",
+    "uri": "spotify:album:4julBAGYv4WmRXwhjJ2LPD"
+  },
+  "artists": [
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/0q8eApZJs5WDBxayY9769C"
+      },
+      "href": "https://api.spotify.com/v1/artists/0q8eApZJs5WDBxayY9769C",
+      "id": "0q8eApZJs5WDBxayY9769C",
+      "name": "Jeshi",
+      "type": "artist",
+      "uri": "spotify:artist:0q8eApZJs5WDBxayY9769C"
+    },
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+      },
+      "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+      "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+      "name": "Ross from Friends",
+      "type": "artist",
+      "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+    }
+  ],
+  "available_markets": [],
+  "disc_number": 1,
+  "duration_ms": 352664,
+  "explicit": true,
+  "external_ids": {
+    "isrc": "GBMVH2200200"
+  },
+  "external_urls": {
+    "spotify": "https://open.spotify.com/track/1PfbIpFjsS1BayUoqB3X7O"
+  },
+  "href": "https://api.spotify.com/v1/tracks/1PfbIpFjsS1BayUoqB3X7O",
+  "id": "1PfbIpFjsS1BayUoqB3X7O",
+  "is_local": false,
+  "name": "3210 - Ross from Friends Remix",
+  "popularity": 41,
+  "preview_url": "https://p.scdn.co/mp3-preview/6d8e9a50df9583216df1285a0a664025086a0ad6?cid=230c2ac940f14f9aa4294af862300e9b",
+  "track_number": 1,
+  "type": "track",
+  "uri": "spotify:track:1PfbIpFjsS1BayUoqB3X7O"
+}

@@ -1,0 +1,1865 @@
+{
+  "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF/albums?offset=0&limit=50&include_groups=album,single,compilation,appears_on",
+  "items": [
+    {
+      "album_group": "album",
+      "album_type": "album",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/5wKXfInna4rPKYVhdiSgQA"
+      },
+      "href": "https://api.spotify.com/v1/albums/5wKXfInna4rPKYVhdiSgQA",
+      "id": "5wKXfInna4rPKYVhdiSgQA",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2739eff4ce3343c1f1c7b949063",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e029eff4ce3343c1f1c7b949063",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048519eff4ce3343c1f1c7b949063",
+          "width": 64
+        }
+      ],
+      "name": "Tread",
+      "release_date": "2021-10-22",
+      "release_date_precision": "day",
+      "total_tracks": 12,
+      "type": "album",
+      "uri": "spotify:album:5wKXfInna4rPKYVhdiSgQA"
+    },
+    {
+      "album_group": "album",
+      "album_type": "album",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/24eRSwYbneTDkehVHM2MVf"
+      },
+      "href": "https://api.spotify.com/v1/albums/24eRSwYbneTDkehVHM2MVf",
+      "id": "24eRSwYbneTDkehVHM2MVf",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273e5ede01d67d1b1d36359187a",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02e5ede01d67d1b1d36359187a",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851e5ede01d67d1b1d36359187a",
+          "width": 64
+        }
+      ],
+      "name": "Family Portrait",
+      "release_date": "2018-07-27",
+      "release_date_precision": "day",
+      "total_tracks": 12,
+      "type": "album",
+      "uri": "spotify:album:24eRSwYbneTDkehVHM2MVf"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/0q8eApZJs5WDBxayY9769C"
+          },
+          "href": "https://api.spotify.com/v1/artists/0q8eApZJs5WDBxayY9769C",
+          "id": "0q8eApZJs5WDBxayY9769C",
+          "name": "Jeshi",
+          "type": "artist",
+          "uri": "spotify:artist:0q8eApZJs5WDBxayY9769C"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/4julBAGYv4WmRXwhjJ2LPD"
+      },
+      "href": "https://api.spotify.com/v1/albums/4julBAGYv4WmRXwhjJ2LPD",
+      "id": "4julBAGYv4WmRXwhjJ2LPD",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2733cfa0900ae06850b927cc97e",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e023cfa0900ae06850b927cc97e",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048513cfa0900ae06850b927cc97e",
+          "width": 64
+        }
+      ],
+      "name": "3210 (Ross from Friends Remix)",
+      "release_date": "2022-03-30",
+      "release_date_precision": "day",
+      "total_tracks": 2,
+      "type": "album",
+      "uri": "spotify:album:4julBAGYv4WmRXwhjJ2LPD"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/16dR19lw7xsjTvpkga7Sg0"
+      },
+      "href": "https://api.spotify.com/v1/albums/16dR19lw7xsjTvpkga7Sg0",
+      "id": "16dR19lw7xsjTvpkga7Sg0",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273eec0706bed0140a71edab54f",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02eec0706bed0140a71edab54f",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851eec0706bed0140a71edab54f",
+          "width": 64
+        }
+      ],
+      "name": "Love Divide",
+      "release_date": "2021-09-29",
+      "release_date_precision": "day",
+      "total_tracks": 2,
+      "type": "album",
+      "uri": "spotify:album:16dR19lw7xsjTvpkga7Sg0"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/7ck1aKE3FRQGWstxQcbttZ"
+      },
+      "href": "https://api.spotify.com/v1/albums/7ck1aKE3FRQGWstxQcbttZ",
+      "id": "7ck1aKE3FRQGWstxQcbttZ",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2734b11560848a52c2bc82bc805",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e024b11560848a52c2bc82bc805",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048514b11560848a52c2bc82bc805",
+          "width": 64
+        }
+      ],
+      "name": "The Daisy",
+      "release_date": "2021-08-25",
+      "release_date_precision": "day",
+      "total_tracks": 1,
+      "type": "album",
+      "uri": "spotify:album:7ck1aKE3FRQGWstxQcbttZ"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1DIRMEtLvteuZfHcKgwQX3"
+          },
+          "href": "https://api.spotify.com/v1/artists/1DIRMEtLvteuZfHcKgwQX3",
+          "id": "1DIRMEtLvteuZfHcKgwQX3",
+          "name": "Giulia Tess",
+          "type": "artist",
+          "uri": "spotify:artist:1DIRMEtLvteuZfHcKgwQX3"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/2yIqD3bfZv9cjj7TPC70Xq"
+      },
+      "href": "https://api.spotify.com/v1/albums/2yIqD3bfZv9cjj7TPC70Xq",
+      "id": "2yIqD3bfZv9cjj7TPC70Xq",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2733d50f4ddb2d919ba2cd5e3a3",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e023d50f4ddb2d919ba2cd5e3a3",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048513d50f4ddb2d919ba2cd5e3a3",
+          "width": 64
+        }
+      ],
+      "name": "200417 (Ross From Friends Remix)",
+      "release_date": "2021-08-06",
+      "release_date_precision": "day",
+      "total_tracks": 1,
+      "type": "album",
+      "uri": "spotify:album:2yIqD3bfZv9cjj7TPC70Xq"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/1H2xgpZ4h6MAAlRnZxGKjl"
+      },
+      "href": "https://api.spotify.com/v1/albums/1H2xgpZ4h6MAAlRnZxGKjl",
+      "id": "1H2xgpZ4h6MAAlRnZxGKjl",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273d98285248e97ec6446c063c6",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02d98285248e97ec6446c063c6",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851d98285248e97ec6446c063c6",
+          "width": 64
+        }
+      ],
+      "name": "Burner",
+      "release_date": "2021-01-14",
+      "release_date_precision": "day",
+      "total_tracks": 1,
+      "type": "album",
+      "uri": "spotify:album:1H2xgpZ4h6MAAlRnZxGKjl"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/6nxWCVXbOlEVRexSbLsTer"
+          },
+          "href": "https://api.spotify.com/v1/artists/6nxWCVXbOlEVRexSbLsTer",
+          "id": "6nxWCVXbOlEVRexSbLsTer",
+          "name": "Flume",
+          "type": "artist",
+          "uri": "spotify:artist:6nxWCVXbOlEVRexSbLsTer"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/3Bd1cgCjtCI32PYvDC3ynO"
+          },
+          "href": "https://api.spotify.com/v1/artists/3Bd1cgCjtCI32PYvDC3ynO",
+          "id": "3Bd1cgCjtCI32PYvDC3ynO",
+          "name": "London Grammar",
+          "type": "artist",
+          "uri": "spotify:artist:3Bd1cgCjtCI32PYvDC3ynO"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/6dp5XQ5PKCHupK8EsXjMcD"
+      },
+      "href": "https://api.spotify.com/v1/albums/6dp5XQ5PKCHupK8EsXjMcD",
+      "id": "6dp5XQ5PKCHupK8EsXjMcD",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2739614ad6c185c141195fcbcd9",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e029614ad6c185c141195fcbcd9",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048519614ad6c185c141195fcbcd9",
+          "width": 64
+        }
+      ],
+      "name": "Let You Know (Ross from Friends Remix)",
+      "release_date": "2019-08-23",
+      "release_date_precision": "day",
+      "total_tracks": 1,
+      "type": "album",
+      "uri": "spotify:album:6dp5XQ5PKCHupK8EsXjMcD"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/01aJOn3j0v2wk9zKeFf1iG"
+      },
+      "href": "https://api.spotify.com/v1/albums/01aJOn3j0v2wk9zKeFf1iG",
+      "id": "01aJOn3j0v2wk9zKeFf1iG",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b27315f412722fae3ceb7a8f7f3a",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e0215f412722fae3ceb7a8f7f3a",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d0000485115f412722fae3ceb7a8f7f3a",
+          "width": 64
+        }
+      ],
+      "name": "Epiphany",
+      "release_date": "2019-08-16",
+      "release_date_precision": "day",
+      "total_tracks": 5,
+      "type": "album",
+      "uri": "spotify:album:01aJOn3j0v2wk9zKeFf1iG"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/610fbSEj2ESK9NmT2xwJI3"
+      },
+      "href": "https://api.spotify.com/v1/albums/610fbSEj2ESK9NmT2xwJI3",
+      "id": "610fbSEj2ESK9NmT2xwJI3",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273437b7f70ff95748206f6dde8",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02437b7f70ff95748206f6dde8",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851437b7f70ff95748206f6dde8",
+          "width": 64
+        }
+      ],
+      "name": "The Revolution",
+      "release_date": "2019-07-24",
+      "release_date_precision": "day",
+      "total_tracks": 2,
+      "type": "album",
+      "uri": "spotify:album:610fbSEj2ESK9NmT2xwJI3"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/4frXpPxQQZwbCu3eTGnZEw"
+          },
+          "href": "https://api.spotify.com/v1/artists/4frXpPxQQZwbCu3eTGnZEw",
+          "id": "4frXpPxQQZwbCu3eTGnZEw",
+          "name": "Thundercat",
+          "type": "artist",
+          "uri": "spotify:artist:4frXpPxQQZwbCu3eTGnZEw"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/0BNaNiBjC6nhdFfDH81ym9"
+      },
+      "href": "https://api.spotify.com/v1/albums/0BNaNiBjC6nhdFfDH81ym9",
+      "id": "0BNaNiBjC6nhdFfDH81ym9",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2730929504a158ce5146e00c60e",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e020929504a158ce5146e00c60e",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048510929504a158ce5146e00c60e",
+          "width": 64
+        }
+      ],
+      "name": "Friend Zone (Ross from Friends Remix)",
+      "release_date": "2018-11-14",
+      "release_date_precision": "day",
+      "total_tracks": 1,
+      "type": "album",
+      "uri": "spotify:album:0BNaNiBjC6nhdFfDH81ym9"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/09s6bLEw45wioK9ytf3nsA"
+          },
+          "href": "https://api.spotify.com/v1/artists/09s6bLEw45wioK9ytf3nsA",
+          "id": "09s6bLEw45wioK9ytf3nsA",
+          "name": "Westerman",
+          "type": "artist",
+          "uri": "spotify:artist:09s6bLEw45wioK9ytf3nsA"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/5VrWEcRHNnQ5cclOUBrFzB"
+      },
+      "href": "https://api.spotify.com/v1/albums/5VrWEcRHNnQ5cclOUBrFzB",
+      "id": "5VrWEcRHNnQ5cclOUBrFzB",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2733c6e9661a53437930eabb291",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e023c6e9661a53437930eabb291",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048513c6e9661a53437930eabb291",
+          "width": 64
+        }
+      ],
+      "name": "Edison (Ross From Friends Remix)",
+      "release_date": "2018-05-31",
+      "release_date_precision": "day",
+      "total_tracks": 1,
+      "type": "album",
+      "uri": "spotify:album:5VrWEcRHNnQ5cclOUBrFzB"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/2gsfDysl20fYfoG41cY6H5"
+      },
+      "href": "https://api.spotify.com/v1/albums/2gsfDysl20fYfoG41cY6H5",
+      "id": "2gsfDysl20fYfoG41cY6H5",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273063a26a66405a3de2eb7e93d",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02063a26a66405a3de2eb7e93d",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851063a26a66405a3de2eb7e93d",
+          "width": 64
+        }
+      ],
+      "name": "Aphelion EP",
+      "release_date": "2018-04-06",
+      "release_date_precision": "day",
+      "total_tracks": 4,
+      "type": "album",
+      "uri": "spotify:album:2gsfDysl20fYfoG41cY6H5"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/7b3rkiHu6ihDV2rPLLs8JQ"
+      },
+      "href": "https://api.spotify.com/v1/albums/7b3rkiHu6ihDV2rPLLs8JQ",
+      "id": "7b3rkiHu6ihDV2rPLLs8JQ",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2733dac574a4b2a1da702aa01eb",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e023dac574a4b2a1da702aa01eb",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048513dac574a4b2a1da702aa01eb",
+          "width": 64
+        }
+      ],
+      "name": "John Cage",
+      "release_date": "2018-03-15",
+      "release_date_precision": "day",
+      "total_tracks": 2,
+      "type": "album",
+      "uri": "spotify:album:7b3rkiHu6ihDV2rPLLs8JQ"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/0c2To7FAmKgAeRpdrobFWP"
+      },
+      "href": "https://api.spotify.com/v1/albums/0c2To7FAmKgAeRpdrobFWP",
+      "id": "0c2To7FAmKgAeRpdrobFWP",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2731795491867f16bcdf67f03fa",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e021795491867f16bcdf67f03fa",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048511795491867f16bcdf67f03fa",
+          "width": 64
+        }
+      ],
+      "name": "The Outsiders",
+      "release_date": "2017-08-04",
+      "release_date_precision": "day",
+      "total_tracks": 6,
+      "type": "album",
+      "uri": "spotify:album:0c2To7FAmKgAeRpdrobFWP"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/1W92AiXTjP5Gc5n0u436cM"
+      },
+      "href": "https://api.spotify.com/v1/albums/1W92AiXTjP5Gc5n0u436cM",
+      "id": "1W92AiXTjP5Gc5n0u436cM",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b27350c8e28560e24d5c09e19792",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e0250c8e28560e24d5c09e19792",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d0000485150c8e28560e24d5c09e19792",
+          "width": 64
+        }
+      ],
+      "name": "Don't Sleep, There Are Snakes",
+      "release_date": "2017-04-14",
+      "release_date_precision": "day",
+      "total_tracks": 4,
+      "type": "album",
+      "uri": "spotify:album:1W92AiXTjP5Gc5n0u436cM"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/6c94J2yum9wHxmbSB27YXE"
+      },
+      "href": "https://api.spotify.com/v1/albums/6c94J2yum9wHxmbSB27YXE",
+      "id": "6c94J2yum9wHxmbSB27YXE",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273088d99c85e6de4f30b39679c",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02088d99c85e6de4f30b39679c",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851088d99c85e6de4f30b39679c",
+          "width": 64
+        }
+      ],
+      "name": "You'll Understand",
+      "release_date": "2017-02-10",
+      "release_date_precision": "day",
+      "total_tracks": 3,
+      "type": "album",
+      "uri": "spotify:album:6c94J2yum9wHxmbSB27YXE"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/2RwfRD2vlkdztGtVXENShq"
+          },
+          "href": "https://api.spotify.com/v1/artists/2RwfRD2vlkdztGtVXENShq",
+          "id": "2RwfRD2vlkdztGtVXENShq",
+          "name": "Chelou",
+          "type": "artist",
+          "uri": "spotify:artist:2RwfRD2vlkdztGtVXENShq"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/1ATyNCoZd0o98LIZ0HZAUt"
+      },
+      "href": "https://api.spotify.com/v1/albums/1ATyNCoZd0o98LIZ0HZAUt",
+      "id": "1ATyNCoZd0o98LIZ0HZAUt",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2738edeb184531652867a1fe548",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e028edeb184531652867a1fe548",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048518edeb184531652867a1fe548",
+          "width": 64
+        }
+      ],
+      "name": "Halfway to Nowhere (Ross from Friends Remix)",
+      "release_date": "2017-02-01",
+      "release_date_precision": "day",
+      "total_tracks": 1,
+      "type": "album",
+      "uri": "spotify:album:1ATyNCoZd0o98LIZ0HZAUt"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/790vOugBHALfNiTASrjXGP"
+          },
+          "href": "https://api.spotify.com/v1/artists/790vOugBHALfNiTASrjXGP",
+          "id": "790vOugBHALfNiTASrjXGP",
+          "name": "Sam Weston",
+          "type": "artist",
+          "uri": "spotify:artist:790vOugBHALfNiTASrjXGP"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/0uLcHZQDOlPyU0faZ24DBV"
+      },
+      "href": "https://api.spotify.com/v1/albums/0uLcHZQDOlPyU0faZ24DBV",
+      "id": "0uLcHZQDOlPyU0faZ24DBV",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2737ff567dcb4b73700c5472c74",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e027ff567dcb4b73700c5472c74",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048517ff567dcb4b73700c5472c74",
+          "width": 64
+        }
+      ],
+      "name": "Don't Save Face (Ross From Friends Remix)",
+      "release_date": "2016-11-11",
+      "release_date_precision": "day",
+      "total_tracks": 1,
+      "type": "album",
+      "uri": "spotify:album:0uLcHZQDOlPyU0faZ24DBV"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/7zrkALJ9ayRjzysp4QYoEg"
+          },
+          "href": "https://api.spotify.com/v1/artists/7zrkALJ9ayRjzysp4QYoEg",
+          "id": "7zrkALJ9ayRjzysp4QYoEg",
+          "name": "Maribou State",
+          "type": "artist",
+          "uri": "spotify:artist:7zrkALJ9ayRjzysp4QYoEg"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/4b3I2oa8hMybqTc2Na6dpY"
+      },
+      "href": "https://api.spotify.com/v1/albums/4b3I2oa8hMybqTc2Na6dpY",
+      "id": "4b3I2oa8hMybqTc2Na6dpY",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b27384fd9c7b2c562dd3bf81b61f",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e0284fd9c7b2c562dd3bf81b61f",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d0000485184fd9c7b2c562dd3bf81b61f",
+          "width": 64
+        }
+      ],
+      "name": "Wallflower (Ross from Friends Remix)",
+      "release_date": "2015-10-09",
+      "release_date_precision": "day",
+      "total_tracks": 1,
+      "type": "album",
+      "uri": "spotify:album:4b3I2oa8hMybqTc2Na6dpY"
+    },
+    {
+      "album_group": "single",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+          },
+          "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+          "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+          "name": "Ross from Friends",
+          "type": "artist",
+          "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/6A2ABlC5szqNoeyYzc0uGb"
+      },
+      "href": "https://api.spotify.com/v1/albums/6A2ABlC5szqNoeyYzc0uGb",
+      "id": "6A2ABlC5szqNoeyYzc0uGb",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273dfaddba41c579c28f32f3850",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02dfaddba41c579c28f32f3850",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851dfaddba41c579c28f32f3850",
+          "width": 64
+        }
+      ],
+      "name": "Alex Brown",
+      "release_date": "2015-06-05",
+      "release_date_precision": "day",
+      "total_tracks": 3,
+      "type": "album",
+      "uri": "spotify:album:6A2ABlC5szqNoeyYzc0uGb"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/5Mq7iqCWBzofK39FBqblNc"
+          },
+          "href": "https://api.spotify.com/v1/artists/5Mq7iqCWBzofK39FBqblNc",
+          "id": "5Mq7iqCWBzofK39FBqblNc",
+          "name": "Jessie Ware",
+          "type": "artist",
+          "uri": "spotify:artist:5Mq7iqCWBzofK39FBqblNc"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/3ztiVhYIsgqQAxdrYovhXM"
+      },
+      "href": "https://api.spotify.com/v1/albums/3ztiVhYIsgqQAxdrYovhXM",
+      "id": "3ztiVhYIsgqQAxdrYovhXM",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273626fc79db4103486e6bafe0d",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02626fc79db4103486e6bafe0d",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851626fc79db4103486e6bafe0d",
+          "width": 64
+        }
+      ],
+      "name": "Please (Ross From Friends Remix)",
+      "release_date": "2021-07-16",
+      "release_date_precision": "day",
+      "total_tracks": 3,
+      "type": "album",
+      "uri": "spotify:album:3ztiVhYIsgqQAxdrYovhXM"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "compilation",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of"
+          },
+          "href": "https://api.spotify.com/v1/artists/0LyfQWJT6nXafLPZqxe9Of",
+          "id": "0LyfQWJT6nXafLPZqxe9Of",
+          "name": "Various Artists",
+          "type": "artist",
+          "uri": "spotify:artist:0LyfQWJT6nXafLPZqxe9Of"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/3bNkTj5D6RPIN1l1S0kJsn"
+      },
+      "href": "https://api.spotify.com/v1/albums/3bNkTj5D6RPIN1l1S0kJsn",
+      "id": "3bNkTj5D6RPIN1l1S0kJsn",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b27360cb07dc1043b43d82df9c70",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e0260cb07dc1043b43d82df9c70",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d0000485160cb07dc1043b43d82df9c70",
+          "width": 64
+        }
+      ],
+      "name": "Lobster Deep Classics",
+      "release_date": "2020-02-07",
+      "release_date_precision": "day",
+      "total_tracks": 25,
+      "type": "album",
+      "uri": "spotify:album:3bNkTj5D6RPIN1l1S0kJsn"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "compilation",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of"
+          },
+          "href": "https://api.spotify.com/v1/artists/0LyfQWJT6nXafLPZqxe9Of",
+          "id": "0LyfQWJT6nXafLPZqxe9Of",
+          "name": "Various Artists",
+          "type": "artist",
+          "uri": "spotify:artist:0LyfQWJT6nXafLPZqxe9Of"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/7KJPdk3fPCsp1QXTJBuhw7"
+      },
+      "href": "https://api.spotify.com/v1/albums/7KJPdk3fPCsp1QXTJBuhw7",
+      "id": "7KJPdk3fPCsp1QXTJBuhw7",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2734dbaf97a4fd24819e8b68ebf",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e024dbaf97a4fd24819e8b68ebf",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048514dbaf97a4fd24819e8b68ebf",
+          "width": 64
+        }
+      ],
+      "name": "Shall Not Fade - 3 Years of Dancing",
+      "release_date": "2018-12-14",
+      "release_date_precision": "day",
+      "total_tracks": 59,
+      "type": "album",
+      "uri": "spotify:album:7KJPdk3fPCsp1QXTJBuhw7"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "compilation",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of"
+          },
+          "href": "https://api.spotify.com/v1/artists/0LyfQWJT6nXafLPZqxe9Of",
+          "id": "0LyfQWJT6nXafLPZqxe9Of",
+          "name": "Various Artists",
+          "type": "artist",
+          "uri": "spotify:artist:0LyfQWJT6nXafLPZqxe9Of"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/3o2065Z31P88vws4lA3cc4"
+      },
+      "href": "https://api.spotify.com/v1/albums/3o2065Z31P88vws4lA3cc4",
+      "id": "3o2065Z31P88vws4lA3cc4",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273e494e5efdfc95a15d2276bbf",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02e494e5efdfc95a15d2276bbf",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851e494e5efdfc95a15d2276bbf",
+          "width": 64
+        }
+      ],
+      "name": "Brainfeeder X",
+      "release_date": "2018-11-16",
+      "release_date_precision": "day",
+      "total_tracks": 36,
+      "type": "album",
+      "uri": "spotify:album:3o2065Z31P88vws4lA3cc4"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/5zfEatKLDdRkgbw6sdLBAQ"
+          },
+          "href": "https://api.spotify.com/v1/artists/5zfEatKLDdRkgbw6sdLBAQ",
+          "id": "5zfEatKLDdRkgbw6sdLBAQ",
+          "name": "Octavian",
+          "type": "artist",
+          "uri": "spotify:artist:5zfEatKLDdRkgbw6sdLBAQ"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/1YhDBJW6Rs32QpPVo6IMBR"
+      },
+      "href": "https://api.spotify.com/v1/albums/1YhDBJW6Rs32QpPVo6IMBR",
+      "id": "1YhDBJW6Rs32QpPVo6IMBR",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273279ba7fc4b47c3331363a3e7",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02279ba7fc4b47c3331363a3e7",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851279ba7fc4b47c3331363a3e7",
+          "width": 64
+        }
+      ],
+      "name": "Lightning (Ross from Friends Remix)",
+      "release_date": "2018-11-13",
+      "release_date_precision": "day",
+      "total_tracks": 1,
+      "type": "album",
+      "uri": "spotify:album:1YhDBJW6Rs32QpPVo6IMBR"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of"
+          },
+          "href": "https://api.spotify.com/v1/artists/0LyfQWJT6nXafLPZqxe9Of",
+          "id": "0LyfQWJT6nXafLPZqxe9Of",
+          "name": "Various Artists",
+          "type": "artist",
+          "uri": "spotify:artist:0LyfQWJT6nXafLPZqxe9Of"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/0HYCAlXXwQcCrv8paLPqFC"
+      },
+      "href": "https://api.spotify.com/v1/albums/0HYCAlXXwQcCrv8paLPqFC",
+      "id": "0HYCAlXXwQcCrv8paLPqFC",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273c8f09c77abd9d1005fa79b72",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02c8f09c77abd9d1005fa79b72",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851c8f09c77abd9d1005fa79b72",
+          "width": 64
+        }
+      ],
+      "name": "Panorama Bar 07 Part 2",
+      "release_date": "2018-11-02",
+      "release_date_precision": "day",
+      "total_tracks": 3,
+      "type": "album",
+      "uri": "spotify:album:0HYCAlXXwQcCrv8paLPqFC"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "compilation",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of"
+          },
+          "href": "https://api.spotify.com/v1/artists/0LyfQWJT6nXafLPZqxe9Of",
+          "id": "0LyfQWJT6nXafLPZqxe9Of",
+          "name": "Various Artists",
+          "type": "artist",
+          "uri": "spotify:artist:0LyfQWJT6nXafLPZqxe9Of"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/61XRV2tqeIuzPrZbvUYIbg"
+      },
+      "href": "https://api.spotify.com/v1/albums/61XRV2tqeIuzPrZbvUYIbg",
+      "id": "61XRV2tqeIuzPrZbvUYIbg",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2736b670a16295208a537e1add2",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e026b670a16295208a537e1add2",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048516b670a16295208a537e1add2",
+          "width": 64
+        }
+      ],
+      "name": "Ibiza 2018 Closing Party",
+      "release_date": "2018-09-21",
+      "release_date_precision": "day",
+      "total_tracks": 52,
+      "type": "album",
+      "uri": "spotify:album:61XRV2tqeIuzPrZbvUYIbg"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "compilation",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of"
+          },
+          "href": "https://api.spotify.com/v1/artists/0LyfQWJT6nXafLPZqxe9Of",
+          "id": "0LyfQWJT6nXafLPZqxe9Of",
+          "name": "Various Artists",
+          "type": "artist",
+          "uri": "spotify:artist:0LyfQWJT6nXafLPZqxe9Of"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/42GzfOtTjsTFeqcJtqbGW1"
+      },
+      "href": "https://api.spotify.com/v1/albums/42GzfOtTjsTFeqcJtqbGW1",
+      "id": "42GzfOtTjsTFeqcJtqbGW1",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273a95cf2841c4622ffb8fa4189",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02a95cf2841c4622ffb8fa4189",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851a95cf2841c4622ffb8fa4189",
+          "width": 64
+        }
+      ],
+      "name": "Ibiza Underground 2018",
+      "release_date": "2018-06-15",
+      "release_date_precision": "day",
+      "total_tracks": 52,
+      "type": "album",
+      "uri": "spotify:album:42GzfOtTjsTFeqcJtqbGW1"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/3qIRQKST5KCIIKWgmPTY2M"
+          },
+          "href": "https://api.spotify.com/v1/artists/3qIRQKST5KCIIKWgmPTY2M",
+          "id": "3qIRQKST5KCIIKWgmPTY2M",
+          "name": "JIMMY EDGAR",
+          "type": "artist",
+          "uri": "spotify:artist:3qIRQKST5KCIIKWgmPTY2M"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/6pSsE5y0uJMwYj83KrPyf9"
+          },
+          "href": "https://api.spotify.com/v1/artists/6pSsE5y0uJMwYj83KrPyf9",
+          "id": "6pSsE5y0uJMwYj83KrPyf9",
+          "name": "Dawn Richard",
+          "type": "artist",
+          "uri": "spotify:artist:6pSsE5y0uJMwYj83KrPyf9"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/335haO0txY7NDUfpUNOyxu"
+      },
+      "href": "https://api.spotify.com/v1/albums/335haO0txY7NDUfpUNOyxu",
+      "id": "335haO0txY7NDUfpUNOyxu",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273e67faf18c35f1a76ff436284",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02e67faf18c35f1a76ff436284",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851e67faf18c35f1a76ff436284",
+          "width": 64
+        }
+      ],
+      "name": "Burn So Deep (feat. Dawn Richard) [Remixes]",
+      "release_date": "2018-06-01",
+      "release_date_precision": "day",
+      "total_tracks": 3,
+      "type": "album",
+      "uri": "spotify:album:335haO0txY7NDUfpUNOyxu"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/0DivrXwznd1NcQbRh86cQO"
+          },
+          "href": "https://api.spotify.com/v1/artists/0DivrXwznd1NcQbRh86cQO",
+          "id": "0DivrXwznd1NcQbRh86cQO",
+          "name": "Contours",
+          "type": "artist",
+          "uri": "spotify:artist:0DivrXwznd1NcQbRh86cQO"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/0VYerxRUVXPp3qoOD5fdY0"
+      },
+      "href": "https://api.spotify.com/v1/albums/0VYerxRUVXPp3qoOD5fdY0",
+      "id": "0VYerxRUVXPp3qoOD5fdY0",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2732238e0dc63588fd2bc53e4e1",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e022238e0dc63588fd2bc53e4e1",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048512238e0dc63588fd2bc53e4e1",
+          "width": 64
+        }
+      ],
+      "name": "Loose Wood",
+      "release_date": "2018-03-23",
+      "release_date_precision": "day",
+      "total_tracks": 4,
+      "type": "album",
+      "uri": "spotify:album:0VYerxRUVXPp3qoOD5fdY0"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/0Vw76uk7P8yVtTClWyOhac"
+          },
+          "href": "https://api.spotify.com/v1/artists/0Vw76uk7P8yVtTClWyOhac",
+          "id": "0Vw76uk7P8yVtTClWyOhac",
+          "name": "HONNE",
+          "type": "artist",
+          "uri": "spotify:artist:0Vw76uk7P8yVtTClWyOhac"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/1bnZvdek4i4RiDPbpavStS"
+      },
+      "href": "https://api.spotify.com/v1/albums/1bnZvdek4i4RiDPbpavStS",
+      "id": "1bnZvdek4i4RiDPbpavStS",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2732e115c28ce7c1c5363c8d212",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e022e115c28ce7c1c5363c8d212",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048512e115c28ce7c1c5363c8d212",
+          "width": 64
+        }
+      ],
+      "name": "Just Dance",
+      "release_date": "2017-11-03",
+      "release_date_precision": "day",
+      "total_tracks": 3,
+      "type": "album",
+      "uri": "spotify:album:1bnZvdek4i4RiDPbpavStS"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "album",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/5wZOrGWdg4hq7KIRMupJdI"
+          },
+          "href": "https://api.spotify.com/v1/artists/5wZOrGWdg4hq7KIRMupJdI",
+          "id": "5wZOrGWdg4hq7KIRMupJdI",
+          "name": "Lone",
+          "type": "artist",
+          "uri": "spotify:artist:5wZOrGWdg4hq7KIRMupJdI"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/1db4kS9Owv9SAXvX0CmqsK"
+      },
+      "href": "https://api.spotify.com/v1/albums/1db4kS9Owv9SAXvX0CmqsK",
+      "id": "1db4kS9Owv9SAXvX0CmqsK",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b27361078166284380f8b3e0e602",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e0261078166284380f8b3e0e602",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d0000485161078166284380f8b3e0e602",
+          "width": 64
+        }
+      ],
+      "name": "DJ-Kicks (Lone) [DJ Mix]",
+      "release_date": "2017-09-29",
+      "release_date_precision": "day",
+      "total_tracks": 18,
+      "type": "album",
+      "uri": "spotify:album:1db4kS9Owv9SAXvX0CmqsK"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/24icoQNJSEWNu3XvqKBR68"
+          },
+          "href": "https://api.spotify.com/v1/artists/24icoQNJSEWNu3XvqKBR68",
+          "id": "24icoQNJSEWNu3XvqKBR68",
+          "name": "Jordan Rakei",
+          "type": "artist",
+          "uri": "spotify:artist:24icoQNJSEWNu3XvqKBR68"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/0XRRlYKFxBotZeZ4wI3pUP"
+      },
+      "href": "https://api.spotify.com/v1/albums/0XRRlYKFxBotZeZ4wI3pUP",
+      "id": "0XRRlYKFxBotZeZ4wI3pUP",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2735443b1ebbafb4b2715c130c1",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e025443b1ebbafb4b2715c130c1",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048515443b1ebbafb4b2715c130c1",
+          "width": 64
+        }
+      ],
+      "name": "Nerve EP",
+      "release_date": "2017-08-22",
+      "release_date_precision": "day",
+      "total_tracks": 3,
+      "type": "album",
+      "uri": "spotify:album:0XRRlYKFxBotZeZ4wI3pUP"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/4Z30JKtwkkZYaq0z7Pa86v"
+          },
+          "href": "https://api.spotify.com/v1/artists/4Z30JKtwkkZYaq0z7Pa86v",
+          "id": "4Z30JKtwkkZYaq0z7Pa86v",
+          "name": "MENt",
+          "type": "artist",
+          "uri": "spotify:artist:4Z30JKtwkkZYaq0z7Pa86v"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/4FFmvgHX2R9Qd65Cyedjpg"
+      },
+      "href": "https://api.spotify.com/v1/albums/4FFmvgHX2R9Qd65Cyedjpg",
+      "id": "4FFmvgHX2R9Qd65Cyedjpg",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273f8f0b4641c07cbc14c019d4e",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02f8f0b4641c07cbc14c019d4e",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851f8f0b4641c07cbc14c019d4e",
+          "width": 64
+        }
+      ],
+      "name": "A Kind Of Us",
+      "release_date": "2017-03-01",
+      "release_date_precision": "day",
+      "total_tracks": 5,
+      "type": "album",
+      "uri": "spotify:album:4FFmvgHX2R9Qd65Cyedjpg"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/7g0azP1aJBtmhhOk00SpIM"
+          },
+          "href": "https://api.spotify.com/v1/artists/7g0azP1aJBtmhhOk00SpIM",
+          "id": "7g0azP1aJBtmhhOk00SpIM",
+          "name": "Couros",
+          "type": "artist",
+          "uri": "spotify:artist:7g0azP1aJBtmhhOk00SpIM"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/14nIIiCCNE12QdXaKDoM81"
+      },
+      "href": "https://api.spotify.com/v1/albums/14nIIiCCNE12QdXaKDoM81",
+      "id": "14nIIiCCNE12QdXaKDoM81",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273ab265a9cc43533004ebeac8b",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02ab265a9cc43533004ebeac8b",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851ab265a9cc43533004ebeac8b",
+          "width": 64
+        }
+      ],
+      "name": "Nev\u2022er Break (Ross From Friends Remix)",
+      "release_date": "2016-12-09",
+      "release_date_precision": "day",
+      "total_tracks": 1,
+      "type": "album",
+      "uri": "spotify:album:14nIIiCCNE12QdXaKDoM81"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/74FtMGqsZm74eumHo8Fi3V"
+          },
+          "href": "https://api.spotify.com/v1/artists/74FtMGqsZm74eumHo8Fi3V",
+          "id": "74FtMGqsZm74eumHo8Fi3V",
+          "name": "Athlete Whippet",
+          "type": "artist",
+          "uri": "spotify:artist:74FtMGqsZm74eumHo8Fi3V"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/5LSp7lenGf9bNIoEqgqT1I"
+      },
+      "href": "https://api.spotify.com/v1/albums/5LSp7lenGf9bNIoEqgqT1I",
+      "id": "5LSp7lenGf9bNIoEqgqT1I",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2733b7ddf46b88e1a39a1664231",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e023b7ddf46b88e1a39a1664231",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048513b7ddf46b88e1a39a1664231",
+          "width": 64
+        }
+      ],
+      "name": "Tired of Being Alone",
+      "release_date": "2016-10-21",
+      "release_date_precision": "day",
+      "total_tracks": 2,
+      "type": "album",
+      "uri": "spotify:album:5LSp7lenGf9bNIoEqgqT1I"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/4ijvN5KmKBcNXDYMP6X9E0"
+          },
+          "href": "https://api.spotify.com/v1/artists/4ijvN5KmKBcNXDYMP6X9E0",
+          "id": "4ijvN5KmKBcNXDYMP6X9E0",
+          "name": "Pedestrian",
+          "type": "artist",
+          "uri": "spotify:artist:4ijvN5KmKBcNXDYMP6X9E0"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/2CTKkRJo5VxOLqi7VNqdcy"
+      },
+      "href": "https://api.spotify.com/v1/albums/2CTKkRJo5VxOLqi7VNqdcy",
+      "id": "2CTKkRJo5VxOLqi7VNqdcy",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2733dc4c47599c97c68aaa7a601",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e023dc4c47599c97c68aaa7a601",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048513dc4c47599c97c68aaa7a601",
+          "width": 64
+        }
+      ],
+      "name": "Circadian Rhythms (Remix)",
+      "release_date": "2016-06-10",
+      "release_date_precision": "day",
+      "total_tracks": 3,
+      "type": "album",
+      "uri": "spotify:album:2CTKkRJo5VxOLqi7VNqdcy"
+    },
+    {
+      "album_group": "appears_on",
+      "album_type": "album",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/7zrkALJ9ayRjzysp4QYoEg"
+          },
+          "href": "https://api.spotify.com/v1/artists/7zrkALJ9ayRjzysp4QYoEg",
+          "id": "7zrkALJ9ayRjzysp4QYoEg",
+          "name": "Maribou State",
+          "type": "artist",
+          "uri": "spotify:artist:7zrkALJ9ayRjzysp4QYoEg"
+        }
+      ],
+      "available_markets": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/5U8ApCp9atnu8XWosMYZ8s"
+      },
+      "href": "https://api.spotify.com/v1/albums/5U8ApCp9atnu8XWosMYZ8s",
+      "id": "5U8ApCp9atnu8XWosMYZ8s",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b273f703db6212d39770f66d23eb",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e02f703db6212d39770f66d23eb",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d00004851f703db6212d39770f66d23eb",
+          "width": 64
+        }
+      ],
+      "name": "Portraits Remixed",
+      "release_date": "2015-10-16",
+      "release_date_precision": "day",
+      "total_tracks": 10,
+      "type": "album",
+      "uri": "spotify:album:5U8ApCp9atnu8XWosMYZ8s"
+    }
+  ],
+  "limit": 50,
+  "next": null,
+  "offset": 0,
+  "previous": null,
+  "total": 39
+}

@@ -21,9 +21,9 @@
     "id": "7FvnTARvgjUyWnUT0flUN7",
     "images": [
       {
-        "height": 64,
-        "url": "https://i.scdn.co/image/ab67616d0000485157751ae9890e997676b998f2",
-        "width": 64
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab67616d0000b27357751ae9890e997676b998f2",
+        "width": 640
       },
       {
         "height": 300,
@@ -31,9 +31,9 @@
         "width": 300
       },
       {
-        "height": 640,
-        "url": "https://i.scdn.co/image/ab67616d0000b27357751ae9890e997676b998f2",
-        "width": 640
+        "height": 64,
+        "url": "https://i.scdn.co/image/ab67616d0000485157751ae9890e997676b998f2",
+        "width": 64
       }
     ],
     "name": "Mirrors",

@@ -135,7 +135,7 @@ def test_save_unsave_methods(
         [request_values],
     )
 
-    assert len(mock_requests.request_history) == 1
+    assert mock_requests.call_count == 1
 
 
 def test_save_unsave_methods_with_invalid_type(spotify_user: User) -> None:
@@ -148,7 +148,6 @@ def test_save_unsave_methods_with_invalid_type(spotify_user: User) -> None:
     )
 
     with raises(TypeError) as exc_info:
-
         spotify_user.save(entity=device)  # type: ignore[arg-type]
 
     assert (
@@ -176,31 +175,27 @@ def test_albums_property(spotify_user: User, mock_requests: Mocker) -> None:
     )
     assert hasattr(spotify_user, "_albums")
 
-    assert len(mock_requests.request_history) == 2
+    assert mock_requests.call_count == 2
 
-    assert (
-        mock_requests.request_history[0].url
-        == "https://api.spotify.com/v1/me/albums?limit=50"
-    )
-    assert mock_requests.request_history[0].method == "GET"
-    assert (
-        mock_requests.request_history[0].headers["Authorization"]
-        == "Bearer test_access_token"
-    )
-
-    assert (
-        mock_requests.request_history[1].url
-        == "https://api.spotify.com/v1/me/albums?offset=50&limit=50"
-    )
-    assert mock_requests.request_history[1].method == "GET"
-    assert (
-        mock_requests.request_history[1].headers["Authorization"]
-        == "Bearer test_access_token"
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": "https://api.spotify.com/v1/me/albums?limit=50",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+            {
+                "url": "https://api.spotify.com/v1/me/albums?offset=50&limit=50",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+        ],
     )
 
     # Check subsequent calls to property don't make additional requests
     assert len(spotify_user._albums) == 80
-    assert len(mock_requests.request_history) == 2
+    assert mock_requests.call_count == 2
 
 
 def test_artists_property(
@@ -223,7 +218,7 @@ def test_artists_property(
             ][  # type: ignore[call-overload]
                 "items"  # type: ignore[index]
             ],
-            *read_json_file(f"{prefix}after=77bznf1dr1k5kyez6nn3jb&limit=50.json")[
+            *read_json_file(f"{prefix}after=77BznF1Dr1k5KyEZ6Nn3jB&limit=50.json")[
                 "artists"
             ][  # type: ignore[call-overload]
                 "items"  # type: ignore[index]
@@ -231,15 +226,29 @@ def test_artists_property(
         ]
     ]
 
-    assert (
-        mock_requests.request_history[0].url
-        == "https://api.spotify.com/v1/me/following?type=artist&limit=50"
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            # pylint: disable=line-too-long
+            {
+                "url": "https://api.spotify.com/v1/me/following?type=artist&limit=50",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+            {
+                "url": "https://api.spotify.com/v1/me/following?type=artist&after=3iOvXCl6edW5Um0fXEBRXy&limit=50",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+            {
+                "url": "https://api.spotify.com/v1/me/following?type=artist&after=77BznF1Dr1k5KyEZ6Nn3jB&limit=50",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+        ],
     )
-    assert mock_requests.request_history[0].method == "GET"
-    assert (
-        mock_requests.request_history[0].headers["Authorization"]
-        == "Bearer test_access_token"
-    )
+
+    assert mock_requests.call_count == 3
 
 
 def test_current_track_property(
@@ -255,15 +264,18 @@ def test_current_track_property(
         spotify_client=spotify_user._spotify_client,
     )
 
-    assert (
-        mock_requests.request_history[0].url
-        == "https://api.spotify.com/v1/me/player/currently-playing"
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": "https://api.spotify.com/v1/me/player/currently-playing",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+        ],
     )
-    assert mock_requests.request_history[0].method == "GET"
-    assert (
-        mock_requests.request_history[0].headers["Authorization"]
-        == "Bearer test_access_token"
-    )
+
+    assert mock_requests.call_count == 1
 
 
 def test_current_track_nothing_playing(
@@ -296,19 +308,23 @@ def test_current_playlist_property(
 
     mock_get_playlist_by_id.assert_called_once_with("37i9dqzf1e8pj76jxe3egf")
 
-    assert (
-        mock_requests.request_history[0].url
-        == "https://api.spotify.com/v1/me/player/currently-playing"
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": "https://api.spotify.com/v1/me/player/currently-playing",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+            {
+                "url": "https://api.spotify.com/v1/playlists/37i9dqzf1e8pj76jxe3egf",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+        ],
     )
-    assert mock_requests.request_history[0].method == "GET"
-    assert (
-        mock_requests.request_history[0].headers["Authorization"]
-        == "Bearer test_access_token"
-    )
-    assert (
-        mock_requests.request_history[1].url
-        == "https://api.spotify.com/v1/playlists/37i9dqzf1e8pj76jxe3egf"
-    )
+
+    assert mock_requests.call_count == 2
 
 
 def test_current_playlist_nothing_playing(
@@ -336,14 +352,15 @@ def test_devices_property(spotify_user: User, mock_requests: Mocker) -> None:
         ]
     ]
 
-    assert (
-        mock_requests.request_history[0].url
-        == "https://api.spotify.com/v1/me/player/devices?limit=50"
-    )
-    assert mock_requests.request_history[0].method == "GET"
-    assert (
-        mock_requests.request_history[0].headers["Authorization"]
-        == "Bearer test_access_token"
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": "https://api.spotify.com/v1/me/player/devices?limit=50",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+        ],
     )
 
 
@@ -397,7 +414,7 @@ def test_playlist_property(
 
     # Check subsequent calls to property don't make additional requests
     assert len(spotify_user.playlists) == 116
-    assert len(mock_requests.request_history) == 4
+    assert mock_requests.call_count == 4
 
 
 def test_top_artists_property(
@@ -411,14 +428,16 @@ def test_top_artists_property(
     assert all(isinstance(artist, Artist) for artist in top_artists)
     assert all(artist._spotify_client == spotify_client for artist in top_artists)
 
-    assert (
-        mock_requests.request_history[0].url
-        == "https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=50"
-    )
-    assert mock_requests.request_history[0].method == "GET"
-    assert (
-        mock_requests.request_history[0].headers["Authorization"]
-        == "Bearer test_access_token"
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                # pylint: disable=line-too-long
+                "url": "https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=50",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+        ],
     )
 
 
@@ -433,14 +452,16 @@ def test_top_tracks_property(
     assert all(isinstance(track, Track) for track in top_tracks)
     assert all(track._spotify_client == spotify_client for track in top_tracks)
 
-    assert (
-        mock_requests.request_history[0].url
-        == "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=50"
-    )
-    assert mock_requests.request_history[0].method == "GET"
-    assert (
-        mock_requests.request_history[0].headers["Authorization"]
-        == "Bearer test_access_token"
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                # pylint: disable=line-too-long
+                "url": "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=50",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+        ],
     )
 
 
@@ -488,4 +509,4 @@ def test_tracks_property(
 
     # Check subsequent calls to property don't make additional requests
     assert len(spotify_user.tracks) == 250
-    assert len(mock_requests.request_history) == 5
+    assert mock_requests.call_count == 5

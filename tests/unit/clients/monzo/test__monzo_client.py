@@ -47,12 +47,12 @@ def test_deposit_into_pot_makes_correct_request(
     with freeze_time("2020-01-01 00:00:00"):
         monzo_client.deposit_into_pot(monzo_pot, 100)
 
-    assert mock_requests.request_history[-1].method == "PUT"
+    assert mock_requests.last_request.method == "PUT"
     assert (
-        mock_requests.request_history[-1].url
+        mock_requests.last_request.url
         == f"https://api.monzo.com/pots/{monzo_pot.id}/deposit"
     )
-    assert mock_requests.request_history[-1].text == urlencode(
+    assert mock_requests.last_request.text == urlencode(
         {
             "source_account_id": "test_account_id",
             "amount": 100,
@@ -110,7 +110,7 @@ def test_list_accounts_method(
             account_type=account_type, include_closed=False
         ) == [account for account in expected_accounts if not account.closed]
 
-        assert mock_requests.request_history[-1].method == "GET"
+        assert mock_requests.last_request.method == "GET"
         assert mock_requests.request_history[
             -1
         ].url == "https://api.monzo.com/accounts?" + urlencode(
@@ -132,7 +132,7 @@ def test_list_pots_method(
         pot for pot in all_pots if not pot.deleted
     ]
 
-    assert mock_requests.request_history[-1].method == "GET"
+    assert mock_requests.last_request.method == "GET"
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
@@ -150,7 +150,7 @@ def test_get_pot_by_id_method(
 
     assert monzo_client.get_pot_by_id(pot.id) == pot
 
-    assert mock_requests.request_history[-1].method == "GET"
+    assert mock_requests.last_request.method == "GET"
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
@@ -170,7 +170,7 @@ def test_get_pot_by_name_exact_match_true(
 
     assert monzo_client.get_pot_by_name(pot.name, exact_match=True) == pot
 
-    assert mock_requests.request_history[-1].method == "GET"
+    assert mock_requests.last_request.method == "GET"
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
@@ -193,7 +193,7 @@ def test_get_pot_by_name_exact_match_false(
     assert monzo_client.get_pot_by_name(pot.name, exact_match=False) == pot
     assert monzo_client.get_pot_by_name("!!!Ibiza-Mad-One!!!", exact_match=False) == pot
 
-    assert mock_requests.request_history[-1].method == "GET"
+    assert mock_requests.last_request.method == "GET"
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
@@ -247,8 +247,8 @@ def test_access_token_has_expired_property_expired_with_access_token(
     ):
         assert monzo_client.access_token_has_expired is expired
 
-    assert mock_requests.request_history[-1].method == "GET"
-    assert mock_requests.request_history[-1].url == "https://api.monzo.com/ping/whoami"
+    assert mock_requests.last_request.method == "GET"
+    assert mock_requests.last_request.url == "https://api.monzo.com/ping/whoami"
 
 
 def test_credentials_property_loads_local_credentials(
