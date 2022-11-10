@@ -2,7 +2,7 @@
 """Custom client for interacting with Spotify's Web API."""
 from __future__ import annotations
 
-from collections.abc import Callable, Collection
+from collections.abc import Callable, Collection, Iterator
 from datetime import date, datetime, timedelta
 from enum import Enum
 from http import HTTPStatus
@@ -774,6 +774,16 @@ class Playlist(SpotifyEntity):
         self._tracks: list[Track]
 
     @property
+    def owner(self) -> User:
+        """Playlist owner.
+
+        Returns:
+            User: the Spotify user who owns this playlist
+        """
+
+        return User(self.json["owner"], spotify_client=self._spotify_client)
+
+    @property
     def tracks(self) -> list[Track]:
         """Tracks in the playlist.
 
@@ -794,16 +804,6 @@ class Playlist(SpotifyEntity):
 
         return self._tracks
 
-    @property
-    def owner(self) -> User:
-        """Playlist owner.
-
-        Returns:
-            User: the Spotify user who owns this playlist
-        """
-
-        return User(self.json["owner"], spotify_client=self._spotify_client)
-
     def __contains__(self, track: Track) -> bool:
         return track in self.tracks
 
@@ -811,31 +811,28 @@ class Playlist(SpotifyEntity):
         if not isinstance(other, Playlist):
             return NotImplemented
 
-        if self.name.lower() == other.name.lower():
-            if self.owner.id == self._spotify_client.current_user.id:
-                return False
+        if self == other:
+            return False
 
-            if other.owner.id == self._spotify_client.current_user.id:
-                return True
+        return (self.name.lower(), self.id.lower()) > (
+            other.name.lower(),
+            other.id.lower(),
+        )
 
-        return self.name.lower() > other.name.lower()
+    def __iter__(self) -> Iterator[Track]:
+        return iter(self.tracks)
 
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, Playlist):
             return NotImplemented
 
-        if self.name.lower() == other.name.lower():
+        if self == other:
+            return False
 
-            if self.owner.id == self._spotify_client.current_user.id:
-                return True
-
-            if other.owner.id == self._spotify_client.current_user.id:
-                return False
-
-        return self.name.lower() < other.name.lower()
-
-    def __str__(self) -> str:
-        return f"{self.name} ({self.id}) - owned by {self.owner}"
+        return (self.name.lower(), self.id.lower()) < (
+            other.name.lower(),
+            other.id.lower(),
+        )
 
 
 class SpotifyClient:
