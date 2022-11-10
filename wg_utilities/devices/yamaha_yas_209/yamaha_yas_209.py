@@ -845,7 +845,7 @@ class YamahaYas209:
             )
 
         @_needs_device
-        async def _worker(_: YamahaYas209) -> Mapping[str, Any]:  # noqa: N803
+        async def _worker(_: YamahaYas209) -> Mapping[str, Any]:
             res: Mapping[str, Any] = (
                 await self.device.services[service.service_name]
                 .action(action)

@@ -19,7 +19,7 @@ def test_list_handler_instantiation() -> None:
     """Test that the ListHandler can be instantiated."""
     record_list: list[LogRecord] = []
 
-    def on_record(_: LogRecord) -> None:  # noqa: N803
+    def on_record(_: LogRecord) -> None:
         """Do something with the record."""
 
     l_handler = ListHandler(

@@ -295,7 +295,7 @@ def test_credentials_property_runs_first_time_login(monzo_client: MonzoClient) -
         "_load_local_credentials",
         side_effect=_mock_load_local_credentials_side_effect,
     ), patch("wg_utilities.clients.monzo.open_browser") as mock_open_browser, patch(
-        "wg_utilities.clients.monzo.choice", side_effect=lambda _: "x"  # noqa: N803
+        "wg_utilities.clients.monzo.choice", side_effect=lambda _: "x"
     ), patch.object(
         monzo_client, "exchange_auth_code"
     ) as mock_exchange_auth_code, patch(
@@ -357,7 +357,7 @@ def test_credentials_property_raises_exception_with_invalid_state(
         "_load_local_credentials",
         side_effect=_mock_load_local_credentials_side_effect,
     ), patch("wg_utilities.clients.monzo.open_browser"), patch(
-        "wg_utilities.clients.monzo.choice", side_effect=lambda _: "x"  # noqa: N803
+        "wg_utilities.clients.monzo.choice", side_effect=lambda _: "x"
     ), patch(
         "wg_utilities.clients._generic.TempAuthServer"
     ) as mock_temp_auth_server, raises(

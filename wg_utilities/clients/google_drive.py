@@ -99,7 +99,7 @@ class File:
         name: str,
         google_client: GoogleDriveClient,
         parents: list[str] | None = None,
-        **_: Any,  # noqa: N803
+        **_: Any,
     ):
         self.file_id = id
         self.name = name
@@ -200,7 +200,7 @@ class Directory(File):
         name: str,
         google_client: GoogleDriveClient,
         parents: list[str] | None = None,
-        **_: Any,  # noqa: N803
+        **_: Any,
     ):
         super().__init__(id=id, name=name, parents=parents, google_client=google_client)
         self._children: set[Directory] = set()

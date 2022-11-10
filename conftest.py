@@ -214,7 +214,7 @@ def get_flat_file_from_url(
 
 def monzo_account_json(
     request: _RequestObjectProxy = None,
-    _: _Context = None,  # noqa: N803
+    _: _Context = None,
     *,
     account_type: str = "uk_prepaid",
 ) -> dict[Literal["accounts"], list[_MonzoAccountInfo]]:
@@ -377,7 +377,7 @@ def random_nested_json_with_arrays_and_stringified_json() -> JSONObj:
 
 
 def spotify_get_entity_by_id_json_callback(
-    request: _RequestObjectProxy, _: _Context  # noqa: N803
+    request: _RequestObjectProxy, _: _Context
 ) -> JSONObj:
     """Return a Spotify entity JSON object.
 
@@ -664,7 +664,7 @@ def _mock_requests(request: FixtureRequest) -> YieldFixture[Mocker]:
 
     def _whoami_json_cb(
         request: _RequestObjectProxy = None,
-        _: _Context = None,  # noqa: N803
+        _: _Context = None,
     ) -> dict[Literal["authenticated"], bool]:
         return {
             "authenticated": request.headers["Authorization"]

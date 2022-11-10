@@ -64,7 +64,7 @@ class DHT22Sensor:
         self.temp_low: int  # temp low byte
         self.checksum: int  # checksum
 
-    def _cb(self, _: int, level: int, tick: int) -> None:  # noqa: N803
+    def _cb(self, _: int, level: int, tick: int) -> None:
         # pylint: disable=too-many-branches,too-many-statements
         """Callback function for DHT22 Sensor.
 

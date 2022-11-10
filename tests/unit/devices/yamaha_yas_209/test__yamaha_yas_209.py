@@ -1360,7 +1360,7 @@ def test_subscribe_creates_notify_server_with_correct_subscriptions(
 
     fake_aiohttp_server: AiohttpNotifyServer | None = None
 
-    def _sleep_side_effect(_: int) -> None:  # noqa: N803
+    def _sleep_side_effect(_: int) -> None:
         """When the `async_sleep` call is made, force-stop the subscription loop."""
         yamaha_yas_209._listening = False
 
@@ -1434,7 +1434,7 @@ def test_subscribe_creates_notify_server_logs_subscription_errors(
         ),
     )
 
-    def _sleep_side_effect(_: int) -> None:  # noqa: N803
+    def _sleep_side_effect(_: int) -> None:
         """When the `async_sleep` call is made, force-stop the subscription loop."""
         yamaha_yas_209._listening = False
 
@@ -1485,7 +1485,7 @@ def test_subscribe_resubscribes_to_active_services(
 
     call_count = 0
 
-    def _sleep_side_effect(_: int) -> None:  # noqa: N803
+    def _sleep_side_effect(_: int) -> None:
         """Dummy function to skip sleep delays.
 
         Will cause the loop to exit after 121 calls (i.e. after the first main
@@ -1538,7 +1538,7 @@ def test_subscribe_resubscribes_to_failed_services(
 
     call_count = 0
 
-    def _sleep_side_effect(_: int) -> None:  # noqa: N803
+    def _sleep_side_effect(_: int) -> None:
         """Dummy function to skip sleep delays.
 
         Will cause the loop to exit after 121 calls (i.e. after the first main
@@ -1619,7 +1619,7 @@ def test_subscribe_keeps_retrying_failed_subscriptions(
 
     call_count = 0
 
-    def _sleep_side_effect(_: int) -> None:  # noqa: N803
+    def _sleep_side_effect(_: int) -> None:
         """Dummy function to skip sleep delays.
 
         Will cause the loop to exit after 121 calls (i.e. after the first main
