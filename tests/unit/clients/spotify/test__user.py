@@ -92,7 +92,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
         (
             "spotify_playlist",
             {
-                "url": f"{SpotifyClient.BASE_URL}/playlists/37i9dQZF1E8Pj76JxE3EGf/followers?ids=worgarside",
+                "url": f"{SpotifyClient.BASE_URL}/playlists/2lMx8FU0SeQ7eA5kcMlNpX/followers?ids=worgarside",
                 "headers": {"Authorization": "Bearer test_access_token"},
             },
         ),
@@ -259,7 +259,7 @@ def test_current_track_property(
 
     assert spotify_user.current_track == Track(
         json=read_json_file(  # type: ignore[arg-type]
-            "spotify/tracks/5wakjjay1qmk5h8y1duehj.json"
+            "spotify/tracks/6zJUp1ihdid6Kn3Ndgcy82.json"
         ),
         spotify_client=spotify_user._spotify_client,
     )
@@ -306,7 +306,7 @@ def test_current_playlist_property(
     ) as mock_get_playlist_by_id:
         assert spotify_user.current_playlist == spotify_playlist
 
-    mock_get_playlist_by_id.assert_called_once_with("37i9dqzf1e8pj76jxe3egf")
+    mock_get_playlist_by_id.assert_called_once_with("2lMx8FU0SeQ7eA5kcMlNpX")
 
     assert_mock_requests_request_history(
         mock_requests.request_history,
@@ -317,7 +317,7 @@ def test_current_playlist_property(
                 "headers": {"Authorization": "Bearer test_access_token"},
             },
             {
-                "url": "https://api.spotify.com/v1/playlists/37i9dqzf1e8pj76jxe3egf",
+                "url": "https://api.spotify.com/v1/playlists/2lMx8FU0SeQ7eA5kcMlNpX",
                 "method": "GET",
                 "headers": {"Authorization": "Bearer test_access_token"},
             },

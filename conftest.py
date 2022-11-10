@@ -7,9 +7,8 @@ from http import HTTPStatus
 from json import dump, dumps, load, loads
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, LogRecord, getLogger
 from os import environ, listdir, walk
-from os.path import isdir, join
+from os.path import join
 from pathlib import Path
-from random import choice
 from re import IGNORECASE
 from re import compile as compile_regex
 from re import fullmatch
@@ -205,15 +204,10 @@ def get_flat_file_from_url(
     context.status_code = HTTPStatus.OK
     context.reason = HTTPStatus.OK.phrase
 
-    file_path = f"spotify/{request.path.replace('/v1/', '')}/{request.query}".rstrip(
-        "/"
+    file_path = (
+        f"spotify/{request.path.replace('/v1/', '')}/{request.query}".rstrip("/")
+        + ".json"
     )
-
-    if isdir(dir_path := FLAT_FILES_DIR / "json" / file_path):
-        file = choice(listdir(dir_path))
-        file_path = file_path + "/" + str(file)
-    else:
-        file_path += ".json"
 
     return read_json_file(file_path)
 
@@ -1015,7 +1009,7 @@ def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
 
     return Playlist(
         json=read_json_file(  # type: ignore[arg-type]
-            "spotify/playlists/37i9dqzf1e8pj76jxe3egf.json"
+            "spotify/playlists/2lMx8FU0SeQ7eA5kcMlNpX.json"
         ),
         spotify_client=spotify_client,
     )
@@ -1038,7 +1032,7 @@ def _spotify_user(spotify_client: SpotifyClient) -> User:
     """Fixture for creating a Spotify User instance."""
 
     return User(
-        json=read_json_file("spotify/me/test_user_id.json"),  # type: ignore[arg-type]
+        json=read_json_file("spotify/me.json"),  # type: ignore[arg-type]
         spotify_client=spotify_client,
     )
 

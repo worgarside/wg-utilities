@@ -146,6 +146,23 @@ class _TrackAudioFeaturesInfo(TypedDict):
     valence: float
 
 
+class _GetItemsFromUrlDataInfo(TypedDict):
+    items: list[
+        (
+            _PlaylistInfo
+            | _TrackInfo
+            | _AlbumInfo
+            | _ArtistInfo
+            | list[dict[Literal["album"], _AlbumInfo]]
+        )
+    ]
+    next: str | None
+    total: int
+    cursors: dict[Literal["after"], str] | None
+    limit: int
+    href: str
+
+
 class SpotifyEntity:
     """Parent class for all Spotify entities (albums, artists, etc.).
 
@@ -1007,22 +1024,6 @@ class SpotifyClient:
             list: a list of dicts representing the Spotify items
         """
 
-        class _GetItemsFromUrlDataInfo(TypedDict):
-            items: list[
-                (
-                    _PlaylistInfo
-                    | _TrackInfo
-                    | _AlbumInfo
-                    | _ArtistInfo
-                    | list[dict[Literal["album"], _AlbumInfo]]
-                )
-            ]
-            next: str | None
-            total: int
-            cursors: dict[Literal["after"], str] | None
-            limit: int
-            href: str
-
         params = params or {}
         params["limit"] = min(50, hard_limit)
 
@@ -1045,9 +1046,12 @@ class SpotifyClient:
             limit = min(50, hard_limit - len(items))
             next_url = sub(r"(?<=limit=)(\d{1,2})(?=&?)", str(limit), next_url)
 
-            res = self._get(next_url)
-
-            data = res.json().get(top_level_key, {}) if top_level_key else res.json()
+            data = self.get_json_response(next_url)  # type: ignore[assignment]
+            data = (
+                data.get(top_level_key, {})  # type: ignore[assignment]
+                if top_level_key
+                else data
+            )
 
             if limit_func is None:
                 items.extend(data.get(list_key, []))  # type: ignore[arg-type]
@@ -1064,7 +1068,8 @@ class SpotifyClient:
         self,
         url: str,
         params: None | (dict[str, str | int | float | bool | dict[str, Any]]) = None,
-    ) -> _AlbumInfo | _ArtistInfo | _PlaylistInfo | _TrackInfo | _UserInfo | dict[
+        #     pylint: disable=line-too-long
+    ) -> _AlbumInfo | _ArtistInfo | _PlaylistInfo | _TrackInfo | _UserInfo | _GetItemsFromUrlDataInfo | dict[
         str, _AlbumInfo | _ArtistInfo | _PlaylistInfo | _TrackInfo | _UserInfo | object
     ]:
         """Gets a simple JSON object from a URL.

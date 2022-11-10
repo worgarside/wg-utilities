@@ -40,7 +40,9 @@ jobs:
           pipenv sync --dev
 
       - name: Run Tests
+        id: unit_tests
         run: pipenv run pytest --cov=./ --cov-report=xml
+        continue-on-error: true
 
       - name: Upload coverage to Codecov
         if: always()
@@ -50,3 +52,8 @@ jobs:
           fail_ci_if_error: true
           verbose: true
           file: ./coverage.xml
+
+      - name: Check on UT failures
+        # yamllint disable-line rule:line-length
+        if: steps.unit_tests.outcome != 'success' || steps.unit_tests.outcome != 'success'
+        run: exit 1
