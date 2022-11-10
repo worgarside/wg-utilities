@@ -30,6 +30,7 @@ __pycache__
 logs
 .cache
 _local_sandbox
+!**/flat_files/**
 
 *.tmp
 
