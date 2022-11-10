@@ -35,6 +35,8 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: name-tests-test
+        args:
+          - --pytest-test-first
       - id: pretty-format-json
         args:
           - --no-sort-keys
