@@ -18,7 +18,7 @@ from wg_utilities.functions import traverse_dict
 from wg_utilities.functions.json import JSONObj, JSONVal
 
 
-def generate_single_key_dict(_depth: int = 0, max_depth: int = 5) -> JSONObj:
+def _generate_single_key_dict(_depth: int = 0, max_depth: int = 5) -> JSONObj:
     # pylint: disable=useless-type-doc,useless-param-doc
     """Recursively generates a deep dictionary with single keys in places.
 
@@ -33,13 +33,13 @@ def generate_single_key_dict(_depth: int = 0, max_depth: int = 5) -> JSONObj:
         return {
             "siblingKey": {
                 # This niblingKey should be removed, as it has no siblings
-                "niblingKey": generate_single_key_dict(
+                "niblingKey": _generate_single_key_dict(
                     _depth=_depth + 1, max_depth=max_depth
                 ),
             },
             "adjacentKey": {
                 # These keys should not be removed, as they have siblings
-                "niblingKey": generate_single_key_dict(
+                "niblingKey": _generate_single_key_dict(
                     _depth=_depth + 1, max_depth=max_depth
                 ),
                 "innerKey": "adjacentInnerValue",
@@ -379,7 +379,7 @@ def test_single_keys_are_removed_as_expected_one_key() -> None:
     This test removes a single key value from the dict.
     """
 
-    in_dict = generate_single_key_dict()
+    in_dict = _generate_single_key_dict()
 
     traverse_dict(
         in_dict,
@@ -415,7 +415,7 @@ def test_single_keys_are_removed_as_expected_two_keys() -> None:
     This test removes two key values from the dict.
     """
 
-    in_dict = generate_single_key_dict()
+    in_dict = _generate_single_key_dict()
 
     # This is to prove that the assertion at the bottom of the test is correct
     assert '{"siblingKey": {"niblingKey"' in dumps(in_dict)
@@ -437,7 +437,6 @@ def test_single_keys_are_removed_as_expected_two_keys() -> None:
 
                 # Avoid the start/end cases for simplicity
                 if _parent_key is not None and v is not None:
-                    print(f"{_parent_key}.{k} = {v}")
                     assert (
                         (
                             _parent_key == "niblingKey"

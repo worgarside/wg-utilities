@@ -20,7 +20,7 @@ from requests import Response, post
 from wg_utilities.api import TempAuthServer
 from wg_utilities.functions import force_mkdir, user_data_dir
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from wg_utilities.clients.google_calendar import _GoogleCalendarEntityInfo
     from wg_utilities.clients.google_drive import _DirectoryItemInfo
     from wg_utilities.clients.google_fit import _GoogleFitDataPointInfo

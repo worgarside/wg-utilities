@@ -188,7 +188,6 @@ def test_logging_with_logger_calls_emit_method(
     sample_log_record_messages_with_level: list[tuple[int, str]],
 ) -> None:
     """Test that logging calls the `emit` method of the handler."""
-    print(type(mock_emit))
     logger.addHandler(list_handler)
 
     for level, message in sample_log_record_messages_with_level:

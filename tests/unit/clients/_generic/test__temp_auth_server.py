@@ -84,7 +84,6 @@ def test_create_endpoints(temp_auth_server: TempAuthServer) -> None:
 
 def test_start_server_starts_thread(temp_auth_server: TempAuthServer) -> None:
     """Test that the `start_server` method starts a thread."""
-    print("testing")
     with patch(
         "wg_utilities.api.temp_auth_server.TempAuthServer.server"
     ) as mock_server:

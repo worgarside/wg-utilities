@@ -1,0 +1,19 @@
+"""This is a single "test" which is used to log the `pytest-randomly` seed."""
+
+from __future__ import annotations
+
+from logging import INFO, getLogger
+
+from pytest import FixtureRequest
+
+from wg_utilities.loggers import add_stream_handler
+
+_LOGGER = getLogger(__name__)
+_LOGGER.setLevel(INFO)
+add_stream_handler(_LOGGER)
+
+
+def test_randomly_seed(request: FixtureRequest) -> None:
+    """This isn't a test, it's just to ensure the randomly seed is always logged."""
+
+    _LOGGER.info("Randomly seed: %s", request.config.getoption("--randomly-seed"))

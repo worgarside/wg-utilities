@@ -1043,6 +1043,15 @@ class YamahaYas209:
             self.on_track_update(value.json)
 
     @property
+    def is_listening(self) -> bool:
+        """Whether the event listener is running.
+
+        Returns:
+            bool: whether the event listener is running
+        """
+        return self._listening
+
+    @property
     def media_album_name(self) -> str | None:
         """Name of the current album.
 

@@ -13,6 +13,7 @@ from re import compile as compile_regex
 from re import fullmatch
 from tempfile import TemporaryDirectory
 from textwrap import dedent
+from time import sleep
 from typing import Literal, TypeVar, cast
 from unittest.mock import MagicMock, patch
 from xml.etree import ElementTree
@@ -110,7 +111,6 @@ SPOTIFY_PATTERNS_TO_MOCK = [
 
 YAS_209_IP = "192.168.1.1"
 YAS_209_HOST = f"http://{YAS_209_IP}:49152"
-
 
 # <editor-fold desc="Functions">
 
@@ -261,7 +261,7 @@ def monzo_account_json(
     elif account_type == "uk_retail_joint":
         account_list.append(read_json_file("monzo/account/uk_retail_joint.json"))
     else:  # pragma: no cover
-        raise ValueError(f"Unknown account type: {account_type!r}")  # pragma: no cover
+        raise ValueError(f"Unknown account type: {account_type!r}")
 
     return {"accounts": cast(list[_MonzoAccountInfo], account_list)}
 
@@ -1163,6 +1163,12 @@ def _yamaha_yas_209() -> YieldFixture[YamahaYas209]:
     )
 
     yield yas_209
+
+    if yas_209.is_listening:
+        yas_209.stop_listening()
+
+        while yas_209.is_listening:
+            sleep(0.1)
 
 
 # </editor-fold>

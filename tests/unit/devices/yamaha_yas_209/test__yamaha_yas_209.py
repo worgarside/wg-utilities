@@ -1033,7 +1033,7 @@ def test_stop_listening_sets_attribute(
 
     yamaha_yas_209.stop_listening()
 
-    assert yamaha_yas_209._listening is False
+    assert yamaha_yas_209.is_listening is False
     assert len(caplog.records) == 1
     assert caplog.records[0].levelno == DEBUG
     assert (
@@ -1695,7 +1695,7 @@ def test_stop_listening_stops_listener(
 
     # These are the only real meaningful assertion; just the fact that the tests gets
     # this far is a passing scenario (i.e. the listener loop has exited)
-    assert yamaha_yas_209._listening is False
+    assert yamaha_yas_209.is_listening is False
 
     assert caplog.records[-1].levelno == DEBUG
     assert (
