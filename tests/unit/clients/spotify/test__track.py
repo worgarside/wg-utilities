@@ -171,6 +171,14 @@ def test_audio_features_property(spotify_track: Track, mock_requests: Mocker) ->
     assert mock_requests.call_count == 1
 
 
+def test_is_local_property(spotify_track: Track) -> None:
+    """Test that the `is_local` property returns the correct value."""
+    assert spotify_track.is_local is False
+
+    spotify_track.json["is_local"] = True
+    assert spotify_track.is_local is True
+
+
 def test_release_date_property(spotify_track: Track) -> None:
     """Test that the `release_date` property returns the correct value."""
 

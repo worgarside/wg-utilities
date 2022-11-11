@@ -29,7 +29,7 @@
     "uri": "spotify:user:worgarside"
   },
   "primary_color": null,
-  "public": true,
+  "public": false,
   "snapshot_id": "NTIxLDdjOTYwNjE0YTE2Y2M4ZGU0YzUxYmFlOWMxNjIzODBmZDRkNjQ4ZTE=",
   "tracks": {
     "href": "https://api.spotify.com/v1/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks?offset=0&limit=100",

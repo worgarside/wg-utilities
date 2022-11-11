@@ -1,0 +1,48 @@
+{
+  "playlists": {
+    "href": "https://api.spotify.com/v1/search?query=Chill+Electronica&type=playlist&offset=0&limit=1",
+    "items": [
+      {
+        "collaborative": false,
+        "description": "",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/playlist/2lMx8FU0SeQ7eA5kcMlNpX"
+        },
+        "href": "https://api.spotify.com/v1/playlists/2lMx8FU0SeQ7eA5kcMlNpX",
+        "id": "2lMx8FU0SeQ7eA5kcMlNpX",
+        "images": [
+          {
+            "height": null,
+            "url": "https://i.scdn.co/image/ab67706c0000bebb31de4c951d32e93d6d28231c",
+            "width": null
+          }
+        ],
+        "name": "Chill Electronica",
+        "owner": {
+          "display_name": "Will Garside",
+          "external_urls": {
+            "spotify": "https://open.spotify.com/user/worgarside"
+          },
+          "href": "https://api.spotify.com/v1/users/worgarside",
+          "id": "worgarside",
+          "type": "user",
+          "uri": "spotify:user:worgarside"
+        },
+        "primary_color": null,
+        "public": null,
+        "snapshot_id": "NTIxLDdjOTYwNjE0YTE2Y2M4ZGU0YzUxYmFlOWMxNjIzODBmZDRkNjQ4ZTE=",
+        "tracks": {
+          "href": "https://api.spotify.com/v1/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks",
+          "total": 518
+        },
+        "type": "playlist",
+        "uri": "spotify:playlist:2lMx8FU0SeQ7eA5kcMlNpX"
+      }
+    ],
+    "limit": 1,
+    "next": "https://api.spotify.com/v1/search?query=Chill+Electronica&type=playlist&offset=1&limit=1",
+    "offset": 0,
+    "previous": null,
+    "total": 1809
+  }
+}

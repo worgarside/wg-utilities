@@ -620,6 +620,15 @@ class Track(SpotifyEntity):
         return self._audio_features
 
     @property
+    def is_local(self) -> bool:
+        """Whether the track is a local file.
+
+        Returns:
+            bool: whether the track is a local file
+        """
+        return self.json["is_local"]
+
+    @property
     def release_date(self) -> date | str | None:
         """Album release date.
 
@@ -739,6 +748,7 @@ class Album(SpotifyEntity):
             if next_url := self.json.get("tracks", {}).get("next"):
                 self._tracks.extend(
                     Track(
+                        # FIXME I don't think this works?? it needs to be item["track"]
                         item,  # type: ignore[arg-type]
                         spotify_client=self._spotify_client,
                     )
@@ -774,6 +784,24 @@ class Playlist(SpotifyEntity):
         self._tracks: list[Track]
 
     @property
+    def is_collaborative(self) -> bool:
+        """Whether the playlist is collaborative.
+
+        Returns:
+            bool: whether the playlist is collaborative
+        """
+        return self.json["collaborative"]
+
+    @property
+    def is_public(self) -> bool:
+        """Whether the playlist is public.
+
+        Returns:
+            bool: whether the playlist is public
+        """
+        return self.json["public"]
+
+    @property
     def owner(self) -> User:
         """Playlist owner.
 
@@ -794,12 +822,13 @@ class Playlist(SpotifyEntity):
         if not hasattr(self, "_tracks"):
             self._tracks = [
                 Track(
-                    item.get("track", {}),  # type: ignore[arg-type,union-attr]
+                    item["track"],  # type: ignore[call-overload,typeddict-item]
                     spotify_client=self._spotify_client,
                 )
                 for item in self._spotify_client.get_items_from_url(
                     f"/playlists/{self.id}/tracks"
                 )
+                if "track" in item.keys()  # type: ignore[union-attr]
             ]
 
         return self._tracks
@@ -905,14 +934,13 @@ class SpotifyClient:
             cache_handler=CacheFileHandler(cache_path=creds_cache_path),
         )
         self.log_requests = log_requests
-        self.api_call_count = 0
 
         self._current_user: User
 
     def _get(
         self,
         url: str,
-        params: None | (dict[str, str | float | int | bool | dict[str, Any]]) = None,
+        params: None | dict[str, str | float | int | bool | dict[str, Any]] = None,
     ) -> Response:
         """Wrapper for GET requests which covers authentication, URL parsing, etc. etc.
 
@@ -931,8 +959,6 @@ class SpotifyClient:
         if self.log_requests:
             LOGGER.debug("GET %s with params %s", url, dumps(params or {}, default=str))
 
-        self.api_call_count += 1
-
         res = get(
             url,
             headers={
@@ -950,6 +976,7 @@ class SpotifyClient:
     def _post(
         self,
         url: str,
+        *,
         json: None
         | (dict[str, str | int | float | bool | list[str] | dict[Any, Any]]) = None,
     ) -> Response:
@@ -969,8 +996,6 @@ class SpotifyClient:
 
         if self.log_requests:
             LOGGER.debug("POST %s with data %s", url, dumps(json or {}, default=str))
-
-        self.api_call_count += 1
 
         res = post(
             url,
@@ -1000,7 +1025,17 @@ class SpotifyClient:
             | _TrackInfo
             | _AlbumInfo
             | _ArtistInfo
-            | list[dict[str, object]]
+            | list[
+                dict[
+                    str,
+                    _AlbumInfo
+                    | _ArtistInfo
+                    | _PlaylistInfo
+                    | _TrackInfo
+                    | _UserInfo
+                    | object,
+                ]
+            ]
         )
     ]:
         """Retrieve a list of items from a given URL, including pagination.
@@ -1022,7 +1057,8 @@ class SpotifyClient:
         """
 
         params = params or {}
-        params["limit"] = min(50, hard_limit)
+        if "limit=" not in url:
+            params["limit"] = min(50, hard_limit)
 
         items: list[
             (
@@ -1034,9 +1070,10 @@ class SpotifyClient:
             )
         ] = []
 
-        data: _GetItemsFromUrlDataInfo = {  # type: ignore[typeddict-item]
-            "next": url + ("?" if "?" not in url else "&") + urlencode(params)
-        }
+        if params:
+            url += ("?" if "?" not in url else "&") + urlencode(params)
+
+        data: _GetItemsFromUrlDataInfo = {"next": url}  # type: ignore[typeddict-item]
 
         while (next_url := data.get("next")) and len(items) < hard_limit:
             # Ensure we don't bother getting more items than we need
@@ -1089,10 +1126,11 @@ class SpotifyClient:
     def search(
         self,
         search_term: str,
+        *,
         entity_types: Collection[Literal["album", "artist", "playlist", "track"]] = (),
         get_best_match_only: bool = False,
     ) -> Artist | Playlist | Track | Album | None | dict[
-        Literal["album", "artist", "playlist", "track"],
+        Literal["albums", "artists", "playlists", "tracks"],
         list[Album | Artist | Playlist | Track],
     ]:
         """Search Spotify for a given search term.
@@ -1134,25 +1172,26 @@ class SpotifyClient:
         res = self.get_json_response(
             "/search",
             params={
-                "q": search_term,
+                "query": search_term,
                 "type": ",".join(entity_types),
                 "limit": 1 if get_best_match_only else 50,
             },
         )
 
         entity_instances: dict[
-            Literal["album", "artist", "playlist", "track"],
+            Literal["albums", "artists", "playlists", "tracks"],
             list[Album | Artist | Playlist | Track],
         ] = {}
 
-        for entity_type, entities_json in res.items():  # type: ignore[assignment]
+        res_entity_type: Literal["albums", "artists", "playlists", "tracks"]
+        for res_entity_type, entities_json in res.items():  # type: ignore[assignment]
 
             instance_class: type[Album | Artist | Playlist | Track] = {
                 "albums": Album,
                 "artists": Artist,
                 "playlists": Playlist,
                 "tracks": Track,
-            }[entity_type]
+            }[res_entity_type]
 
             if get_best_match_only:
                 try:
@@ -1163,7 +1202,7 @@ class SpotifyClient:
                 except IndexError:
                     return None
 
-            entity_instances.setdefault(entity_type, []).extend(
+            entity_instances.setdefault(res_entity_type, []).extend(
                 [
                     instance_class(entity_json, spotify_client=self)
                     for entity_json in entities_json.get(  # type: ignore[attr-defined]
@@ -1176,12 +1215,14 @@ class SpotifyClient:
             if (
                 next_url := entities_json.get("next")  # type: ignore[attr-defined]
             ) is not None:
-                entity_instances[entity_type].extend(
+                entity_instances[res_entity_type].extend(
                     [
                         instance_class(
                             item, spotify_client=self  # type: ignore[arg-type]
                         )
-                        for item in self.get_items_from_url(next_url)
+                        for item in self.get_items_from_url(
+                            next_url, top_level_key=res_entity_type
+                        )
                     ]
                 )
 
@@ -1233,8 +1274,11 @@ class SpotifyClient:
              the tracklist first
         """
 
-        if not force_add:
-            tracks = [track for track in tracks if track not in playlist]
+        tracks = [
+            track
+            for track in tracks
+            if not track.is_local and (force_add or track not in playlist)
+        ]
 
         for chunk in chunk_list(tracks, 100):
             res = self._post(
@@ -1242,16 +1286,15 @@ class SpotifyClient:
                 json={"uris": [t.uri for t in chunk]},
             )
 
-            res.raise_for_status()
-
             if log_responses:
-                LOGGER.debug(dumps(res.json()))
+                LOGGER.info(dumps(res.json()))
 
         if update_instance_tracklist:
             playlist.tracks.extend(tracks)
 
     def create_playlist(
         self,
+        *,
         name: str,
         description: str = "",
         public: bool = False,
@@ -1271,7 +1314,7 @@ class SpotifyClient:
         """
         res = self._post(
             f"/users/{self.current_user.id}/playlists",
-            {
+            json={
                 "name": name,
                 "description": description,
                 "public": public,

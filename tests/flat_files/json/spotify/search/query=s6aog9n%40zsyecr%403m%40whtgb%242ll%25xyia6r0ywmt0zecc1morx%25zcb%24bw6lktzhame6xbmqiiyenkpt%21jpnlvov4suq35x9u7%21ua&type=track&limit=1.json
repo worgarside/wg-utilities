@@ -1,0 +1,11 @@
+{
+  "tracks": {
+    "href": "https://api.spotify.com/v1/search?query=S6aoG9N%40zsyeCr%403m%40WhtgB%242LL%25XYIA6r0yWmt0ZECc1MoRx%25zCB%24BW6lKTZHaMe6XBMQiiyenkPt%21jpnLvoV4sUq35X9u7%21uA&type=track&offset=0&limit=1",
+    "items": [],
+    "limit": 1,
+    "next": null,
+    "offset": 0,
+    "previous": null,
+    "total": 0
+  }
+}

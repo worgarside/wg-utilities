@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Callable, Generator
 from http import HTTPStatus
-from json import dump, dumps, load, loads
+from json import dumps, loads
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, LogRecord, getLogger
-from os import environ, listdir, walk
-from os.path import join
+from os import environ, listdir
 from pathlib import Path
 from re import IGNORECASE
 from re import compile as compile_regex
@@ -28,7 +27,6 @@ from async_upnp_client.const import (
 from boto3 import client
 from flask import Flask
 from mypy_boto3_lambda import LambdaClient
-from mypy_boto3_pinpoint import PinpointClient
 from mypy_boto3_s3 import S3Client
 from pigpio import _callback
 from pytest import FixtureRequest, fixture
@@ -91,15 +89,15 @@ FLAT_FILES_DIR = Path(__file__).parent / "tests" / "flat_files"
 
 
 SPOTIFY_PATHS_TO_MOCK = [
-    _dir_path  # pylint: disable=used-before-assignment
-    for root, *_ in walk(f"{FLAT_FILES_DIR}/json/spotify")
-    if (_dir_path := root.replace(f"{FLAT_FILES_DIR}/json/spotify", ""))
+    "/" + str(path_object.relative_to(FLAT_FILES_DIR / "json" / "spotify"))
+    for path_object in (FLAT_FILES_DIR / "json" / "spotify").rglob("*")
+    if path_object.is_dir()
 ]
 SPOTIFY_PATTERNS_TO_MOCK = [
     # Matches `https://api.spotify.com/v1/<entity_type>s/<entity_id>`
     compile_regex(
         # pylint: disable=line-too-long
-        r"^https:\/\/api\.spotify\.com\/v1\/(playlists|tracks|albums|artists|audio\-features)\/([a-z0-9]{22})$",
+        r"^https:\/\/api\.spotify\.com\/v1\/(playlists|tracks|albums|artists|audio\-features|users)\/([a-z0-9]{4,22})$",
         flags=IGNORECASE,
     ),
     # Matches `https://api.spotify.com/v1/artists/<entity_id>/albums`
@@ -125,7 +123,10 @@ def assert_mock_requests_request_history(
 
     for i, expected_values in enumerate(expected):
         assert request_history[i].method == expected_values["method"]
-        assert request_history[i].url == expected_values["url"]
+        assert (
+            request_history[i].url.lower()
+            == expected_values["url"].lower()  # type: ignore[union-attr]
+        )
         for k, v in expected_values["headers"].items():  # type: ignore[union-attr]
             assert request_history[i].headers[k] == v
 
@@ -143,10 +144,7 @@ def read_json_file(json_dir_path: str) -> JSONObj:
         json_dir_path (str): the path to the JSON file, relative to the flat files
             `json` subdirectory
     """
-    with open(
-        str(FLAT_FILES_DIR / "json" / json_dir_path).lower(), encoding="utf-8"
-    ) as fin:
-        return cast(JSONObj, load(fin))
+    return cast(JSONObj, loads((FLAT_FILES_DIR / "json" / json_dir_path).read_text()))
 
 
 def fix_colon_keys(json_obj: JSONObj) -> JSONObj:
@@ -376,20 +374,31 @@ def random_nested_json_with_arrays_and_stringified_json() -> JSONObj:
     return read_json_file("random_nested_with_arrays_and_stringified_json.json")
 
 
-def spotify_get_entity_by_id_json_callback(
+def spotify_create_playlist_callback(
     request: _RequestObjectProxy, _: _Context
 ) -> JSONObj:
-    """Return a Spotify entity JSON object.
+    """Callback for mock requests to create a new playlist.
 
     Args:
         request (_RequestObjectProxy): the request object from the `requests` session
         _: the context object from the `requests` session (unused)
 
     Returns:
-        JSONObj: the JSON object
+        JSONObj: the JSON response
     """
-    *_, entity_type, entity_id = request.path.split("/")
-    return read_json_file(f"spotify/{entity_type}/{entity_id}.json")
+    res = read_json_file("spotify/users/worgarside/playlists.json")
+
+    if request.json()["collaborative"] is True:
+        res["collaborative"] = True
+    else:
+        res["collaborative"] = False
+
+    if request.json()["public"] is True:
+        res["public"] = True
+    else:
+        res["public"] = False
+
+    return res
 
 
 def yamaha_yas_209_get_media_info_responses(
@@ -405,27 +414,6 @@ def yamaha_yas_209_get_media_info_responses(
         values: CurrentTrack.Info | None = other_test_parameters.get(file)
 
         yield (json, values)
-
-
-def yamaha_yas_209_last_change_av_transport_event_singular() -> JSONObj:
-    """Returns a single AVTransport LastChange payloads.
-
-    Returns:
-        JSONObj: a `LastChange` event
-    """
-
-    json_obj = fix_colon_keys(
-        read_json_file(
-            join(
-                "yamaha_yas_209",
-                "event_payloads",
-                "av_transport",
-                "payload_20221013234843601604.json",
-            )
-        )
-    )["last_change"]
-
-    return cast(JSONObj, json_obj)
 
 
 def yamaha_yas_209_last_change_av_transport_events(
@@ -636,22 +624,19 @@ def _mock_aiohttp() -> YieldFixture[aioresponses]:
     """Fixture for mocking async HTTP requests."""
 
     with aioresponses() as mock_aiohttp:
-        for root, _, files in walk(
+        for path_object in (
             get_dir := FLAT_FILES_DIR
             / "xml"
             / "yamaha_yas_209"
             / "aiohttp_responses"
             / "get"
-        ):
-            for file in files:
-                with open(join(root, file), "rb") as fin:
-                    body = fin.read()
-
+        ).rglob("*"):
+            if path_object.is_file():
                 mock_aiohttp.get(
-                    f"{YAS_209_HOST}{join(root, file).replace(str(get_dir), '') }",
+                    YAS_209_HOST + "/" + str(path_object.relative_to(get_dir)),
                     status=HTTPStatus.OK,
                     reason=HTTPStatus.OK.phrase,
-                    body=body,
+                    body=path_object.read_bytes(),
                     repeat=True,
                 )
 
@@ -773,6 +758,25 @@ def _mock_requests(request: FixtureRequest) -> YieldFixture[Mocker]:
                     reason=HTTPStatus.OK.phrase,
                 )
 
+            mock_requests.post(
+                # Matches `/v1/playlists/<playlist id>/tracks`
+                compile_regex(
+                    # pylint: disable=line-too-long
+                    r"^https:\/\/api\.spotify\.com\/v1\/playlists/([a-z0-9]{22})/tracks",
+                    flags=IGNORECASE,
+                ),
+                status_code=HTTPStatus.OK,
+                reason=HTTPStatus.OK.phrase,
+                json={"snapshot_id": "MTAsZDVmZjMjJhZTVmZjcxOGNlMA=="},
+            )
+
+            mock_requests.post(
+                "https://api.spotify.com/v1/users/worgarside/playlists",
+                status_code=HTTPStatus.OK,
+                reason=HTTPStatus.OK.phrase,
+                json=spotify_create_playlist_callback,
+            )
+
         yield mock_requests
 
 
@@ -794,18 +798,15 @@ def _monzo_client(
 ) -> MonzoClient:
     """Fixture for creating a MonzoClient instance."""
 
-    with open(
-        creds_cache_path := temp_dir / "monzo_credentials.json",
-        "w",
-        encoding="utf-8",
-    ) as fout:
-        dump(fake_oauth_credentials, fout)
+    (creds_cache_path := temp_dir / "monzo_credentials.json").write_text(
+        dumps(fake_oauth_credentials)
+    )
 
     return MonzoClient(
         client_id="test_client_id",
         client_secret="test_client_secret",
         log_requests=True,
-        creds_cache_path=Path(creds_cache_path),
+        creds_cache_path=creds_cache_path,
     )
 
 
@@ -848,12 +849,9 @@ def _oauth_client(
 ) -> OAuthClient:
     """Fixture for creating an OAuthClient instance."""
 
-    with open(
-        creds_cache_path := temp_dir / "oauth_credentials.json",
-        "w",
-        encoding="utf-8",
-    ) as fout:
-        dump(fake_oauth_credentials, fout)
+    (creds_cache_path := temp_dir / "oauth_credentials.json").write_text(
+        dumps(fake_oauth_credentials)
+    )
 
     return OAuthClient(
         client_id="test_client_id",
@@ -878,12 +876,6 @@ def _pigpio_pi() -> YieldFixture[MagicMock]:
     pi.callback.return_value = _callback(MagicMock(), 4)
 
     return pi
-
-
-@fixture(scope="function", name="pinpoint_client")  # type: ignore[misc]
-def _pinpoint_client() -> PinpointClient:
-    """Fixture for creating a boto3 client instance for Pinpoint."""
-    return client("pinpoint")
 
 
 @fixture(scope="function", name="s3_client")  # type: ignore[misc]
@@ -937,7 +929,11 @@ def _server_thread(flask_app: Flask) -> YieldFixture[TempAuthServer.ServerThread
 
 @fixture(scope="function", name="spotify_album")  # type: ignore[misc]
 def _spotify_album(spotify_client: SpotifyClient) -> SpotifyAlbum:
-    """Fixture for creating a Spotify `Album` instance."""
+    """Fixture for creating a Spotify `Album` instance.
+
+    3210 (Ross from Friends Remix)
+    https://open.spotify.com/track/5U5X1TnRhnp9GogRfaE9XQ
+    """
 
     return SpotifyAlbum(
         json=read_json_file(  # type: ignore[arg-type]
@@ -949,7 +945,11 @@ def _spotify_album(spotify_client: SpotifyClient) -> SpotifyAlbum:
 
 @fixture(scope="function", name="spotify_artist")  # type: ignore[misc]
 def _spotify_artist(spotify_client: SpotifyClient) -> Artist:
-    """Fixture for creating a Spotify `Artist` instance."""
+    """Fixture for creating a Spotify `Artist` instance.
+
+    Ross from Friends
+    https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF
+    """
 
     return Artist(
         json=read_json_file(  # type: ignore[arg-type]
@@ -967,12 +967,9 @@ def _spotify_client(
 ) -> SpotifyClient:
     """Fixture for creating a `SpotifyClient` instance."""
 
-    with open(
-        creds_cache_path := temp_dir / "oauth_credentials.json",
-        "w",
-        encoding="utf-8",
-    ) as fout:
-        dump(fake_oauth_credentials, fout)
+    (creds_cache_path := temp_dir / "oauth_credentials.json").write_text(
+        dumps(fake_oauth_credentials)
+    )
 
     spotify_oauth_manager = MagicMock(auto_spec=SpotifyOAuth)
     spotify_oauth_manager.get_access_token.return_value = "test_access_token"
@@ -1005,11 +1002,15 @@ def _spotify_entity(spotify_client: SpotifyClient) -> SpotifyEntity:
 
 @fixture(scope="function", name="spotify_playlist")  # type: ignore[misc]
 def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
-    """Fixture for creating a `Playlist` instance."""
+    """Fixture for creating a `Playlist` instance.
+
+    Chill Electronica
+    https://open.spotify.com/playlist/2lMx8FU0SeQ7eA5kcMlNpX
+    """
 
     return Playlist(
         json=read_json_file(  # type: ignore[arg-type]
-            "spotify/playlists/2lMx8FU0SeQ7eA5kcMlNpX.json"
+            "spotify/playlists/2lmx8fu0seq7ea5kcmlnpx.json"
         ),
         spotify_client=spotify_client,
     )

@@ -1,0 +1,4092 @@
+{
+  "tracks": {
+    "href": "https://api.spotify.com/v1/search?query=uncommon+search&type=track&offset=0&limit=50",
+    "items": [
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/4Kv4vEaYZEcrJoXqeMpN2u"
+              },
+              "href": "https://api.spotify.com/v1/artists/4Kv4vEaYZEcrJoXqeMpN2u",
+              "id": "4Kv4vEaYZEcrJoXqeMpN2u",
+              "name": "Orlando Voorn",
+              "type": "artist",
+              "uri": "spotify:artist:4Kv4vEaYZEcrJoXqeMpN2u"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/5wUX4RN9vc8rwFjuFNZBuH"
+          },
+          "href": "https://api.spotify.com/v1/albums/5wUX4RN9vc8rwFjuFNZBuH",
+          "id": "5wUX4RN9vc8rwFjuFNZBuH",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273647673826ec3247775df3092",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02647673826ec3247775df3092",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851647673826ec3247775df3092",
+              "width": 64
+            }
+          ],
+          "name": "The Master",
+          "release_date": "2021-08-21",
+          "release_date_precision": "day",
+          "total_tracks": 10,
+          "type": "album",
+          "uri": "spotify:album:5wUX4RN9vc8rwFjuFNZBuH"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/4Kv4vEaYZEcrJoXqeMpN2u"
+            },
+            "href": "https://api.spotify.com/v1/artists/4Kv4vEaYZEcrJoXqeMpN2u",
+            "id": "4Kv4vEaYZEcrJoXqeMpN2u",
+            "name": "Orlando Voorn",
+            "type": "artist",
+            "uri": "spotify:artist:4Kv4vEaYZEcrJoXqeMpN2u"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 300731,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "NL4XH2000145"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/3lbcu9riQGGo7P4lcxuzKQ"
+        },
+        "href": "https://api.spotify.com/v1/tracks/3lbcu9riQGGo7P4lcxuzKQ",
+        "id": "3lbcu9riQGGo7P4lcxuzKQ",
+        "is_local": false,
+        "name": "Un Common",
+        "popularity": 12,
+        "preview_url": "https://p.scdn.co/mp3-preview/9ca0c9374353eb746215f61d22afb3b210c6a51b?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 7,
+        "type": "track",
+        "uri": "spotify:track:3lbcu9riQGGo7P4lcxuzKQ"
+      },
+      {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/4YDwGLINqwHQcDCJ37tE7W"
+              },
+              "href": "https://api.spotify.com/v1/artists/4YDwGLINqwHQcDCJ37tE7W",
+              "id": "4YDwGLINqwHQcDCJ37tE7W",
+              "name": "Samer Vermeij",
+              "type": "artist",
+              "uri": "spotify:artist:4YDwGLINqwHQcDCJ37tE7W"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/0N0VeNDVDEaJRfOEbPxRCg"
+          },
+          "href": "https://api.spotify.com/v1/albums/0N0VeNDVDEaJRfOEbPxRCg",
+          "id": "0N0VeNDVDEaJRfOEbPxRCg",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273c74d1ebfcbfa3f79e877eca1",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02c74d1ebfcbfa3f79e877eca1",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851c74d1ebfcbfa3f79e877eca1",
+              "width": 64
+            }
+          ],
+          "name": "Opaque to Searching",
+          "release_date": "2022-04-21",
+          "release_date_precision": "day",
+          "total_tracks": 5,
+          "type": "album",
+          "uri": "spotify:album:0N0VeNDVDEaJRfOEbPxRCg"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/4YDwGLINqwHQcDCJ37tE7W"
+            },
+            "href": "https://api.spotify.com/v1/artists/4YDwGLINqwHQcDCJ37tE7W",
+            "id": "4YDwGLINqwHQcDCJ37tE7W",
+            "name": "Samer Vermeij",
+            "type": "artist",
+            "uri": "spotify:artist:4YDwGLINqwHQcDCJ37tE7W"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 70797,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "ITIYT2204623"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/5YynjDZ6J9kv0Q9d0LxbDJ"
+        },
+        "href": "https://api.spotify.com/v1/tracks/5YynjDZ6J9kv0Q9d0LxbDJ",
+        "id": "5YynjDZ6J9kv0Q9d0LxbDJ",
+        "is_local": false,
+        "name": "Coffee from Uncommon",
+        "popularity": 3,
+        "preview_url": "https://p.scdn.co/mp3-preview/d401ab80f5cd5d42f6ea4fd4e6b18a75f1884e1f?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 4,
+        "type": "track",
+        "uri": "spotify:track:5YynjDZ6J9kv0Q9d0LxbDJ"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/06kZZb0f2O9zUfFrkI7rKg"
+              },
+              "href": "https://api.spotify.com/v1/artists/06kZZb0f2O9zUfFrkI7rKg",
+              "id": "06kZZb0f2O9zUfFrkI7rKg",
+              "name": "Egoless",
+              "type": "artist",
+              "uri": "spotify:artist:06kZZb0f2O9zUfFrkI7rKg"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/2WuMWyH8cO0YIIXNmo9sKN"
+          },
+          "href": "https://api.spotify.com/v1/albums/2WuMWyH8cO0YIIXNmo9sKN",
+          "id": "2WuMWyH8cO0YIIXNmo9sKN",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b2733b38752c7aab11d29cfebd4e",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e023b38752c7aab11d29cfebd4e",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d000048513b38752c7aab11d29cfebd4e",
+              "width": 64
+            }
+          ],
+          "name": "The only way Out is Through",
+          "release_date": "2021-11-25",
+          "release_date_precision": "day",
+          "total_tracks": 12,
+          "type": "album",
+          "uri": "spotify:album:2WuMWyH8cO0YIIXNmo9sKN"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/06kZZb0f2O9zUfFrkI7rKg"
+            },
+            "href": "https://api.spotify.com/v1/artists/06kZZb0f2O9zUfFrkI7rKg",
+            "id": "06kZZb0f2O9zUfFrkI7rKg",
+            "name": "Egoless",
+            "type": "artist",
+            "uri": "spotify:artist:06kZZb0f2O9zUfFrkI7rKg"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 296571,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "QZPLR2196064"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/4QB6QpVe9gqSmlbMKd2BcS"
+        },
+        "href": "https://api.spotify.com/v1/tracks/4QB6QpVe9gqSmlbMKd2BcS",
+        "id": "4QB6QpVe9gqSmlbMKd2BcS",
+        "is_local": false,
+        "name": "Uncommon Sense",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/4f0aeb3573fd8c50cde2fa857980359b23006633?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 3,
+        "type": "track",
+        "uri": "spotify:track:4QB6QpVe9gqSmlbMKd2BcS"
+      },
+      {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/2tlttk0S5SzoCW7ETNh5C2"
+              },
+              "href": "https://api.spotify.com/v1/artists/2tlttk0S5SzoCW7ETNh5C2",
+              "id": "2tlttk0S5SzoCW7ETNh5C2",
+              "name": "Spoonhead",
+              "type": "artist",
+              "uri": "spotify:artist:2tlttk0S5SzoCW7ETNh5C2"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/0ykzxQfY2ehVTw0qB1lFFq"
+          },
+          "href": "https://api.spotify.com/v1/albums/0ykzxQfY2ehVTw0qB1lFFq",
+          "id": "0ykzxQfY2ehVTw0qB1lFFq",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273586c20efa6c30e7ec22472ec",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02586c20efa6c30e7ec22472ec",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851586c20efa6c30e7ec22472ec",
+              "width": 64
+            }
+          ],
+          "name": "An Uncommon Hybrid",
+          "release_date": "2018-02-06",
+          "release_date_precision": "day",
+          "total_tracks": 3,
+          "type": "album",
+          "uri": "spotify:album:0ykzxQfY2ehVTw0qB1lFFq"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2tlttk0S5SzoCW7ETNh5C2"
+            },
+            "href": "https://api.spotify.com/v1/artists/2tlttk0S5SzoCW7ETNh5C2",
+            "id": "2tlttk0S5SzoCW7ETNh5C2",
+            "name": "Spoonhead",
+            "type": "artist",
+            "uri": "spotify:artist:2tlttk0S5SzoCW7ETNh5C2"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 547911,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "GBKQU1807664"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/6fCbaLEqIYPqws0MBIf3c4"
+        },
+        "href": "https://api.spotify.com/v1/tracks/6fCbaLEqIYPqws0MBIf3c4",
+        "id": "6fCbaLEqIYPqws0MBIf3c4",
+        "is_local": false,
+        "name": "In Search of Wisdom",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/04569c9fdb48188871dad36777fff2006477e0ec?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 3,
+        "type": "track",
+        "uri": "spotify:track:6fCbaLEqIYPqws0MBIf3c4"
+      },
+      {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/2x1pmbUTB2JNZNg8eAvDT9"
+              },
+              "href": "https://api.spotify.com/v1/artists/2x1pmbUTB2JNZNg8eAvDT9",
+              "id": "2x1pmbUTB2JNZNg8eAvDT9",
+              "name": "Uncommon Sense",
+              "type": "artist",
+              "uri": "spotify:artist:2x1pmbUTB2JNZNg8eAvDT9"
+            },
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/6BZkkMQ8Z5eWYQISPCwaSI"
+              },
+              "href": "https://api.spotify.com/v1/artists/6BZkkMQ8Z5eWYQISPCwaSI",
+              "id": "6BZkkMQ8Z5eWYQISPCwaSI",
+              "name": "Dub Killer",
+              "type": "artist",
+              "uri": "spotify:artist:6BZkkMQ8Z5eWYQISPCwaSI"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/4KwI3OjL624XuEVzhXSy0o"
+          },
+          "href": "https://api.spotify.com/v1/albums/4KwI3OjL624XuEVzhXSy0o",
+          "id": "4KwI3OjL624XuEVzhXSy0o",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27325aafe491939fffca288c491",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0225aafe491939fffca288c491",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485125aafe491939fffca288c491",
+              "width": 64
+            }
+          ],
+          "name": "Rhino EP",
+          "release_date": "2021-01-15",
+          "release_date_precision": "day",
+          "total_tracks": 4,
+          "type": "album",
+          "uri": "spotify:album:4KwI3OjL624XuEVzhXSy0o"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2x1pmbUTB2JNZNg8eAvDT9"
+            },
+            "href": "https://api.spotify.com/v1/artists/2x1pmbUTB2JNZNg8eAvDT9",
+            "id": "2x1pmbUTB2JNZNg8eAvDT9",
+            "name": "Uncommon Sense",
+            "type": "artist",
+            "uri": "spotify:artist:2x1pmbUTB2JNZNg8eAvDT9"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 274285,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "GBRKQ2049837"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/32QFmEApfI2UBKF1qwh7iF"
+        },
+        "href": "https://api.spotify.com/v1/tracks/32QFmEApfI2UBKF1qwh7iF",
+        "id": "32QFmEApfI2UBKF1qwh7iF",
+        "is_local": false,
+        "name": "Rhino - Original Mix",
+        "popularity": 1,
+        "preview_url": "https://p.scdn.co/mp3-preview/befb22102400079dd67b80604283d5d48cc0db95?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 1,
+        "type": "track",
+        "uri": "spotify:track:32QFmEApfI2UBKF1qwh7iF"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/6bcoa1KigylsUcALv48BAM"
+              },
+              "href": "https://api.spotify.com/v1/artists/6bcoa1KigylsUcALv48BAM",
+              "id": "6bcoa1KigylsUcALv48BAM",
+              "name": "Jaron Nurse",
+              "type": "artist",
+              "uri": "spotify:artist:6bcoa1KigylsUcALv48BAM"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/1CjS8nU51sazE8u1CCwnLx"
+          },
+          "href": "https://api.spotify.com/v1/albums/1CjS8nU51sazE8u1CCwnLx",
+          "id": "1CjS8nU51sazE8u1CCwnLx",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273bdd91b07f43995a576ab04cd",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02bdd91b07f43995a576ab04cd",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851bdd91b07f43995a576ab04cd",
+              "width": 64
+            }
+          ],
+          "name": "Uncommon",
+          "release_date": "2017-10-12",
+          "release_date_precision": "day",
+          "total_tracks": 15,
+          "type": "album",
+          "uri": "spotify:album:1CjS8nU51sazE8u1CCwnLx"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/6bcoa1KigylsUcALv48BAM"
+            },
+            "href": "https://api.spotify.com/v1/artists/6bcoa1KigylsUcALv48BAM",
+            "id": "6bcoa1KigylsUcALv48BAM",
+            "name": "Jaron Nurse",
+            "type": "artist",
+            "uri": "spotify:artist:6bcoa1KigylsUcALv48BAM"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/5XD7BOGIHbSVDi157ZUfj6"
+            },
+            "href": "https://api.spotify.com/v1/artists/5XD7BOGIHbSVDi157ZUfj6",
+            "id": "5XD7BOGIHbSVDi157ZUfj6",
+            "name": "Mr. Nijah",
+            "type": "artist",
+            "uri": "spotify:artist:5XD7BOGIHbSVDi157ZUfj6"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1ipvQCVrVQqZtKX8LDtB3W"
+            },
+            "href": "https://api.spotify.com/v1/artists/1ipvQCVrVQqZtKX8LDtB3W",
+            "id": "1ipvQCVrVQqZtKX8LDtB3W",
+            "name": "Mr. Danny",
+            "type": "artist",
+            "uri": "spotify:artist:1ipvQCVrVQqZtKX8LDtB3W"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 247092,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "usdy41848617"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/5UoZgZrXz7WmhIODUqBw68"
+        },
+        "href": "https://api.spotify.com/v1/tracks/5UoZgZrXz7WmhIODUqBw68",
+        "id": "5UoZgZrXz7WmhIODUqBw68",
+        "is_local": false,
+        "name": "She's Searching",
+        "popularity": 11,
+        "preview_url": "https://p.scdn.co/mp3-preview/f4fc67f19830cdef1cb2d965fee1c5517fbd72bb?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 14,
+        "type": "track",
+        "uri": "spotify:track:5UoZgZrXz7WmhIODUqBw68"
+      },
+      {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/1FhamVtJlNqaekPnwxQpbk"
+              },
+              "href": "https://api.spotify.com/v1/artists/1FhamVtJlNqaekPnwxQpbk",
+              "id": "1FhamVtJlNqaekPnwxQpbk",
+              "name": "Fearless Motivation",
+              "type": "artist",
+              "uri": "spotify:artist:1FhamVtJlNqaekPnwxQpbk"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/64uY3XJtOoZVO9JT8HwD1f"
+          },
+          "href": "https://api.spotify.com/v1/albums/64uY3XJtOoZVO9JT8HwD1f",
+          "id": "64uY3XJtOoZVO9JT8HwD1f",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27328deb1d9dff884a03c36d72e",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0228deb1d9dff884a03c36d72e",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485128deb1d9dff884a03c36d72e",
+              "width": 64
+            }
+          ],
+          "name": "Uncommon (feat. East the Unsigned)",
+          "release_date": "2019-05-02",
+          "release_date_precision": "day",
+          "total_tracks": 1,
+          "type": "album",
+          "uri": "spotify:album:64uY3XJtOoZVO9JT8HwD1f"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1FhamVtJlNqaekPnwxQpbk"
+            },
+            "href": "https://api.spotify.com/v1/artists/1FhamVtJlNqaekPnwxQpbk",
+            "id": "1FhamVtJlNqaekPnwxQpbk",
+            "name": "Fearless Motivation",
+            "type": "artist",
+            "uri": "spotify:artist:1FhamVtJlNqaekPnwxQpbk"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/049Nhhd3GpNlug5so00arU"
+            },
+            "href": "https://api.spotify.com/v1/artists/049Nhhd3GpNlug5so00arU",
+            "id": "049Nhhd3GpNlug5so00arU",
+            "name": "East the Unsigned",
+            "type": "artist",
+            "uri": "spotify:artist:049Nhhd3GpNlug5so00arU"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 249299,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "usdy41944813"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/1el4JKmwThqCiH2qVpnNJG"
+        },
+        "href": "https://api.spotify.com/v1/tracks/1el4JKmwThqCiH2qVpnNJG",
+        "id": "1el4JKmwThqCiH2qVpnNJG",
+        "is_local": false,
+        "name": "Uncommon (feat. East the Unsigned)",
+        "popularity": 32,
+        "preview_url": "https://p.scdn.co/mp3-preview/e5d1fe388a9656130dec66a3e5e6c60b1082583e?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 1,
+        "type": "track",
+        "uri": "spotify:track:1el4JKmwThqCiH2qVpnNJG"
+      },
+      {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/1XJPN0XzHmkX2i4U0aJAld"
+              },
+              "href": "https://api.spotify.com/v1/artists/1XJPN0XzHmkX2i4U0aJAld",
+              "id": "1XJPN0XzHmkX2i4U0aJAld",
+              "name": "UndNuBeatz54",
+              "type": "artist",
+              "uri": "spotify:artist:1XJPN0XzHmkX2i4U0aJAld"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/53mowahF8TdgUtduQ2hr0h"
+          },
+          "href": "https://api.spotify.com/v1/albums/53mowahF8TdgUtduQ2hr0h",
+          "id": "53mowahF8TdgUtduQ2hr0h",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273f157036d24cfa6b83dde1ae7",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02f157036d24cfa6b83dde1ae7",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851f157036d24cfa6b83dde1ae7",
+              "width": 64
+            }
+          ],
+          "name": "Not from This Earth - EP",
+          "release_date": "2022-10-28",
+          "release_date_precision": "day",
+          "total_tracks": 4,
+          "type": "album",
+          "uri": "spotify:album:53mowahF8TdgUtduQ2hr0h"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1XJPN0XzHmkX2i4U0aJAld"
+            },
+            "href": "https://api.spotify.com/v1/artists/1XJPN0XzHmkX2i4U0aJAld",
+            "id": "1XJPN0XzHmkX2i4U0aJAld",
+            "name": "UndNuBeatz54",
+            "type": "artist",
+            "uri": "spotify:artist:1XJPN0XzHmkX2i4U0aJAld"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 132662,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "TCAGO2220749"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/089Ii2uqiSjkINltrrTO80"
+        },
+        "href": "https://api.spotify.com/v1/tracks/089Ii2uqiSjkINltrrTO80",
+        "id": "089Ii2uqiSjkINltrrTO80",
+        "is_local": false,
+        "name": "Uncommon",
+        "popularity": 6,
+        "preview_url": "https://p.scdn.co/mp3-preview/f5c47bd500d04c8d7e22440c44cc56c163730ff6?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 3,
+        "type": "track",
+        "uri": "spotify:track:089Ii2uqiSjkINltrrTO80"
+      },
+      {
+        "album": {
+          "album_type": "compilation",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of"
+              },
+              "href": "https://api.spotify.com/v1/artists/0LyfQWJT6nXafLPZqxe9Of",
+              "id": "0LyfQWJT6nXafLPZqxe9Of",
+              "name": "Various Artists",
+              "type": "artist",
+              "uri": "spotify:artist:0LyfQWJT6nXafLPZqxe9Of"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/62Zpw4Al3fdh4f9bVymV5C"
+          },
+          "href": "https://api.spotify.com/v1/albums/62Zpw4Al3fdh4f9bVymV5C",
+          "id": "62Zpw4Al3fdh4f9bVymV5C",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273eb99207bf3cfd42b9a367f6d",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02eb99207bf3cfd42b9a367f6d",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851eb99207bf3cfd42b9a367f6d",
+              "width": 64
+            }
+          ],
+          "name": "Cimmerian, Vol. 2",
+          "release_date": "2022-11-07",
+          "release_date_precision": "day",
+          "total_tracks": 9,
+          "type": "album",
+          "uri": "spotify:album:62Zpw4Al3fdh4f9bVymV5C"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2x1pmbUTB2JNZNg8eAvDT9"
+            },
+            "href": "https://api.spotify.com/v1/artists/2x1pmbUTB2JNZNg8eAvDT9",
+            "id": "2x1pmbUTB2JNZNg8eAvDT9",
+            "name": "Uncommon Sense",
+            "type": "artist",
+            "uri": "spotify:artist:2x1pmbUTB2JNZNg8eAvDT9"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 336000,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "SEYOK2233660"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/7B0M1HNSnnnvA1xhrxkZAU"
+        },
+        "href": "https://api.spotify.com/v1/tracks/7B0M1HNSnnnvA1xhrxkZAU",
+        "id": "7B0M1HNSnnnvA1xhrxkZAU",
+        "is_local": false,
+        "name": "War & Peace",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/4fdbb545c6e54bf929509dd2c4d9abce451a1559?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 1,
+        "type": "track",
+        "uri": "spotify:track:7B0M1HNSnnnvA1xhrxkZAU"
+      },
+      {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/2x1pmbUTB2JNZNg8eAvDT9"
+              },
+              "href": "https://api.spotify.com/v1/artists/2x1pmbUTB2JNZNg8eAvDT9",
+              "id": "2x1pmbUTB2JNZNg8eAvDT9",
+              "name": "Uncommon Sense",
+              "type": "artist",
+              "uri": "spotify:artist:2x1pmbUTB2JNZNg8eAvDT9"
+            },
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/1ROrl4xez1qIDvTERBniwn"
+              },
+              "href": "https://api.spotify.com/v1/artists/1ROrl4xez1qIDvTERBniwn",
+              "id": "1ROrl4xez1qIDvTERBniwn",
+              "name": "Mac",
+              "type": "artist",
+              "uri": "spotify:artist:1ROrl4xez1qIDvTERBniwn"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/064uECozTKRUtpi6ba3hTt"
+          },
+          "href": "https://api.spotify.com/v1/albums/064uECozTKRUtpi6ba3hTt",
+          "id": "064uECozTKRUtpi6ba3hTt",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27382b6351aae1de78bb7ef4b6f",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0282b6351aae1de78bb7ef4b6f",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485182b6351aae1de78bb7ef4b6f",
+              "width": 64
+            }
+          ],
+          "name": "Initiation",
+          "release_date": "2021-02-05",
+          "release_date_precision": "day",
+          "total_tracks": 2,
+          "type": "album",
+          "uri": "spotify:album:064uECozTKRUtpi6ba3hTt"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2x1pmbUTB2JNZNg8eAvDT9"
+            },
+            "href": "https://api.spotify.com/v1/artists/2x1pmbUTB2JNZNg8eAvDT9",
+            "id": "2x1pmbUTB2JNZNg8eAvDT9",
+            "name": "Uncommon Sense",
+            "type": "artist",
+            "uri": "spotify:artist:2x1pmbUTB2JNZNg8eAvDT9"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 343059,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "SEYOK2141345"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/5BV5HMnGSFvMN8BNyWGeOo"
+        },
+        "href": "https://api.spotify.com/v1/tracks/5BV5HMnGSFvMN8BNyWGeOo",
+        "id": "5BV5HMnGSFvMN8BNyWGeOo",
+        "is_local": false,
+        "name": "Checked Out",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/550a147f9009b49348fd3c823bfa2f6363df9b5a?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:5BV5HMnGSFvMN8BNyWGeOo"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/0ywpOJ9PTPVqBRwGGc1YBK"
+              },
+              "href": "https://api.spotify.com/v1/artists/0ywpOJ9PTPVqBRwGGc1YBK",
+              "id": "0ywpOJ9PTPVqBRwGGc1YBK",
+              "name": "SIMI LAB",
+              "type": "artist",
+              "uri": "spotify:artist:0ywpOJ9PTPVqBRwGGc1YBK"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/0dA8CZA9ioV6AK95Aa5lvb"
+          },
+          "href": "https://api.spotify.com/v1/albums/0dA8CZA9ioV6AK95Aa5lvb",
+          "id": "0dA8CZA9ioV6AK95Aa5lvb",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273002549072919b4550227bc10",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02002549072919b4550227bc10",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851002549072919b4550227bc10",
+              "width": 64
+            }
+          ],
+          "name": "Page 1 : ANATOMY OF INSANE",
+          "release_date": "2012-07-25",
+          "release_date_precision": "day",
+          "total_tracks": 12,
+          "type": "album",
+          "uri": "spotify:album:0dA8CZA9ioV6AK95Aa5lvb"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0ywpOJ9PTPVqBRwGGc1YBK"
+            },
+            "href": "https://api.spotify.com/v1/artists/0ywpOJ9PTPVqBRwGGc1YBK",
+            "id": "0ywpOJ9PTPVqBRwGGc1YBK",
+            "name": "SIMI LAB",
+            "type": "artist",
+            "uri": "spotify:artist:0ywpOJ9PTPVqBRwGGc1YBK"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 239346,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "JPH491131096"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/1ZgLPKbhsJjp1uvCR97rQL"
+        },
+        "href": "https://api.spotify.com/v1/tracks/1ZgLPKbhsJjp1uvCR97rQL",
+        "id": "1ZgLPKbhsJjp1uvCR97rQL",
+        "is_local": false,
+        "name": "Uncommon",
+        "popularity": 14,
+        "preview_url": "https://p.scdn.co/mp3-preview/7d30432908be45ad243b3612f4833e70ae0b4975?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 4,
+        "type": "track",
+        "uri": "spotify:track:1ZgLPKbhsJjp1uvCR97rQL"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/2967DSLp38066FkMwg33H1"
+              },
+              "href": "https://api.spotify.com/v1/artists/2967DSLp38066FkMwg33H1",
+              "id": "2967DSLp38066FkMwg33H1",
+              "name": "Joe Kurasz",
+              "type": "artist",
+              "uri": "spotify:artist:2967DSLp38066FkMwg33H1"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/3HiyZRhZ9PoNOhc6IhvuTE"
+          },
+          "href": "https://api.spotify.com/v1/albums/3HiyZRhZ9PoNOhc6IhvuTE",
+          "id": "3HiyZRhZ9PoNOhc6IhvuTE",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27376d7064868ee22b9406422dc",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0276d7064868ee22b9406422dc",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485176d7064868ee22b9406422dc",
+              "width": 64
+            }
+          ],
+          "name": "Soul Searching",
+          "release_date": "2004-01-01",
+          "release_date_precision": "day",
+          "total_tracks": 10,
+          "type": "album",
+          "uri": "spotify:album:3HiyZRhZ9PoNOhc6IhvuTE"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2967DSLp38066FkMwg33H1"
+            },
+            "href": "https://api.spotify.com/v1/artists/2967DSLp38066FkMwg33H1",
+            "id": "2967DSLp38066FkMwg33H1",
+            "name": "Joe Kurasz",
+            "type": "artist",
+            "uri": "spotify:artist:2967DSLp38066FkMwg33H1"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 246133,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "ushm80421286"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/3KBbmJNBzfMWjafSaZV6DL"
+        },
+        "href": "https://api.spotify.com/v1/tracks/3KBbmJNBzfMWjafSaZV6DL",
+        "id": "3KBbmJNBzfMWjafSaZV6DL",
+        "is_local": false,
+        "name": "Uncommon Ground",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/e50c0d02df094fbc3fb07e09b7ab39c5839a73e6?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:3KBbmJNBzfMWjafSaZV6DL"
+      },
+      {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/5Ej7uT61Tv9JgzPdS1FGKO"
+              },
+              "href": "https://api.spotify.com/v1/artists/5Ej7uT61Tv9JgzPdS1FGKO",
+              "id": "5Ej7uT61Tv9JgzPdS1FGKO",
+              "name": "Djaytiger",
+              "type": "artist",
+              "uri": "spotify:artist:5Ej7uT61Tv9JgzPdS1FGKO"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/1T2fgDgCBC6KAdQHWOPFcq"
+          },
+          "href": "https://api.spotify.com/v1/albums/1T2fgDgCBC6KAdQHWOPFcq",
+          "id": "1T2fgDgCBC6KAdQHWOPFcq",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273d29dcacdb1580281e87a3974",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02d29dcacdb1580281e87a3974",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851d29dcacdb1580281e87a3974",
+              "width": 64
+            }
+          ],
+          "name": "Uncommon Ubiquity",
+          "release_date": "2020-03-03",
+          "release_date_precision": "day",
+          "total_tracks": 6,
+          "type": "album",
+          "uri": "spotify:album:1T2fgDgCBC6KAdQHWOPFcq"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/5Ej7uT61Tv9JgzPdS1FGKO"
+            },
+            "href": "https://api.spotify.com/v1/artists/5Ej7uT61Tv9JgzPdS1FGKO",
+            "id": "5Ej7uT61Tv9JgzPdS1FGKO",
+            "name": "Djaytiger",
+            "type": "artist",
+            "uri": "spotify:artist:5Ej7uT61Tv9JgzPdS1FGKO"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 220775,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "TCAER2078647"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/2pePJ6hJlfX29yAnliYsJ4"
+        },
+        "href": "https://api.spotify.com/v1/tracks/2pePJ6hJlfX29yAnliYsJ4",
+        "id": "2pePJ6hJlfX29yAnliYsJ4",
+        "is_local": false,
+        "name": "Searchin for the City of Gods (Instrumental)",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/44651b86b1624f46b8a6b149b2002e7c2b1b3e14?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:2pePJ6hJlfX29yAnliYsJ4"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/465IoLV7sBVtMQ3WJ756BL"
+              },
+              "href": "https://api.spotify.com/v1/artists/465IoLV7sBVtMQ3WJ756BL",
+              "id": "465IoLV7sBVtMQ3WJ756BL",
+              "name": "The Nextmen",
+              "type": "artist",
+              "uri": "spotify:artist:465IoLV7sBVtMQ3WJ756BL"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/2qf01c0NoFzKkXFMV2Tbb8"
+          },
+          "href": "https://api.spotify.com/v1/albums/2qf01c0NoFzKkXFMV2Tbb8",
+          "id": "2qf01c0NoFzKkXFMV2Tbb8",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273ba0dbc8021200be2ec66331e",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02ba0dbc8021200be2ec66331e",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851ba0dbc8021200be2ec66331e",
+              "width": 64
+            }
+          ],
+          "name": "The Nextmen - Selected Mixes (That's What Friends Are For)",
+          "release_date": "2002",
+          "release_date_precision": "year",
+          "total_tracks": 15,
+          "type": "album",
+          "uri": "spotify:album:2qf01c0NoFzKkXFMV2Tbb8"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/465IoLV7sBVtMQ3WJ756BL"
+            },
+            "href": "https://api.spotify.com/v1/artists/465IoLV7sBVtMQ3WJ756BL",
+            "id": "465IoLV7sBVtMQ3WJ756BL",
+            "name": "The Nextmen",
+            "type": "artist",
+            "uri": "spotify:artist:465IoLV7sBVtMQ3WJ756BL"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/6IyKygEqD8P9GnNwiKs4z8"
+            },
+            "href": "https://api.spotify.com/v1/artists/6IyKygEqD8P9GnNwiKs4z8",
+            "id": "6IyKygEqD8P9GnNwiKs4z8",
+            "name": "Chris Hills",
+            "type": "artist",
+            "uri": "spotify:artist:6IyKygEqD8P9GnNwiKs4z8"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 288533,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "GBKHQ0500087"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/4Aiia2eUo4wKad9RtAOG7m"
+        },
+        "href": "https://api.spotify.com/v1/tracks/4Aiia2eUo4wKad9RtAOG7m",
+        "id": "4Aiia2eUo4wKad9RtAOG7m",
+        "is_local": false,
+        "name": "Uncommon Sound (feat. Chris Hills)",
+        "popularity": 3,
+        "preview_url": "https://p.scdn.co/mp3-preview/537af78e139a387cfe86fb30ff1a10c19fa450d1?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 12,
+        "type": "track",
+        "uri": "spotify:track:4Aiia2eUo4wKad9RtAOG7m"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/5Uxbjd72MRNNQ42NSbPMSS"
+              },
+              "href": "https://api.spotify.com/v1/artists/5Uxbjd72MRNNQ42NSbPMSS",
+              "id": "5Uxbjd72MRNNQ42NSbPMSS",
+              "name": "Rukunetsu",
+              "type": "artist",
+              "uri": "spotify:artist:5Uxbjd72MRNNQ42NSbPMSS"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/0Aowg5viIlv7wyzXHnIIos"
+          },
+          "href": "https://api.spotify.com/v1/albums/0Aowg5viIlv7wyzXHnIIos",
+          "id": "0Aowg5viIlv7wyzXHnIIos",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b2736f0b086d941eef00d473a698",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e026f0b086d941eef00d473a698",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d000048516f0b086d941eef00d473a698",
+              "width": 64
+            }
+          ],
+          "name": "The First, Pt. 2",
+          "release_date": "2019-05-24",
+          "release_date_precision": "day",
+          "total_tracks": 27,
+          "type": "album",
+          "uri": "spotify:album:0Aowg5viIlv7wyzXHnIIos"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/5Uxbjd72MRNNQ42NSbPMSS"
+            },
+            "href": "https://api.spotify.com/v1/artists/5Uxbjd72MRNNQ42NSbPMSS",
+            "id": "5Uxbjd72MRNNQ42NSbPMSS",
+            "name": "Rukunetsu",
+            "type": "artist",
+            "uri": "spotify:artist:5Uxbjd72MRNNQ42NSbPMSS"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 153495,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "QZFYW1938789"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/1F6LV45PObiH3MfzTSJpgH"
+        },
+        "href": "https://api.spotify.com/v1/tracks/1F6LV45PObiH3MfzTSJpgH",
+        "id": "1F6LV45PObiH3MfzTSJpgH",
+        "is_local": false,
+        "name": "Uncommon Sense Type R",
+        "popularity": 2,
+        "preview_url": "https://p.scdn.co/mp3-preview/d093d34c4f64e7adad6fe414dfeda665a83739e4?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 26,
+        "type": "track",
+        "uri": "spotify:track:1F6LV45PObiH3MfzTSJpgH"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/2MQFCGaP5Njvye6h7ygIE1"
+              },
+              "href": "https://api.spotify.com/v1/artists/2MQFCGaP5Njvye6h7ygIE1",
+              "id": "2MQFCGaP5Njvye6h7ygIE1",
+              "name": "The Climbers",
+              "type": "artist",
+              "uri": "spotify:artist:2MQFCGaP5Njvye6h7ygIE1"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/6y6Q8RH5iGkn1uw7wRPeLy"
+          },
+          "href": "https://api.spotify.com/v1/albums/6y6Q8RH5iGkn1uw7wRPeLy",
+          "id": "6y6Q8RH5iGkn1uw7wRPeLy",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273736a6b2ca4d453a6bdf36092",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02736a6b2ca4d453a6bdf36092",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851736a6b2ca4d453a6bdf36092",
+              "width": 64
+            }
+          ],
+          "name": "The Good Ship",
+          "release_date": "2010-05-22",
+          "release_date_precision": "day",
+          "total_tracks": 11,
+          "type": "album",
+          "uri": "spotify:album:6y6Q8RH5iGkn1uw7wRPeLy"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2MQFCGaP5Njvye6h7ygIE1"
+            },
+            "href": "https://api.spotify.com/v1/artists/2MQFCGaP5Njvye6h7ygIE1",
+            "id": "2MQFCGaP5Njvye6h7ygIE1",
+            "name": "The Climbers",
+            "type": "artist",
+            "uri": "spotify:artist:2MQFCGaP5Njvye6h7ygIE1"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 277891,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "GB5TN0900008"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/6BXjt7W5Mf77Z2UPJh62M6"
+        },
+        "href": "https://api.spotify.com/v1/tracks/6BXjt7W5Mf77Z2UPJh62M6",
+        "id": "6BXjt7W5Mf77Z2UPJh62M6",
+        "is_local": false,
+        "name": "Uncommon",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/7ca8f5986a7502e5ffc696f3cbec75723d952d64?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 8,
+        "type": "track",
+        "uri": "spotify:track:6BXjt7W5Mf77Z2UPJh62M6"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/2vH7B6YvHO3AHVb9R8bYi8"
+              },
+              "href": "https://api.spotify.com/v1/artists/2vH7B6YvHO3AHVb9R8bYi8",
+              "id": "2vH7B6YvHO3AHVb9R8bYi8",
+              "name": "Corroded",
+              "type": "artist",
+              "uri": "spotify:artist:2vH7B6YvHO3AHVb9R8bYi8"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/1mVnOb7sWsYXI8PP6zQZ7n"
+          },
+          "href": "https://api.spotify.com/v1/albums/1mVnOb7sWsYXI8PP6zQZ7n",
+          "id": "1mVnOb7sWsYXI8PP6zQZ7n",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273724fd901742e8d0f484c6e78",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02724fd901742e8d0f484c6e78",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851724fd901742e8d0f484c6e78",
+              "width": 64
+            }
+          ],
+          "name": "State of Disgrace",
+          "release_date": "2012-01-01",
+          "release_date_precision": "day",
+          "total_tracks": 12,
+          "type": "album",
+          "uri": "spotify:album:1mVnOb7sWsYXI8PP6zQZ7n"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2vH7B6YvHO3AHVb9R8bYi8"
+            },
+            "href": "https://api.spotify.com/v1/artists/2vH7B6YvHO3AHVb9R8bYi8",
+            "id": "2vH7B6YvHO3AHVb9R8bYi8",
+            "name": "Corroded",
+            "type": "artist",
+            "uri": "spotify:artist:2vH7B6YvHO3AHVb9R8bYi8"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 295562,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "SEWLR1202505"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/7rLm4lYHVtkXogmk0frOBw"
+        },
+        "href": "https://api.spotify.com/v1/tracks/7rLm4lYHVtkXogmk0frOBw",
+        "id": "7rLm4lYHVtkXogmk0frOBw",
+        "is_local": false,
+        "name": "Uncommon Sense",
+        "popularity": 5,
+        "preview_url": "https://p.scdn.co/mp3-preview/cee35f33d263cc4957c6f9f1229a6d363935a0fd?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 5,
+        "type": "track",
+        "uri": "spotify:track:7rLm4lYHVtkXogmk0frOBw"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/4C7RCz82W5QIiD620yPQvi"
+              },
+              "href": "https://api.spotify.com/v1/artists/4C7RCz82W5QIiD620yPQvi",
+              "id": "4C7RCz82W5QIiD620yPQvi",
+              "name": "Papersky",
+              "type": "artist",
+              "uri": "spotify:artist:4C7RCz82W5QIiD620yPQvi"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/0NNs6z7Nj8cPc8eu6IH4NX"
+          },
+          "href": "https://api.spotify.com/v1/albums/0NNs6z7Nj8cPc8eu6IH4NX",
+          "id": "0NNs6z7Nj8cPc8eu6IH4NX",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273227d96d1e472ea8da4a4ff23",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02227d96d1e472ea8da4a4ff23",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851227d96d1e472ea8da4a4ff23",
+              "width": 64
+            }
+          ],
+          "name": "You Are No Longer Somebody",
+          "release_date": "2017-10-21",
+          "release_date_precision": "day",
+          "total_tracks": 10,
+          "type": "album",
+          "uri": "spotify:album:0NNs6z7Nj8cPc8eu6IH4NX"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/4C7RCz82W5QIiD620yPQvi"
+            },
+            "href": "https://api.spotify.com/v1/artists/4C7RCz82W5QIiD620yPQvi",
+            "id": "4C7RCz82W5QIiD620yPQvi",
+            "name": "Papersky",
+            "type": "artist",
+            "uri": "spotify:artist:4C7RCz82W5QIiD620yPQvi"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 160000,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "QZ9Y21761647"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/5ZAuTPNHzdjzd7NKslrzXE"
+        },
+        "href": "https://api.spotify.com/v1/tracks/5ZAuTPNHzdjzd7NKslrzXE",
+        "id": "5ZAuTPNHzdjzd7NKslrzXE",
+        "is_local": false,
+        "name": "Uncommon Measures",
+        "popularity": 11,
+        "preview_url": "https://p.scdn.co/mp3-preview/5eac09219799f3602b8dced054bdbb9feb3629ad?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:5ZAuTPNHzdjzd7NKslrzXE"
+      },
+      {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/5r0llepWVwQE2ArFFSoWI8"
+              },
+              "href": "https://api.spotify.com/v1/artists/5r0llepWVwQE2ArFFSoWI8",
+              "id": "5r0llepWVwQE2ArFFSoWI8",
+              "name": "LilZambrano",
+              "type": "artist",
+              "uri": "spotify:artist:5r0llepWVwQE2ArFFSoWI8"
+            },
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/4BAomaXgR5bRJLkVeBLXbC"
+              },
+              "href": "https://api.spotify.com/v1/artists/4BAomaXgR5bRJLkVeBLXbC",
+              "id": "4BAomaXgR5bRJLkVeBLXbC",
+              "name": "Joye",
+              "type": "artist",
+              "uri": "spotify:artist:4BAomaXgR5bRJLkVeBLXbC"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/4MRczrZqjfxzezrz16UK9Q"
+          },
+          "href": "https://api.spotify.com/v1/albums/4MRczrZqjfxzezrz16UK9Q",
+          "id": "4MRczrZqjfxzezrz16UK9Q",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273c7bac95a9e7e5c72b92d6c2f",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02c7bac95a9e7e5c72b92d6c2f",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851c7bac95a9e7e5c72b92d6c2f",
+              "width": 64
+            }
+          ],
+          "name": "Uncommon",
+          "release_date": "2022-08-26",
+          "release_date_precision": "day",
+          "total_tracks": 1,
+          "type": "album",
+          "uri": "spotify:album:4MRczrZqjfxzezrz16UK9Q"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/5r0llepWVwQE2ArFFSoWI8"
+            },
+            "href": "https://api.spotify.com/v1/artists/5r0llepWVwQE2ArFFSoWI8",
+            "id": "5r0llepWVwQE2ArFFSoWI8",
+            "name": "LilZambrano",
+            "type": "artist",
+            "uri": "spotify:artist:5r0llepWVwQE2ArFFSoWI8"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/4BAomaXgR5bRJLkVeBLXbC"
+            },
+            "href": "https://api.spotify.com/v1/artists/4BAomaXgR5bRJLkVeBLXbC",
+            "id": "4BAomaXgR5bRJLkVeBLXbC",
+            "name": "Joye",
+            "type": "artist",
+            "uri": "spotify:artist:4BAomaXgR5bRJLkVeBLXbC"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 58444,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "GX89G2213158"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/5tv3pn2LwTarqzEPJDZ6U1"
+        },
+        "href": "https://api.spotify.com/v1/tracks/5tv3pn2LwTarqzEPJDZ6U1",
+        "id": "5tv3pn2LwTarqzEPJDZ6U1",
+        "is_local": false,
+        "name": "Uncommon",
+        "popularity": 1,
+        "preview_url": "https://p.scdn.co/mp3-preview/1a70b91bbc69cde827465125c11f4fdff0e5739b?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 1,
+        "type": "track",
+        "uri": "spotify:track:5tv3pn2LwTarqzEPJDZ6U1"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/2Fb6RF42XAncgUBgnAebN5"
+              },
+              "href": "https://api.spotify.com/v1/artists/2Fb6RF42XAncgUBgnAebN5",
+              "id": "2Fb6RF42XAncgUBgnAebN5",
+              "name": "Maine",
+              "type": "artist",
+              "uri": "spotify:artist:2Fb6RF42XAncgUBgnAebN5"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/58BFf1mfbWjxjs1rg6h1Fk"
+          },
+          "href": "https://api.spotify.com/v1/albums/58BFf1mfbWjxjs1rg6h1Fk",
+          "id": "58BFf1mfbWjxjs1rg6h1Fk",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273831e0a8143870c2b7603714d",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02831e0a8143870c2b7603714d",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851831e0a8143870c2b7603714d",
+              "width": 64
+            }
+          ],
+          "name": "IV",
+          "release_date": "2016-07-01",
+          "release_date_precision": "day",
+          "total_tracks": 14,
+          "type": "album",
+          "uri": "spotify:album:58BFf1mfbWjxjs1rg6h1Fk"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2Fb6RF42XAncgUBgnAebN5"
+            },
+            "href": "https://api.spotify.com/v1/artists/2Fb6RF42XAncgUBgnAebN5",
+            "id": "2Fb6RF42XAncgUBgnAebN5",
+            "name": "Maine",
+            "type": "artist",
+            "uri": "spotify:artist:2Fb6RF42XAncgUBgnAebN5"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 300000,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "QMFME1569918"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/04KkoAfMLljZj1Hx1XWBx0"
+        },
+        "href": "https://api.spotify.com/v1/tracks/04KkoAfMLljZj1Hx1XWBx0",
+        "id": "04KkoAfMLljZj1Hx1XWBx0",
+        "is_local": false,
+        "name": "Uncommon Places",
+        "popularity": 2,
+        "preview_url": "https://p.scdn.co/mp3-preview/e0c45fd9f05f6b4c2162236aeb03a2f7b4df798e?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 11,
+        "type": "track",
+        "uri": "spotify:track:04KkoAfMLljZj1Hx1XWBx0"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/568ZhdwyaiCyOGJRtNYhWf"
+              },
+              "href": "https://api.spotify.com/v1/artists/568ZhdwyaiCyOGJRtNYhWf",
+              "id": "568ZhdwyaiCyOGJRtNYhWf",
+              "name": "Deep Purple",
+              "type": "artist",
+              "uri": "spotify:artist:568ZhdwyaiCyOGJRtNYhWf"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/6PvYfkFYRsFsXx3IbTmSf3"
+          },
+          "href": "https://api.spotify.com/v1/albums/6PvYfkFYRsFsXx3IbTmSf3",
+          "id": "6PvYfkFYRsFsXx3IbTmSf3",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b2736bd954cce673a520e4d4dea7",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e026bd954cce673a520e4d4dea7",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d000048516bd954cce673a520e4d4dea7",
+              "width": 64
+            }
+          ],
+          "name": "Extras: The Now What?! B-Sides and Bonus Songs",
+          "release_date": "2022-08-31",
+          "release_date_precision": "day",
+          "total_tracks": 9,
+          "type": "album",
+          "uri": "spotify:album:6PvYfkFYRsFsXx3IbTmSf3"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/568ZhdwyaiCyOGJRtNYhWf"
+            },
+            "href": "https://api.spotify.com/v1/artists/568ZhdwyaiCyOGJRtNYhWf",
+            "id": "568ZhdwyaiCyOGJRtNYhWf",
+            "name": "Deep Purple",
+            "type": "artist",
+            "uri": "spotify:artist:568ZhdwyaiCyOGJRtNYhWf"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 418554,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "DEH841601343"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/2qMrO5n4RgUpHA17HlUPt9"
+        },
+        "href": "https://api.spotify.com/v1/tracks/2qMrO5n4RgUpHA17HlUPt9",
+        "id": "2qMrO5n4RgUpHA17HlUPt9",
+        "is_local": false,
+        "name": "Uncommon Man - Instrumental Version",
+        "popularity": 20,
+        "preview_url": "https://p.scdn.co/mp3-preview/da4e77f72b4c9d5316ff192f70e2cd23fce8acb9?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 5,
+        "type": "track",
+        "uri": "spotify:track:2qMrO5n4RgUpHA17HlUPt9"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/568ZhdwyaiCyOGJRtNYhWf"
+              },
+              "href": "https://api.spotify.com/v1/artists/568ZhdwyaiCyOGJRtNYhWf",
+              "id": "568ZhdwyaiCyOGJRtNYhWf",
+              "name": "Deep Purple",
+              "type": "artist",
+              "uri": "spotify:artist:568ZhdwyaiCyOGJRtNYhWf"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/4OiFn20i3aTu2FsMgP1yB5"
+          },
+          "href": "https://api.spotify.com/v1/albums/4OiFn20i3aTu2FsMgP1yB5",
+          "id": "4OiFn20i3aTu2FsMgP1yB5",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273605f06b5ac70e5dd9eb39837",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02605f06b5ac70e5dd9eb39837",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851605f06b5ac70e5dd9eb39837",
+              "width": 64
+            }
+          ],
+          "name": "Now What ?!",
+          "release_date": "2013-04-26",
+          "release_date_precision": "day",
+          "total_tracks": 11,
+          "type": "album",
+          "uri": "spotify:album:4OiFn20i3aTu2FsMgP1yB5"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/568ZhdwyaiCyOGJRtNYhWf"
+            },
+            "href": "https://api.spotify.com/v1/artists/568ZhdwyaiCyOGJRtNYhWf",
+            "id": "568ZhdwyaiCyOGJRtNYhWf",
+            "name": "Deep Purple",
+            "type": "artist",
+            "uri": "spotify:artist:568ZhdwyaiCyOGJRtNYhWf"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 420320,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "DEH841300047"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/7t49MeETMEZ3QaFM0oXw0C"
+        },
+        "href": "https://api.spotify.com/v1/tracks/7t49MeETMEZ3QaFM0oXw0C",
+        "id": "7t49MeETMEZ3QaFM0oXw0C",
+        "is_local": false,
+        "name": "Uncommon Man",
+        "popularity": 27,
+        "preview_url": "https://p.scdn.co/mp3-preview/d62e26743f913dcd324a092d82d91cb3ab1f5818?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 8,
+        "type": "track",
+        "uri": "spotify:track:7t49MeETMEZ3QaFM0oXw0C"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/3FXk7WOqY2ZeSzCVJFHJUZ"
+              },
+              "href": "https://api.spotify.com/v1/artists/3FXk7WOqY2ZeSzCVJFHJUZ",
+              "id": "3FXk7WOqY2ZeSzCVJFHJUZ",
+              "name": "O2worldwide",
+              "type": "artist",
+              "uri": "spotify:artist:3FXk7WOqY2ZeSzCVJFHJUZ"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/5wzvIXcoBWVrh2J2dAbKnU"
+          },
+          "href": "https://api.spotify.com/v1/albums/5wzvIXcoBWVrh2J2dAbKnU",
+          "id": "5wzvIXcoBWVrh2J2dAbKnU",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273ed84e5db3e3c411a4eebb8a3",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02ed84e5db3e3c411a4eebb8a3",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851ed84e5db3e3c411a4eebb8a3",
+              "width": 64
+            }
+          ],
+          "name": "BACK ON TRACK",
+          "release_date": "2021-02-17",
+          "release_date_precision": "day",
+          "total_tracks": 16,
+          "type": "album",
+          "uri": "spotify:album:5wzvIXcoBWVrh2J2dAbKnU"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/3FXk7WOqY2ZeSzCVJFHJUZ"
+            },
+            "href": "https://api.spotify.com/v1/artists/3FXk7WOqY2ZeSzCVJFHJUZ",
+            "id": "3FXk7WOqY2ZeSzCVJFHJUZ",
+            "name": "O2worldwide",
+            "type": "artist",
+            "uri": "spotify:artist:3FXk7WOqY2ZeSzCVJFHJUZ"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 215275,
+        "explicit": true,
+        "external_ids": {
+          "isrc": "CA5KR2224754"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/7u1K3cOpw4JncSwdFYEqWB"
+        },
+        "href": "https://api.spotify.com/v1/tracks/7u1K3cOpw4JncSwdFYEqWB",
+        "id": "7u1K3cOpw4JncSwdFYEqWB",
+        "is_local": false,
+        "name": "UNCOMMON SENSE",
+        "popularity": 6,
+        "preview_url": "https://p.scdn.co/mp3-preview/7bda3fb8fc5269ad645bc658b9821cc5f287619a?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 14,
+        "type": "track",
+        "uri": "spotify:track:7u1K3cOpw4JncSwdFYEqWB"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/1FhamVtJlNqaekPnwxQpbk"
+              },
+              "href": "https://api.spotify.com/v1/artists/1FhamVtJlNqaekPnwxQpbk",
+              "id": "1FhamVtJlNqaekPnwxQpbk",
+              "name": "Fearless Motivation",
+              "type": "artist",
+              "uri": "spotify:artist:1FhamVtJlNqaekPnwxQpbk"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/3qBAZZWvTQg7ssOZES2QHc"
+          },
+          "href": "https://api.spotify.com/v1/albums/3qBAZZWvTQg7ssOZES2QHc",
+          "id": "3qBAZZWvTQg7ssOZES2QHc",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b2734240435166faaed626028f53",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e024240435166faaed626028f53",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d000048514240435166faaed626028f53",
+              "width": 64
+            }
+          ],
+          "name": "Headphones on World Off",
+          "release_date": "2019-07-08",
+          "release_date_precision": "day",
+          "total_tracks": 20,
+          "type": "album",
+          "uri": "spotify:album:3qBAZZWvTQg7ssOZES2QHc"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1FhamVtJlNqaekPnwxQpbk"
+            },
+            "href": "https://api.spotify.com/v1/artists/1FhamVtJlNqaekPnwxQpbk",
+            "id": "1FhamVtJlNqaekPnwxQpbk",
+            "name": "Fearless Motivation",
+            "type": "artist",
+            "uri": "spotify:artist:1FhamVtJlNqaekPnwxQpbk"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/049Nhhd3GpNlug5so00arU"
+            },
+            "href": "https://api.spotify.com/v1/artists/049Nhhd3GpNlug5so00arU",
+            "id": "049Nhhd3GpNlug5so00arU",
+            "name": "East the Unsigned",
+            "type": "artist",
+            "uri": "spotify:artist:049Nhhd3GpNlug5so00arU"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 250171,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "usdy41944813"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/4X6NhdFikFQ9smBs5TDhme"
+        },
+        "href": "https://api.spotify.com/v1/tracks/4X6NhdFikFQ9smBs5TDhme",
+        "id": "4X6NhdFikFQ9smBs5TDhme",
+        "is_local": false,
+        "name": "Uncommon",
+        "popularity": 28,
+        "preview_url": "https://p.scdn.co/mp3-preview/c38b6ad026649c6bec07a6022796bf5d06800ed3?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:4X6NhdFikFQ9smBs5TDhme"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/5gQB07Vco4zBCUNbf8SBx4"
+              },
+              "href": "https://api.spotify.com/v1/artists/5gQB07Vco4zBCUNbf8SBx4",
+              "id": "5gQB07Vco4zBCUNbf8SBx4",
+              "name": "Viper",
+              "type": "artist",
+              "uri": "spotify:artist:5gQB07Vco4zBCUNbf8SBx4"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/3gDh3HQjKVpGCXWcvsS5Vt"
+          },
+          "href": "https://api.spotify.com/v1/albums/3gDh3HQjKVpGCXWcvsS5Vt",
+          "id": "3gDh3HQjKVpGCXWcvsS5Vt",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273ac67c95abf953d5413b18759",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02ac67c95abf953d5413b18759",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851ac67c95abf953d5413b18759",
+              "width": 64
+            }
+          ],
+          "name": "Get Rich or Die",
+          "release_date": "2022-09-02",
+          "release_date_precision": "day",
+          "total_tracks": 15,
+          "type": "album",
+          "uri": "spotify:album:3gDh3HQjKVpGCXWcvsS5Vt"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/5gQB07Vco4zBCUNbf8SBx4"
+            },
+            "href": "https://api.spotify.com/v1/artists/5gQB07Vco4zBCUNbf8SBx4",
+            "id": "5gQB07Vco4zBCUNbf8SBx4",
+            "name": "Viper",
+            "type": "artist",
+            "uri": "spotify:artist:5gQB07Vco4zBCUNbf8SBx4"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 171990,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "GBKPL2209201"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/0aDcwjEWo9gXvzLEIP9QjW"
+        },
+        "href": "https://api.spotify.com/v1/tracks/0aDcwjEWo9gXvzLEIP9QjW",
+        "id": "0aDcwjEWo9gXvzLEIP9QjW",
+        "is_local": false,
+        "name": "Uncommon",
+        "popularity": 5,
+        "preview_url": "https://p.scdn.co/mp3-preview/7f081b16b9e3d6ce3985cb8f02c727125a6a190d?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:0aDcwjEWo9gXvzLEIP9QjW"
+      },
+      {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/178MovIM9cZJ5sHNJKQmBe"
+              },
+              "href": "https://api.spotify.com/v1/artists/178MovIM9cZJ5sHNJKQmBe",
+              "id": "178MovIM9cZJ5sHNJKQmBe",
+              "name": "D Apollo",
+              "type": "artist",
+              "uri": "spotify:artist:178MovIM9cZJ5sHNJKQmBe"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/0NBRO0gbxTvCMxzoy6V2TH"
+          },
+          "href": "https://api.spotify.com/v1/albums/0NBRO0gbxTvCMxzoy6V2TH",
+          "id": "0NBRO0gbxTvCMxzoy6V2TH",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273a95724f639591e5ba2b45a63",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02a95724f639591e5ba2b45a63",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851a95724f639591e5ba2b45a63",
+              "width": 64
+            }
+          ],
+          "name": "Make It Love - Romance With Dance Music",
+          "release_date": "2021-06-24",
+          "release_date_precision": "day",
+          "total_tracks": 7,
+          "type": "album",
+          "uri": "spotify:album:0NBRO0gbxTvCMxzoy6V2TH"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/178MovIM9cZJ5sHNJKQmBe"
+            },
+            "href": "https://api.spotify.com/v1/artists/178MovIM9cZJ5sHNJKQmBe",
+            "id": "178MovIM9cZJ5sHNJKQmBe",
+            "name": "D Apollo",
+            "type": "artist",
+            "uri": "spotify:artist:178MovIM9cZJ5sHNJKQmBe"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 253440,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "ITZ072043035"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/00enGwvt6EpibNnnKtoP7M"
+        },
+        "href": "https://api.spotify.com/v1/tracks/00enGwvt6EpibNnnKtoP7M",
+        "id": "00enGwvt6EpibNnnKtoP7M",
+        "is_local": false,
+        "name": "Uncommon Delight (Minimal Tech House Mix) - Original Mix",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/ab8aa05703d47468daf335afd1c9850be7b13c9c?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 6,
+        "type": "track",
+        "uri": "spotify:track:00enGwvt6EpibNnnKtoP7M"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/4GYld2JGMpxe8q9jo0qStX"
+              },
+              "href": "https://api.spotify.com/v1/artists/4GYld2JGMpxe8q9jo0qStX",
+              "id": "4GYld2JGMpxe8q9jo0qStX",
+              "name": "Grantsos",
+              "type": "artist",
+              "uri": "spotify:artist:4GYld2JGMpxe8q9jo0qStX"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/2t2PKBddTtz0TSywxBGr1x"
+          },
+          "href": "https://api.spotify.com/v1/albums/2t2PKBddTtz0TSywxBGr1x",
+          "id": "2t2PKBddTtz0TSywxBGr1x",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27330ef51b904829300d627fb0e",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0230ef51b904829300d627fb0e",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485130ef51b904829300d627fb0e",
+              "width": 64
+            }
+          ],
+          "name": "Simpler Joys",
+          "release_date": "2022-10-11",
+          "release_date_precision": "day",
+          "total_tracks": 17,
+          "type": "album",
+          "uri": "spotify:album:2t2PKBddTtz0TSywxBGr1x"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/4GYld2JGMpxe8q9jo0qStX"
+            },
+            "href": "https://api.spotify.com/v1/artists/4GYld2JGMpxe8q9jo0qStX",
+            "id": "4GYld2JGMpxe8q9jo0qStX",
+            "name": "Grantsos",
+            "type": "artist",
+            "uri": "spotify:artist:4GYld2JGMpxe8q9jo0qStX"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 160007,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "QZRP52219306"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/1PmSwOzwlhsNlWXKrqsSO0"
+        },
+        "href": "https://api.spotify.com/v1/tracks/1PmSwOzwlhsNlWXKrqsSO0",
+        "id": "1PmSwOzwlhsNlWXKrqsSO0",
+        "is_local": false,
+        "name": "Uncommon Sense",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/ca81217e93d3fddaf742900a5b480adf6280a635?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:1PmSwOzwlhsNlWXKrqsSO0"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/4DMpIrQ2ECc2UZ0K8flBb5"
+              },
+              "href": "https://api.spotify.com/v1/artists/4DMpIrQ2ECc2UZ0K8flBb5",
+              "id": "4DMpIrQ2ECc2UZ0K8flBb5",
+              "name": "MR James",
+              "type": "artist",
+              "uri": "spotify:artist:4DMpIrQ2ECc2UZ0K8flBb5"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/4B0itITNsOPX0q0jkGy5Ar"
+          },
+          "href": "https://api.spotify.com/v1/albums/4B0itITNsOPX0q0jkGy5Ar",
+          "id": "4B0itITNsOPX0q0jkGy5Ar",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273840f933aaca44005bb615c43",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02840f933aaca44005bb615c43",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851840f933aaca44005bb615c43",
+              "width": 64
+            }
+          ],
+          "name": "The Uncommon Prayer-Book",
+          "release_date": "2010",
+          "release_date_precision": "year",
+          "total_tracks": 14,
+          "type": "album",
+          "uri": "spotify:album:4B0itITNsOPX0q0jkGy5Ar"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/4DMpIrQ2ECc2UZ0K8flBb5"
+            },
+            "href": "https://api.spotify.com/v1/artists/4DMpIrQ2ECc2UZ0K8flBb5",
+            "id": "4DMpIrQ2ECc2UZ0K8flBb5",
+            "name": "MR James",
+            "type": "artist",
+            "uri": "spotify:artist:4DMpIrQ2ECc2UZ0K8flBb5"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 124316,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "GB-SMU-25-82609"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/2achQQzZxGbGSkvDYhTyWA"
+        },
+        "href": "https://api.spotify.com/v1/tracks/2achQQzZxGbGSkvDYhTyWA",
+        "id": "2achQQzZxGbGSkvDYhTyWA",
+        "is_local": false,
+        "name": "The Uncommon Prayer Book - Chapter 1",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/472a4bb553430541cc486c2aa2d0bfcf896d768e?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 1,
+        "type": "track",
+        "uri": "spotify:track:2achQQzZxGbGSkvDYhTyWA"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/2d8xng5B87uGm7LUYgMaBP"
+              },
+              "href": "https://api.spotify.com/v1/artists/2d8xng5B87uGm7LUYgMaBP",
+              "id": "2d8xng5B87uGm7LUYgMaBP",
+              "name": "Khromi",
+              "type": "artist",
+              "uri": "spotify:artist:2d8xng5B87uGm7LUYgMaBP"
+            },
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/5POUA3KoQ9Y20hzBuikqim"
+              },
+              "href": "https://api.spotify.com/v1/artists/5POUA3KoQ9Y20hzBuikqim",
+              "id": "5POUA3KoQ9Y20hzBuikqim",
+              "name": "Shiverz",
+              "type": "artist",
+              "uri": "spotify:artist:5POUA3KoQ9Y20hzBuikqim"
+            },
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/3SCAEdZEfpatrvdFeDLD2p"
+              },
+              "href": "https://api.spotify.com/v1/artists/3SCAEdZEfpatrvdFeDLD2p",
+              "id": "3SCAEdZEfpatrvdFeDLD2p",
+              "name": "The Widdler",
+              "type": "artist",
+              "uri": "spotify:artist:3SCAEdZEfpatrvdFeDLD2p"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/6RCPjaJfTSJp3eXiE2NW0V"
+          },
+          "href": "https://api.spotify.com/v1/albums/6RCPjaJfTSJp3eXiE2NW0V",
+          "id": "6RCPjaJfTSJp3eXiE2NW0V",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273de54c9b27bbafca375416920",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02de54c9b27bbafca375416920",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851de54c9b27bbafca375416920",
+              "width": 64
+            }
+          ],
+          "name": "Friends With The Monsters 3",
+          "release_date": "2022-08-31",
+          "release_date_precision": "day",
+          "total_tracks": 29,
+          "type": "album",
+          "uri": "spotify:album:6RCPjaJfTSJp3eXiE2NW0V"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2x1pmbUTB2JNZNg8eAvDT9"
+            },
+            "href": "https://api.spotify.com/v1/artists/2x1pmbUTB2JNZNg8eAvDT9",
+            "id": "2x1pmbUTB2JNZNg8eAvDT9",
+            "name": "Uncommon Sense",
+            "type": "artist",
+            "uri": "spotify:artist:2x1pmbUTB2JNZNg8eAvDT9"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 301714,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "GB8KE2208948"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/0OvU8vKxhPz8FFbayRW8xK"
+        },
+        "href": "https://api.spotify.com/v1/tracks/0OvU8vKxhPz8FFbayRW8xK",
+        "id": "0OvU8vKxhPz8FFbayRW8xK",
+        "is_local": false,
+        "name": "Drainage",
+        "popularity": 6,
+        "preview_url": "https://p.scdn.co/mp3-preview/9e0acacf75e15e47de936a98179bb1d160725bc4?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 16,
+        "type": "track",
+        "uri": "spotify:track:0OvU8vKxhPz8FFbayRW8xK"
+      },
+      {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/1mHDpuZO9VIWoLRJ8tJjaM"
+              },
+              "href": "https://api.spotify.com/v1/artists/1mHDpuZO9VIWoLRJ8tJjaM",
+              "id": "1mHDpuZO9VIWoLRJ8tJjaM",
+              "name": "reso LFE",
+              "type": "artist",
+              "uri": "spotify:artist:1mHDpuZO9VIWoLRJ8tJjaM"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/16cgHPx4FuEJOBgaBjkJqI"
+          },
+          "href": "https://api.spotify.com/v1/albums/16cgHPx4FuEJOBgaBjkJqI",
+          "id": "16cgHPx4FuEJOBgaBjkJqI",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27312e0f95eefb42be360eccdef",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0212e0f95eefb42be360eccdef",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485112e0f95eefb42be360eccdef",
+              "width": 64
+            }
+          ],
+          "name": "Uncommon Sense",
+          "release_date": "2022-06-30",
+          "release_date_precision": "day",
+          "total_tracks": 1,
+          "type": "album",
+          "uri": "spotify:album:16cgHPx4FuEJOBgaBjkJqI"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1mHDpuZO9VIWoLRJ8tJjaM"
+            },
+            "href": "https://api.spotify.com/v1/artists/1mHDpuZO9VIWoLRJ8tJjaM",
+            "id": "1mHDpuZO9VIWoLRJ8tJjaM",
+            "name": "reso LFE",
+            "type": "artist",
+            "uri": "spotify:artist:1mHDpuZO9VIWoLRJ8tJjaM"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 128006,
+        "explicit": true,
+        "external_ids": {
+          "isrc": "QZNMT2211314"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/25vsw7gEsROapfnASJHHsE"
+        },
+        "href": "https://api.spotify.com/v1/tracks/25vsw7gEsROapfnASJHHsE",
+        "id": "25vsw7gEsROapfnASJHHsE",
+        "is_local": false,
+        "name": "Uncommon Sense",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/16d1e5b3205d04756d8c2b2d87d556ee490fc498?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 1,
+        "type": "track",
+        "uri": "spotify:track:25vsw7gEsROapfnASJHHsE"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/3YgpJohSQBVrXLtV7QCbu3"
+              },
+              "href": "https://api.spotify.com/v1/artists/3YgpJohSQBVrXLtV7QCbu3",
+              "id": "3YgpJohSQBVrXLtV7QCbu3",
+              "name": "Uncommon Evolution",
+              "type": "artist",
+              "uri": "spotify:artist:3YgpJohSQBVrXLtV7QCbu3"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/3XerEzpAN7F4y23K3Tn3QV"
+          },
+          "href": "https://api.spotify.com/v1/albums/3XerEzpAN7F4y23K3Tn3QV",
+          "id": "3XerEzpAN7F4y23K3Tn3QV",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273540432b4374c7d3d6ad082c5",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02540432b4374c7d3d6ad082c5",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851540432b4374c7d3d6ad082c5",
+              "width": 64
+            }
+          ],
+          "name": "Algid",
+          "release_date": "2020-01-17",
+          "release_date_precision": "day",
+          "total_tracks": 5,
+          "type": "album",
+          "uri": "spotify:album:3XerEzpAN7F4y23K3Tn3QV"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/3YgpJohSQBVrXLtV7QCbu3"
+            },
+            "href": "https://api.spotify.com/v1/artists/3YgpJohSQBVrXLtV7QCbu3",
+            "id": "3YgpJohSQBVrXLtV7QCbu3",
+            "name": "Uncommon Evolution",
+            "type": "artist",
+            "uri": "spotify:artist:3YgpJohSQBVrXLtV7QCbu3"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 392506,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "USA2P1961464"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/127ZIpORVq94zf6TuBfk2t"
+        },
+        "href": "https://api.spotify.com/v1/tracks/127ZIpORVq94zf6TuBfk2t",
+        "id": "127ZIpORVq94zf6TuBfk2t",
+        "is_local": false,
+        "name": "Handsomely Stoned",
+        "popularity": 1,
+        "preview_url": "https://p.scdn.co/mp3-preview/226430301876a614036aa60c3b1cf2c937a9a02e?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 4,
+        "type": "track",
+        "uri": "spotify:track:127ZIpORVq94zf6TuBfk2t"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/2bTfKyEM0bSDqmDcZybqzH"
+              },
+              "href": "https://api.spotify.com/v1/artists/2bTfKyEM0bSDqmDcZybqzH",
+              "id": "2bTfKyEM0bSDqmDcZybqzH",
+              "name": "Isaac Carree",
+              "type": "artist",
+              "uri": "spotify:artist:2bTfKyEM0bSDqmDcZybqzH"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/3pBd5ti7lrxRraYszasTDg"
+          },
+          "href": "https://api.spotify.com/v1/albums/3pBd5ti7lrxRraYszasTDg",
+          "id": "3pBd5ti7lrxRraYszasTDg",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273d83952576a3933bc95faf58d",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02d83952576a3933bc95faf58d",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851d83952576a3933bc95faf58d",
+              "width": 64
+            }
+          ],
+          "name": "Uncommon Me",
+          "release_date": "2011-08-23",
+          "release_date_precision": "day",
+          "total_tracks": 14,
+          "type": "album",
+          "uri": "spotify:album:3pBd5ti7lrxRraYszasTDg"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2bTfKyEM0bSDqmDcZybqzH"
+            },
+            "href": "https://api.spotify.com/v1/artists/2bTfKyEM0bSDqmDcZybqzH",
+            "id": "2bTfKyEM0bSDqmDcZybqzH",
+            "name": "Isaac Carree",
+            "type": "artist",
+            "uri": "spotify:artist:2bTfKyEM0bSDqmDcZybqzH"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 264733,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "USL2K1000027"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/2USx4BT0oWI8AALsR2rQyl"
+        },
+        "href": "https://api.spotify.com/v1/tracks/2USx4BT0oWI8AALsR2rQyl",
+        "id": "2USx4BT0oWI8AALsR2rQyl",
+        "is_local": false,
+        "name": "Uncommon Me",
+        "popularity": 26,
+        "preview_url": "https://p.scdn.co/mp3-preview/4007737c7d8621aadc05ea65d07fd9e51a7dd689?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 6,
+        "type": "track",
+        "uri": "spotify:track:2USx4BT0oWI8AALsR2rQyl"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/7f5KWiL31ELrLeFHsJIhs4"
+              },
+              "href": "https://api.spotify.com/v1/artists/7f5KWiL31ELrLeFHsJIhs4",
+              "id": "7f5KWiL31ELrLeFHsJIhs4",
+              "name": "Holly Henderson",
+              "type": "artist",
+              "uri": "spotify:artist:7f5KWiL31ELrLeFHsJIhs4"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/27HF3au2cLP5tXIXR1Gyrh"
+          },
+          "href": "https://api.spotify.com/v1/albums/27HF3au2cLP5tXIXR1Gyrh",
+          "id": "27HF3au2cLP5tXIXR1Gyrh",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27348b99681931e041be65e8201",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0248b99681931e041be65e8201",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485148b99681931e041be65e8201",
+              "width": 64
+            }
+          ],
+          "name": "Monday Green",
+          "release_date": "2019-06-07",
+          "release_date_precision": "day",
+          "total_tracks": 10,
+          "type": "album",
+          "uri": "spotify:album:27HF3au2cLP5tXIXR1Gyrh"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/7f5KWiL31ELrLeFHsJIhs4"
+            },
+            "href": "https://api.spotify.com/v1/artists/7f5KWiL31ELrLeFHsJIhs4",
+            "id": "7f5KWiL31ELrLeFHsJIhs4",
+            "name": "Holly Henderson",
+            "type": "artist",
+            "uri": "spotify:artist:7f5KWiL31ELrLeFHsJIhs4"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 299240,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "QZES91901333"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/4hKPVVfzCyAQoCQqI4ey2T"
+        },
+        "href": "https://api.spotify.com/v1/tracks/4hKPVVfzCyAQoCQqI4ey2T",
+        "id": "4hKPVVfzCyAQoCQqI4ey2T",
+        "is_local": false,
+        "name": "Uncommon Love",
+        "popularity": 1,
+        "preview_url": "https://p.scdn.co/mp3-preview/af5fafb698d582eb9760012afa4ffa1a9319b8bc?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 1,
+        "type": "track",
+        "uri": "spotify:track:4hKPVVfzCyAQoCQqI4ey2T"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/568ZhdwyaiCyOGJRtNYhWf"
+              },
+              "href": "https://api.spotify.com/v1/artists/568ZhdwyaiCyOGJRtNYhWf",
+              "id": "568ZhdwyaiCyOGJRtNYhWf",
+              "name": "Deep Purple",
+              "type": "artist",
+              "uri": "spotify:artist:568ZhdwyaiCyOGJRtNYhWf"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/3FjCIa2vGSxhq2TQa9YIc4"
+          },
+          "href": "https://api.spotify.com/v1/albums/3FjCIa2vGSxhq2TQa9YIc4",
+          "id": "3FjCIa2vGSxhq2TQa9YIc4",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273984d6529c8e9dce5684d460c",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02984d6529c8e9dce5684d460c",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851984d6529c8e9dce5684d460c",
+              "width": 64
+            }
+          ],
+          "name": "The Infinite Live Recordings, Vol. 1",
+          "release_date": "2017-11-17",
+          "release_date_precision": "day",
+          "total_tracks": 15,
+          "type": "album",
+          "uri": "spotify:album:3FjCIa2vGSxhq2TQa9YIc4"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/568ZhdwyaiCyOGJRtNYhWf"
+            },
+            "href": "https://api.spotify.com/v1/artists/568ZhdwyaiCyOGJRtNYhWf",
+            "id": "568ZhdwyaiCyOGJRtNYhWf",
+            "name": "Deep Purple",
+            "type": "artist",
+            "uri": "spotify:artist:568ZhdwyaiCyOGJRtNYhWf"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 400924,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "DEH841701172"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/1m2mSUITNVUQqi8tzNz5cJ"
+        },
+        "href": "https://api.spotify.com/v1/tracks/1m2mSUITNVUQqi8tzNz5cJ",
+        "id": "1m2mSUITNVUQqi8tzNz5cJ",
+        "is_local": false,
+        "name": "Uncommon Man - Live at Hellfest 2017",
+        "popularity": 12,
+        "preview_url": "https://p.scdn.co/mp3-preview/5831da206314021e92583ed6730f947bb119438b?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 5,
+        "type": "track",
+        "uri": "spotify:track:1m2mSUITNVUQqi8tzNz5cJ"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/1BQ4qhmBKCLXppZm7LXtYo"
+              },
+              "href": "https://api.spotify.com/v1/artists/1BQ4qhmBKCLXppZm7LXtYo",
+              "id": "1BQ4qhmBKCLXppZm7LXtYo",
+              "name": "The Guardians",
+              "type": "artist",
+              "uri": "spotify:artist:1BQ4qhmBKCLXppZm7LXtYo"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/1cjir3I5v9DHnVYw1iR5sO"
+          },
+          "href": "https://api.spotify.com/v1/albums/1cjir3I5v9DHnVYw1iR5sO",
+          "id": "1cjir3I5v9DHnVYw1iR5sO",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273361e3249151fb07bedee2135",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02361e3249151fb07bedee2135",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851361e3249151fb07bedee2135",
+              "width": 64
+            }
+          ],
+          "name": "Ready for Revival",
+          "release_date": "2018-10-19",
+          "release_date_precision": "day",
+          "total_tracks": 11,
+          "type": "album",
+          "uri": "spotify:album:1cjir3I5v9DHnVYw1iR5sO"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1BQ4qhmBKCLXppZm7LXtYo"
+            },
+            "href": "https://api.spotify.com/v1/artists/1BQ4qhmBKCLXppZm7LXtYo",
+            "id": "1BQ4qhmBKCLXppZm7LXtYo",
+            "name": "The Guardians",
+            "type": "artist",
+            "uri": "spotify:artist:1BQ4qhmBKCLXppZm7LXtYo"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 205453,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "USC5G1800106"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/4SsXkpEm3Zp0yQgTJcr52B"
+        },
+        "href": "https://api.spotify.com/v1/tracks/4SsXkpEm3Zp0yQgTJcr52B",
+        "id": "4SsXkpEm3Zp0yQgTJcr52B",
+        "is_local": false,
+        "name": "Uncommon Praise",
+        "popularity": 23,
+        "preview_url": "https://p.scdn.co/mp3-preview/41adf700e013e880628f751d234d8c352fd6e14f?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:4SsXkpEm3Zp0yQgTJcr52B"
+      },
+      {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/3K1lBE52E2hgrYdSceCX0G"
+              },
+              "href": "https://api.spotify.com/v1/artists/3K1lBE52E2hgrYdSceCX0G",
+              "id": "3K1lBE52E2hgrYdSceCX0G",
+              "name": "Uncommon",
+              "type": "artist",
+              "uri": "spotify:artist:3K1lBE52E2hgrYdSceCX0G"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/6kUnZLYmOZ59gWDv2P5Rts"
+          },
+          "href": "https://api.spotify.com/v1/albums/6kUnZLYmOZ59gWDv2P5Rts",
+          "id": "6kUnZLYmOZ59gWDv2P5Rts",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273cccc2bbf4238d9c7d9df0812",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02cccc2bbf4238d9c7d9df0812",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851cccc2bbf4238d9c7d9df0812",
+              "width": 64
+            }
+          ],
+          "name": "Thirsty",
+          "release_date": "2019-12-27",
+          "release_date_precision": "day",
+          "total_tracks": 3,
+          "type": "album",
+          "uri": "spotify:album:6kUnZLYmOZ59gWDv2P5Rts"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/3K1lBE52E2hgrYdSceCX0G"
+            },
+            "href": "https://api.spotify.com/v1/artists/3K1lBE52E2hgrYdSceCX0G",
+            "id": "3K1lBE52E2hgrYdSceCX0G",
+            "name": "Uncommon",
+            "type": "artist",
+            "uri": "spotify:artist:3K1lBE52E2hgrYdSceCX0G"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 242500,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "QZK6M1921105"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/0Z00ngeNQ3iwSTLxKMbEaE"
+        },
+        "href": "https://api.spotify.com/v1/tracks/0Z00ngeNQ3iwSTLxKMbEaE",
+        "id": "0Z00ngeNQ3iwSTLxKMbEaE",
+        "is_local": false,
+        "name": "Drink of You",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/89a569e07f931cc07e36f3c81e145a836eb0b050?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:0Z00ngeNQ3iwSTLxKMbEaE"
+      },
+      {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/5fBbVsFxoa0jDCqocaEdBx"
+              },
+              "href": "https://api.spotify.com/v1/artists/5fBbVsFxoa0jDCqocaEdBx",
+              "id": "5fBbVsFxoa0jDCqocaEdBx",
+              "name": "Bryan Kearney",
+              "type": "artist",
+              "uri": "spotify:artist:5fBbVsFxoa0jDCqocaEdBx"
+            },
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/6g3WgXMkGuNv3fKtXvz6wA"
+              },
+              "href": "https://api.spotify.com/v1/artists/6g3WgXMkGuNv3fKtXvz6wA",
+              "id": "6g3WgXMkGuNv3fKtXvz6wA",
+              "name": "Indecent Noise",
+              "type": "artist",
+              "uri": "spotify:artist:6g3WgXMkGuNv3fKtXvz6wA"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/3CcNNjZSryFvW9nDI6AHgq"
+          },
+          "href": "https://api.spotify.com/v1/albums/3CcNNjZSryFvW9nDI6AHgq",
+          "id": "3CcNNjZSryFvW9nDI6AHgq",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27352740c8b1f2c016a67153c38",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0252740c8b1f2c016a67153c38",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485152740c8b1f2c016a67153c38",
+              "width": 64
+            }
+          ],
+          "name": "Uncommon World",
+          "release_date": "2012-09-10",
+          "release_date_precision": "day",
+          "total_tracks": 3,
+          "type": "album",
+          "uri": "spotify:album:3CcNNjZSryFvW9nDI6AHgq"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/5fBbVsFxoa0jDCqocaEdBx"
+            },
+            "href": "https://api.spotify.com/v1/artists/5fBbVsFxoa0jDCqocaEdBx",
+            "id": "5fBbVsFxoa0jDCqocaEdBx",
+            "name": "Bryan Kearney",
+            "type": "artist",
+            "uri": "spotify:artist:5fBbVsFxoa0jDCqocaEdBx"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/6g3WgXMkGuNv3fKtXvz6wA"
+            },
+            "href": "https://api.spotify.com/v1/artists/6g3WgXMkGuNv3fKtXvz6wA",
+            "id": "6g3WgXMkGuNv3fKtXvz6wA",
+            "name": "Indecent Noise",
+            "type": "artist",
+            "uri": "spotify:artist:6g3WgXMkGuNv3fKtXvz6wA"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 488695,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "GBKQU1210265"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/0pavhn3ALDfo427rRAgSUU"
+        },
+        "href": "https://api.spotify.com/v1/tracks/0pavhn3ALDfo427rRAgSUU",
+        "id": "0pavhn3ALDfo427rRAgSUU",
+        "is_local": false,
+        "name": "Uncommon World",
+        "popularity": 5,
+        "preview_url": "https://p.scdn.co/mp3-preview/ed85a32aa14914634ff20505a61b59a1f94174f3?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 1,
+        "type": "track",
+        "uri": "spotify:track:0pavhn3ALDfo427rRAgSUU"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/0KXcDQjTAdyDkAh0hNKOiF"
+              },
+              "href": "https://api.spotify.com/v1/artists/0KXcDQjTAdyDkAh0hNKOiF",
+              "id": "0KXcDQjTAdyDkAh0hNKOiF",
+              "name": "Pirates Of The Mississippi",
+              "type": "artist",
+              "uri": "spotify:artist:0KXcDQjTAdyDkAh0hNKOiF"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/04LcR4qw4iq1Hvo34bZnOD"
+          },
+          "href": "https://api.spotify.com/v1/albums/04LcR4qw4iq1Hvo34bZnOD",
+          "id": "04LcR4qw4iq1Hvo34bZnOD",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273fa3c4ca5aca66688ad8c5b40",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02fa3c4ca5aca66688ad8c5b40",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851fa3c4ca5aca66688ad8c5b40",
+              "width": 64
+            }
+          ],
+          "name": "Walk The Plank",
+          "release_date": "1991-09-30",
+          "release_date_precision": "day",
+          "total_tracks": 10,
+          "type": "album",
+          "uri": "spotify:album:04LcR4qw4iq1Hvo34bZnOD"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0KXcDQjTAdyDkAh0hNKOiF"
+            },
+            "href": "https://api.spotify.com/v1/artists/0KXcDQjTAdyDkAh0hNKOiF",
+            "id": "0KXcDQjTAdyDkAh0hNKOiF",
+            "name": "Pirates Of The Mississippi",
+            "type": "artist",
+            "uri": "spotify:artist:0KXcDQjTAdyDkAh0hNKOiF"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 229933,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "USCN10701249"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/4nQXDo1CEfcP1sHoLOU6bq"
+        },
+        "href": "https://api.spotify.com/v1/tracks/4nQXDo1CEfcP1sHoLOU6bq",
+        "id": "4nQXDo1CEfcP1sHoLOU6bq",
+        "is_local": false,
+        "name": "Uncommon Man",
+        "popularity": 8,
+        "preview_url": "https://p.scdn.co/mp3-preview/3a27c51ebb4db4e0a57295da7b719548c73b74eb?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 9,
+        "type": "track",
+        "uri": "spotify:track:4nQXDo1CEfcP1sHoLOU6bq"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/2IW4rma5Xemtuo2hR2iNpA"
+              },
+              "href": "https://api.spotify.com/v1/artists/2IW4rma5Xemtuo2hR2iNpA",
+              "id": "2IW4rma5Xemtuo2hR2iNpA",
+              "name": "DJ Lostnfound",
+              "type": "artist",
+              "uri": "spotify:artist:2IW4rma5Xemtuo2hR2iNpA"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/7tD4w4IvcX1oyrXkgcE5Kl"
+          },
+          "href": "https://api.spotify.com/v1/albums/7tD4w4IvcX1oyrXkgcE5Kl",
+          "id": "7tD4w4IvcX1oyrXkgcE5Kl",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27366b983fbde8eec73fab58aeb",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0266b983fbde8eec73fab58aeb",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485166b983fbde8eec73fab58aeb",
+              "width": 64
+            }
+          ],
+          "name": "Caesura II",
+          "release_date": "2022-09-02",
+          "release_date_precision": "day",
+          "total_tracks": 18,
+          "type": "album",
+          "uri": "spotify:album:7tD4w4IvcX1oyrXkgcE5Kl"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2IW4rma5Xemtuo2hR2iNpA"
+            },
+            "href": "https://api.spotify.com/v1/artists/2IW4rma5Xemtuo2hR2iNpA",
+            "id": "2IW4rma5Xemtuo2hR2iNpA",
+            "name": "DJ Lostnfound",
+            "type": "artist",
+            "uri": "spotify:artist:2IW4rma5Xemtuo2hR2iNpA"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/3PoVfuLf8nvX4HLntiLTUa"
+            },
+            "href": "https://api.spotify.com/v1/artists/3PoVfuLf8nvX4HLntiLTUa",
+            "id": "3PoVfuLf8nvX4HLntiLTUa",
+            "name": "A.I. The Anomaly",
+            "type": "artist",
+            "uri": "spotify:artist:3PoVfuLf8nvX4HLntiLTUa"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/6FCU4eYAE5ij3i2V1jBhTO"
+            },
+            "href": "https://api.spotify.com/v1/artists/6FCU4eYAE5ij3i2V1jBhTO",
+            "id": "6FCU4eYAE5ij3i2V1jBhTO",
+            "name": "i.v. Muzik",
+            "type": "artist",
+            "uri": "spotify:artist:6FCU4eYAE5ij3i2V1jBhTO"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/5shBzJB6QpkKp6imLBqnMR"
+            },
+            "href": "https://api.spotify.com/v1/artists/5shBzJB6QpkKp6imLBqnMR",
+            "id": "5shBzJB6QpkKp6imLBqnMR",
+            "name": "Travis Hobson",
+            "type": "artist",
+            "uri": "spotify:artist:5shBzJB6QpkKp6imLBqnMR"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/09z8NdQ9Iac9NMLGc6bCOB"
+            },
+            "href": "https://api.spotify.com/v1/artists/09z8NdQ9Iac9NMLGc6bCOB",
+            "id": "09z8NdQ9Iac9NMLGc6bCOB",
+            "name": "Alcott",
+            "type": "artist",
+            "uri": "spotify:artist:09z8NdQ9Iac9NMLGc6bCOB"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0pFW8n1v0NdZSlREKlNl6N"
+            },
+            "href": "https://api.spotify.com/v1/artists/0pFW8n1v0NdZSlREKlNl6N",
+            "id": "0pFW8n1v0NdZSlREKlNl6N",
+            "name": "Prophet Link",
+            "type": "artist",
+            "uri": "spotify:artist:0pFW8n1v0NdZSlREKlNl6N"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2Zhu0Oy8VdnOaR8bnFJIGv"
+            },
+            "href": "https://api.spotify.com/v1/artists/2Zhu0Oy8VdnOaR8bnFJIGv",
+            "id": "2Zhu0Oy8VdnOaR8bnFJIGv",
+            "name": "Outr.cty",
+            "type": "artist",
+            "uri": "spotify:artist:2Zhu0Oy8VdnOaR8bnFJIGv"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/6k6t8U8gfxooRFD6Vu6V0j"
+            },
+            "href": "https://api.spotify.com/v1/artists/6k6t8U8gfxooRFD6Vu6V0j",
+            "id": "6k6t8U8gfxooRFD6Vu6V0j",
+            "name": "Pastor Charles A.R.",
+            "type": "artist",
+            "uri": "spotify:artist:6k6t8U8gfxooRFD6Vu6V0j"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 185756,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "QZAKB2172806"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/3uQTjvioKG5WYaDi6V1K52"
+        },
+        "href": "https://api.spotify.com/v1/tracks/3uQTjvioKG5WYaDi6V1K52",
+        "id": "3uQTjvioKG5WYaDi6V1K52",
+        "is_local": false,
+        "name": "Uncommon Few (Feat. A.I. the Anomaly, i.v. Muzik, Travis Hobson, Alcott, Prophet Link, Outr.cty & Pastor Charles A.R.)",
+        "popularity": 33,
+        "preview_url": "https://p.scdn.co/mp3-preview/353f379f6129fb17c21fc8fd90502180870e83f5?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:3uQTjvioKG5WYaDi6V1K52"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/0qE9aOH23zNxnihqsUQzn3"
+              },
+              "href": "https://api.spotify.com/v1/artists/0qE9aOH23zNxnihqsUQzn3",
+              "id": "0qE9aOH23zNxnihqsUQzn3",
+              "name": "Jeff Hartman",
+              "type": "artist",
+              "uri": "spotify:artist:0qE9aOH23zNxnihqsUQzn3"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/08EInEiJqk5q7QozTyxMyl"
+          },
+          "href": "https://api.spotify.com/v1/albums/08EInEiJqk5q7QozTyxMyl",
+          "id": "08EInEiJqk5q7QozTyxMyl",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b2733e1a616b096f0ca98e26a592",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e023e1a616b096f0ca98e26a592",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d000048513e1a616b096f0ca98e26a592",
+              "width": 64
+            }
+          ],
+          "name": "Uncommon (Original Motion Picture Score)",
+          "release_date": "2014-02-01",
+          "release_date_precision": "day",
+          "total_tracks": 41,
+          "type": "album",
+          "uri": "spotify:album:08EInEiJqk5q7QozTyxMyl"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0qE9aOH23zNxnihqsUQzn3"
+            },
+            "href": "https://api.spotify.com/v1/artists/0qE9aOH23zNxnihqsUQzn3",
+            "id": "0qE9aOH23zNxnihqsUQzn3",
+            "name": "Jeff Hartman",
+            "type": "artist",
+            "uri": "spotify:artist:0qE9aOH23zNxnihqsUQzn3"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 36000,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "uscgh2263890"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/3sMcRHyRh36OLUWnevbXJ6"
+        },
+        "href": "https://api.spotify.com/v1/tracks/3sMcRHyRh36OLUWnevbXJ6",
+        "id": "3sMcRHyRh36OLUWnevbXJ6",
+        "is_local": false,
+        "name": "Save It for the Play",
+        "popularity": 1,
+        "preview_url": "https://p.scdn.co/mp3-preview/1f75ce016cd51bdefe265631b146f44154f8c1a4?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 24,
+        "type": "track",
+        "uri": "spotify:track:3sMcRHyRh36OLUWnevbXJ6"
+      },
+      {
+        "album": {
+          "album_type": "compilation",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of"
+              },
+              "href": "https://api.spotify.com/v1/artists/0LyfQWJT6nXafLPZqxe9Of",
+              "id": "0LyfQWJT6nXafLPZqxe9Of",
+              "name": "Various Artists",
+              "type": "artist",
+              "uri": "spotify:artist:0LyfQWJT6nXafLPZqxe9Of"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/0TOZmPZVJdijklHKH9yB77"
+          },
+          "href": "https://api.spotify.com/v1/albums/0TOZmPZVJdijklHKH9yB77",
+          "id": "0TOZmPZVJdijklHKH9yB77",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273af329fd756f3b42a79fed251",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02af329fd756f3b42a79fed251",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851af329fd756f3b42a79fed251",
+              "width": 64
+            }
+          ],
+          "name": "Uncommon (Music from and Inspired by the Movie)",
+          "release_date": "2014-01-18",
+          "release_date_precision": "day",
+          "total_tracks": 10,
+          "type": "album",
+          "uri": "spotify:album:0TOZmPZVJdijklHKH9yB77"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/6e8OTLDQpaz1Tl2GEaxsNj"
+            },
+            "href": "https://api.spotify.com/v1/artists/6e8OTLDQpaz1Tl2GEaxsNj",
+            "id": "6e8OTLDQpaz1Tl2GEaxsNj",
+            "name": "Matthew West",
+            "type": "artist",
+            "uri": "spotify:artist:6e8OTLDQpaz1Tl2GEaxsNj"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/5abY25H0kvXFvwqsuWHsq9"
+            },
+            "href": "https://api.spotify.com/v1/artists/5abY25H0kvXFvwqsuWHsq9",
+            "id": "5abY25H0kvXFvwqsuWHsq9",
+            "name": "Greg Long",
+            "type": "artist",
+            "uri": "spotify:artist:5abY25H0kvXFvwqsuWHsq9"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/7tAidM2XIOs0SZoNXWU7h4"
+            },
+            "href": "https://api.spotify.com/v1/artists/7tAidM2XIOs0SZoNXWU7h4",
+            "id": "7tAidM2XIOs0SZoNXWU7h4",
+            "name": "Kristy Starling",
+            "type": "artist",
+            "uri": "spotify:artist:7tAidM2XIOs0SZoNXWU7h4"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 243880,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "USCGH0996538"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/0GdGUCRZ1wk7ndfqwoogpJ"
+        },
+        "href": "https://api.spotify.com/v1/tracks/0GdGUCRZ1wk7ndfqwoogpJ",
+        "id": "0GdGUCRZ1wk7ndfqwoogpJ",
+        "is_local": false,
+        "name": "Uncommon",
+        "popularity": 1,
+        "preview_url": "https://p.scdn.co/mp3-preview/ddb7de1bbf4f2a39e41fc9109d23c98acb9fde96?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 7,
+        "type": "track",
+        "uri": "spotify:track:0GdGUCRZ1wk7ndfqwoogpJ"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/0qE9aOH23zNxnihqsUQzn3"
+              },
+              "href": "https://api.spotify.com/v1/artists/0qE9aOH23zNxnihqsUQzn3",
+              "id": "0qE9aOH23zNxnihqsUQzn3",
+              "name": "Jeff Hartman",
+              "type": "artist",
+              "uri": "spotify:artist:0qE9aOH23zNxnihqsUQzn3"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/08EInEiJqk5q7QozTyxMyl"
+          },
+          "href": "https://api.spotify.com/v1/albums/08EInEiJqk5q7QozTyxMyl",
+          "id": "08EInEiJqk5q7QozTyxMyl",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b2733e1a616b096f0ca98e26a592",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e023e1a616b096f0ca98e26a592",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d000048513e1a616b096f0ca98e26a592",
+              "width": 64
+            }
+          ],
+          "name": "Uncommon (Original Motion Picture Score)",
+          "release_date": "2014-02-01",
+          "release_date_precision": "day",
+          "total_tracks": 41,
+          "type": "album",
+          "uri": "spotify:album:08EInEiJqk5q7QozTyxMyl"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0qE9aOH23zNxnihqsUQzn3"
+            },
+            "href": "https://api.spotify.com/v1/artists/0qE9aOH23zNxnihqsUQzn3",
+            "id": "0qE9aOH23zNxnihqsUQzn3",
+            "name": "Jeff Hartman",
+            "type": "artist",
+            "uri": "spotify:artist:0qE9aOH23zNxnihqsUQzn3"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 73000,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "uscgh2263898"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/6jhdrhTYNJPFKdu7ajOnpe"
+        },
+        "href": "https://api.spotify.com/v1/tracks/6jhdrhTYNJPFKdu7ajOnpe",
+        "id": "6jhdrhTYNJPFKdu7ajOnpe",
+        "is_local": false,
+        "name": "Estrada and Goliath",
+        "popularity": 1,
+        "preview_url": "https://p.scdn.co/mp3-preview/2f1107eb11ca3af45429d862cc6db20960aefda1?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 32,
+        "type": "track",
+        "uri": "spotify:track:6jhdrhTYNJPFKdu7ajOnpe"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/5jDtsSY98sC2JOYqJj8lab"
+              },
+              "href": "https://api.spotify.com/v1/artists/5jDtsSY98sC2JOYqJj8lab",
+              "id": "5jDtsSY98sC2JOYqJj8lab",
+              "name": "Uncommonmenfrommars",
+              "type": "artist",
+              "uri": "spotify:artist:5jDtsSY98sC2JOYqJj8lab"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/0l4OFg42RChtSQNW26K5im"
+          },
+          "href": "https://api.spotify.com/v1/albums/0l4OFg42RChtSQNW26K5im",
+          "id": "0l4OFg42RChtSQNW26K5im",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27347a820e68b7bb3ad5f51a081",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0247a820e68b7bb3ad5f51a081",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485147a820e68b7bb3ad5f51a081",
+              "width": 64
+            }
+          ],
+          "name": "Vote for Me",
+          "release_date": "2001-06-01",
+          "release_date_precision": "day",
+          "total_tracks": 14,
+          "type": "album",
+          "uri": "spotify:album:0l4OFg42RChtSQNW26K5im"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/5jDtsSY98sC2JOYqJj8lab"
+            },
+            "href": "https://api.spotify.com/v1/artists/5jDtsSY98sC2JOYqJj8lab",
+            "id": "5jDtsSY98sC2JOYqJj8lab",
+            "name": "Uncommonmenfrommars",
+            "type": "artist",
+            "uri": "spotify:artist:5jDtsSY98sC2JOYqJj8lab"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 172666,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "FR6F30100020"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/75MuiKmnlInFbkUiLkAT5i"
+        },
+        "href": "https://api.spotify.com/v1/tracks/75MuiKmnlInFbkUiLkAT5i",
+        "id": "75MuiKmnlInFbkUiLkAT5i",
+        "is_local": false,
+        "name": "Coconut Island",
+        "popularity": 18,
+        "preview_url": "https://p.scdn.co/mp3-preview/58680b9ebeec883fab7520a817130ab83c7fcc32?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 8,
+        "type": "track",
+        "uri": "spotify:track:75MuiKmnlInFbkUiLkAT5i"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/3GoJSpFg7IG9YdzWQ96imM"
+              },
+              "href": "https://api.spotify.com/v1/artists/3GoJSpFg7IG9YdzWQ96imM",
+              "id": "3GoJSpFg7IG9YdzWQ96imM",
+              "name": "Commoners Choir",
+              "type": "artist",
+              "uri": "spotify:artist:3GoJSpFg7IG9YdzWQ96imM"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/1fJXLvSF8mmV4rESxaKFq3"
+          },
+          "href": "https://api.spotify.com/v1/albums/1fJXLvSF8mmV4rESxaKFq3",
+          "id": "1fJXLvSF8mmV4rESxaKFq3",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27360fa42b1e23f9279b15c347f",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0260fa42b1e23f9279b15c347f",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485160fa42b1e23f9279b15c347f",
+              "width": 64
+            }
+          ],
+          "name": "Commoners Choir",
+          "release_date": "2017-09-01",
+          "release_date_precision": "day",
+          "total_tracks": 21,
+          "type": "album",
+          "uri": "spotify:album:1fJXLvSF8mmV4rESxaKFq3"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/3GoJSpFg7IG9YdzWQ96imM"
+            },
+            "href": "https://api.spotify.com/v1/artists/3GoJSpFg7IG9YdzWQ96imM",
+            "id": "3GoJSpFg7IG9YdzWQ96imM",
+            "name": "Commoners Choir",
+            "type": "artist",
+            "uri": "spotify:artist:3GoJSpFg7IG9YdzWQ96imM"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 126240,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "GBCQK1749208"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/46uQriwEDGEKP3nPLJIATg"
+        },
+        "href": "https://api.spotify.com/v1/tracks/46uQriwEDGEKP3nPLJIATg",
+        "id": "46uQriwEDGEKP3nPLJIATg",
+        "is_local": false,
+        "name": "Omnia sunt communia",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/97a496c4f18bc6d2c33e5d7f1959ea3bf02d39ad?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 8,
+        "type": "track",
+        "uri": "spotify:track:46uQriwEDGEKP3nPLJIATg"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/4qL0mXWhInJHho86HqOEn7"
+              },
+              "href": "https://api.spotify.com/v1/artists/4qL0mXWhInJHho86HqOEn7",
+              "id": "4qL0mXWhInJHho86HqOEn7",
+              "name": "Oysterband",
+              "type": "artist",
+              "uri": "spotify:artist:4qL0mXWhInJHho86HqOEn7"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/3Woxl7aECWdA7eE3ZuYIBh"
+          },
+          "href": "https://api.spotify.com/v1/albums/3Woxl7aECWdA7eE3ZuYIBh",
+          "id": "3Woxl7aECWdA7eE3ZuYIBh",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b2738f3344dfbde448e6c14ad685",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e028f3344dfbde448e6c14ad685",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d000048518f3344dfbde448e6c14ad685",
+              "width": 64
+            }
+          ],
+          "name": "Rise Above",
+          "release_date": "2002",
+          "release_date_precision": "year",
+          "total_tracks": 10,
+          "type": "album",
+          "uri": "spotify:album:3Woxl7aECWdA7eE3ZuYIBh"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/4qL0mXWhInJHho86HqOEn7"
+            },
+            "href": "https://api.spotify.com/v1/artists/4qL0mXWhInJHho86HqOEn7",
+            "id": "4qL0mXWhInJHho86HqOEn7",
+            "name": "Oysterband",
+            "type": "artist",
+            "uri": "spotify:artist:4qL0mXWhInJHho86HqOEn7"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 225040,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "GBCEJ1100411"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/4N1hITE1AYWxnyFkmEXCom"
+        },
+        "href": "https://api.spotify.com/v1/tracks/4N1hITE1AYWxnyFkmEXCom",
+        "id": "4N1hITE1AYWxnyFkmEXCom",
+        "is_local": false,
+        "name": "Uncommercial Song",
+        "popularity": 4,
+        "preview_url": "https://p.scdn.co/mp3-preview/bc6a46a9d77c06ddf9fe1cff741e7b21c6f21fb3?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:4N1hITE1AYWxnyFkmEXCom"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/0qE9aOH23zNxnihqsUQzn3"
+              },
+              "href": "https://api.spotify.com/v1/artists/0qE9aOH23zNxnihqsUQzn3",
+              "id": "0qE9aOH23zNxnihqsUQzn3",
+              "name": "Jeff Hartman",
+              "type": "artist",
+              "uri": "spotify:artist:0qE9aOH23zNxnihqsUQzn3"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/08EInEiJqk5q7QozTyxMyl"
+          },
+          "href": "https://api.spotify.com/v1/albums/08EInEiJqk5q7QozTyxMyl",
+          "id": "08EInEiJqk5q7QozTyxMyl",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b2733e1a616b096f0ca98e26a592",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e023e1a616b096f0ca98e26a592",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d000048513e1a616b096f0ca98e26a592",
+              "width": 64
+            }
+          ],
+          "name": "Uncommon (Original Motion Picture Score)",
+          "release_date": "2014-02-01",
+          "release_date_precision": "day",
+          "total_tracks": 41,
+          "type": "album",
+          "uri": "spotify:album:08EInEiJqk5q7QozTyxMyl"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0qE9aOH23zNxnihqsUQzn3"
+            },
+            "href": "https://api.spotify.com/v1/artists/0qE9aOH23zNxnihqsUQzn3",
+            "id": "0qE9aOH23zNxnihqsUQzn3",
+            "name": "Jeff Hartman",
+            "type": "artist",
+            "uri": "spotify:artist:0qE9aOH23zNxnihqsUQzn3"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 67000,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "uscgh2263906"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/4uJkDMWA87THjTlADO6CN6"
+        },
+        "href": "https://api.spotify.com/v1/tracks/4uJkDMWA87THjTlADO6CN6",
+        "id": "4uJkDMWA87THjTlADO6CN6",
+        "is_local": false,
+        "name": "Even Stephens",
+        "popularity": 1,
+        "preview_url": "https://p.scdn.co/mp3-preview/707745bc0790ccc34d55fe218a0378bdc74a3ae9?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 40,
+        "type": "track",
+        "uri": "spotify:track:4uJkDMWA87THjTlADO6CN6"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/5jDtsSY98sC2JOYqJj8lab"
+              },
+              "href": "https://api.spotify.com/v1/artists/5jDtsSY98sC2JOYqJj8lab",
+              "id": "5jDtsSY98sC2JOYqJj8lab",
+              "name": "Uncommonmenfrommars",
+              "type": "artist",
+              "uri": "spotify:artist:5jDtsSY98sC2JOYqJj8lab"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/0l4OFg42RChtSQNW26K5im"
+          },
+          "href": "https://api.spotify.com/v1/albums/0l4OFg42RChtSQNW26K5im",
+          "id": "0l4OFg42RChtSQNW26K5im",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27347a820e68b7bb3ad5f51a081",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0247a820e68b7bb3ad5f51a081",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485147a820e68b7bb3ad5f51a081",
+              "width": 64
+            }
+          ],
+          "name": "Vote for Me",
+          "release_date": "2001-06-01",
+          "release_date_precision": "day",
+          "total_tracks": 14,
+          "type": "album",
+          "uri": "spotify:album:0l4OFg42RChtSQNW26K5im"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/5jDtsSY98sC2JOYqJj8lab"
+            },
+            "href": "https://api.spotify.com/v1/artists/5jDtsSY98sC2JOYqJj8lab",
+            "id": "5jDtsSY98sC2JOYqJj8lab",
+            "name": "Uncommonmenfrommars",
+            "type": "artist",
+            "uri": "spotify:artist:5jDtsSY98sC2JOYqJj8lab"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 175493,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "FR6F30100050"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/19REWUfjvwkg5HZCDx1Caq"
+        },
+        "href": "https://api.spotify.com/v1/tracks/19REWUfjvwkg5HZCDx1Caq",
+        "id": "19REWUfjvwkg5HZCDx1Caq",
+        "is_local": false,
+        "name": "Go Get a Life",
+        "popularity": 8,
+        "preview_url": "https://p.scdn.co/mp3-preview/bda88ef4bb62ceca330620f2b9ba91400efaae05?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:19REWUfjvwkg5HZCDx1Caq"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/1lnPoWvN0DeFPqh2mSbQ4f"
+              },
+              "href": "https://api.spotify.com/v1/artists/1lnPoWvN0DeFPqh2mSbQ4f",
+              "id": "1lnPoWvN0DeFPqh2mSbQ4f",
+              "name": "Slainie Lamy",
+              "type": "artist",
+              "uri": "spotify:artist:1lnPoWvN0DeFPqh2mSbQ4f"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/2F0ENmZMDJHXRRGceCncpv"
+          },
+          "href": "https://api.spotify.com/v1/albums/2F0ENmZMDJHXRRGceCncpv",
+          "id": "2F0ENmZMDJHXRRGceCncpv",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273529289880e950fbc2c6676f6",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02529289880e950fbc2c6676f6",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851529289880e950fbc2c6676f6",
+              "width": 64
+            }
+          ],
+          "name": "Alumina from Royalty",
+          "release_date": "2022-07-08",
+          "release_date_precision": "day",
+          "total_tracks": 12,
+          "type": "album",
+          "uri": "spotify:album:2F0ENmZMDJHXRRGceCncpv"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1lnPoWvN0DeFPqh2mSbQ4f"
+            },
+            "href": "https://api.spotify.com/v1/artists/1lnPoWvN0DeFPqh2mSbQ4f",
+            "id": "1lnPoWvN0DeFPqh2mSbQ4f",
+            "name": "Slainie Lamy",
+            "type": "artist",
+            "uri": "spotify:artist:1lnPoWvN0DeFPqh2mSbQ4f"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 165732,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "ITCUC2200799"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/5yHOMS7B4KFTHu3z70Xxt3"
+        },
+        "href": "https://api.spotify.com/v1/tracks/5yHOMS7B4KFTHu3z70Xxt3",
+        "id": "5yHOMS7B4KFTHu3z70Xxt3",
+        "is_local": false,
+        "name": "Uncommon at Reel",
+        "popularity": 5,
+        "preview_url": "https://p.scdn.co/mp3-preview/8fc3ae930a7545c0dec92bb281e0e2c57595c7f5?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 11,
+        "type": "track",
+        "uri": "spotify:track:5yHOMS7B4KFTHu3z70Xxt3"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/6hYSz9rfjsVoT1xXEKfDUF"
+              },
+              "href": "https://api.spotify.com/v1/artists/6hYSz9rfjsVoT1xXEKfDUF",
+              "id": "6hYSz9rfjsVoT1xXEKfDUF",
+              "name": "Uncommon1",
+              "type": "artist",
+              "uri": "spotify:artist:6hYSz9rfjsVoT1xXEKfDUF"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/1BpUuhgl5aC2eFbQcDAZtV"
+          },
+          "href": "https://api.spotify.com/v1/albums/1BpUuhgl5aC2eFbQcDAZtV",
+          "id": "1BpUuhgl5aC2eFbQcDAZtV",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273539546a3311885ad5a8fb099",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02539546a3311885ad5a8fb099",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851539546a3311885ad5a8fb099",
+              "width": 64
+            }
+          ],
+          "name": "Under the Sun",
+          "release_date": "2022-10-05",
+          "release_date_precision": "day",
+          "total_tracks": 14,
+          "type": "album",
+          "uri": "spotify:album:1BpUuhgl5aC2eFbQcDAZtV"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/6hYSz9rfjsVoT1xXEKfDUF"
+            },
+            "href": "https://api.spotify.com/v1/artists/6hYSz9rfjsVoT1xXEKfDUF",
+            "id": "6hYSz9rfjsVoT1xXEKfDUF",
+            "name": "Uncommon1",
+            "type": "artist",
+            "uri": "spotify:artist:6hYSz9rfjsVoT1xXEKfDUF"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 163358,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "ushm82274252"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/5vHDEMKdTwoUOnhnjzTQLI"
+        },
+        "href": "https://api.spotify.com/v1/tracks/5vHDEMKdTwoUOnhnjzTQLI",
+        "id": "5vHDEMKdTwoUOnhnjzTQLI",
+        "is_local": false,
+        "name": "Smoke Screen",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/075782d607ad2cc219dbd2ef1516bb264646a39a?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 4,
+        "type": "track",
+        "uri": "spotify:track:5vHDEMKdTwoUOnhnjzTQLI"
+      },
+      {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/6hYSz9rfjsVoT1xXEKfDUF"
+              },
+              "href": "https://api.spotify.com/v1/artists/6hYSz9rfjsVoT1xXEKfDUF",
+              "id": "6hYSz9rfjsVoT1xXEKfDUF",
+              "name": "Uncommon1",
+              "type": "artist",
+              "uri": "spotify:artist:6hYSz9rfjsVoT1xXEKfDUF"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/1BpUuhgl5aC2eFbQcDAZtV"
+          },
+          "href": "https://api.spotify.com/v1/albums/1BpUuhgl5aC2eFbQcDAZtV",
+          "id": "1BpUuhgl5aC2eFbQcDAZtV",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273539546a3311885ad5a8fb099",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02539546a3311885ad5a8fb099",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851539546a3311885ad5a8fb099",
+              "width": 64
+            }
+          ],
+          "name": "Under the Sun",
+          "release_date": "2022-10-05",
+          "release_date_precision": "day",
+          "total_tracks": 14,
+          "type": "album",
+          "uri": "spotify:album:1BpUuhgl5aC2eFbQcDAZtV"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/6hYSz9rfjsVoT1xXEKfDUF"
+            },
+            "href": "https://api.spotify.com/v1/artists/6hYSz9rfjsVoT1xXEKfDUF",
+            "id": "6hYSz9rfjsVoT1xXEKfDUF",
+            "name": "Uncommon1",
+            "type": "artist",
+            "uri": "spotify:artist:6hYSz9rfjsVoT1xXEKfDUF"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/7fFLNssiLrfq9lCpov2Zzl"
+            },
+            "href": "https://api.spotify.com/v1/artists/7fFLNssiLrfq9lCpov2Zzl",
+            "id": "7fFLNssiLrfq9lCpov2Zzl",
+            "name": "Saladhead",
+            "type": "artist",
+            "uri": "spotify:artist:7fFLNssiLrfq9lCpov2Zzl"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 178219,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "ushm82274256"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/2UdhfHQkWcjmZFvhvGVwfB"
+        },
+        "href": "https://api.spotify.com/v1/tracks/2UdhfHQkWcjmZFvhvGVwfB",
+        "id": "2UdhfHQkWcjmZFvhvGVwfB",
+        "is_local": false,
+        "name": "Superman!",
+        "popularity": 0,
+        "preview_url": "https://p.scdn.co/mp3-preview/d105bb822197663fbe62c3f78ae293f52cc9ae55?cid=230c2ac940f14f9aa4294af862300e9b",
+        "track_number": 8,
+        "type": "track",
+        "uri": "spotify:track:2UdhfHQkWcjmZFvhvGVwfB"
+      }
+    ],
+    "limit": 50,
+    "next": "https://api.spotify.com/v1/search?query=uncommon+search&type=track&offset=50&limit=50",
+    "offset": 0,
+    "previous": null,
+    "total": 191
+  }
+}

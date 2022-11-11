@@ -31,6 +31,26 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
     assert playlist.json == playlist_json
 
 
+def test_is_collaborative_property(
+    spotify_playlist: Playlist, spotify_client: SpotifyClient
+) -> None:
+    """Test that the `is_collaborative` property returns the correct value."""
+
+    assert not spotify_playlist.is_collaborative
+
+    assert spotify_client.get_playlist_by_id("2wSNKxLM217jpZnkAgYZPH").is_collaborative
+
+
+def test_is_public_property(
+    spotify_playlist: Playlist, spotify_client: SpotifyClient
+) -> None:
+    """Test that the `is_public` property returns the correct value."""
+
+    assert not spotify_playlist.is_public
+
+    assert spotify_client.get_playlist_by_id("2wSNKxLM217jpZnkAgYZPH").is_public
+
+
 def test_owner_property(
     spotify_playlist: Playlist, spotify_user: User, spotify_client: SpotifyClient
 ) -> None:
@@ -95,6 +115,7 @@ def test_tracks_property(
         sorted(listdir(FLAT_FILES_DIR / "json" / "spotify" / "tracks")),
         (
             True,
+            False,
             False,
             False,
             False,
