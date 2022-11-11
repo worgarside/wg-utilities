@@ -144,7 +144,9 @@ def read_json_file(json_dir_path: str) -> JSONObj:
         json_dir_path (str): the path to the JSON file, relative to the flat files
             `json` subdirectory
     """
-    return cast(JSONObj, loads((FLAT_FILES_DIR / "json" / json_dir_path).read_text()))
+    return cast(
+        JSONObj, loads((FLAT_FILES_DIR / "json" / json_dir_path.lower()).read_text())
+    )
 
 
 def fix_colon_keys(json_obj: JSONObj) -> JSONObj:
