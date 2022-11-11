@@ -19,9 +19,7 @@ from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import (
 
 
 @mark.parametrize(  # type: ignore[misc]
-    [
-        "last_change_dict",
-    ],
+    "last_change_dict",
     yamaha_yas_209_last_change_rendering_control_events(),
 )
 def test_last_change_rendering_control_parsing(
@@ -55,9 +53,7 @@ def test_last_change_keeps_extra_data_av_transport(
 
 
 @mark.parametrize(  # type: ignore[misc]
-    [
-        "last_change_dict",
-    ],
+    "last_change_dict",
     yamaha_yas_209_last_change_rendering_control_events(),
 )
 def test_last_change_keeps_extra_data_rendering_control(

@@ -260,8 +260,8 @@ def monzo_account_json(
 
     elif account_type == "uk_retail_joint":
         account_list.append(read_json_file("monzo/account/uk_retail_joint.json"))
-    else:
-        raise ValueError(f"Unknown account type: {account_type!r}")
+    else:  # pragma: no cover
+        raise ValueError(f"Unknown account type: {account_type!r}")  # pragma: no cover
 
     return {"accounts": cast(list[_MonzoAccountInfo], account_list)}
 
@@ -460,15 +460,12 @@ def yamaha_yas_209_last_change_av_transport_events(
             yield (json_obj,)  # type: ignore[misc]
 
 
-def yamaha_yas_209_last_change_rendering_control_events(
-    other_test_parameters: dict[str, CurrentTrack.Info] | None = None
-) -> YieldFixture[tuple[JSONObj, CurrentTrack.Info | None] | JSONObj]:
+def yamaha_yas_209_last_change_rendering_control_events() -> YieldFixture[JSONObj]:
     """Yields values for testing against RenderingControl payloads.
 
     Yields:
         dict: a `lastChange` event
     """
-    other_test_parameters = other_test_parameters or {}
     for file in sorted(
         listdir(
             FLAT_FILES_DIR
@@ -487,17 +484,7 @@ def yamaha_yas_209_last_change_rendering_control_events(
             )["last_change"],
         )
 
-        if values := other_test_parameters.get(
-            file,
-        ):
-            yield json_obj, values
-        elif other_test_parameters:
-            # If we're sending 2 arguments for any, we need to send 2 arguments for all
-            yield json_obj, None
-        else:
-            # Removing the parentheses here gives me typing errors, and removing
-            # the comma makes the `yield` statement fail for some reason
-            yield (json_obj,)  # type: ignore[misc]
+        yield json_obj
 
 
 # </editor-fold>

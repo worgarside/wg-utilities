@@ -337,7 +337,7 @@ def test_access_token_has_expired_with_invalid_token(
             options={"verify_signature": False},
         ).get("exp", 0)
 
-        assert exc_info.value.args[0] == "Invalid token header"
+    assert str(exc_info.value) == "Not enough segments"
 
     with patch.object(
         oauth_client,

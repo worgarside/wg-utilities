@@ -293,7 +293,7 @@ def test_listen_starts_listening(
 
     # For some reason this is called way more than I'd expect: AFAICT it's only called
     # in the `while not self._listening and worker_exception is None` loop
-    assert mock_sleep.call_count > 100
+    assert mock_sleep.call_count >= 10
     assert {c.args for c in mock_sleep.call_args_list} == {(0.01,)}
     assert async_call_count == 1
 
@@ -1352,7 +1352,7 @@ def test_subscribe_creates_notify_server_with_correct_subscriptions(
 ) -> None:
     """Test that the `_subscribe` method creates a notify server.
 
-    THe subscription calls and logging are also tested.
+    The subscription calls and logging are also tested.
     """
 
     add_av_subscription_call(mock_aiohttp, yamaha_yas_209)
