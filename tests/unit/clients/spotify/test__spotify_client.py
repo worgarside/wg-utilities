@@ -830,3 +830,148 @@ def test_create_playlist_method(
     assert new_playlist.is_collaborative is collaborative
     assert new_playlist.owner == spotify_client.current_user
     assert new_playlist.tracks == []
+
+
+@mark.parametrize(  # type: ignore[misc]
+    "album_id", ["4julBAGYv4WmRXwhjJ2LPD", "7FvnTARvgjUyWnUT0flUN7"]
+)
+def test_get_album_by_id_method(
+    spotify_client: SpotifyClient, album_id: str, mock_requests: Mocker
+) -> None:
+    """Test that the correct Album instance is returned."""
+
+    result = spotify_client.get_album_by_id(album_id)
+
+    assert isinstance(result, Album)
+    assert result.id == album_id
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": f"https://api.spotify.com/v1/albums/{album_id}",
+                "method": "GET",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer test_access_token",
+                },
+            }
+        ],
+    )
+
+
+@mark.parametrize(  # type: ignore[misc]
+    "artist_id", ["0q8eApZJs5WDBxayY9769C", "1Ma3pJzPIrAyYPNRkp3SUF"]
+)
+def test_get_artist_by_id_method(
+    spotify_client: SpotifyClient, artist_id: str, mock_requests: Mocker
+) -> None:
+    """Test that the correct Artist instance is returned."""
+
+    result = spotify_client.get_artist_by_id(artist_id)
+
+    assert isinstance(result, Artist)
+    assert result.id == artist_id
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": f"https://api.spotify.com/v1/artists/{artist_id}",
+                "method": "GET",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer test_access_token",
+                },
+            }
+        ],
+    )
+
+
+@mark.parametrize(  # type: ignore[misc]
+    "playlist_id",
+    [
+        "2lMx8FU0SeQ7eA5kcMlNpX",
+        "2wSNKxLM217jpZnkAgYZPH",
+        "4Vv023MaZsc8NTWZ4WJvIL",
+        "37i9dQZF1E8Pj76JxE3EGf",
+    ],
+)
+def test_get_playlist_by_id_method(
+    spotify_client: SpotifyClient, playlist_id: str, mock_requests: Mocker
+) -> None:
+    """Test that the correct Playlist instance is returned."""
+
+    result = spotify_client.get_playlist_by_id(playlist_id)
+
+    assert isinstance(result, Playlist)
+    assert result.id == playlist_id
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": f"https://api.spotify.com/v1/playlists/{playlist_id}",
+                "method": "GET",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer test_access_token",
+                },
+            }
+        ],
+    )
+
+
+@mark.parametrize(  # type: ignore[misc]
+    "playlist_id", ["2lMx8FU0SeQ7eA5kcMlNpX", "4Vv023MaZsc8NTWZ4WJvIL"]
+)
+def test_get_playlist_by_id_after_property_accessed(
+    spotify_client: SpotifyClient, playlist_id: str, mock_requests: Mocker
+) -> None:
+    """Test that the correct Playlist instance is returned."""
+
+    _ = spotify_client.current_user.playlists
+
+    mock_requests.reset()
+    result = spotify_client.get_playlist_by_id(playlist_id)
+
+    assert isinstance(result, Playlist)
+    assert result.id == playlist_id
+
+    assert not mock_requests.request_history
+
+
+@mark.parametrize(  # type: ignore[misc]
+    "track_id",
+    [
+        "1PfbIpFjsS1BayUoqB3X7O",
+        "4a9fW33mYR8LhXBOLUhbfF",
+        "5U5X1TnRhnp9GogRfaE9XQ",
+        "5wakjJAy1qMk5h8y1DUEhJ",
+        "6zJUp1ihdid6Kn3Ndgcy82",
+        "27cgqh0VRhVeM61ugTnorD",
+    ],
+)
+def test_get_track_by_id_method(
+    spotify_client: SpotifyClient, track_id: str, mock_requests: Mocker
+) -> None:
+    """Test that the correct Track instance is returned."""
+
+    result = spotify_client.get_track_by_id(track_id)
+
+    assert isinstance(result, Track)
+    assert result.id == track_id
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": f"https://api.spotify.com/v1/tracks/{track_id}",
+                "method": "GET",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer test_access_token",
+                },
+            }
+        ],
+    )

@@ -2,9 +2,12 @@
 """Unit Tests for `wg_utilities.clients.spotify.User`."""
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from http import HTTPStatus
+from typing import Literal
 from unittest.mock import patch
 
+from freezegun import freeze_time
 from pytest import FixtureRequest, mark, raises
 from requests_mock import Mocker
 
@@ -71,10 +74,113 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
     }
 
 
+def test_get_playlists_by_name_unique_names(
+    spotify_user: User, spotify_playlist: Playlist
+) -> None:
+    """Test that the `get_playlists_by_name` searches the User's playlists correctly."""
+
+    result = spotify_user.get_playlists_by_name("Chill Electronica", return_all=False)
+
+    assert result == spotify_playlist
+
+
+def test_get_playlists_by_name_duplicate_names(
+    spotify_user: User, spotify_playlist: Playlist
+) -> None:
+    """Test that the `get_playlists_by_name` searches the User's playlists correctly.
+
+    This test requires that the User has two playlists with the same name, and the
+    easiest way to do that is to patch the `playlists` property to return the usual
+    result, but doubled.
+    """
+
+    user_playlists = spotify_user.playlists
+    spotify_user._playlists = user_playlists + user_playlists
+
+    result = spotify_user.get_playlists_by_name("Chill Electronica", return_all=True)
+
+    assert isinstance(result, list)
+    assert len(result) == 2
+    assert result[0] == spotify_playlist
+    assert result[1] == spotify_playlist
+
+
+def test_get_playlists_by_name_no_matches(spotify_user: User) -> None:
+    """Test that `get_playlists_by_name` returns None if no matches are found."""
+
+    assert spotify_user.get_playlists_by_name("Bad Music", return_all=False) is None
+    assert spotify_user.get_playlists_by_name("Bad Music", return_all=True) == []
+
+
+def test_get_recently_liked_tracks_track_limit(
+    spotify_user: User, spotify_client: SpotifyClient, mock_requests: Mocker
+) -> None:
+    """Test that the expected number of tracks are returned by the method."""
+    result = spotify_user.get_recently_liked_tracks(track_limit=150)
+
+    assert len(result) == 150
+    assert isinstance(result, list)
+    assert all(isinstance(track, Track) for track in result)
+    assert all(track._spotify_client == spotify_client for track in result)
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": "https://api.spotify.com/v1/me/tracks?limit=50",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+            {
+                "url": "https://api.spotify.com/v1/me/tracks?offset=50&limit=50",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+            {
+                "url": "https://api.spotify.com/v1/me/tracks?offset=100&limit=50",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+        ],
+    )
+
+
+@freeze_time()  # type: ignore[misc]
+def test_get_recently_liked_tracks_day_limit(
+    spotify_user: User, spotify_client: SpotifyClient, mock_requests: Mocker
+) -> None:
+    """Test that the expected number of tracks are returned by the method."""
+
+    result = spotify_user.get_recently_liked_tracks(day_limit=7)
+
+    assert result
+    assert isinstance(result, list)
+    assert all(isinstance(track, Track) for track in result)
+    assert all(track._spotify_client == spotify_client for track in result)
+    assert all(
+        track.metadata["saved_at"] > datetime.now() - timedelta(days=7)
+        for track in result
+    )
+    assert not any(
+        track.metadata["saved_at"] <= datetime.now() - timedelta(days=7)
+        for track in result
+    )
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": "https://api.spotify.com/v1/me/tracks?limit=50",
+                "method": "GET",
+                "headers": {"Authorization": "Bearer test_access_token"},
+            },
+        ],
+    )
+
+
 @mark.parametrize(  # type: ignore[misc]
     ["entity_fixture", "request_values"],
     [
-        # pylint: disable=line-too-long
         (
             "spotify_album",
             {
@@ -82,6 +188,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
                 "headers": {"Authorization": "Bearer test_access_token"},
             },
         ),
+        # pylint: disable=line-too-long
         (
             "spotify_artist",
             {
@@ -510,3 +617,100 @@ def test_tracks_property(
     # Check subsequent calls to property don't make additional requests
     assert len(spotify_user.tracks) == 250
     assert mock_requests.call_count == 5
+
+
+@mark.parametrize(  # type: ignore[misc]
+    "properties_to_reset",
+    [
+        None,
+        ("albums",),
+        ("artists",),
+        ("playlists",),
+        ("top_artists",),
+        ("top_tracks",),
+        ("tracks",),
+        ("artists", "playlists", "top_artists", "top_tracks", "tracks"),
+        ("albums", "playlists", "top_artists", "top_tracks", "tracks"),
+        ("albums", "artists", "top_artists", "top_tracks", "tracks"),
+        ("albums", "artists", "playlists", "top_tracks", "tracks"),
+        ("albums", "artists", "playlists", "top_artists", "tracks"),
+        ("albums", "artists", "playlists", "top_artists", "top_tracks"),
+        ("top_tracks", "artists", "tracks", "top_artists"),
+        ("top_tracks", "top_artists", "tracks"),
+        ("albums", "tracks", "top_artists", "playlists", "artists"),
+        ("top_artists", "albums"),
+        ("top_tracks", "tracks", "playlists", "top_artists"),
+        ("artists", "tracks", "albums", "playlists"),
+        ("tracks", "albums", "top_tracks", "top_artists", "playlists"),
+        ("artists", "top_artists", "albums", "top_tracks"),
+        ("albums", "top_tracks", "tracks", "top_artists"),
+        ("top_tracks", "albums", "top_artists", "artists", "tracks"),
+        ("artists", "tracks", "top_tracks", "playlists", "albums"),
+        ("playlists", "artists", "top_tracks", "albums", "tracks"),
+        ("playlists", "top_tracks", "tracks", "top_artists", "albums"),
+        ("albums", "artists", "tracks", "top_tracks", "playlists"),
+        ("playlists", "tracks", "top_tracks", "top_artists", "artists"),
+        ("top_tracks", "top_artists", "tracks", "artists", "playlists"),
+        ("tracks", "playlists", "top_artists", "top_tracks", "artists"),
+        ("tracks", "albums", "top_tracks", "playlists", "artists"),
+        ("albums", "playlists", "top_artists", "tracks", "top_tracks"),
+        ("albums", "artists", "top_tracks", "top_artists"),
+    ],
+)
+def test_reset_properties(
+    spotify_user: User,
+    properties_to_reset: list[
+        Literal[
+            "albums",
+            "artists",
+            "playlists",
+            "top_artists",
+            "top_tracks",
+            "tracks",
+        ]
+    ]
+    | None,
+    mock_requests: Mocker,
+) -> None:
+    """Test that `reset_properties` resets the properties of the user."""
+
+    attr_names = (
+        "_albums",
+        "_artists",
+        "_playlists",
+        "_top_artists",
+        "_top_tracks",
+        "_tracks",
+    )
+
+    for attr in attr_names:
+        assert not hasattr(spotify_user, attr)
+
+    _ = spotify_user.albums
+    _ = spotify_user.artists
+    _ = spotify_user.playlists
+    _ = spotify_user.top_artists
+    _ = spotify_user.top_tracks
+    _ = spotify_user.tracks
+
+    for attr in attr_names:
+        assert hasattr(spotify_user, attr)
+
+    spotify_user.reset_properties(properties_to_reset)
+
+    if properties_to_reset is None:
+        for attr in attr_names:
+            assert not hasattr(spotify_user, attr)
+            getattr(spotify_user, attr.lstrip("_"))
+            assert hasattr(spotify_user, attr)
+    else:
+        for attr in attr_names:
+            if (prop_name := attr.lstrip("_")) in properties_to_reset:
+                assert not hasattr(spotify_user, attr)
+                getattr(spotify_user, prop_name)
+                assert hasattr(spotify_user, attr)
+            else:
+                assert hasattr(spotify_user, attr)
+                mock_requests.reset_mock()
+                getattr(spotify_user, prop_name)
+                assert mock_requests.call_count == 0

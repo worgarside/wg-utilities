@@ -294,10 +294,85 @@ class User(SpotifyEntity):
 
         self._albums: list[Album]
         self._artists: list[Artist]
-        self._followed_artists: list[Artist]
         self._playlists: list[Playlist]
         self._top_artists: tuple[Artist, ...]
+        self._top_tracks: tuple[Track, ...]
         self._tracks: list[Track]
+
+    def get_playlists_by_name(
+        self, name: str, return_all: bool = False
+    ) -> list[Playlist] | Playlist | None:
+        """Gets Playlist instance(s) which have the given name.
+
+        Args:
+            name (str): the name of the target playlist(s)
+            return_all (bool): playlist names aren't unique - but most people keep them
+             unique within their own collection of playlists. This boolean can be used
+             to return either a list of all matching playlists, or just the single
+             found playlist
+
+        Returns:
+            Union([list, Playlist]): the matched playlist(s)
+        """
+
+        matched_playlists = filter(
+            lambda p: p.name.lower() == name.lower(), self.playlists
+        )
+
+        # Return a list of all matches
+        if return_all:
+            return sorted(matched_playlists)
+
+        try:
+            return next(matched_playlists)
+        except StopIteration:
+            return None
+
+    def get_recently_liked_tracks(
+        self, track_limit: int = 100, *, day_limit: float | None = None
+    ) -> list[Track]:
+        """Gets a list of songs which were liked by the current user in the past N days.
+
+        Args:
+            track_limit (int): the number of tracks to return
+            day_limit (float): the number of days (N) to go back in time for
+
+        Returns:
+            list: a list of Track instances
+        """
+
+        kwargs: dict[str, int | Callable[[Any], bool]] = {"hard_limit": track_limit}
+
+        if isinstance(day_limit, (float, int)):
+
+            def _limit_func(item: dict[str, Any]) -> bool:
+                return bool(
+                    datetime.strptime(
+                        item["added_at"], self._spotify_client.DATETIME_FORMAT
+                    )
+                    < (
+                        datetime.utcnow()
+                        - timedelta(days=day_limit)  # type: ignore[arg-type]
+                    )
+                )
+
+            kwargs["limit_func"] = _limit_func
+
+        return [
+            Track(
+                item["track"],  # type: ignore[call-overload,typeddict-item]
+                spotify_client=self._spotify_client,
+                metadata={
+                    "saved_at": datetime.strptime(
+                        item["added_at"],  # type: ignore[call-overload,typeddict-item]
+                        self._spotify_client.DATETIME_FORMAT,
+                    )
+                },
+            )
+            for item in self._spotify_client.get_items_from_url(
+                "/me/tracks", **kwargs  # type: ignore[arg-type]
+            )
+        ]
 
     def save(self, entity: Album | Artist | Playlist | Track) -> None:
         """Save an entity to the user's library.
@@ -531,15 +606,18 @@ class User(SpotifyEntity):
         Returns:
             tuple[Track]: the top tracks for the user
         """
-        return tuple(
-            Track(
-                track_json,  # type: ignore[arg-type]
-                spotify_client=self._spotify_client,
+        if not hasattr(self, "_top_tracks"):
+            self._top_tracks = tuple(
+                Track(
+                    track_json,  # type: ignore[arg-type]
+                    spotify_client=self._spotify_client,
+                )
+                for track_json in self._spotify_client.get_items_from_url(
+                    "/me/top/tracks", params={"time_range": "short_term"}
+                )
             )
-            for track_json in self._spotify_client.get_items_from_url(
-                "/me/top/tracks", params={"time_range": "short_term"}
-            )
-        )
+
+        return self._top_tracks
 
     @property
     def tracks(self) -> list[Track]:
@@ -559,6 +637,35 @@ class User(SpotifyEntity):
             ]
 
         return self._tracks
+
+    def reset_properties(
+        self,
+        property_names: list[
+            Literal[
+                "albums",
+                "artists",
+                "playlists",
+                "top_artists",
+                "top_tracks",
+                "tracks",
+            ]
+        ]
+        | None = None,
+    ) -> None:
+        """Resets all list properties."""
+
+        property_names = property_names or [
+            "albums",
+            "artists",
+            "playlists",
+            "top_artists",
+            "top_tracks",
+            "tracks",
+        ]
+
+        for prop_name in property_names:
+            if hasattr(self, attr_name := f"_{prop_name}"):
+                delattr(self, attr_name)
 
 
 class Track(SpotifyEntity):
@@ -1119,6 +1226,7 @@ class SpotifyClient:
             res = self._get(url, params=params)
             if res.status_code == HTTPStatus.NO_CONTENT:
                 return {}
+
             return res.json()  # type: ignore[no-any-return]
         except JSONDecodeError:
             return {}
@@ -1324,37 +1432,6 @@ class SpotifyClient:
 
         return Playlist(res.json(), spotify_client=self)
 
-    def get_playlists_by_name(
-        self, name: str, return_all: bool = False
-    ) -> list[Playlist] | Playlist | None:
-        """Gets Playlist instance(s) which have the given name.
-
-        Args:
-            name (str): the name of the target playlist(s)
-            return_all (bool): playlist names aren't unique - but most people keep them
-             unique within their own collection of playlists. This boolean can be used
-             to return either a list of all matching playlists, or just the single
-             found playlist
-
-        Returns:
-            Union([list, Playlist]): the matched playlist(s)
-        """
-
-        matched_playlists = sorted(
-            filter(lambda p: p.name == name, self.current_user.playlists)
-        )
-
-        # Return a list of all matches
-        if return_all:
-            return matched_playlists
-
-        try:
-            return matched_playlists[0]
-        except IndexError:
-            pass
-
-        return None
-
     def get_album_by_id(self, id_: str) -> Album:
         """Get an album from Spotify based on the ID.
 
@@ -1395,7 +1472,7 @@ class SpotifyClient:
             Playlist: an instantiated Playlist, from the API's response
         """
 
-        if hasattr(self, "_playlists"):
+        if hasattr(self, "_current_user") and hasattr(self.current_user, "_playlists"):
             for plist in self.current_user.playlists:
                 if plist.id == id_:
                     return plist
@@ -1419,53 +1496,3 @@ class SpotifyClient:
             self.get_json_response(f"/tracks/{id_}"),  # type: ignore[arg-type]
             spotify_client=self,
         )
-
-    def get_recently_liked_tracks(
-        self, track_limit: int = 100, *, day_limit: float | None = None
-    ) -> list[Track]:
-        """Gets a list of songs which were liked by the current user in the past N days.
-
-        Args:
-            track_limit (int): the number of tracks to return
-            day_limit (float): the number of days (N) to go back in time for
-
-        Returns:
-            list: a list of Track instances
-        """
-
-        kwargs: dict[str, int | Callable[[Any], bool]] = {"hard_limit": track_limit}
-
-        if isinstance(day_limit, (float, int)):
-
-            def _limit_func(item: dict[str, Any]) -> bool:
-                return bool(
-                    datetime.strptime(item["added_at"], self.DATETIME_FORMAT)
-                    < (
-                        datetime.utcnow()
-                        - timedelta(days=day_limit)  # type: ignore[arg-type]
-                    )
-                )
-
-            kwargs["limit_func"] = _limit_func
-
-        return [
-            Track(
-                item["track"],  # type: ignore[call-overload,typeddict-item]
-                spotify_client=self,
-                metadata={
-                    "liked_at": item[
-                        "added_at"  # type: ignore[typeddict-item]
-                    ]  # type: ignore[call-overload]
-                },
-            )
-            for item in self.get_items_from_url(
-                "/me/tracks", **kwargs  # type: ignore[arg-type]
-            )
-        ]
-
-    def reset_properties(self) -> None:
-        """Resets all list properties."""
-        try:
-            del self._current_user
-        except AttributeError as exc:
-            print(str(exc))
