@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 from datetime import datetime
+from http import HTTPStatus
 
+from pytest import raises
+from requests import HTTPError
 from requests_mock import Mocker
 
 from conftest import assert_mock_requests_request_history, read_json_file
@@ -169,6 +172,40 @@ def test_audio_features_property(spotify_track: Track, mock_requests: Mocker) ->
     # Check subsequent calls don't make a new request
     assert spotify_track.audio_features == expected
     assert mock_requests.call_count == 1
+
+
+def test_audio_features_not_found(
+    spotify_client: SpotifyClient, mock_requests: Mocker
+) -> None:
+    """Test that when a track doesn't have audio features, no exceptions are raised."""
+
+    track = spotify_client.get_track_by_id("0YHujB8olZYDC3GwYEHbG8")
+
+    assert track.name == "January 1st 2022"
+    assert track.artists[0].name == "Fred again.."
+    assert track.album.name == "Actual Life 3 (January 1 - September 9 2022)"
+
+    mock_requests.get(
+        f"{spotify_client.BASE_URL}/audio-features/0YHujB8olZYDC3GwYEHbG8",
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+        reason=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
+    )
+
+    with raises(HTTPError) as exc_info:
+        _ = track.audio_features
+
+    assert str(exc_info.value) == (
+        "500 Server Error: Internal Server Error for url: "
+        "https://api.spotify.com/v1/audio-features/0YHujB8olZYDC3GwYEHbG8"
+    )
+
+    mock_requests.get(
+        f"{spotify_client.BASE_URL}/audio-features/0YHujB8olZYDC3GwYEHbG8",
+        status_code=HTTPStatus.NOT_FOUND,
+        reason=HTTPStatus.NOT_FOUND.phrase,
+    )
+
+    assert not track.audio_features
 
 
 def test_is_local_property(spotify_track: Track) -> None:

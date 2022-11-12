@@ -19,7 +19,6 @@ from wg_utilities.functions.json import JSONObj, JSONVal
 
 
 def _generate_single_key_dict(_depth: int = 0, max_depth: int = 5) -> JSONObj:
-    # pylint: disable=useless-type-doc,useless-param-doc
     """Recursively generates a deep dictionary with single keys in places.
 
     Args:

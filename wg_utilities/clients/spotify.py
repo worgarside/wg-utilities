@@ -14,7 +14,7 @@ from typing import Any, Literal, TypedDict
 from urllib.parse import urlencode
 
 from pydantic import BaseModel, Extra
-from requests import Response, delete, get, post, put
+from requests import HTTPError, Response, delete, get, post, put
 from spotipy import CacheFileHandler, SpotifyOAuth
 from typing_extensions import NotRequired
 
@@ -716,13 +716,23 @@ class Track(SpotifyEntity):
 
         Returns:
             dict: the JSON response from the Spotify /audio-features endpoint
+
+        Raises:
+            HTTPError: if `get_json_response` throws a HTTPError for a non-200/404
+                response
         """
         if not hasattr(self, "_audio_features"):
-            self._audio_features = (
-                self._spotify_client.get_json_response(  # type: ignore[assignment]
-                    f"/audio-features/{self.id}"
+            try:
+                self._audio_features = (
+                    self._spotify_client.get_json_response(  # type: ignore[assignment]
+                        f"/audio-features/{self.id}"
+                    )
                 )
-            )
+            except HTTPError as exc:
+                if exc.response.status_code == HTTPStatus.NOT_FOUND:
+                    self._audio_features = {}  # type: ignore[typeddict-item]
+                else:
+                    raise
 
         return self._audio_features
 

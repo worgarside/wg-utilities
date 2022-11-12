@@ -57,6 +57,7 @@ from wg_utilities.testing import MockBoto3Client
 T = TypeVar("T")
 YieldFixture = Generator[T, None, None]
 
+# <editor-fold desc="Constants">
 
 EXCEPTION_GENERATORS: list[
     tuple[
@@ -112,6 +113,7 @@ SPOTIFY_PATTERNS_TO_MOCK = [
 YAS_209_IP = "192.168.1.1"
 YAS_209_HOST = f"http://{YAS_209_IP}:49152"
 
+# </editor-fold>
 # <editor-fold desc="Functions">
 
 
@@ -1164,7 +1166,7 @@ def _yamaha_yas_209() -> YieldFixture[YamahaYas209]:
 
     yield yas_209
 
-    if yas_209.is_listening:
+    if yas_209.is_listening:  # pragma: no cover
         yas_209.stop_listening()
 
         while yas_209.is_listening:

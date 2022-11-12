@@ -1,0 +1,77 @@
+{
+  "album": {
+    "album_type": "album",
+    "artists": [
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/4oLeXFyACqeem2VImYeBFe"
+        },
+        "href": "https://api.spotify.com/v1/artists/4oLeXFyACqeem2VImYeBFe",
+        "id": "4oLeXFyACqeem2VImYeBFe",
+        "name": "Fred again..",
+        "type": "artist",
+        "uri": "spotify:artist:4oLeXFyACqeem2VImYeBFe"
+      }
+    ],
+    "available_markets": [],
+    "external_urls": {
+      "spotify": "https://open.spotify.com/album/6vN8o7jyIAJvFPqC0vxxmm"
+    },
+    "href": "https://api.spotify.com/v1/albums/6vN8o7jyIAJvFPqC0vxxmm",
+    "id": "6vN8o7jyIAJvFPqC0vxxmm",
+    "images": [
+      {
+        "height": 640,
+        "url": "https://i.scdn.co/image/ab67616d0000b27356c393fab9a517cad09be7de",
+        "width": 640
+      },
+      {
+        "height": 300,
+        "url": "https://i.scdn.co/image/ab67616d00001e0256c393fab9a517cad09be7de",
+        "width": 300
+      },
+      {
+        "height": 64,
+        "url": "https://i.scdn.co/image/ab67616d0000485156c393fab9a517cad09be7de",
+        "width": 64
+      }
+    ],
+    "name": "Actual Life 3 (January 1 - September 9 2022)",
+    "release_date": "2022-10-28",
+    "release_date_precision": "day",
+    "total_tracks": 13,
+    "type": "album",
+    "uri": "spotify:album:6vN8o7jyIAJvFPqC0vxxmm"
+  },
+  "artists": [
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/4oLeXFyACqeem2VImYeBFe"
+      },
+      "href": "https://api.spotify.com/v1/artists/4oLeXFyACqeem2VImYeBFe",
+      "id": "4oLeXFyACqeem2VImYeBFe",
+      "name": "Fred again..",
+      "type": "artist",
+      "uri": "spotify:artist:4oLeXFyACqeem2VImYeBFe"
+    }
+  ],
+  "available_markets": [],
+  "disc_number": 1,
+  "duration_ms": 11874,
+  "explicit": false,
+  "external_ids": {
+    "isrc": "GBAHS2201026"
+  },
+  "external_urls": {
+    "spotify": "https://open.spotify.com/track/0YHujB8olZYDC3GwYEHbG8"
+  },
+  "href": "https://api.spotify.com/v1/tracks/0YHujB8olZYDC3GwYEHbG8",
+  "id": "0YHujB8olZYDC3GwYEHbG8",
+  "is_local": false,
+  "name": "January 1st 2022",
+  "popularity": 18,
+  "preview_url": "https://p.scdn.co/mp3-preview/532d243b1d3acade162b0a0d52ee428d8d127e66?cid=230c2ac940f14f9aa4294af862300e9b",
+  "track_number": 1,
+  "type": "track",
+  "uri": "spotify:track:0YHujB8olZYDC3GwYEHbG8"
+}

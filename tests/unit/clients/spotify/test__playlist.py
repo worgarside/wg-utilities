@@ -114,6 +114,7 @@ def test_tracks_property(
     zip(
         sorted(listdir(FLAT_FILES_DIR / "json" / "spotify" / "tracks")),
         (
+            False,
             True,
             False,
             False,
