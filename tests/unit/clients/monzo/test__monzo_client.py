@@ -13,8 +13,8 @@ from requests_mock import Mocker
 
 from conftest import monzo_account_json, monzo_pot_json
 from wg_utilities.clients import MonzoClient
-from wg_utilities.clients._generic import OAuthClient
 from wg_utilities.clients.monzo import Account, Pot
+from wg_utilities.clients.oauth_client import OAuthClient
 from wg_utilities.functions import user_data_dir
 
 
@@ -284,7 +284,7 @@ def test_credentials_property_runs_first_time_login(monzo_client: MonzoClient) -
     ), patch.object(
         monzo_client, "exchange_auth_code"
     ) as mock_exchange_auth_code, patch(
-        "wg_utilities.clients._generic.TempAuthServer"
+        "wg_utilities.clients.oauth_client.TempAuthServer"
     ) as mock_temp_auth_server:
 
         mock_temp_auth_server.return_value.wait_for_request.return_value = {
@@ -320,7 +320,9 @@ def test_credentials_property_runs_first_time_login(monzo_client: MonzoClient) -
             )
         )
 
-        mock_temp_auth_server.assert_called_once_with("wg_utilities.clients._generic")
+        mock_temp_auth_server.assert_called_once_with(
+            "wg_utilities.clients.oauth_client"
+        )
 
         mock_temp_auth_server.return_value.wait_for_request.assert_called_once_with(
             "/get_auth_code", kill_on_request=True
@@ -339,7 +341,7 @@ def test_credentials_property_raises_exception_with_invalid_state(
     with patch("wg_utilities.clients.monzo.open_browser"), patch(
         "wg_utilities.clients.monzo.choice", side_effect=lambda _: "x"
     ), patch(
-        "wg_utilities.clients._generic.TempAuthServer"
+        "wg_utilities.clients.oauth_client.TempAuthServer"
     ) as mock_temp_auth_server, raises(
         ValueError
     ) as exc_info:
@@ -363,7 +365,7 @@ def test_credentials_setter_calls_parent_class_method(
     """Test that the `credentials` setter sets the credentials via the parent class."""
 
     with patch(
-        "wg_utilities.clients._generic.OAuthClient._set_credentials"
+        "wg_utilities.clients.oauth_client.OAuthClient._set_credentials"
     ) as mock_set_credentials:
         monzo_client.credentials = {"foo": "bar"}  # type: ignore[typeddict-item]
         mock_set_credentials.assert_called_once_with({"foo": "bar"})

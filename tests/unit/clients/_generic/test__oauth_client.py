@@ -1,5 +1,5 @@
 # pylint: disable=protected-access
-"""Unit Tests for `wg_utilities.clients._generic.OAuthClient`."""
+"""Unit Tests for `wg_utilities.clients.oauth_client.OAuthClient`."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from requests import HTTPError
 from requests_mock import Mocker
 
 from wg_utilities.api import TempAuthServer
-from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
+from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentialsInfo
 from wg_utilities.functions import DatetimeFixedUnit, utcnow
 
 
@@ -60,7 +60,7 @@ def test_instantiation_with_no_logger(temp_dir: Path) -> None:
 
     assert isinstance(client.logger, Logger)
     assert client.logger.level == DEBUG
-    assert client.logger.name == "wg_utilities.clients._generic"
+    assert client.logger.name == "wg_utilities.clients.oauth_client"
 
 
 def test_get_method_sends_correct_request(
@@ -385,6 +385,8 @@ def test_temp_auth_server_property(oauth_client: OAuthClient) -> None:
 
     oauth_client.temp_auth_server.stop_server()
 
-    with patch("wg_utilities.clients._generic.TempAuthServer") as mock_temp_auth_server:
+    with patch(
+        "wg_utilities.clients.oauth_client.TempAuthServer"
+    ) as mock_temp_auth_server:
         assert oauth_client.temp_auth_server == oauth_tas
         mock_temp_auth_server.assert_not_called()

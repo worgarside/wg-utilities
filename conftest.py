@@ -42,9 +42,9 @@ from voluptuous import All, Schema
 
 from wg_utilities.api import TempAuthServer
 from wg_utilities.clients import MonzoClient, SpotifyClient
-from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
 from wg_utilities.clients.monzo import Account as MonzoAccount
 from wg_utilities.clients.monzo import Pot, _MonzoAccountInfo, _MonzoPotInfo
+from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentialsInfo
 from wg_utilities.clients.spotify import Album as SpotifyAlbum
 from wg_utilities.clients.spotify import Artist, Playlist, SpotifyEntity, Track, User
 from wg_utilities.devices.dht22 import DHT22Sensor
