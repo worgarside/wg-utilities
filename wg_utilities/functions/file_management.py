@@ -43,12 +43,12 @@ def user_data_dir(
     path = Path(os_path) / project_name
 
     if file_name:
-        return path.expanduser() / file_name
+        return force_mkdir(path.expanduser() / file_name, path_is_file=True)
 
     return path.expanduser()
 
 
-def force_mkdir(target_path: Path, path_is_file: bool = False) -> str | Path:
+def force_mkdir(target_path: Path, path_is_file: bool = False) -> Path:
     """Creates all directories needed for the given path.
 
     Args:

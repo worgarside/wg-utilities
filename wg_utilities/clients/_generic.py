@@ -1,17 +1,19 @@
 """Generic OAuth client to allow for reusable authentication flows/checks etc."""
 from __future__ import annotations
 
-from json import dump, dumps, load
+from copy import deepcopy
+from http import HTTPStatus
+from json import JSONDecodeError, dump, dumps, loads
 from logging import DEBUG, Logger, getLogger
 from pathlib import Path
 from time import time
-from typing import Any, TypedDict
+from typing import Any, Literal, TypedDict
 
 from jwt import DecodeError, decode
 from requests import Response, get, post
 
 from wg_utilities.api import TempAuthServer
-from wg_utilities.functions import force_mkdir, user_data_dir
+from wg_utilities.functions import user_data_dir
 
 
 class OAuthCredentialsInfo(TypedDict):
@@ -19,10 +21,11 @@ class OAuthCredentialsInfo(TypedDict):
 
     access_token: str
     client_id: str
+    client_secret: str
     expires_in: int
     refresh_token: str
     scope: str
-    token_type: str
+    token_type: Literal["Bearer"]
     user_id: str
 
 
@@ -32,29 +35,29 @@ class OAuthClient:
     Includes all necessary/basic authentication functionality
     """
 
+    DEFAULT_PARAMS: dict[str, object] = {}
+
     def __init__(
         self,
         *,
-        client_id: str,
-        client_secret: str,
         base_url: str,
         access_token_endpoint: str,
+        client_id: str | None = None,
+        client_secret: str | None = None,
         redirect_uri: str = "http://0.0.0.0:5001/get_auth_code",
         access_token_expiry_threshold: int = 60,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
         logger: Logger | None = None,
     ):
-        self.client_id = client_id
-        self.client_secret = client_secret
+        self._client_id = client_id
+        self._client_secret = client_secret
         self.base_url = base_url
         self.access_token_endpoint = access_token_endpoint
         self.redirect_uri = redirect_uri
         self.access_token_expiry_threshold = access_token_expiry_threshold
         self.log_requests = log_requests
-        self.creds_cache_path = creds_cache_path or user_data_dir(
-            file_name=f"{client_id}.json"
-        )
+        self._creds_cache_path = creds_cache_path
 
         if logger:
             self.logger = logger
@@ -66,7 +69,10 @@ class OAuthClient:
 
         self._temp_auth_server: TempAuthServer
 
-    def _get(self, url: str, params: dict[str, Any] | None = None) -> Response:
+        if self._creds_cache_path:
+            self._load_local_credentials()
+
+    def _get(self, url: str, params: dict[str, object] | None = None) -> Response:
         """Wrapper for GET requests which covers authentication, URL parsing, etc. etc.
 
         Args:
@@ -77,19 +83,23 @@ class OAuthClient:
         Returns:
             Response: the response from the HTTP request
         """
+        if params:
+            params.update(
+                {k: v for k, v in self.DEFAULT_PARAMS.items() if k not in params}
+            )
+        else:
+            params = deepcopy(self.DEFAULT_PARAMS)
 
         if url.startswith("/"):
             url = f"{self.base_url}{url}"
 
         if self.log_requests:
-            self.logger.debug(
-                "GET %s with params %s", url, dumps(params or {}, default=str)
-            )
+            self.logger.debug("GET %s with params %s", url, dumps(params, default=str))
 
         res = get(
             url,
             headers=self.request_headers,
-            params=params or {},
+            params=params,  # type: ignore[arg-type]
         )
 
         res.raise_for_status()
@@ -97,11 +107,31 @@ class OAuthClient:
         return res
 
     def _load_local_credentials(self) -> None:
-        try:
-            with open(self.creds_cache_path, encoding="UTF-8") as fin:
-                self._credentials = load(fin).get(self.client_id, {})
-        except FileNotFoundError:
+
+        if not (self._creds_cache_path and self._creds_cache_path.exists()):
             self._credentials = {}  # type: ignore[typeddict-item]
+            return
+
+        self._credentials = loads(self.creds_cache_path.read_text())
+
+    def _set_credentials(self, value: OAuthCredentialsInfo) -> None:
+        """Actual setter for credentials.
+
+        Args:
+            value (OAuthCredentialsInfo): the new values to use for the creds for
+                this project
+        """
+        self._credentials = value
+
+        with open(self.creds_cache_path, "w", encoding="UTF-8") as fout:
+            dump(self._credentials, fout)
+
+    def delete_creds_file(self) -> None:
+        """Delete the local creds file."""
+        try:
+            self.creds_cache_path.unlink()
+        except FileNotFoundError:
+            pass
 
     def exchange_auth_code(self, code: str) -> None:
         """Allows first-time (or repeated) authentication.
@@ -123,7 +153,7 @@ class OAuthClient:
 
         res.raise_for_status()
 
-        self.credentials = res.json()
+        self.credentials = {**self._credentials, **res.json()}  # type: ignore[misc]
 
     def get_json_response(
         self, url: str, params: dict[str, Any] | None = None
@@ -137,7 +167,14 @@ class OAuthClient:
         Returns:
             dict: the JSON from the response
         """
-        return self._get(url, params=params).json()  # type: ignore[no-any-return]
+        try:
+            res = self._get(url, params=params)
+            if res.status_code == HTTPStatus.NO_CONTENT:
+                return {}
+
+            return res.json()  # type: ignore[no-any-return]
+        except JSONDecodeError:
+            return {}
 
     def refresh_access_token(self) -> None:
         """Refreshes access token.
@@ -167,6 +204,7 @@ class OAuthClient:
         # new ones
         self.credentials = {
             **self._credentials,  # type: ignore[misc]
+            # TODO is this correct? :/
             **res.json(),
         }
 
@@ -205,6 +243,26 @@ class OAuthClient:
             return True
 
     @property
+    def client_id(self) -> str:
+        """Client ID for the Google API.
+
+        Returns:
+            str: the current client ID
+        """
+
+        return self._client_id or self.credentials["client_id"]
+
+    @property
+    def client_secret(self) -> str:
+        """Client secret.
+
+        Returns:
+            str: the current client secret
+        """
+
+        return self._client_secret or self.credentials["client_secret"]
+
+    @property
     def credentials(self) -> OAuthCredentialsInfo:
         """Gets creds as necessary (including first time setup) and authenticates them.
 
@@ -229,27 +287,31 @@ class OAuthClient:
         """
         self._set_credentials(value)
 
-    def _set_credentials(self, value: OAuthCredentialsInfo) -> None:
-        """Actual setter for credentials.
+    @property
+    def creds_cache_path(self) -> Path:
+        """Path to the credentials cache file.
 
-        Args:
-            value (OAuthCredentialsInfo): the new values to use for the creds for
-                this project
+        Returns:
+            Path: the path to the credentials cache file
+
+        Raises:
+            ValueError: if the path to the credentials cache file is not set, and can't
+                be generated due to a lack of client ID
         """
-        self._credentials = value
+        if self._creds_cache_path:
+            return self._creds_cache_path
 
-        try:
-            with open(
-                force_mkdir(self.creds_cache_path, path_is_file=True), encoding="UTF-8"
-            ) as fin:
-                all_credentials = load(fin)
-        except FileNotFoundError:
-            all_credentials = {}
+        if (
+            not (hasattr(self, "_credentials") and self._credentials)
+            and not self._client_id
+        ):
+            raise ValueError(
+                "Unable to get client ID to generate path for credentials cache file."
+            )
 
-        all_credentials[self.client_id] = self._credentials
-
-        with open(self.creds_cache_path, "w", encoding="UTF-8") as fout:
-            dump(all_credentials, fout)
+        return user_data_dir(
+            file_name=f"oauth_credentials/{type(self).__name__}/{self.client_id}.json"
+        )
 
     @property
     def request_headers(self) -> dict[str, str]:

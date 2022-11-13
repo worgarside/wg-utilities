@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from http import HTTPStatus
-from json import load
 from unittest.mock import patch
 from urllib.parse import urlencode
 
@@ -16,6 +15,7 @@ from conftest import monzo_account_json, monzo_pot_json
 from wg_utilities.clients import MonzoClient
 from wg_utilities.clients._generic import OAuthClient
 from wg_utilities.clients.monzo import Account, Pot
+from wg_utilities.functions import user_data_dir
 
 
 def test_instantiation() -> None:
@@ -36,7 +36,9 @@ def test_instantiation() -> None:
     assert client.redirect_uri == "http://0.0.0.0:5001/get_auth_code"
     assert client.access_token_expiry_threshold == 60
     assert client.log_requests is False
-    assert client.creds_cache_path == MonzoClient.CREDS_FILE_PATH
+    assert client.creds_cache_path == user_data_dir(
+        file_name=f"oauth_credentials/MonzoClient/{client.client_id}.json"
+    )
 
 
 def test_deposit_into_pot_makes_correct_request(
@@ -207,17 +209,9 @@ def test_access_token_has_expired_property_no_access_token(
 ) -> None:
     """Test that the `access_token_has_expired` property returns the expected value."""
 
-    def _mock_load_local_credentials_side_effect() -> None:
-        with open(monzo_client.creds_cache_path, encoding="UTF-8") as fin:
-            monzo_client._credentials = load(fin)[monzo_client.client_id]
-        del monzo_client._credentials["access_token"]  # type: ignore[misc]
+    del monzo_client._credentials["access_token"]  # type: ignore[misc]
 
-    with patch.object(
-        monzo_client,
-        "_load_local_credentials",
-        side_effect=_mock_load_local_credentials_side_effect,
-    ):
-        assert monzo_client.access_token_has_expired
+    assert monzo_client.access_token_has_expired
 
     # Not access token was found, so we don't even need to ping the API
     assert not mock_requests.request_history
@@ -235,17 +229,9 @@ def test_access_token_has_expired_property_expired_with_access_token(
 ) -> None:
     """Test that the `access_token_has_expired` property returns the expected value."""
 
-    def _mock_load_local_credentials_side_effect() -> None:
-        with open(monzo_client.creds_cache_path, encoding="UTF-8") as fin:
-            monzo_client._credentials = load(fin)[monzo_client.client_id]
-        monzo_client._credentials["access_token"] = access_token
+    monzo_client._credentials["access_token"] = access_token
 
-    with patch.object(
-        monzo_client,
-        "_load_local_credentials",
-        side_effect=_mock_load_local_credentials_side_effect,
-    ):
-        assert monzo_client.access_token_has_expired is expired
+    assert monzo_client.access_token_has_expired is expired
 
     assert mock_requests.last_request.method == "GET"
     assert mock_requests.last_request.url == "https://api.monzo.com/ping/whoami"
@@ -256,10 +242,13 @@ def test_credentials_property_loads_local_credentials(
 ) -> None:
     """Test that the `credentials` property loads the local credentials."""
 
+    del monzo_client._credentials
+
     def _mock_load_local_credentials_side_effect() -> None:
         monzo_client._credentials = {
             "access_token": "active_access_token",
             "client_id": "test_client_id",
+            "client_secret": "test_client_secret",
             "expires_in": 10,
             "refresh_token": "test_refresh_token_new",
             "scope": "new_scope,_everything_the_light_touches",
@@ -275,6 +264,7 @@ def test_credentials_property_loads_local_credentials(
         assert monzo_client.credentials == {
             "access_token": "active_access_token",
             "client_id": "test_client_id",
+            "client_secret": "test_client_secret",
             "expires_in": 10,
             "refresh_token": "test_refresh_token_new",
             "scope": "new_scope,_everything_the_light_touches",
@@ -287,14 +277,9 @@ def test_credentials_property_loads_local_credentials(
 def test_credentials_property_runs_first_time_login(monzo_client: MonzoClient) -> None:
     """Test that the `credentials` property runs the first time login flow."""
 
-    def _mock_load_local_credentials_side_effect() -> None:
-        monzo_client._credentials = {}  # type: ignore[typeddict-item]
+    monzo_client._credentials = {}  # type: ignore[typeddict-item]
 
-    with patch.object(
-        monzo_client,
-        "_load_local_credentials",
-        side_effect=_mock_load_local_credentials_side_effect,
-    ), patch("wg_utilities.clients.monzo.open_browser") as mock_open_browser, patch(
+    with patch("wg_utilities.clients.monzo.open_browser") as mock_open_browser, patch(
         "wg_utilities.clients.monzo.choice", side_effect=lambda _: "x"
     ), patch.object(
         monzo_client, "exchange_auth_code"
@@ -349,14 +334,9 @@ def test_credentials_property_raises_exception_with_invalid_state(
 ) -> None:
     """Test `credentials` raises a `ValueError` when the state is invalid."""
 
-    def _mock_load_local_credentials_side_effect() -> None:
-        monzo_client._credentials = {}  # type: ignore[typeddict-item]
+    monzo_client._credentials = {}  # type: ignore[typeddict-item]
 
-    with patch.object(
-        monzo_client,
-        "_load_local_credentials",
-        side_effect=_mock_load_local_credentials_side_effect,
-    ), patch("wg_utilities.clients.monzo.open_browser"), patch(
+    with patch("wg_utilities.clients.monzo.open_browser"), patch(
         "wg_utilities.clients.monzo.choice", side_effect=lambda _: "x"
     ), patch(
         "wg_utilities.clients._generic.TempAuthServer"

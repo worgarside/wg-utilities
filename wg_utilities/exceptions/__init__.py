@@ -28,6 +28,10 @@ class ResourceNotFound(Exception):
     """Custom exception for when some kind of resource isn't found."""
 
 
+class VerificationError(Exception):
+    """Custom exception for when API verification fails."""
+
+
 def send_exception_to_home_assistant(exc: Exception) -> None:
     """Format an exception and send useful info to Home Assistant.
 

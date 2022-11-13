@@ -716,6 +716,7 @@ class GoogleCalendarClient(GoogleClient):
         logger: Logger | None = None,
     ):
         super().__init__(
+            base_url=self.BASE_URL,
             project=project,
             scopes=scopes,
             client_id_json_path=client_id_json_path,
@@ -814,7 +815,7 @@ class GoogleCalendarClient(GoogleClient):
 
         res.raise_for_status()
 
-    def get_event(self, event_id: str, calendar: Calendar | None = None) -> Event:
+    def get_event_by_id(self, event_id: str, calendar: Calendar | None = None) -> Event:
         """Get a specific event by ID.
 
         Args:

@@ -86,7 +86,7 @@ class Album:
         self.json = json
         self._media_items: list[MediaItem] | None = None
 
-        self.google_client = google_client
+        self._google_client = google_client
 
     @property
     def media_items(self) -> list[MediaItem]:
@@ -98,7 +98,18 @@ class Album:
         """
 
         if not self._media_items:
-            self._media_items = self.google_client.get_album_contents(self.id)
+            self._media_items = [
+                MediaItem(item)
+                for item in cast(
+                    Iterable[_MediaItemInfo],
+                    self._google_client.list_items(
+                        self._google_client.session.post,  # type: ignore[arg-type]
+                        f"{self._google_client.BASE_URL}/mediaItems:search",
+                        "mediaItems",
+                        params={"albumId": self.id},
+                    ),
+                )
+            ]
 
         return self._media_items
 
@@ -290,41 +301,38 @@ class GooglePhotosClient(GoogleClient):
         logger: Logger | None = None,
     ):
         super().__init__(
-            project,
-            scopes,
-            client_id_json_path,
-            creds_cache_path,
-            access_token_expiry_threshold,
-            logger,
+            base_url=self.BASE_URL,
+            project=project,
+            scopes=scopes,
+            client_id_json_path=client_id_json_path,
+            creds_cache_path=creds_cache_path,
+            access_token_expiry_threshold=access_token_expiry_threshold,
+            logger=logger,
         )
 
-        self._albums: list[Album] | None = None
+        self._albums: list[Album]
 
-    def get_album_contents(self, album_id: str) -> list[MediaItem]:
-        # noinspection GrazieInspection
-        """Gets the contents of a given album in Google Photos.
+    def get_album_by_id(self, album_id: str) -> Album:
+        """Get an album by its ID.
 
         Args:
-            album_id (str): the ID of the album which we want the contents of
+            album_id (str): the ID of the album to fetch
 
         Returns:
-            list: a list of MediaItem instances, representing each item in the album
+            Album: the album with the given ID
         """
 
-        return [
-            MediaItem(item)
-            for item in cast(
-                Iterable[_MediaItemInfo],
-                self._list_items(
-                    self.session.post,
-                    f"{self.BASE_URL}/mediaItems:search",
-                    "mediaItems",
-                    params={"albumId": album_id},
-                ),
-            )
-        ]
+        if hasattr(self, "_albums"):
+            for album in self._albums:
+                if album.id == album_id:
+                    return album
 
-    def get_album_from_name(self, album_name: str) -> Album:
+        return Album(
+            self.get_json_response(f"/albums/{album_id}"),  # type: ignore[arg-type]
+            google_client=self,
+        )
+
+    def get_album_by_name(self, album_name: str) -> Album:
         """Gets an album definition from the Google API based on the album name.
 
         Args:
@@ -352,13 +360,13 @@ class GooglePhotosClient(GoogleClient):
             list: a list of Album instances
         """
 
-        if not self._albums:
+        if not hasattr(self, "_albums"):
             self._albums = [
                 Album(item, self)
                 for item in cast(
                     Iterable[_AlbumInfo],
-                    self._list_items(
-                        self.session.get,
+                    self.list_items(
+                        self.session.get,  # type: ignore[arg-type]
                         f"{self.BASE_URL}/albums",
                         "albums",
                     ),

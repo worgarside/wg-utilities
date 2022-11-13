@@ -50,6 +50,7 @@ from wg_utilities.clients.spotify import Artist, Playlist, SpotifyEntity, Track,
 from wg_utilities.devices.dht22 import DHT22Sensor
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
 from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import CurrentTrack
+from wg_utilities.functions import force_mkdir
 from wg_utilities.functions.json import JSONObj
 from wg_utilities.loggers import ListHandler
 from wg_utilities.testing import MockBoto3Client
@@ -533,18 +534,17 @@ def _dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
 
 
 @fixture(scope="function", name="fake_oauth_credentials")  # type: ignore[misc]
-def _fake_oauth_credentials() -> dict[str, OAuthCredentialsInfo]:
+def _fake_oauth_credentials() -> OAuthCredentialsInfo:
     """Fixture for fake OAuth credentials."""
     return {
-        "test_client_id": {
-            "access_token": "test_access_token",
-            "client_id": "test_client_id",
-            "expires_in": 3600,
-            "refresh_token": "test_refresh_token",
-            "scope": "test_scope,test_scope_two",
-            "token_type": "Bearer",
-            "user_id": "test_user_id",
-        }
+        "access_token": "test_access_token",
+        "client_id": "test_client_id",
+        "client_secret": "test_client_secret",
+        "expires_in": 3600,
+        "refresh_token": "test_refresh_token",
+        "scope": "test_scope,test_scope_two",
+        "token_type": "Bearer",
+        "user_id": "test_user_id",
     }
 
 
@@ -840,9 +840,11 @@ def _oauth_client(
 ) -> OAuthClient:
     """Fixture for creating an OAuthClient instance."""
 
-    (creds_cache_path := temp_dir / "oauth_credentials.json").write_text(
-        dumps(fake_oauth_credentials)
-    )
+    (
+        creds_cache_path := force_mkdir(
+            temp_dir / "oauth_credentials" / "test_client_id.json", path_is_file=True
+        )
+    ).write_text(dumps(fake_oauth_credentials))
 
     return OAuthClient(
         client_id="test_client_id",

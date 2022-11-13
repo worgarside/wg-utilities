@@ -1,24 +1,22 @@
 """Generic Google Client - having one client for all APIs is way too big."""
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from copy import deepcopy
-from json import dump, dumps, load
-from logging import DEBUG, Logger, getLogger
-from os import remove
+from datetime import datetime
+from json import dumps, loads
+from logging import Logger
 from pathlib import Path
-from time import time
-from typing import TYPE_CHECKING, Literal, Protocol, TypedDict, TypeVar, Union
+from typing import TYPE_CHECKING, TypeVar, Union
 from webbrowser import open as open_browser
 
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
-from jwt import DecodeError, decode
-from requests import Response, post
+from mypy_extensions import DefaultNamedArg
+from requests import Response
 
-from wg_utilities.api import TempAuthServer
-from wg_utilities.functions import force_mkdir, user_data_dir
+from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
 
 if TYPE_CHECKING:  # pragma: no cover
     from wg_utilities.clients.google_calendar import _GoogleCalendarEntityInfo
@@ -38,40 +36,18 @@ if TYPE_CHECKING:  # pragma: no cover
     )
 
 
-class _GoogleCredentialsInfo(TypedDict):
-    access_token: str
-    client_id: str
-    client_secret: str
-    expires_in: int
+class GoogleCredentialsInfo(OAuthCredentialsInfo):
+    """Typed dict for Google credentials."""
+
+    expiry_epoch: float
     id_token: str | None
-    refresh_token: str
-    scope: str
     scopes: list[str]
     token: str
-    token_type: Literal["Bearer"]
     token_uri: str
 
 
-class _SessionMethodCallable(Protocol):
-    def __call__(
-        self, url: str, *, params: dict[str, object] | None = None
-    ) -> Response:
-        ...
-
-
-class GoogleClient:
-    """Custom client for interacting with the Google APIs.
-
-    Args:
-        project (str): the name of the project which this client is being used for
-        scopes (list): a list of scopes the client can be given
-        client_id_json_path (str): the path to the `client_id.json` file downloaded
-         from Google's API Console
-        creds_cache_path (str): file path for where to cache credentials
-        access_token_expiry_threshold (int): the threshold for when the access token is
-         considered expired
-        logger (RootLogger): a logger to use throughout the client functions
-    """
+class GoogleClient(OAuthClient):
+    """Custom client for interacting with the Google APIs."""
 
     DEFAULT_PARAMS: dict[str, object] = {
         "pageSize": "50",
@@ -80,39 +56,44 @@ class GoogleClient:
     def __init__(
         self,
         project: str,
+        *,
+        base_url: str,
+        redirect_uri: str = "http://0.0.0.0:5001/get_auth_code",
+        access_token_expiry_threshold: int = 300,
+        log_requests: bool = False,
+        creds_cache_path: Path | None = None,
+        logger: Logger | None = None,
         scopes: list[str] | None = None,
         client_id_json_path: Path | None = None,
-        creds_cache_path: Path | None = None,
-        access_token_expiry_threshold: int = 60,
-        logger: Logger | None = None,
     ):
+        """Initialise the client."""
+        super().__init__(
+            base_url=base_url,
+            access_token_endpoint="https://accounts.google.com/o/oauth2/token",
+            redirect_uri=redirect_uri,
+            access_token_expiry_threshold=access_token_expiry_threshold,
+            log_requests=log_requests,
+            creds_cache_path=creds_cache_path,
+            logger=logger,
+        )
+
         self.project = project
         self.scopes = scopes or []
         self.client_id_json_path = client_id_json_path
-        self.creds_cache_path = creds_cache_path or user_data_dir(
-            file_name="google_api_creds.json"
-        )
-        self.access_token_expiry_threshold = access_token_expiry_threshold
 
-        if logger:
-            self.logger = logger
-        else:
-            self.logger = getLogger(__name__)
-            self.logger.setLevel(DEBUG)
+        self._credentials: GoogleCredentialsInfo
+        self._session: AuthorizedSession
 
-        if not scopes:
-            self.logger.warning(
-                "No scopes set for Google client. Functionality will be limited."
-            )
+        if self.client_id_json_path:
+            self._client_id = loads(self.client_id_json_path.read_text())["web"][
+                "client_id"
+            ]
 
-        self._all_credentials_json: dict[str, _GoogleCredentialsInfo] = {}
-        self._session = None
-
-        self.temp_auth_server: TempAuthServer | None = None
-
-    def _list_items(
+    def list_items(
         self,
-        method: _SessionMethodCallable,
+        method: Callable[
+            [str, DefaultNamedArg(dict[str, object] | None, "params")], Response
+        ],
         url: str,
         list_key: str,
         *,
@@ -148,22 +129,17 @@ class GoogleClient:
         next_token: str | None
         while next_token := res.json().get("nextPageToken"):
             # noinspection PyArgumentList
+            params = {**params, "pageToken": next_token}
             res = method(
                 url,
-                params={**params, "pageToken": next_token},
+                params=params,
             )
             res.raise_for_status()
+
             item_list.extend(res.json().get(list_key, []))
             self.logger.debug("Found %i items so far", len(item_list))
 
         return item_list
-
-    def delete_creds_file(self) -> None:
-        """Delete the local creds file."""
-        try:
-            remove(self.creds_cache_path)
-        except FileNotFoundError:
-            pass
 
     def get_items(
         self,
@@ -178,35 +154,19 @@ class GoogleClient:
             self._list_items: main worker method for this functionality
         """
 
-        return self._list_items(self.session.get, url, list_key, params=params)
-
-    def refresh_access_token(self) -> None:
-        """Refresh the access token for the current session.
-
-        Uses the cached refresh token to submit a request to TL's API for a new
-        access token
-        """
-
-        self.logger.info("Refreshing access token")
-
-        res = post(
-            "https://accounts.google.com/o/oauth2/token",
-            data={
-                "grant_type": "refresh_token",
-                "client_id": self.client_id,
-                "client_secret": self.client_secret,
-                "refresh_token": self.refresh_token,
-            },
+        return self.list_items(
+            self.session.get, url, list_key, params=params  # type: ignore[arg-type]
         )
 
-        res.raise_for_status()
+    @property
+    def access_token_expiry_time(self) -> datetime:
+        """Get the time at which the current access token will expire.
 
-        # Maintain any existing credential values in the dictionary whilst updating
-        # new ones
-        self.credentials = {
-            **self._all_credentials_json[self.project],
-            **res.json(),
-        }
+        Returns:
+            datetime: the time at which the current access token will expire
+        """
+
+        return self.credentials.expiry  # type: ignore[no-any-return]
 
     @property
     def access_token_has_expired(self) -> bool:
@@ -216,23 +176,7 @@ class GoogleClient:
             bool: has the access token expired?
         """
 
-        if self.project not in self._all_credentials_json:
-            return True
-
-        try:
-            expiry_epoch = decode(
-                # can't use self.access_token here, as that uses self.credentials,
-                # which in turn (recursively) checks if the access token has expired
-                self._all_credentials_json[self.project]["access_token"],
-                options={"verify_signature": False},
-            ).get("exp", 0)
-
-            return bool(
-                (expiry_epoch - self.access_token_expiry_threshold) < int(time())
-            )
-        except (DecodeError, KeyError):
-            # treat invalid/missing token as expired, so we get a new one
-            return True
+        return bool(self.credentials.expired)
 
     @property
     def client_id(self) -> str:
@@ -241,7 +185,8 @@ class GoogleClient:
         Returns:
             str: the current client ID
         """
-        return self._all_credentials_json[self.project]["client_id"]
+
+        return str(self.credentials.client_id)
 
     @property
     def client_secret(self) -> str:
@@ -250,9 +195,10 @@ class GoogleClient:
         Returns:
             str: the current client secret
         """
-        return self._all_credentials_json[self.project]["client_secret"]
 
-    @property
+        return str(self.credentials.client_secret)
+
+    @property  # type: ignore[override]
     def credentials(self) -> Credentials:
         """Gets creds as necessary (including first time setup) and authenticates them.
 
@@ -265,16 +211,10 @@ class GoogleClient:
             ValueError: same as above, but if the EOFError isn't raised
         """
 
-        try:
-            with open(
-                force_mkdir(self.creds_cache_path, path_is_file=True), encoding="UTF-8"
-            ) as fin:
-                self._all_credentials_json = load(fin)
-        except FileNotFoundError:
-            self.logger.info("Unable to find local creds file")
-            self._all_credentials_json = {}
+        if not hasattr(self, "_credentials"):
+            self._load_local_credentials()
 
-        if self.project not in self._all_credentials_json:
+        if not self._credentials:
             self.logger.info(
                 "Performing first time login for project `%s`", self.project
             )
@@ -288,7 +228,7 @@ class GoogleClient:
             )
 
             flow = Flow.from_client_secrets_file(
-                self.client_id_json_path,
+                self.client_id_json_path.as_posix(),
                 scopes=self.scopes,
                 redirect_uri="http://localhost:5001/get_auth_code",
             )
@@ -297,44 +237,28 @@ class GoogleClient:
             self.logger.debug("Opening %s", auth_url)
             open_browser(auth_url)
 
-            self.temp_auth_server = TempAuthServer(__name__)
-
             request_args = self.temp_auth_server.wait_for_request(
                 "/get_auth_code", kill_on_request=True
             )
 
             flow.fetch_token(code=request_args.get("code"))
 
-            self.credentials = {
-                "token": flow.credentials.token,
-                "refresh_token": flow.credentials.refresh_token,
-                "id_token": flow.credentials.id_token,
-                "scopes": flow.credentials.scopes,
-                "token_uri": flow.credentials.token_uri,
-                "client_id": flow.credentials.client_id,
-                "client_secret": flow.credentials.client_secret,
-            }
+            self.credentials = loads(flow.credentials.to_json())
 
-        if self.access_token_has_expired:
-            self.refresh_access_token()
-
-        return Credentials.from_authorized_user_info(
-            self._all_credentials_json[self.project], self.scopes
+        credentials: Credentials = Credentials.from_authorized_user_info(
+            self._credentials, self.scopes
         )
 
+        return credentials
+
     @credentials.setter
-    def credentials(self, value: _GoogleCredentialsInfo) -> None:
+    def credentials(self, value: GoogleCredentialsInfo) -> None:
         """Setter for credentials.
 
         Args:
             value (dict): the new values to use for the creds for this project
         """
-        self._all_credentials_json[self.project] = value
-
-        with open(
-            force_mkdir(self.creds_cache_path, path_is_file=True), "w", encoding="UTF-8"
-        ) as fout:
-            dump(self._all_credentials_json, fout)
+        self._set_credentials(value)
 
     @property
     def refresh_token(self) -> str:
@@ -343,7 +267,7 @@ class GoogleClient:
         Returns:
             str: the current refresh token
         """
-        return self._all_credentials_json[self.project]["refresh_token"]
+        return str(self.credentials.refresh_token)
 
     @property
     def session(self) -> AuthorizedSession:
@@ -352,7 +276,7 @@ class GoogleClient:
         Returns:
             AuthorizedSession: an active, authorized Google API session
         """
-        if not self._session:
+        if not (hasattr(self, "_session") and self._session):
             self._session = AuthorizedSession(self.credentials)
 
         return self._session

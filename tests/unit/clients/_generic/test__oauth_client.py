@@ -30,7 +30,7 @@ def test_instantiation(logger: Logger, temp_dir: Path) -> None:
         base_url="https://api.example.com",
         access_token_endpoint="https://api.example.com/oauth2/token",
         log_requests=True,
-        creds_cache_path=temp_dir,
+        creds_cache_path=temp_dir / "test_creds_cache.json",
         logger=logger,
     )
 
@@ -42,7 +42,7 @@ def test_instantiation(logger: Logger, temp_dir: Path) -> None:
     assert client.redirect_uri == "http://0.0.0.0:5001/get_auth_code"
     assert client.access_token_expiry_threshold == 60
     assert client.log_requests is True
-    assert client.creds_cache_path == temp_dir
+    assert client.creds_cache_path == temp_dir / "test_creds_cache.json"
     assert client.logger == logger
 
 
@@ -55,7 +55,7 @@ def test_instantiation_with_no_logger(temp_dir: Path) -> None:
         base_url="https://api.example.com",
         access_token_endpoint="https://api.example.com/oauth2/token",
         log_requests=True,
-        creds_cache_path=temp_dir,
+        creds_cache_path=temp_dir / "test_creds_cache.json",
     )
 
     assert isinstance(client.logger, Logger)
@@ -129,20 +129,15 @@ def test_get_raises_exception_for_non_200_response(
 
 def test_load_local_credentials(
     oauth_client: OAuthClient,
-    fake_oauth_credentials: dict[str, OAuthCredentialsInfo],
+    fake_oauth_credentials: OAuthCredentialsInfo,
 ) -> None:
     """Test that the load_local_credentials method loads credentials from the cache."""
-
+    del oauth_client._credentials
     assert not hasattr(oauth_client, "_credentials")
 
     oauth_client._load_local_credentials()
 
-    assert oauth_client._credentials == fake_oauth_credentials["test_client_id"]
-
-    oauth_client.client_id = "test_client_id_2"
-    oauth_client._load_local_credentials()
-
-    assert not oauth_client._credentials
+    assert oauth_client._credentials == fake_oauth_credentials
 
 
 def test_exchange_auth_code_sends_correct_request(
@@ -151,6 +146,7 @@ def test_exchange_auth_code_sends_correct_request(
     """Test the `exchange_auth_code` method sends the expected request."""
 
     # Remove the credentials cache file so that the credentials are not loaded
+    del oauth_client._credentials
     oauth_client.creds_cache_path.unlink()
 
     assert not hasattr(oauth_client, "_credentials")
@@ -269,6 +265,8 @@ def test_refresh_access_token(
 ) -> None:
     """Test the `refresh_access_token` method loads local credentials if needed."""
 
+    del oauth_client._credentials
+
     mock_requests.post(
         "https://api.example.com/oauth2/token",
         status_code=HTTPStatus.OK,
@@ -295,7 +293,9 @@ def test_refresh_access_token(
         "_load_local_credentials",
         side_effect=_load_local_credentials_side_effect,
     ) as mock_load_local_credentials:
+        assert not hasattr(oauth_client, "_credentials")
         oauth_client.refresh_access_token()
+        assert hasattr(oauth_client, "_credentials")
 
     mock_load_local_credentials.assert_called_once()
 
@@ -312,28 +312,25 @@ def test_refresh_access_token(
 
 
 def test_access_token(
-    oauth_client: OAuthClient, fake_oauth_credentials: dict[str, OAuthCredentialsInfo]
+    oauth_client: OAuthClient, fake_oauth_credentials: OAuthCredentialsInfo
 ) -> None:
     """Test the `access_token` property returns the expected value."""
-    assert (
-        oauth_client.access_token
-        == fake_oauth_credentials[oauth_client.client_id]["access_token"]
-    )
+    assert oauth_client.access_token == fake_oauth_credentials["access_token"]
 
 
 def test_access_token_has_expired_with_invalid_token(
-    oauth_client: OAuthClient, fake_oauth_credentials: dict[str, OAuthCredentialsInfo]
+    oauth_client: OAuthClient, fake_oauth_credentials: OAuthCredentialsInfo
 ) -> None:
     """Test the `access_token_has_expired` property returns the expected value."""
 
     def _load_local_credentials_side_effect() -> None:
-        oauth_client._credentials = fake_oauth_credentials["test_client_id"]
+        oauth_client._credentials = fake_oauth_credentials
 
     with raises(DecodeError) as exc_info:
         # The below is how the JWT is decoded in the `access_token_has_expired`
         # property; this is to prove that this is testing the exception path.
         decode(
-            fake_oauth_credentials["test_client_id"]["access_token"],
+            fake_oauth_credentials["access_token"],
             options={"verify_signature": False},
         ).get("exp", 0)
 
@@ -370,13 +367,10 @@ def test_access_token_has_expired_with_valid_token(oauth_client: OAuthClient) ->
 
 
 def test_refresh_token(
-    oauth_client: OAuthClient, fake_oauth_credentials: dict[str, OAuthCredentialsInfo]
+    oauth_client: OAuthClient, fake_oauth_credentials: OAuthCredentialsInfo
 ) -> None:
     """Test the `refresh_token` property returns the expected value."""
-    assert (
-        oauth_client.refresh_token
-        == fake_oauth_credentials[oauth_client.client_id]["refresh_token"]
-    )
+    assert oauth_client.refresh_token == fake_oauth_credentials["refresh_token"]
 
 
 def test_temp_auth_server_property(oauth_client: OAuthClient) -> None:

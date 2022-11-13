@@ -202,7 +202,8 @@ class GoogleFitClient(GoogleClient):
         logger: Logger | None = None,
     ):
         super().__init__(
-            project,
+            base_url=self.BASE_URL,
+            project=project,
             scopes=scopes,
             client_id_json_path=client_id_json_path,
             creds_cache_path=creds_cache_path,

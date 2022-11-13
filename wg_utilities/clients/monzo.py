@@ -6,13 +6,13 @@ from logging import DEBUG, getLogger
 from pathlib import Path
 from random import choice
 from string import ascii_letters
-from typing import Literal, TypedDict
+from typing import Any, Literal, TypedDict
 from webbrowser import open as open_browser
 
 from requests import get, put
 
 from wg_utilities.clients._generic import OAuthClient, OAuthCredentialsInfo
-from wg_utilities.functions import DTU, cleanse_string, user_data_dir, utcnow
+from wg_utilities.functions import DTU, cleanse_string, utcnow
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -128,6 +128,39 @@ class Account:
             self.update_balance_variables()
 
         return self._balance_variables[var_name]
+
+    def list_transactions(
+        self,
+        from_datetime: datetime | None = None,
+        to_datetime: datetime | None = None,
+        limit: int = 100,
+    ) -> list[dict[str, object]]:
+        """Lists transactions for the account.
+
+        Args:
+            from_datetime (datetime, optional): the start of the time period to list
+                transactions for. Defaults to None.
+            to_datetime (datetime, optional): the end of the time period to list
+                transactions for. Defaults to None.
+            limit (int, optional): the maximum number of transactions to return.
+                Defaults to 100.
+
+        Returns:
+            list[dict[str, object]]: the list of transactions
+        """
+
+        from_datetime = from_datetime or datetime.utcnow() - timedelta(days=89)
+        to_datetime = to_datetime or datetime.utcnow()
+
+        return self._monzo_client.get_json_response(
+            "/transactions",
+            params={
+                "account_id": self.id,
+                "since": from_datetime.isoformat() + "Z",
+                "before": to_datetime.isoformat() + "Z",
+                "limit": limit,
+            },
+        ).get("transactions", [])
 
     def update_balance_variables(self) -> None:
         """Updates the balance-related instance attributes.
@@ -480,7 +513,8 @@ class MonzoClient(OAuthClient):
 
     ACCESS_TOKEN_ENDPOINT = "https://api.monzo.com/oauth2/token"
     BASE_URL = "https://api.monzo.com"
-    CREDS_FILE_PATH = user_data_dir(file_name="monzo_api_creds.json")
+
+    DEFAULT_PARAMS: dict[str, object] = {}
 
     def __init__(
         self,
@@ -500,10 +534,14 @@ class MonzoClient(OAuthClient):
             redirect_uri=redirect_uri,
             access_token_expiry_threshold=access_token_expiry_threshold,
             log_requests=log_requests,
-            creds_cache_path=creds_cache_path or self.CREDS_FILE_PATH,
+            creds_cache_path=creds_cache_path,
         )
 
         self._current_account: Account
+
+    def get_items_from_url(self, *_: Any, **__: Any) -> None:
+        """Not implemented."""
+        raise NotImplementedError("This method is not implemented for Monzo.")
 
     def deposit_into_pot(
         self, pot: Pot, amount_pence: int, dedupe_id: str | None = None
@@ -651,7 +689,9 @@ class MonzoClient(OAuthClient):
 
         if not self._credentials:
             self.logger.info("Performing first time login")
+
             state_token = "".join(choice(ascii_letters) for _ in range(32))
+
             # pylint: disable=line-too-long
             auth_link = f"https://auth.monzo.com/?client_id={self.client_id}&redirect_uri={self.redirect_uri}&response_type=code&state={state_token}"  # noqa: E501
             self.logger.debug("Opening %s", auth_link)
