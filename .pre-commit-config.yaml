@@ -106,7 +106,6 @@ repos:
           - pydantic
           - types-PyYAML
           - types-python-dateutil
-          - google-auth-stubs
 
   - repo: local
     hooks:

@@ -73,12 +73,14 @@ class TempAuthServer:
 
         @self.app.route("/get_auth_code", methods=["GET"])
         def get_auth_code() -> str:
+            # TODO add 400 response for mismatch in state token
             """Endpoint for getting auth code from third party callback.
 
             Returns:
                 dict: simple response dict
             """
             self._request_args[request.path] = request.args
+            # return """<script>window.close();</script>"""
             return dumps(
                 {
                     "statusCode": 200,
@@ -105,7 +107,7 @@ class TempAuthServer:
             TimeoutError: if no request is received within the timeout limit
         """
 
-        if not self.running:
+        if not self.is_running:
             self.start_server()
 
         start_time = datetime.now()
@@ -126,7 +128,7 @@ class TempAuthServer:
 
     def start_server(self) -> None:
         """Run the local server."""
-        if not self.running:
+        if not self.is_running:
             self.server.start()
 
     def stop_server(self) -> None:
@@ -145,8 +147,8 @@ class TempAuthServer:
             del self._server
 
     @property
-    def running(self) -> bool:
-        """Return whether the server is running."""
+    def is_running(self) -> bool:
+        """Return whether the server is is_running."""
         if not hasattr(self, "_server"):
             return False
 

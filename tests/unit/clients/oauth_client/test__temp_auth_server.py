@@ -65,7 +65,7 @@ def test_temp_auth_server_auto_run() -> None:
 
     tas = TempAuthServer(__name__, auto_run=True)
 
-    assert tas.running
+    assert tas.is_running
     assert tas.server.is_alive()
 
     tas.stop_server()
@@ -95,11 +95,11 @@ def test_start_server_starts_thread(temp_auth_server: TempAuthServer) -> None:
 def test_start_server_starts_server(temp_auth_server: TempAuthServer) -> None:
     """Test that the `start_server` method starts a server."""
 
-    assert not temp_auth_server.running
+    assert not temp_auth_server.is_running
 
     temp_auth_server.start_server()
 
-    assert temp_auth_server.running
+    assert temp_auth_server.is_running
     assert hasattr(temp_auth_server, "_server")
     assert temp_auth_server.server.is_alive()
     assert get(GET_AUTH_URL).json() == {"statusCode": 200}
@@ -110,19 +110,19 @@ def test_server_can_be_started_multiple_times(temp_auth_server: TempAuthServer) 
 
     temp_auth_server.start_server()
     assert get(GET_AUTH_URL).json() == {"statusCode": 200}
-    assert temp_auth_server.running
+    assert temp_auth_server.is_running
     assert temp_auth_server.server.is_alive()
 
     temp_auth_server.stop_server()
-    assert not temp_auth_server.running
+    assert not temp_auth_server.is_running
 
     temp_auth_server.start_server()
     assert get(GET_AUTH_URL).json() == {"statusCode": 200}
-    assert temp_auth_server.running
+    assert temp_auth_server.is_running
     assert temp_auth_server.server.is_alive()
 
     temp_auth_server.stop_server()
-    assert not temp_auth_server.running
+    assert not temp_auth_server.is_running
 
 
 def test_wait_for_request(temp_auth_server: TempAuthServer) -> None:
@@ -171,13 +171,13 @@ def test_wait_for_request_kill_on_request(temp_auth_server: TempAuthServer) -> N
 
     def _make_assertions() -> None:
         nonlocal called
-        assert temp_auth_server.running
+        assert temp_auth_server.is_running
         assert temp_auth_server.wait_for_request(
             "/get_auth_code", max_wait=5, kill_on_request=True
         ) == {
             "code": "abcdefghijklmnopqrstuvwxyz",
         }
-        assert not temp_auth_server.running
+        assert not temp_auth_server.is_running
         called = True
 
     t = Thread(target=_make_assertions)
@@ -191,19 +191,19 @@ def test_wait_for_request_kill_on_request(temp_auth_server: TempAuthServer) -> N
 
 
 def test_wait_for_request_starts_server(temp_auth_server: TempAuthServer) -> None:
-    """Test the `wait_for_request` method starts the server if it is not running."""
+    """Test the `wait_for_request` method starts the server if it is not is_running."""
 
-    assert not temp_auth_server.running
+    assert not temp_auth_server.is_running
 
     called = False
 
     def _make_assertions() -> None:
         nonlocal called
-        assert not temp_auth_server.running
+        assert not temp_auth_server.is_running
         assert temp_auth_server.wait_for_request("/get_auth_code", max_wait=5) == {
             "code": "abcdefghijklmnopqrstuvwxyz",
         }
-        assert temp_auth_server.running
+        assert temp_auth_server.is_running
         called = True
 
     t = Thread(target=_make_assertions)
@@ -216,4 +216,4 @@ def test_wait_for_request_starts_server(temp_auth_server: TempAuthServer) -> Non
     t.join()
 
     assert called
-    assert temp_auth_server.running
+    assert temp_auth_server.is_running

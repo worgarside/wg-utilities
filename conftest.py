@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 """Pytest config file, used for creating fixtures etc."""
 
 from __future__ import annotations
@@ -13,8 +14,8 @@ from re import compile as compile_regex
 from re import fullmatch
 from tempfile import TemporaryDirectory
 from textwrap import dedent
-from time import sleep
-from typing import Literal, TypeVar, cast
+from time import sleep, time
+from typing import Any, Literal, TypeVar, cast
 from unittest.mock import MagicMock, patch
 from xml.etree import ElementTree
 
@@ -27,6 +28,7 @@ from async_upnp_client.const import (
 )
 from boto3 import client
 from flask import Flask
+from jwt import decode, encode
 from mypy_boto3_lambda import LambdaClient
 from mypy_boto3_s3 import S3Client
 from pigpio import _callback
@@ -44,7 +46,7 @@ from wg_utilities.api import TempAuthServer
 from wg_utilities.clients import MonzoClient, SpotifyClient
 from wg_utilities.clients.monzo import Account as MonzoAccount
 from wg_utilities.clients.monzo import Pot, _MonzoAccountInfo, _MonzoPotInfo
-from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentialsInfo
+from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
 from wg_utilities.clients.spotify import Album as SpotifyAlbum
 from wg_utilities.clients.spotify import Artist, Playlist, SpotifyEntity, Track, User
 from wg_utilities.devices.dht22 import DHT22Sensor
@@ -136,19 +138,37 @@ def assert_mock_requests_request_history(
     assert len(request_history) == len(expected)
 
 
+def get_jwt_expiry(token: str) -> float:
+    """Get the expiry time of a JWT token."""
+    return float(decode(token, options={"verify_signature": False})["exp"])
+
+
 # </editor-fold>
 # <editor-fold desc="JSON Objects">
 
 
-def read_json_file(json_dir_path: str) -> JSONObj:
+def read_json_file(rel_file_path: str, host_name: str | None = None) -> JSONObj:
     """Read a JSON file from the flat files `json` subdirectory.
 
     Args:
-        json_dir_path (str): the path to the JSON file, relative to the flat files
-            `json` subdirectory
+        rel_file_path (str): the path to the JSON file, relative to the flat files
+            `json` subdirectory or its children
+        host_name (str, optional): the name of the host to which the JSON file
+            belongs. Defaults to None. This isn't necessary at all (because you could
+            just prepend the `rel_file_path` instead); it's just used for typing info.
+
+    Returns:
+        JSONObj: the JSON object from the file
     """
+
+    file_path = FLAT_FILES_DIR / "json"
+    if host_name:
+        file_path /= host_name
+
+    file_path /= rel_file_path
+
     return cast(
-        JSONObj, loads((FLAT_FILES_DIR / "json" / json_dir_path.lower()).read_text())
+        JSONObj, loads((FLAT_FILES_DIR / "json" / rel_file_path.lower()).read_text())
     )
 
 
@@ -208,11 +228,10 @@ def get_flat_file_from_url(
     context.reason = HTTPStatus.OK.phrase
 
     file_path = (
-        f"spotify/{request.path.replace('/v1/', '')}/{request.query}".rstrip("/")
-        + ".json"
+        f"{request.path.replace('/v1/', '')}/{request.query}".rstrip("/") + ".json"
     )
 
-    return read_json_file(file_path)
+    return read_json_file(file_path, host_name="spotify")
 
 
 def monzo_account_json(
@@ -234,7 +253,7 @@ def monzo_account_json(
     Raises:
         ValueError: if the account type is invalid
     """
-    uk_retail = read_json_file("monzo/account/uk_retail.json")
+    uk_retail = read_json_file("account/uk_retail.json", host_name="monzo")
 
     if request is not None:
         account_type = request.qs.get("account_type")[0]
@@ -418,7 +437,7 @@ def yamaha_yas_209_get_media_info_responses(
         json = read_json_file(f"yamaha_yas_209/get_media_info/{file}")
         values: CurrentTrack.Info | None = other_test_parameters.get(file)
 
-        yield (json, values)
+        yield json, values
 
 
 def yamaha_yas_209_last_change_av_transport_events(
@@ -533,19 +552,50 @@ def _dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
     return DHT22Sensor(pigpio_pi, 4)
 
 
+@fixture(scope="function", name="live_jwt_token")  # type: ignore[misc]
+def _live_jwt_token() -> str:
+    """Fixture for a live JWT token."""
+    return str(
+        encode(
+            {
+                "iss": "test",
+                "sub": "test",
+                "aud": "test",
+                "exp": int(time()) + 3600,
+            },
+            "test_access_token",
+        )
+    )
+
+
+@fixture(scope="function", name="live_jwt_token_alt")  # type: ignore[misc]
+def _live_jwt_token_alt() -> str:
+    """Another fixture for a live JWT token."""
+    return str(
+        encode(
+            {
+                "iss": "test",
+                "sub": "test",
+                "aud": "test",
+                "exp": int(time()) + 3600,
+            },
+            "new_test_access_token",
+        )
+    )
+
+
 @fixture(scope="function", name="fake_oauth_credentials")  # type: ignore[misc]
-def _fake_oauth_credentials() -> OAuthCredentialsInfo:
+def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
     """Fixture for fake OAuth credentials."""
-    return {
-        "access_token": "test_access_token",
-        "client_id": "test_client_id",
-        "client_secret": "test_client_secret",
-        "expires_in": 3600,
-        "refresh_token": "test_refresh_token",
-        "scope": "test_scope,test_scope_two",
-        "token_type": "Bearer",
-        "user_id": "test_user_id",
-    }
+    return OAuthCredentials(
+        access_token=live_jwt_token,
+        client_id="test_client_id",
+        client_secret="test_client_secret",
+        expiry_epoch=time() + 3600,
+        refresh_token="test_refresh_token",
+        scope="test_scope,test_scope_two",
+        token_type="Bearer",
+    )
 
 
 @fixture(scope="session", name="flask_app")  # type: ignore[misc]
@@ -635,7 +685,9 @@ def _mock_aiohttp() -> YieldFixture[aioresponses]:
 
 
 @fixture(scope="function", name="mock_requests")  # type: ignore[misc]
-def _mock_requests(request: FixtureRequest) -> YieldFixture[Mocker]:
+def _mock_requests(
+    request: FixtureRequest, live_jwt_token_alt: str
+) -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 
     def _whoami_json_cb(
@@ -706,6 +758,23 @@ def _mock_requests(request: FixtureRequest) -> YieldFixture[Mocker]:
                     "scope": "test_scope,test_scope_two",
                     "token_type": "Bearer",
                     "user_id": "test_user_id",
+                },
+            )
+        elif fullmatch(
+            r"^tests/unit/clients/oauth_client/test__[a-z_]+\.py$",
+            request.node.parent.name,
+        ):
+            mock_requests.post(
+                "https://api.example.com/oauth2/token",
+                status_code=HTTPStatus.OK,
+                reason=HTTPStatus.OK.phrase,
+                json={
+                    "access_token": live_jwt_token_alt,
+                    "client_id": "test_client_id",
+                    "expires_in": 3600,
+                    "refresh_token": "new_test_refresh_token",
+                    "scope": "test_scope,test_scope_two",
+                    "token_type": "Bearer",
                 },
             )
         elif fullmatch(
@@ -784,7 +853,7 @@ def _monzo_account(monzo_client: MonzoClient) -> MonzoAccount:
 @fixture(scope="function", name="monzo_client")  # type: ignore[misc]
 def _monzo_client(
     temp_dir: Path,
-    fake_oauth_credentials: dict[str, OAuthCredentialsInfo],
+    fake_oauth_credentials: OAuthCredentials,
     mock_requests: Mocker,  # pylint: disable=unused-argument
 ) -> MonzoClient:
     """Fixture for creating a MonzoClient instance."""
@@ -834,17 +903,17 @@ def _monzo_pot() -> Pot:
 
 @fixture(scope="function", name="oauth_client")  # type: ignore[misc]
 def _oauth_client(
-    logger: Logger,
     temp_dir: Path,
-    fake_oauth_credentials: dict[str, OAuthCredentialsInfo],
-) -> OAuthClient:
+    fake_oauth_credentials: OAuthCredentials,
+    mock_requests: Mocker,  # pylint: disable=unused-argument
+) -> OAuthClient[dict[str, Any]]:
     """Fixture for creating an OAuthClient instance."""
 
     (
         creds_cache_path := force_mkdir(
             temp_dir / "oauth_credentials" / "test_client_id.json", path_is_file=True
         )
-    ).write_text(dumps(fake_oauth_credentials))
+    ).write_text(fake_oauth_credentials.json(exclude_none=True))
 
     return OAuthClient(
         client_id="test_client_id",
@@ -853,8 +922,15 @@ def _oauth_client(
         access_token_endpoint="https://api.example.com/oauth2/token",
         log_requests=True,
         creds_cache_path=Path(creds_cache_path),
-        logger=logger,
+        auth_link_base="https://api.example.com/oauth2/authorize",
     )
+
+
+@fixture(scope="function", name="mock_open_browser")  # type: ignore[misc]
+def _mock_open_browser() -> YieldFixture[MagicMock]:
+
+    with patch("wg_utilities.clients.oauth_client.open_browser") as mock_open_browser:
+        yield mock_open_browser
 
 
 @fixture(scope="function", name="pigpio_pi")  # type: ignore[misc]
@@ -954,14 +1030,14 @@ def _spotify_artist(spotify_client: SpotifyClient) -> Artist:
 
 @fixture(scope="function", name="spotify_client")  # type: ignore[misc]
 def _spotify_client(
-    fake_oauth_credentials: dict[str, OAuthCredentialsInfo],
+    fake_oauth_credentials: OAuthCredentials,
     temp_dir: Path,
     mock_requests: Mocker,  # pylint: disable=unused-argument
 ) -> SpotifyClient:
     """Fixture for creating a `SpotifyClient` instance."""
 
     (creds_cache_path := temp_dir / "oauth_credentials.json").write_text(
-        dumps(fake_oauth_credentials)
+        fake_oauth_credentials.json(exclude_none=True)
     )
 
     spotify_oauth_manager = MagicMock(auto_spec=SpotifyOAuth)
@@ -972,7 +1048,6 @@ def _spotify_client(
         client_secret="test_client_secret",
         log_requests=True,
         creds_cache_path=Path(creds_cache_path),
-        oauth_manager=spotify_oauth_manager,
     )
 
 

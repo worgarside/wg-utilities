@@ -1,39 +1,154 @@
 """Generic OAuth client to allow for reusable authentication flows/checks etc."""
 from __future__ import annotations
 
+from collections.abc import Iterable
 from copy import deepcopy
+from datetime import datetime
 from http import HTTPStatus
-from json import JSONDecodeError, dump, dumps, loads
-from logging import DEBUG, Logger, getLogger
+from json import JSONDecodeError, dumps
+from logging import DEBUG, getLogger
 from pathlib import Path
+from random import choice
+from string import ascii_letters
 from time import time
-from typing import Any, Literal, TypedDict
+from typing import Any, Generic, Literal, TypeVar
+from urllib.parse import urlencode
+from webbrowser import open as open_browser
 
 from jwt import DecodeError, decode
+from pydantic import BaseModel, Extra
 from requests import Response, get, post
 
 from wg_utilities.api import TempAuthServer
 from wg_utilities.functions import user_data_dir
+from wg_utilities.loggers import add_stream_handler
+
+LOGGER = getLogger(__name__)
+LOGGER.setLevel(DEBUG)
+add_stream_handler(LOGGER)
 
 
-class OAuthCredentialsInfo(TypedDict):
+class OAuthCredentials(BaseModel, extra=Extra.forbid):
     """Typing info for OAuth credentials."""
 
     access_token: str
     client_id: str
-    client_secret: str
-    expires_in: int
+    expiry_epoch: float
     refresh_token: str
     scope: str
     token_type: Literal["Bearer"]
-    user_id: str
+
+    # Spotify & Google
+    client_secret: str | None
+
+    # Monzo
+    user_id: str | None
+
+    # Google
+    token: str | None
+    token_uri: str | None
+    scopes: list[str] | None
+
+    @classmethod
+    def parse_first_time_login(cls, value: dict[str, Any]) -> OAuthCredentials:
+        """Parse the response from a first time login into a credentials object.
+
+        The following fields are returned per API:
+        +---------------+--------+-------+---------+-----------+
+        |               | Google | Monzo | Spotify | TrueLayer |
+        +===============+========+=======+=========+===========+
+        | access_token  |    X   |   X   |    X    |     X     |
+        | client_id     |    X   |   X   |    X    |     X     |
+        | expiry_epoch  |    X   |   X   |    X    |     X     |
+        | refresh_token |    X   |   X   |    X    |     X     |
+        | scope         |    X   |   X   |    X    |     X     |
+        | token_type    |    X   |   X   |    X    |     X     |
+        | client_secret |    X   |       |    X    |           |
+        | user_id       |        |   X   |         |           |
+        | token         |    X   |       |         |           |
+        | token_uri     |    X   |       |         |           |
+        | scopes        |    X   |       |         |           |
+        +---------------+--------+-------+---------+-----------+
+
+        Args:
+            value:
+
+        Returns:
+            OAuthCredentials: an OAuthCredentials instance
+
+        Raises:
+            ValueError: if `expiry` and `expiry_epoch` aren't the same
+        """
+
+        # Calculate the expiry time of the access token
+        try:
+            # Try to decode it if it's a valid JWT (with expiry)
+            expiry_epoch = decode(
+                value["access_token"],
+                options={"verify_signature": False},
+            )["exp"]
+            value.pop("expires_in", None)
+        except (DecodeError, KeyError):
+            # If that's not possible, calculate it from the expires_in value
+            expires_in = value.pop("expires_in")
+
+            # Subtract 2.5 seconds to account for latency
+            expiry_epoch = time() + expires_in - 2.5
+
+            # Verify it against the expiry time string
+            if expiry_time_str := value.get("expiry"):
+                expiry_time = datetime.fromisoformat(expiry_time_str)
+                if abs(expiry_epoch - expiry_time.timestamp()) > 60:
+                    raise ValueError(  # pylint: disable=raise-missing-from
+                        "`expiry` and `expires_in` are not consistent with each other:"
+                        f" expiry: {expiry_time_str}, expires_in: {expiry_epoch}"
+                    )
+
+        value["expiry_epoch"] = expiry_epoch
+
+        return cls(**value)
+
+    def update_access_token(
+        self, new_token: str, expires_in: int, refresh_token: str | None = None
+    ) -> None:
+        """Update the access token and expiry time.
+
+        Args:
+            new_token (str): the newly refreshed access token
+            expires_in (int): the number of seconds until the token expires
+            refresh_token (str, optional): a new refresh token. Defaults to unset.
+        """
+        self.access_token = new_token
+        self.expiry_epoch = time() + expires_in - 2.5
+
+        if refresh_token is not None:
+            self.refresh_token = refresh_token
+
+    @property
+    def is_expired(self) -> bool:
+        """Check if the access token is expired.
+
+        Returns:
+            bool: True if the token is expired, False otherwise
+        """
+        return self.expiry_epoch < time()
 
 
-class OAuthClient:
+# GetJsonResponse = TypeVar(
+#     "GetJsonResponse",
+#     dict[str, Any],
+#     SpotifyEntityJsonTypeInfo
+# )
+GetJsonResponse = TypeVar("GetJsonResponse")
+
+
+class OAuthClient(Generic[GetJsonResponse]):
     """Custom client for interacting with OAuth APIs.
 
     Includes all necessary/basic authentication functionality
     """
+
+    ACCESS_TOKEN_EXPIRY_THRESHOLD = 150
 
     DEFAULT_PARAMS: dict[str, object] = {}
 
@@ -42,31 +157,26 @@ class OAuthClient:
         *,
         base_url: str,
         access_token_endpoint: str,
+        auth_link_base: str,
         client_id: str | None = None,
         client_secret: str | None = None,
         redirect_uri: str = "http://0.0.0.0:5001/get_auth_code",
-        access_token_expiry_threshold: int = 60,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
-        logger: Logger | None = None,
+        scopes: list[str] | None = None,
     ):
         self._client_id = client_id
         self._client_secret = client_secret
         self.base_url = base_url
         self.access_token_endpoint = access_token_endpoint
+        self.auth_link_base = auth_link_base
         self.redirect_uri = redirect_uri
-        self.access_token_expiry_threshold = access_token_expiry_threshold
         self.log_requests = log_requests
         self._creds_cache_path = creds_cache_path
 
-        if logger:
-            self.logger = logger
-        else:
-            self.logger = getLogger(__name__)
-            self.logger.setLevel(DEBUG)
+        self.scopes = scopes or []
 
-        self._credentials: OAuthCredentialsInfo
-
+        self._credentials: OAuthCredentials
         self._temp_auth_server: TempAuthServer
 
         if self._creds_cache_path:
@@ -94,7 +204,7 @@ class OAuthClient:
             url = f"{self.base_url}{url}"
 
         if self.log_requests:
-            self.logger.debug("GET %s with params %s", url, dumps(params, default=str))
+            LOGGER.debug("GET %s with params %s", url, dumps(params, default=str))
 
         res = get(
             url,
@@ -106,58 +216,67 @@ class OAuthClient:
 
         return res
 
-    def _load_local_credentials(self) -> None:
-
-        if not (self._creds_cache_path and self._creds_cache_path.exists()):
-            self._credentials = {}  # type: ignore[typeddict-item]
-            return
-
-        self._credentials = loads(self.creds_cache_path.read_text())
-
-    def _set_credentials(self, value: OAuthCredentialsInfo) -> None:
-        """Actual setter for credentials.
-
-        Args:
-            value (OAuthCredentialsInfo): the new values to use for the creds for
-                this project
-        """
-        self._credentials = value
-
-        with open(self.creds_cache_path, "w", encoding="UTF-8") as fout:
-            dump(self._credentials, fout)
-
-    def delete_creds_file(self) -> None:
-        """Delete the local creds file."""
+    def _load_local_credentials(self) -> bool:
         try:
-            self.creds_cache_path.unlink()
+            self._credentials = OAuthCredentials.parse_file(self.creds_cache_path)
         except FileNotFoundError:
-            pass
+            return False
 
-    def exchange_auth_code(self, code: str) -> None:
-        """Allows first-time (or repeated) authentication.
+        return True
+
+    def _post(
+        self,
+        url: str,
+        *,
+        json: dict[str, str | int | float | bool | list[str] | dict[object, object]]
+        | None = None,
+        header_overrides: dict[str, str] | None = None,
+        params: dict[
+            str, str | bytes | int | float | Iterable[str | bytes | int | float]
+        ]
+        | None = None,
+        data: dict[str, object] | None = None,
+    ) -> Response:
+        """Wrapper for POST requests which covers authentication, URL parsing, etc. etc.
 
         Args:
-            code (str): the authorization code returned from the auth flow
+            url (str): the URL path to the endpoint (not necessarily including the
+             base URL)
+            json (dict): the data to be passed in the HTTP request
+
+        Returns:
+            Response: the response from the HTTP request
         """
+
+        if url.startswith("/"):
+            url = f"{self.base_url}{url}"
+
+        if self.log_requests:
+            LOGGER.debug("POST %s with data %s", url, dumps(json or {}, default=str))
 
         res = post(
-            self.access_token_endpoint,
-            data={
-                "grant_type": "authorization_code",
-                "client_id": self.client_id,
-                "client_secret": self.client_secret,
-                "redirect_uri": self.redirect_uri,
-                "code": code,
-            },
+            url,
+            headers=header_overrides
+            if header_overrides is not None
+            else self.request_headers,
+            json=json or {},
+            params=params or {},
+            data=data or {},
         )
 
         res.raise_for_status()
 
-        self.credentials = {**self._credentials, **res.json()}  # type: ignore[misc]
+        return res
+
+    def delete_creds_file(self) -> None:
+        """Delete the local creds file."""
+        self.creds_cache_path.unlink(missing_ok=True)
 
     def get_json_response(
-        self, url: str, params: dict[str, Any] | None = None
-    ) -> dict[str, Any]:
+        self,
+        url: str,
+        params: dict[str, object] | None = None,
+    ) -> GetJsonResponse:  # Mapping[str, Any]:
         """Gets a simple JSON object from a URL.
 
         Args:
@@ -170,23 +289,22 @@ class OAuthClient:
         try:
             res = self._get(url, params=params)
             if res.status_code == HTTPStatus.NO_CONTENT:
-                return {}
+                return {}  # type: ignore[return-value]
 
             return res.json()  # type: ignore[no-any-return]
         except JSONDecodeError:
-            return {}
+            return {}  # type: ignore[return-value]
 
     def refresh_access_token(self) -> None:
-        """Refreshes access token.
+        """Refreshes access token."""
 
-        Uses the cached refresh token to submit a request to TL's API for a new
-        access token
-        """
+        if not hasattr(self, "_credentials") and not self._load_local_credentials():
+            # If we don't have any credentials, we can't refresh the access token -
+            # perform first time login and leave it at that
+            self.run_first_time_login()
+            return
 
-        if not hasattr(self, "_credentials"):
-            self._load_local_credentials()
-
-        self.logger.info("Refreshing access token")
+        LOGGER.info("Refreshing access token")
 
         res = post(
             self.access_token_endpoint,
@@ -194,19 +312,78 @@ class OAuthClient:
                 "grant_type": "refresh_token",
                 "client_id": self.client_id,
                 "client_secret": self.client_secret,
-                "refresh_token": self._credentials.get("refresh_token"),
+                "refresh_token": self.credentials.refresh_token,
             },
         )
 
         res.raise_for_status()
 
-        # Maintain any existing credential values in the dictionary whilst updating
-        # new ones
-        self.credentials = {
-            **self._credentials,  # type: ignore[misc]
-            # TODO is this correct? :/
-            **res.json(),
-        }
+        self.credentials.update_access_token(
+            new_token=res.json()["access_token"],
+            expires_in=res.json()["expires_in"],
+            # Monzo
+            refresh_token=res.json().get("refresh_token"),
+        )
+
+        self.creds_cache_path.write_text(self.credentials.json(exclude_none=True))
+
+    def run_first_time_login(self) -> None:
+        """Runs the first time login process.
+
+        This is a blocking call which will not return until the user has
+        authenticated with the OAuth provider.
+        """
+        LOGGER.info("Performing first time login")
+
+        state_token = "".join(choice(ascii_letters) for _ in range(32))
+
+        auth_link = (
+            self.auth_link_base
+            + "?"
+            + urlencode(
+                {
+                    "client_id": self._client_id,
+                    "redirect_uri": self.redirect_uri,
+                    "response_type": "code",
+                    "state": state_token,
+                    "scope": " ".join(self.scopes),
+                }
+            )
+        )
+        LOGGER.debug("Opening %s", auth_link)
+        open_browser(auth_link)
+
+        request_args = self.temp_auth_server.wait_for_request(
+            "/get_auth_code", kill_on_request=True
+        )
+
+        if state_token != request_args.get("state"):
+            raise ValueError(
+                "State token received in request doesn't match expected value: "
+                f"`{request_args.get('state')}` != `{state_token}`"
+            )
+
+        res = self._post(
+            self.access_token_endpoint,
+            data={
+                "code": request_args["code"],
+                "grant_type": "authorization_code",
+                "client_id": self._client_id,
+                "client_secret": self._client_secret,
+                "redirect_uri": self.redirect_uri,
+            },
+            header_overrides={},
+        )
+
+        credentials = res.json()
+
+        if self._client_id:
+            credentials["client_id"] = self._client_id
+
+        if self._client_secret:
+            credentials["client_secret"] = self._client_secret
+
+        self.credentials = OAuthCredentials.parse_first_time_login(credentials)
 
     @property
     def access_token(self) -> str | None:
@@ -215,7 +392,10 @@ class OAuthClient:
         Returns:
             str: the access token for this bank's API
         """
-        return self.credentials.get("access_token")
+        if self.access_token_has_expired:
+            self.refresh_access_token()
+
+        return self.credentials.access_token
 
     @property
     def access_token_has_expired(self) -> bool:
@@ -225,22 +405,12 @@ class OAuthClient:
             bool: has the access token expired?
         """
         if not hasattr(self, "_credentials"):
-            self._load_local_credentials()
+            if not self._load_local_credentials():
+                return True
 
-        try:
-            expiry_epoch = decode(
-                # can't use self.access_token here, as that uses self.credentials,
-                # which in turn (recursively) checks if the access token has expired
-                self._credentials["access_token"],
-                options={"verify_signature": False},
-            ).get("exp", 0)
-
-            return bool(
-                (expiry_epoch - self.access_token_expiry_threshold) < int(time())
-            )
-        except (DecodeError, KeyError):
-            # Treat invalid token as expired, so we get a new one
-            return True
+        return (
+            self.credentials.expiry_epoch < time() + self.ACCESS_TOKEN_EXPIRY_THRESHOLD
+        )
 
     @property
     def client_id(self) -> str:
@@ -250,42 +420,43 @@ class OAuthClient:
             str: the current client ID
         """
 
-        return self._client_id or self.credentials["client_id"]
+        return self._client_id or self.credentials.client_id
 
     @property
-    def client_secret(self) -> str:
+    def client_secret(self) -> str | None:
         """Client secret.
 
         Returns:
             str: the current client secret
         """
 
-        return self._client_secret or self.credentials["client_secret"]
+        return self._client_secret or self.credentials.client_secret
 
     @property
-    def credentials(self) -> OAuthCredentialsInfo:
+    def credentials(self) -> OAuthCredentials:
         """Gets creds as necessary (including first time setup) and authenticates them.
 
         Returns:
-            dict: the credentials for the chosen bank
+            OAuthCredentials: the credentials for the chosen bank
 
         Raises:
             ValueError: if the state token returned from the request doesn't match the
              expected value
         """
-        if not hasattr(self, "_credentials"):
-            self._load_local_credentials()
+        if not hasattr(self, "_credentials") and not self._load_local_credentials():
+            self.run_first_time_login()
 
         return self._credentials
 
     @credentials.setter
-    def credentials(self, value: OAuthCredentialsInfo) -> None:
-        """Setter for credentials.
+    def credentials(self, value: OAuthCredentials) -> None:
+        """Sets the client's credentials, and write to the local cache file."""
 
-        Args:
-            value (dict): the new values to use for the creds for this project
-        """
-        self._set_credentials(value)
+        self._credentials = value
+
+        self.creds_cache_path.write_text(
+            dumps(self._credentials.dict(exclude_none=True))
+        )
 
     @property
     def creds_cache_path(self) -> Path:
@@ -323,13 +494,13 @@ class OAuthClient:
         return {"Authorization": f"Bearer {self.access_token}"}
 
     @property
-    def refresh_token(self) -> str | None:
+    def refresh_token(self) -> str:
         """Refresh token.
 
         Returns:
             str: the API refresh token
         """
-        return self.credentials.get("refresh_token")
+        return self.credentials.refresh_token
 
     @property
     def temp_auth_server(self) -> TempAuthServer:
