@@ -134,11 +134,6 @@ class OAuthCredentials(BaseModel, extra=Extra.forbid):
         return self.expiry_epoch < time()
 
 
-# GetJsonResponse = TypeVar(
-#     "GetJsonResponse",
-#     dict[str, Any],
-#     SpotifyEntityJsonTypeInfo
-# )
 GetJsonResponse = TypeVar("GetJsonResponse")
 
 
@@ -274,8 +269,8 @@ class OAuthClient(Generic[GetJsonResponse]):
 
     def get_json_response(
         self,
-        url: str,
-        params: dict[str, object] | None = None,
+        url: str,  #  | Literal["/search"]
+        params: dict[str, str | int | object] | None = None,
     ) -> GetJsonResponse:  # Mapping[str, Any]:
         """Gets a simple JSON object from a URL.
 

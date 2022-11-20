@@ -16,7 +16,8 @@ from google_auth_oauthlib.flow import Flow
 from mypy_extensions import DefaultNamedArg
 from requests import Response
 
-from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentialsInfo
+from wg_utilities.clients.oauth_client import OAuthClient
+from wg_utilities.clients.oauth_client import OAuthCredentials as OAuthCredentialsInfo
 
 if TYPE_CHECKING:  # pragma: no cover
     from wg_utilities.clients.google_calendar import _GoogleCalendarEntityInfo

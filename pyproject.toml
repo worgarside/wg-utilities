@@ -71,7 +71,6 @@ extend-select = [
     # https://github.com/charliermarsh/ruff#supported-rules
     "M001", # UnusedNOQA
     "U001", # UselessMetaclassType
-    "U002", # UnnecessaryAbspath
     "U003", # TypeOfPrimitive
     "U004", # UselessObjectInheritance
     "U005", # DeprecatedUnittestAlias

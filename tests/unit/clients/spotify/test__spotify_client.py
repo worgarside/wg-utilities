@@ -12,7 +12,6 @@ from urllib.parse import parse_qsl
 from pytest import LogCaptureFixture, mark, raises
 from requests import HTTPError
 from requests_mock import Mocker
-from spotipy import SpotifyOAuth
 
 from conftest import (
     FLAT_FILES_DIR,
@@ -20,7 +19,16 @@ from conftest import (
     read_json_file,
 )
 from wg_utilities.clients import SpotifyClient
-from wg_utilities.clients.spotify import Album, Artist, Playlist, Track, User
+from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson
+from wg_utilities.clients.spotify import (
+    Album,
+    Artist,
+    ParsedSearchResponse,
+    Playlist,
+    SpotifyEntity,
+    Track,
+    User,
+)
 
 
 def test_instantiation() -> None:
@@ -30,8 +38,6 @@ def test_instantiation() -> None:
         client_secret="test_client_secret",
         log_requests=True,
     )
-    assert isinstance(client, SpotifyClient)
-    assert isinstance(client.oauth_manager, SpotifyOAuth)
     assert client.log_requests is True
 
 
@@ -48,6 +54,7 @@ def test_get_method_with_sample_responses(
     file_path: Path,
     caplog: LogCaptureFixture,
     mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test the `_get` method processes a request and its response correctly."""
 
@@ -82,7 +89,7 @@ def test_get_method_with_sample_responses(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             }
         ],
@@ -109,6 +116,7 @@ def test_get_method_without_leading_slash(
     file_path: Path,
     caplog: LogCaptureFixture,
     mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test the `_get` method processes a request and its response correctly."""
 
@@ -145,7 +153,7 @@ def test_get_method_without_leading_slash(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             }
         ],
@@ -214,7 +222,7 @@ def test_get_items_from_url_no_pagination(
     )
     assert len(mock_requests.request_history) == 1
 
-    assert items == [album.json for album in spotify_artist.albums]
+    assert items == [album.summary_json for album in spotify_artist.albums]
 
 
 def test_get_items_from_url_with_pagination(
@@ -230,17 +238,18 @@ def test_get_items_from_url_with_pagination(
     assert len(mock_requests.request_history) == 11
 
     assert [
-        Track(
-            item["track"],  # type: ignore[call-overload,typeddict-item]
+        Track.from_json_response(
+            item["track"],  # type: ignore[arg-type,typeddict-item]
             spotify_client=spotify_client,
         )
         for item in items
+        if item.get("is_local", False) is False
     ] == spotify_playlist.tracks
     assert len(items) == 518
 
 
 def test_get_items_from_url_handles_params_correctly(
-    spotify_client: SpotifyClient, mock_requests: Mocker
+    spotify_client: SpotifyClient, mock_requests: Mocker, live_jwt_token: str
 ) -> None:
     """Test that the `params` dict are turned into a query string correctly."""
 
@@ -262,7 +271,7 @@ def test_get_items_from_url_handles_params_correctly(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             }
         ],
@@ -270,7 +279,7 @@ def test_get_items_from_url_handles_params_correctly(
 
 
 def test_get_items_from_url_hard_limit(
-    spotify_client: SpotifyClient, mock_requests: Mocker
+    spotify_client: SpotifyClient, mock_requests: Mocker, live_jwt_token: str
 ) -> None:
     """Test the `hard_limit` argument works correctly."""
 
@@ -290,7 +299,7 @@ def test_get_items_from_url_hard_limit(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             },
             {
@@ -298,7 +307,7 @@ def test_get_items_from_url_hard_limit(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             },
         ],
@@ -308,30 +317,32 @@ def test_get_items_from_url_hard_limit(
 
 
 def test_get_items_from_url_limit_func(
-    spotify_client: SpotifyClient, mock_requests: Mocker
+    spotify_client: SpotifyClient, mock_requests: Mocker, live_jwt_token: str
 ) -> None:
     """Test that a limit function can be passed to `get_items_from_url`."""
 
     items = spotify_client.get_items_from_url(
         url="https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
         limit_func=lambda item: datetime.strptime(
-            item["added_at"], spotify_client.DATETIME_FORMAT
+            item["added_at"],  # type: ignore[typeddict-item]
+            spotify_client.DATETIME_FORMAT,
         )
         >= datetime(2020, 1, 1),
     )
 
     tracks = [
-        Track(
-            item["track"],  # type: ignore[call-overload,typeddict-item]
+        Track.from_json_response(
+            item["track"],  # type: ignore[arg-type,typeddict-item]
             spotify_client=spotify_client,
             metadata={
                 "added_at_datetime": datetime.strptime(
-                    item["added_at"],  # type: ignore[call-overload,typeddict-item]
+                    item["added_at"],  # type: ignore[typeddict-item]
                     spotify_client.DATETIME_FORMAT,
                 )
             },
         )
         for item in items
+        if item["is_local"] is False  # type: ignore[typeddict-item]
     ]
 
     assert not any(
@@ -348,7 +359,7 @@ def test_get_items_from_url_limit_func(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             },
             {
@@ -356,7 +367,7 @@ def test_get_items_from_url_limit_func(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             },
             {
@@ -364,7 +375,7 @@ def test_get_items_from_url_limit_func(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             },
             {
@@ -372,7 +383,7 @@ def test_get_items_from_url_limit_func(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             },
             {
@@ -380,7 +391,7 @@ def test_get_items_from_url_limit_func(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             },
             {
@@ -388,7 +399,7 @@ def test_get_items_from_url_limit_func(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             },
         ],
@@ -404,7 +415,8 @@ def test_get_items_from_url_limit_func(
                 # pylint: disable=line-too-long
                 url="https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
                 limit_func=lambda item: datetime.strptime(
-                    item["added_at"], spotify_client.DATETIME_FORMAT
+                    item["added_at"],  # type: ignore[typeddict-item]
+                    spotify_client.DATETIME_FORMAT,
                 )
                 >= datetime(2020, 1, 1),
                 hard_limit=75,
@@ -475,8 +487,14 @@ def test_get_json_response_returns_json(
         text="text",
     )
 
-    assert spotify_client.get_json_response("/foo") == {}
-    assert spotify_client.get_json_response("/bar") == {}
+    assert (
+        spotify_client.get_json_response("/foo")
+        == {}  # type: ignore[comparison-overlap]
+    )
+    assert (
+        spotify_client.get_json_response("/bar")
+        == {}  # type: ignore[comparison-overlap]
+    )
 
     # Test a 204 No Content response
     mock_requests.get(
@@ -485,7 +503,10 @@ def test_get_json_response_returns_json(
         reason=HTTPStatus.NO_CONTENT.phrase,
     )
 
-    assert spotify_client.get_json_response("/baz") == {}
+    assert (
+        spotify_client.get_json_response("/baz")  # type: ignore[comparison-overlap]
+        == {}
+    )
 
 
 @mark.parametrize(  # type: ignore[misc]
@@ -502,7 +523,7 @@ def test_get_json_response_returns_json(
             Album,
             "album",
             "https://api.spotify.com/v1/search?query=mirrors&type=album&limit=1",
-            "spotify/albums/7FvnTARvgjUyWnUT0flUN7.json",
+            "albums/7FvnTARvgjUyWnUT0flUN7.json",
         ),
         # pylint: disable=line-too-long
         (
@@ -510,21 +531,21 @@ def test_get_json_response_returns_json(
             Artist,
             "artist",
             "https://api.spotify.com/v1/search?query=ross+from+friends&type=artist&limit=1",
-            "spotify/artists/1Ma3pJzPIrAyYPNRkp3SUF.json",
+            "artists/1Ma3pJzPIrAyYPNRkp3SUF.json",
         ),
         (
             "Chill Electronica",
             Playlist,
             "playlist",
             "https://api.spotify.com/v1/search?query=Chill+Electronica&type=playlist&limit=1",
-            "spotify/playlists/2lmx8fu0seq7ea5kcmlnpx.json",
+            "playlists/2lmx8fu0seq7ea5kcmlnpx.json",
         ),
         (
             "Past Life Tame Impala",
             Track,
             "track",
             "https://api.spotify.com/v1/search?query=past+life+tame+impala&type=track&limit=1",
-            "spotify/tracks/4a9fw33myr8lhxboluhbff.json",
+            "tracks/4a9fw33myr8lhxboluhbff.json",
         ),
     ],
 )
@@ -532,10 +553,11 @@ def test_search_method_get_best_match_only(
     spotify_client: SpotifyClient,
     mock_requests: Mocker,
     search_term: str,
-    entity_type: type,
+    entity_type: type[SpotifyEntity[SpotifyBaseEntityJson]],
     entity_type_str: Literal["album", "artist", "playlist", "track"],
     expected_url: str,
     expected_return_value_file_path: str,
+    live_jwt_token: str,
 ) -> None:
     """Test the `search` method processes the request and response correctly."""
 
@@ -543,8 +565,9 @@ def test_search_method_get_best_match_only(
         search_term, entity_types=[entity_type_str], get_best_match_only=True
     )
 
-    assert search_result == entity_type(
-        read_json_file(expected_return_value_file_path), spotify_client=spotify_client
+    assert search_result == entity_type.from_json_response(
+        read_json_file(expected_return_value_file_path, host_name="spotify"),
+        spotify_client=spotify_client,
     )
 
     assert len(mock_requests.request_history) == 1
@@ -556,7 +579,7 @@ def test_search_method_get_best_match_only(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             }
         ],
@@ -603,18 +626,18 @@ def test_search_method_invalid_entity_type(spotify_client: SpotifyClient) -> Non
         )
 
     assert str(exc_info.value) == (
-        "Unexpected value for entity type: 'foo'. Must be one of 'album', 'artist', "
-        "'playlist', 'track'"
+        "Unexpected value for entity type: 'foo'. Must be one of ('album', 'artist', "
+        "'playlist', 'track')"
     )
 
 
 def test_search_method_with_pagination(
-    spotify_client: SpotifyClient, mock_requests: Mocker
+    spotify_client: SpotifyClient, mock_requests: Mocker, live_jwt_token: str
 ) -> None:
     """Test that when >50 results are returned, they paginate correctly."""
 
     # An uncommon search, so I don't have to manually reduce the number of files
-    results = spotify_client.search(
+    results: ParsedSearchResponse = spotify_client.search(
         "uncommon search", entity_types=["track"], get_best_match_only=False
     )
 
@@ -627,7 +650,7 @@ def test_search_method_with_pagination(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             },
             {
@@ -635,7 +658,7 @@ def test_search_method_with_pagination(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             },
             {
@@ -643,7 +666,7 @@ def test_search_method_with_pagination(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             },
             {
@@ -651,7 +674,7 @@ def test_search_method_with_pagination(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             },
         ],
@@ -687,18 +710,19 @@ def test_search_no_results(spotify_client: SpotifyClient) -> None:
     }
 
 
-def test_access_token_property(spotify_client: SpotifyClient) -> None:
+def test_access_token_property(
+    spotify_client: SpotifyClient, live_jwt_token: str
+) -> None:
     """Test that the `access_token` leverages the SpotifyOAuth instance."""
 
-    assert spotify_client.access_token == "test_access_token"
-
-    # The `oauth_manager` instance is a mock, so we can check that the
-    # `get_access_token` method was called
-    spotify_client.oauth_manager.get_access_token.assert_called_once_with(as_dict=False)
+    assert spotify_client.access_token == live_jwt_token
 
 
 def test_current_user_property(
-    spotify_client: SpotifyClient, mock_requests: Mocker, spotify_user: User
+    spotify_client: SpotifyClient,
+    mock_requests: Mocker,
+    spotify_user: User,
+    live_jwt_token: str,
 ) -> None:
     """Test that the `current_user` property returns the correct data."""
 
@@ -715,7 +739,7 @@ def test_current_user_property(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             }
         ],
@@ -729,6 +753,7 @@ def test_add_tracks_to_playlist(
     mock_requests: Mocker,
     caplog: LogCaptureFixture,
     update_instance_tracklist: bool,
+    live_jwt_token: str,
 ) -> None:
     """Test `add_tracks_to_playlist` makes the correct requests."""
 
@@ -756,7 +781,7 @@ def test_add_tracks_to_playlist(
                 "method": "POST",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             }
         ]
@@ -826,8 +851,8 @@ def test_create_playlist_method(
     assert isinstance(new_playlist, Playlist)
     assert new_playlist.name == "Test Playlist"
     assert new_playlist.description == "This is a test playlist."
-    assert new_playlist.is_public is public
-    assert new_playlist.is_collaborative is collaborative
+    assert new_playlist.public is public
+    assert new_playlist.collaborative is collaborative
     assert new_playlist.owner == spotify_client.current_user
     assert new_playlist.tracks == []
 
@@ -836,7 +861,10 @@ def test_create_playlist_method(
     "album_id", ["4julBAGYv4WmRXwhjJ2LPD", "7FvnTARvgjUyWnUT0flUN7"]
 )
 def test_get_album_by_id_method(
-    spotify_client: SpotifyClient, album_id: str, mock_requests: Mocker
+    spotify_client: SpotifyClient,
+    album_id: str,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that the correct Album instance is returned."""
 
@@ -853,7 +881,7 @@ def test_get_album_by_id_method(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             }
         ],
@@ -864,7 +892,10 @@ def test_get_album_by_id_method(
     "artist_id", ["0q8eApZJs5WDBxayY9769C", "1Ma3pJzPIrAyYPNRkp3SUF"]
 )
 def test_get_artist_by_id_method(
-    spotify_client: SpotifyClient, artist_id: str, mock_requests: Mocker
+    spotify_client: SpotifyClient,
+    artist_id: str,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that the correct Artist instance is returned."""
 
@@ -881,7 +912,7 @@ def test_get_artist_by_id_method(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             }
         ],
@@ -898,7 +929,10 @@ def test_get_artist_by_id_method(
     ],
 )
 def test_get_playlist_by_id_method(
-    spotify_client: SpotifyClient, playlist_id: str, mock_requests: Mocker
+    spotify_client: SpotifyClient,
+    playlist_id: str,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that the correct Playlist instance is returned."""
 
@@ -915,7 +949,7 @@ def test_get_playlist_by_id_method(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             }
         ],
@@ -953,7 +987,10 @@ def test_get_playlist_by_id_after_property_accessed(
     ],
 )
 def test_get_track_by_id_method(
-    spotify_client: SpotifyClient, track_id: str, mock_requests: Mocker
+    spotify_client: SpotifyClient,
+    track_id: str,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that the correct Track instance is returned."""
 
@@ -970,7 +1007,7 @@ def test_get_track_by_id_method(
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                 },
             }
         ],

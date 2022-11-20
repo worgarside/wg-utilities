@@ -1,5 +1,9 @@
 {
   "artists": {
+    "cursors": {
+      "after": "3iOvXCl6edW5Um0fXEBRXy"
+    },
+    "href": "https://api.spotify.com/v1/me/following?type=artist&limit=50",
     "items": [
       {
         "external_urls": {
@@ -1858,12 +1862,8 @@
         "uri": "spotify:artist:3iOvXCl6edW5Um0fXEBRXy"
       }
     ],
-    "next": "https://api.spotify.com/v1/me/following?type=artist&after=3iOvXCl6edW5Um0fXEBRXy&limit=50",
-    "total": 112,
-    "cursors": {
-      "after": "3iOvXCl6edW5Um0fXEBRXy"
-    },
     "limit": 50,
-    "href": "https://api.spotify.com/v1/me/following?type=artist&limit=50"
+    "next": "https://api.spotify.com/v1/me/following?type=artist&after=3iOvXCl6edW5Um0fXEBRXy&limit=50",
+    "total": 112
   }
 }

@@ -1,14 +1,14 @@
-# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.clients.spotify.Artist`."""
 
 from __future__ import annotations
 
-from wg_utilities.clients.spotify import Album, Artist, SpotifyClient, _ArtistInfo
+from wg_utilities.clients._spotify_types import ArtistFullJson
+from wg_utilities.clients.spotify import Album, Artist, SpotifyClient
 
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:
     """Test instantiation of the Artist class."""
-    artist_json: _ArtistInfo = {
+    artist_json: ArtistFullJson = {
         "external_urls": {
             "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
         },
@@ -40,14 +40,14 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
         "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF",
     }
 
-    artist = Artist(
+    artist = Artist.from_json_response(
         artist_json,
         spotify_client=spotify_client,
     )
 
     assert isinstance(artist, Artist)
-    assert artist._spotify_client == spotify_client
-    assert artist.json == artist_json
+    assert artist.spotify_client == spotify_client
+    assert artist.dict() == artist_json
 
 
 def test_albums_property(spotify_artist: Artist) -> None:

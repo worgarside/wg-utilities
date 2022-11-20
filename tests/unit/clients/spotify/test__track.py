@@ -1,23 +1,21 @@
-# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.clients.spotify.Track`."""
 from __future__ import annotations
 
-from datetime import datetime
 from http import HTTPStatus
 
 from pytest import raises
 from requests import HTTPError
 from requests_mock import Mocker
 
-from conftest import assert_mock_requests_request_history, read_json_file
+from conftest import assert_mock_requests_request_history
 from wg_utilities.clients.spotify import Album, Artist, SpotifyClient, Track
 
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:
     # pylint: disable=line-too-long
     """Test instantiation of the Track class."""
-    track = Track(
-        {
+    track = Track.from_json_response(
+        {  # type: ignore[arg-type,misc]
             "album": {
                 "album_type": "album",
                 "artists": [
@@ -99,8 +97,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
     assert track.album.name == "Mirrors"
     assert track.id == "27cgqh0VRhVeM61ugTnorD"
     assert track.name == "These Things Will Come To Be"
-    assert track._spotify_client == spotify_client
-    assert track.json == read_json_file("spotify/tracks/27cgqh0VRhVeM61ugTnorD.json")
+    assert track.spotify_client == spotify_client
 
 
 def test_album_property(spotify_track: Track) -> None:
@@ -108,12 +105,7 @@ def test_album_property(spotify_track: Track) -> None:
 
     assert isinstance(spotify_track.album, Album)
 
-    assert spotify_track.album.json == spotify_track.json["album"]
-    assert spotify_track.album._spotify_client == spotify_track._spotify_client
-
-    api_album_response = read_json_file("spotify/albums/7FvnTARvgjUyWnUT0flUN7.json")
-    for k, v in spotify_track.album.json.items():
-        assert v == api_album_response[k]
+    assert spotify_track.album.spotify_client == spotify_track.spotify_client
 
 
 def test_artists_property(spotify_track: Track) -> None:
@@ -122,10 +114,12 @@ def test_artists_property(spotify_track: Track) -> None:
     assert isinstance(spotify_track.artists[0], Artist)
     assert spotify_track.artists[0].name == "DJ Seinfeld"
     assert spotify_track.artists[0].id == "37YzpfBeFju8QRZ3g0Ha1Q"
-    assert spotify_track.artists[0]._spotify_client == spotify_track._spotify_client
+    assert spotify_track.artists[0].spotify_client == spotify_track.spotify_client
 
 
-def test_audio_features_property(spotify_track: Track, mock_requests: Mocker) -> None:
+def test_audio_features_property(
+    spotify_track: Track, mock_requests: Mocker, live_jwt_token: str
+) -> None:
     """Test that the `audio_features` property makes the correct request."""
 
     expected = {
@@ -160,7 +154,7 @@ def test_audio_features_property(spotify_track: Track, mock_requests: Mocker) ->
                 "url": "https://api.spotify.com/v1/audio-features/27cgqh0VRhVeM61ugTnorD",
                 "method": "GET",
                 "headers": {
-                    "Authorization": "Bearer test_access_token",
+                    "Authorization": f"Bearer {live_jwt_token}",
                     "Content-Type": "application/json",
                 },
             }
@@ -212,22 +206,9 @@ def test_is_local_property(spotify_track: Track) -> None:
     """Test that the `is_local` property returns the correct value."""
     assert spotify_track.is_local is False
 
-    spotify_track.json["is_local"] = True
-    assert spotify_track.is_local is True
+    local_track = spotify_track.copy(deep=True, update=dict(is_local=True))
 
-
-def test_release_date_property(spotify_track: Track) -> None:
-    """Test that the `release_date` property returns the correct value."""
-
-    assert spotify_track.release_date == datetime(2021, 9, 3).date()
-
-    spotify_track.json["album"]["release_date_precision"] = "month"
-    spotify_track.json["album"]["release_date"] = "2021-09"
-    assert spotify_track.release_date == datetime(2021, 9, 1).date()
-
-    spotify_track.json["album"]["release_date_precision"] = "year"
-    spotify_track.json["album"]["release_date"] = "2021"
-    assert spotify_track.release_date == datetime(2021, 1, 1).date()
+    assert local_track.is_local is True
 
 
 def test_tempo_property(spotify_track: Track) -> None:
@@ -236,8 +217,8 @@ def test_tempo_property(spotify_track: Track) -> None:
     assert spotify_track.tempo == 125.998
     assert hasattr(spotify_track, "_audio_features")
 
-    spotify_track._audio_features["tempo"] = 420
+    spotify_track.audio_features.tempo = 420  # type: ignore[union-attr]
     assert spotify_track.tempo == 420
 
-    del spotify_track._audio_features["tempo"]  # type: ignore[misc]
+    del spotify_track.audio_features.tempo  # type: ignore[union-attr]
     assert spotify_track.tempo is None

@@ -11,7 +11,8 @@ from webbrowser import open as open_browser
 
 from requests import get, put
 
-from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentialsInfo
+from wg_utilities.clients.oauth_client import OAuthClient
+from wg_utilities.clients.oauth_client import OAuthCredentials as OAuthCredentialsInfo
 from wg_utilities.functions import DTU, cleanse_string, utcnow
 
 LOGGER = getLogger(__name__)

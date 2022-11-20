@@ -1,9 +1,7 @@
-# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.clients.spotify.Playlist`."""
 
 from __future__ import annotations
 
-from copy import deepcopy
 from os import listdir
 
 from pytest import mark, raises
@@ -23,32 +21,32 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
 
     playlist_json = read_json_file("spotify/playlists/37i9dqzf1e8pj76jxe3egf.json")
 
-    playlist = Playlist(
+    playlist = Playlist.from_json_response(
         playlist_json, spotify_client=spotify_client  # type: ignore[arg-type]
     )
 
     assert isinstance(playlist, Playlist)
-    assert playlist.json == playlist_json
+    assert playlist.dict() == playlist_json
 
 
-def test_is_collaborative_property(
+def test_collaborative_property(
     spotify_playlist: Playlist, spotify_client: SpotifyClient
 ) -> None:
     """Test that the `is_collaborative` property returns the correct value."""
 
-    assert not spotify_playlist.is_collaborative
+    assert not spotify_playlist.collaborative
 
-    assert spotify_client.get_playlist_by_id("2wSNKxLM217jpZnkAgYZPH").is_collaborative
+    assert spotify_client.get_playlist_by_id("2wSNKxLM217jpZnkAgYZPH").collaborative
 
 
-def test_is_public_property(
+def test_public_property(
     spotify_playlist: Playlist, spotify_client: SpotifyClient
 ) -> None:
     """Test that the `is_public` property returns the correct value."""
 
-    assert not spotify_playlist.is_public
+    assert not spotify_playlist.public
 
-    assert spotify_client.get_playlist_by_id("2wSNKxLM217jpZnkAgYZPH").is_public
+    assert spotify_client.get_playlist_by_id("2wSNKxLM217jpZnkAgYZPH").public
 
 
 def test_owner_property(
@@ -58,25 +56,26 @@ def test_owner_property(
 
     assert spotify_playlist.owner == spotify_user
 
-    assert Playlist(
-        read_json_file(  # type: ignore[arg-type]
-            "spotify/playlists/37i9dqzf1e8pj76jxe3egf.json"
-        ),
+    assert Playlist.from_json_response(
+        read_json_file("playlists/37i9dqzf1e8pj76jxe3egf.json", host_name="spotify"),
         spotify_client=spotify_client,
-    ).owner == User(
-        read_json_file("spotify/users/spotify.json"),  # type: ignore[arg-type]
+    ).owner == User.from_json_response(
+        read_json_file("users/spotify.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 
 
 def test_tracks_property(
-    spotify_playlist: Playlist, spotify_client: SpotifyClient, mock_requests: Mocker
+    spotify_playlist: Playlist,
+    spotify_client: SpotifyClient,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that the `Playlist.tracks` property returns the correct value."""
 
     assert not hasattr(spotify_playlist, "_tracks")
     assert all(
-        isinstance(track, Track) and track._spotify_client == spotify_client
+        isinstance(track, Track) and track.spotify_client == spotify_client
         for track in spotify_playlist.tracks
     )
     assert hasattr(spotify_playlist, "_tracks")
@@ -86,7 +85,7 @@ def test_tracks_property(
             # pylint: disable=line-too-long
             "url": f"https://api.spotify.com/v1/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks?offset={(i+1)*50}&limit=50",
             "method": "GET",
-            "headers": {"Authorization": "Bearer test_access_token"},
+            "headers": {"Authorization": f"Bearer {live_jwt_token}"},
         }
         for i in range(10)
     ]
@@ -96,7 +95,7 @@ def test_tracks_property(
             # pylint: disable=line-too-long
             "url": "https://api.spotify.com/v1/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks?limit=50",
             "method": "GET",
-            "headers": {"Authorization": "Bearer test_access_token"},
+            "headers": {"Authorization": f"Bearer {live_jwt_token}"},
         },
     )
 
@@ -105,7 +104,7 @@ def test_tracks_property(
     )
 
     # Check subsequent calls to property don't make additional requests
-    assert len(spotify_playlist.tracks) == 518
+    assert len(spotify_playlist.tracks) == 514
     assert mock_requests.call_count == 11
 
 
@@ -131,7 +130,7 @@ def test_contains_method(
     in_playlist: bool,
 ) -> None:
     """Test that `track in playlist` statements work as expected."""
-    track = Track(
+    track = Track.from_json_response(
         read_json_file(  # type: ignore[arg-type]
             f"spotify/tracks/{track_response_filename}"
         ),
@@ -149,21 +148,21 @@ def test_contains_method(
 def test_gt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) -> None:
     # pylint: disable=comparison-with-itself,unneeded-not
     """Test that `playlist > playlist` statements work as expected."""
-    spotify_owned_playlist = Playlist(
+    spotify_owned_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
             "spotify/playlists/37i9dqzf1e8pj76jxe3egf.json"
         ),
         spotify_client=spotify_client,
     )
 
-    my_other_playlist = Playlist(
+    my_other_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
             "spotify/playlists/4vv023mazsc8ntwz4wjvil.json"
         ),
         spotify_client=spotify_client,
     )
 
-    another_third_party_playlist = Playlist(
+    another_third_party_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
             "spotify/playlists/2wsnkxlm217jpznkagyzph.json"
         ),
@@ -189,18 +188,6 @@ def test_gt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) ->
     assert not spotify_playlist > spotify_playlist
     assert not spotify_owned_playlist > spotify_owned_playlist
 
-    same_name_different_owner = deepcopy(spotify_playlist)
-    same_name_different_owner.json["owner"]["id"] = "spotify"
-    same_name_different_owner.json["owner"]["display_name"] = "Spotify"
-    same_name_different_owner.json["id"] = "abcdefghijklmnopqrstuv"
-
-    # Same name, first is owned by me
-    assert same_name_different_owner.owner != spotify_playlist.owner
-    assert not spotify_playlist > same_name_different_owner
-
-    # Same name, second is owned by me
-    assert same_name_different_owner > spotify_playlist
-
 
 def test_iter_method(spotify_playlist: Playlist) -> None:
     """Test that the `Playlist.__iter__` method works as expected."""
@@ -212,21 +199,21 @@ def test_iter_method(spotify_playlist: Playlist) -> None:
 def test_lt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) -> None:
     # pylint: disable=comparison-with-itself,unneeded-not
     """Test that `playlist < playlist` statements work as expected."""
-    spotify_owned_playlist = Playlist(
+    spotify_owned_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
             "spotify/playlists/37i9dqzf1e8pj76jxe3egf.json"
         ),
         spotify_client=spotify_client,
     )
 
-    my_other_playlist = Playlist(
+    my_other_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
             "spotify/playlists/4vv023mazsc8ntwz4wjvil.json"
         ),
         spotify_client=spotify_client,
     )
 
-    another_third_party_playlist = Playlist(
+    another_third_party_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
             "spotify/playlists/2wsnkxlm217jpznkagyzph.json"
         ),
@@ -251,15 +238,3 @@ def test_lt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) ->
     # Special cases:
     assert not spotify_playlist < spotify_playlist
     assert not spotify_owned_playlist < spotify_owned_playlist
-
-    same_name_different_owner = deepcopy(spotify_playlist)
-    same_name_different_owner.json["owner"]["id"] = "spotify"
-    same_name_different_owner.json["owner"]["display_name"] = "Spotify"
-    same_name_different_owner.json["id"] = "abcdefghijklmnopqrstuv"
-
-    # Same name, first is owned by me
-    assert same_name_different_owner.owner != spotify_playlist.owner
-    assert not same_name_different_owner < spotify_playlist
-
-    # Same name, second is owned by me
-    assert spotify_playlist < same_name_different_owner

@@ -15,7 +15,7 @@ from re import fullmatch
 from tempfile import TemporaryDirectory
 from textwrap import dedent
 from time import sleep, time
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, cast, overload
 from unittest.mock import MagicMock, patch
 from xml.etree import ElementTree
 
@@ -39,11 +39,11 @@ from requests.exceptions import MissingSchema
 from requests_mock import Mocker
 from requests_mock.request import _RequestObjectProxy
 from requests_mock.response import _Context
-from spotipy import SpotifyOAuth
 from voluptuous import All, Schema
 
 from wg_utilities.api import TempAuthServer
 from wg_utilities.clients import MonzoClient, SpotifyClient
+from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson, SpotifyEntityJson
 from wg_utilities.clients.monzo import Account as MonzoAccount
 from wg_utilities.clients.monzo import Pot, _MonzoAccountInfo, _MonzoPotInfo
 from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
@@ -147,7 +147,26 @@ def get_jwt_expiry(token: str) -> float:
 # <editor-fold desc="JSON Objects">
 
 
-def read_json_file(rel_file_path: str, host_name: str | None = None) -> JSONObj:
+@overload
+def read_json_file(  # type: ignore[misc]
+    rel_file_path: str, host_name: Literal["spotify"]
+) -> SpotifyEntityJson:
+    ...
+
+
+@overload
+def read_json_file(rel_file_path: str, host_name: str | None) -> JSONObj:
+    ...
+
+
+@overload
+def read_json_file(rel_file_path: str) -> JSONObj:
+    ...
+
+
+def read_json_file(
+    rel_file_path: str, host_name: str | None = None
+) -> JSONObj | SpotifyEntityJson:
     """Read a JSON file from the flat files `json` subdirectory.
 
     Args:
@@ -158,7 +177,7 @@ def read_json_file(rel_file_path: str, host_name: str | None = None) -> JSONObj:
             just prepend the `rel_file_path` instead); it's just used for typing info.
 
     Returns:
-        JSONObj: the JSON object from the file
+        JSONObj | SpotifyEntityJson: the JSON object from the file
     """
 
     file_path = FLAT_FILES_DIR / "json"
@@ -167,12 +186,10 @@ def read_json_file(rel_file_path: str, host_name: str | None = None) -> JSONObj:
 
     file_path /= rel_file_path
 
-    return cast(
-        JSONObj, loads((FLAT_FILES_DIR / "json" / rel_file_path.lower()).read_text())
-    )
+    return cast(JSONObj, loads(file_path.read_text()))
 
 
-def fix_colon_keys(json_obj: JSONObj) -> JSONObj:
+def fix_colon_keys(json_obj: JSONObj | SpotifyEntityJson) -> JSONObj:
     """Fix colons replaced with underscores in keys.
 
     Some keys have colons changed for underscores when they're parsed into Pydantic
@@ -214,7 +231,7 @@ def fix_colon_keys(json_obj: JSONObj) -> JSONObj:
 
 def get_flat_file_from_url(
     request: _RequestObjectProxy = None, context: _Context = None
-) -> JSONObj:
+) -> SpotifyEntityJson:
     """Retrieves the content of a flat JSON file for a mocked request response.
 
     Args:
@@ -427,7 +444,7 @@ def spotify_create_playlist_callback(
 
 def yamaha_yas_209_get_media_info_responses(
     other_test_parameters: dict[str, CurrentTrack.Info]
-) -> YieldFixture[tuple[JSONObj, CurrentTrack.Info | None]]:
+) -> YieldFixture[tuple[JSONObj | SpotifyEntityJson, CurrentTrack.Info | None]]:
     """Yields values for testing against GetMediaInfo responses.
 
     Yields:
@@ -552,7 +569,7 @@ def _dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
     return DHT22Sensor(pigpio_pi, 4)
 
 
-@fixture(scope="function", name="live_jwt_token")  # type: ignore[misc]
+@fixture(scope="module", name="live_jwt_token")  # type: ignore[misc]
 def _live_jwt_token() -> str:
     """Fixture for a live JWT token."""
     return str(
@@ -568,7 +585,7 @@ def _live_jwt_token() -> str:
     )
 
 
-@fixture(scope="function", name="live_jwt_token_alt")  # type: ignore[misc]
+@fixture(scope="module", name="live_jwt_token_alt")  # type: ignore[misc]
 def _live_jwt_token_alt() -> str:
     """Another fixture for a live JWT token."""
     return str(
@@ -1004,10 +1021,8 @@ def _spotify_album(spotify_client: SpotifyClient) -> SpotifyAlbum:
     https://open.spotify.com/track/5U5X1TnRhnp9GogRfaE9XQ
     """
 
-    return SpotifyAlbum(
-        json=read_json_file(  # type: ignore[arg-type]
-            "spotify/albums/4julBAGYv4WmRXwhjJ2LPD.json"
-        ),
+    return SpotifyAlbum.from_json_response(
+        read_json_file("albums/4julBAGYv4WmRXwhjJ2LPD.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 
@@ -1020,10 +1035,8 @@ def _spotify_artist(spotify_client: SpotifyClient) -> Artist:
     https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF
     """
 
-    return Artist(
-        json=read_json_file(  # type: ignore[arg-type]
-            "spotify/artists/1Ma3pJzPIrAyYPNRkp3SUF.json"
-        ),
+    return Artist.from_json_response(
+        read_json_file("artists/1Ma3pJzPIrAyYPNRkp3SUF.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 
@@ -1040,9 +1053,6 @@ def _spotify_client(
         fake_oauth_credentials.json(exclude_none=True)
     )
 
-    spotify_oauth_manager = MagicMock(auto_spec=SpotifyOAuth)
-    spotify_oauth_manager.get_access_token.return_value = "test_access_token"
-
     return SpotifyClient(
         client_id="test_client_id",
         client_secret="test_client_secret",
@@ -1052,11 +1062,13 @@ def _spotify_client(
 
 
 @fixture(scope="function", name="spotify_entity")  # type: ignore[misc]
-def _spotify_entity(spotify_client: SpotifyClient) -> SpotifyEntity:
+def _spotify_entity(
+    spotify_client: SpotifyClient,
+) -> SpotifyEntity[SpotifyBaseEntityJson]:
     """Fixture for creating a `SpotifyEntity` instance."""
 
-    return SpotifyEntity(
-        json={
+    return SpotifyEntity.from_json_response(
+        {
             "href": "https://api.spotify.com/v1/artists/0gxyHStUsqpMadRV0Di1Qt",
             "id": "0gxyHStUsqpMadRV0Di1Qt",
             "uri": "spotify:artist:0gxyHStUsqpMadRV0Di1Qt",
@@ -1076,10 +1088,8 @@ def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
     https://open.spotify.com/playlist/2lMx8FU0SeQ7eA5kcMlNpX
     """
 
-    return Playlist(
-        json=read_json_file(  # type: ignore[arg-type]
-            "spotify/playlists/2lmx8fu0seq7ea5kcmlnpx.json"
-        ),
+    return Playlist.from_json_response(
+        read_json_file("playlists/2lmx8fu0seq7ea5kcmlnpx.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 
@@ -1088,10 +1098,8 @@ def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
 def _spotify_track(spotify_client: SpotifyClient) -> Track:
     """Fixture for creating a `Track` instance."""
 
-    return Track(
-        json=read_json_file(  # type: ignore[arg-type]
-            "spotify/tracks/27cgqh0vrhvem61ugtnord.json"
-        ),
+    return Track.from_json_response(
+        read_json_file("tracks/27cgqh0vrhvem61ugtnord.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 
@@ -1100,8 +1108,8 @@ def _spotify_track(spotify_client: SpotifyClient) -> Track:
 def _spotify_user(spotify_client: SpotifyClient) -> User:
     """Fixture for creating a Spotify User instance."""
 
-    return User(
-        json=read_json_file("spotify/me.json"),  # type: ignore[arg-type]
+    return User.from_json_response(
+        read_json_file("me.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 

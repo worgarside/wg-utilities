@@ -1,5 +1,9 @@
 {
-  "timestamp": 1668094110721,
+  "actions": {
+    "disallows": {
+      "resuming": true
+    }
+  },
   "context": {
     "external_urls": {
       "spotify": "https://open.spotify.com/playlist/2lMx8FU0SeQ7eA5kcMlNpX"
@@ -8,7 +12,8 @@
     "type": "playlist",
     "uri": "spotify:playlist:2lMx8FU0SeQ7eA5kcMlNpX"
   },
-  "progress_ms": 120653,
+  "currently_playing_type": "track",
+  "is_playing": true,
   "item": {
     "album": {
       "album_type": "album",
@@ -86,11 +91,6 @@
     "type": "track",
     "uri": "spotify:track:6zJUp1ihdid6Kn3Ndgcy82"
   },
-  "currently_playing_type": "track",
-  "actions": {
-    "disallows": {
-      "resuming": true
-    }
-  },
-  "is_playing": true
+  "progress_ms": 120653,
+  "timestamp": 1668094110721
 }

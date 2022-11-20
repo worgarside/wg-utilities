@@ -1,4 +1,5 @@
 {
+  "href": "https://api.spotify.com/v1/me/top/tracks?limit=50&offset=0&time_range=short_term",
   "items": [
     {
       "album": {
@@ -4341,10 +4342,9 @@
       "uri": "spotify:track:5S7Y5HgQ2HPqiCVkKylT2r"
     }
   ],
-  "total": 50,
   "limit": 50,
+  "next": null,
   "offset": 0,
-  "href": "https://api.spotify.com/v1/me/top/tracks?limit=50&offset=0&time_range=short_term",
   "previous": null,
-  "next": null
+  "total": 50
 }
