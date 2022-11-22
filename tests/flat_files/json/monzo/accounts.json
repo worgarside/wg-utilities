@@ -1,0 +1,217 @@
+{
+  "accounts": [
+    {
+      "closed": true,
+      "country_code": "GB",
+      "created": "2017-08-18T17:11:18.128Z",
+      "currency": "GBP",
+      "description": "user_0000000000000000000000",
+      "id": "acc_0000000000000000000002",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        }
+      ],
+      "type": "uk_prepaid"
+    },
+    {
+      "account_number": "86409085",
+      "closed": false,
+      "country_code": "GB",
+      "created": "2017-11-01T22:16:58.929Z",
+      "currency": "GBP",
+      "description": "user_0000000000000000000000",
+      "id": "acc_0000000000000000000000",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        }
+      ],
+      "payment_details": {
+        "locale_uk": {
+          "account_number": "86409085",
+          "sort_code": "916634"
+        }
+      },
+      "sort_code": "916634",
+      "type": "uk_retail"
+    },
+    {
+      "closed": false,
+      "country_code": "GB",
+      "created": "2021-09-17T09:16:11.358Z",
+      "currency": "GBP",
+      "description": "monzoflex_0000000000000000000000",
+      "id": "acc_0000000000000000000003",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        }
+      ],
+      "type": "uk_monzo_flex"
+    },
+    {
+      "closed": true,
+      "country_code": "GB",
+      "created": "2021-09-30T06:02:53.793Z",
+      "currency": "GBP",
+      "description": "monzoflexbackingloan_0000000000000000000000",
+      "id": "acc_0000000000000000000004",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        }
+      ],
+      "type": "uk_monzo_flex_backing_loan"
+    },
+    {
+      "closed": true,
+      "country_code": "GB",
+      "created": "2021-10-08T18:23:31.239Z",
+      "currency": "GBP",
+      "description": "monzoflexbackingloan_0000000000000000000001",
+      "id": "acc_0000000000000000000005",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        }
+      ],
+      "type": "uk_monzo_flex_backing_loan"
+    },
+    {
+      "closed": true,
+      "country_code": "GB",
+      "created": "2021-10-09T17:50:07.255Z",
+      "currency": "GBP",
+      "description": "monzoflexbackingloan_0000000000000000000002",
+      "id": "acc_0000000000000000000006",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        }
+      ],
+      "type": "uk_monzo_flex_backing_loan"
+    },
+    {
+      "closed": true,
+      "country_code": "GB",
+      "created": "2021-12-08T11:53:57.243Z",
+      "currency": "GBP",
+      "description": "monzoflexbackingloan_0000000000000000000003",
+      "id": "acc_0000000000000000000007",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        }
+      ],
+      "type": "uk_monzo_flex_backing_loan"
+    },
+    {
+      "closed": true,
+      "country_code": "GB",
+      "created": "2022-02-05T16:25:09.334Z",
+      "currency": "GBP",
+      "description": "monzoflexbackingloan_0000000000000000000004",
+      "id": "acc_0000000000000000000008",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        }
+      ],
+      "type": "uk_monzo_flex_backing_loan"
+    },
+    {
+      "closed": true,
+      "country_code": "GB",
+      "created": "2022-07-31T22:13:06.563Z",
+      "currency": "GBP",
+      "description": "monzoflexbackingloan_0000000000000000000005",
+      "id": "acc_0000000000000000000009",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        }
+      ],
+      "type": "uk_monzo_flex_backing_loan"
+    },
+    {
+      "closed": true,
+      "country_code": "GB",
+      "created": "2022-10-04T19:38:14.554Z",
+      "currency": "GBP",
+      "description": "monzoflexbackingloan_0000000000000000000006",
+      "id": "acc_0000000000000000000010",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        }
+      ],
+      "type": "uk_monzo_flex_backing_loan"
+    },
+    {
+      "closed": true,
+      "country_code": "GB",
+      "created": "2022-10-20T14:41:50.013Z",
+      "currency": "GBP",
+      "description": "monzoflexbackingloan_0000000000000000000007",
+      "id": "acc_0000000000000000000011",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        }
+      ],
+      "type": "uk_monzo_flex_backing_loan"
+    },
+    {
+      "account_number": "97187506",
+      "closed": true,
+      "country_code": "GB",
+      "created": "2018-10-06T18:47:43.118Z",
+      "currency": "GBP",
+      "description": "Joint account between user_0000000000000000000001 and user_0000000000000000000000",
+      "id": "acc_0000000000000000000001",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        },
+        {
+          "preferred_first_name": "Fwmrfr",
+          "preferred_name": "Fwmrfr Yggoon",
+          "user_id": "user_0000000000000000000001"
+        }
+      ],
+      "payment_details": {
+        "locale_uk": {
+          "account_number": "97187506",
+          "sort_code": "916634"
+        }
+      },
+      "sort_code": "916634",
+      "type": "uk_retail_joint"
+    }
+  ]
+}

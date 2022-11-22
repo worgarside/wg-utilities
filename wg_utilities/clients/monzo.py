@@ -1,18 +1,16 @@
+# pylint: disable=too-few-public-methods
 """Custom client for interacting with Monzo's API."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta
 from logging import DEBUG, getLogger
 from pathlib import Path
-from random import choice
-from string import ascii_letters
-from typing import Any, Literal, TypedDict
-from webbrowser import open as open_browser
+from typing import Any, Literal, TypedDict, final
 
-from requests import get, put
+from pydantic import BaseModel, Extra, Field
+from requests import put
 
 from wg_utilities.clients.oauth_client import OAuthClient
-from wg_utilities.clients.oauth_client import OAuthCredentials as OAuthCredentialsInfo
 from wg_utilities.functions import DTU, cleanse_string, utcnow
 
 LOGGER = getLogger(__name__)
@@ -21,25 +19,40 @@ LOGGER.setLevel(DEBUG)
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
-class _MonzoAccountInfo(TypedDict):
-    account_number: str
+@final
+class AccountJson(TypedDict):
+    """JSON representation of an account."""
+
+    account_number: str | None
     balance: float
     balance_including_flexible_savings: float
     closed: bool | None
+    country_code: str
     created: str
+    currency: Literal["GBP"]
     description: str
     id: str
-    sort_code: str
+    owners: list[AccountOwner]
+    payment_details: dict[str, dict[str, str]] | None
+    sort_code: str | None
     spend_today: float
     total_balance: float
+    type: Literal["uk_monzo_flex", "uk_retail", "uk_retail_joint"]
 
 
-class _MonzoPotInfo(TypedDict):
+@final
+class PotJson(TypedDict):
+    """JSON representation of a pot.
+
+    Yes, this and the `Pot` class could've been replaced by Pydantic's
+    `create_model_from_typeddict`, but it doesn't play nice with mypy :(
+    """
+
     available_for_bills: bool
     balance: float
     charity_id: str | None
     cover_image_url: str
-    created: str
+    created: datetime  # N.B. `str` actually, just parsed as `datetime`
     currency: str
     current_account_id: str
     deleted: bool
@@ -48,94 +61,207 @@ class _MonzoPotInfo(TypedDict):
     id: str
     is_tax_pot: bool
     isa_wrapper: str
+    lock_type: Literal["until_date"] | None
     locked: bool
+    locked_until: datetime | None
     name: str
     product_id: str
     round_up: bool
     round_up_multiplier: float | None
     style: str
     type: str
+    updated: datetime  # N.B. `str` actually, just parsed as `datetime`
+
+
+TransactionCategory = Literal[
+    "bills",
+    "cash",
+    "eating_out",
+    "entertainment",
+    "general",
+    "groceries",
+    "holidays",
+    "income",
+    "personal_care",
+    "savings",
+    "shopping",
+    "transfers",
+    "transport",
+]
+
+
+@final
+class TransactionJson(TypedDict):
+    """JSON representation of a transaction.
+
+    Same as above RE: Pydantic's `create_model_from_typeddict`.
+    """
+
+    account_id: str
+    amount: int
+    amount_is_pending: bool
+    atm_fees_detailed: dict[str, int | str | None] | None
+    attachments: None
+    can_add_to_tab: bool
+    can_be_excluded_from_breakdown: bool
+    can_be_made_subscription: bool
+    can_match_transactions_in_categorization: bool
+    can_split_the_bill: bool
+    categories: dict[
+        TransactionCategory,
+        int,
+    ]
+    category: TransactionCategory
+    counterparty: dict[str, str]
+    created: str
+    currency: str
+    decline_reason: str | None
+    dedupe_id: str
+    description: str
+    fees: dict[str, Any] | None
+    id: str
+    include_in_spending: bool
+    international: bool | None
+    is_load: bool
+    labels: list[str] | None
+    local_amount: int
+    local_currency: str
+    merchant: str | None
+    metadata: dict[str, str]
+    notes: str
+    originator: bool
+    parent_account_id: str
+    scheme: str
+    settled: str
+    tab: dict[str, object] | None
     updated: str
+    user_id: str
 
 
-class _BalanceVariablesInfo(TypedDict):
+class Transaction(BaseModel):
+    """Pydantic representation of a transaction."""
+
+    class Config:
+        """Pydantic config."""
+
+        arbitrary_types_allowed = True
+        extra = Extra.forbid
+        validate_assignment = True
+
+    account_id: str
+    amount: int
+    amount_is_pending: bool
+    atm_fees_detailed: dict[str, int | str | None] | None
+    attachments: None
+    can_add_to_tab: bool
+    can_be_excluded_from_breakdown: bool
+    can_be_made_subscription: bool
+    can_match_transactions_in_categorization: bool
+    can_split_the_bill: bool
+    categories: dict[
+        TransactionCategory,
+        int,
+    ]
+    category: TransactionCategory
+    counterparty: dict[str, str]
+    created: str
+    currency: str
+    decline_reason: str | None
+    dedupe_id: str
+    description: str
+    fees: dict[str, Any] | None
+    id: str
+    include_in_spending: bool
+    international: bool | None
+    is_load: bool
+    labels: list[str] | None
+    local_amount: int
+    local_currency: str
+    merchant: str | None
+    metadata: dict[str, str]
+    notes: str
+    originator: bool
+    parent_account_id: str
+    scheme: str
+    settled: str
+    tab: dict[str, object] | None
+    updated: str
+    user_id: str
+
+
+class BalanceVariables(BaseModel):
+    """Variables for an account's balance summary."""
+
     balance: int
     balance_including_flexible_savings: int
     currency: Literal["GBP"]
     local_currency: str
-    local_exchange_rate: int | float
-    local_spend: dict[str, str | int]
+    local_exchange_rate: int | float | None | Literal[""]
+    local_spend: list[dict[str, int | str]]
     spend_today: int
     total_balance: int
 
 
-class Account:
+class AccountOwner(TypedDict):
+    """The owner of a Monzo account."""
+
+    preferred_first_name: str
+    preferred_name: str
+    user_id: str
+
+
+class Account(BaseModel):
     """Class for managing individual bank accounts."""
 
-    def __init__(
-        self,
-        json: _MonzoAccountInfo,
-        monzo_client: MonzoClient,
-        balance_update_threshold: int = 15,
-    ):
-        self.json = json
-        self._monzo_client = monzo_client
+    account_number: str | None
+    closed: bool
+    country_code: str
+    created: datetime
+    currency: Literal["GBP"]
+    description: str
+    id: str
+    initial_balance: int | None = Field(alias="balance")
+    initial_balance_including_flexible_savings: int | None = Field(
+        alias="balance_including_flexible_savings"
+    )
+    initial_spend_today: int | None = Field(alias="spend_today")
+    initial_total_balance: int | None = Field(alias="total_balance")
+    owners: list[AccountOwner]
+    payment_details: dict[str, dict[str, str]] | None
+    sort_code: str | None
+    type: Literal["uk_monzo_flex", "uk_retail", "uk_retail_joint"]
 
-        self._balance_variables: _BalanceVariablesInfo
+    monzo_client: MonzoClient = Field(exclude=True)
+    balance_update_threshold: int = Field(15, exclude=True)
+    last_balance_update: datetime = Field(datetime(1970, 1, 1), exclude=True)
+    _balance_variables: BalanceVariables
 
-        self.last_balance_update = datetime(1970, 1, 1)
-        self.balance_update_threshold = balance_update_threshold
+    class Config:
+        """Pydantic config."""
 
-    def _get_balance_property(
-        self,
-        var_name: Literal[
-            "balance",
-            "balance_including_flexible_savings",
-            "currency",
-            "local_currency",
-            "local_exchange_rate",
-            "local_spend",
-            "spend_today",
-            "total_balance",
-        ],
-    ) -> str | float | dict[str, str | int] | None:
-        # TODO overload(?) this too for typing stuff
-        """Gets a value for a balance-specific property.
+        arbitrary_types_allowed = True
+        extra = Extra.forbid
+        validate_assignment = True
 
-         Values are updated as necessary (i.e. if they don't already exist). This also
-         has a check to see if property is relevant for the given entity type and if
-         not it just returns None.
+    @classmethod
+    def from_json_response(
+        cls, value: AccountJson, monzo_client: MonzoClient
+    ) -> Account:
+        """Creates an account from a JSON response."""
 
-        Args:
-            var_name (str): the name of the variable
+        value_data: dict[str, Any] = {
+            "monzo_client": monzo_client,
+            **value,
+        }
 
-        Returns:
-            str: the value of the balance property
-        """
-
-        if (
-            hasattr(self, "_balance_variables")
-            and var_name not in self._balance_variables
-        ):
-            # Assume it's not a valid value so there's no point polling the API again
-            return None
-
-        if self.last_balance_update <= (
-            datetime.utcnow() - timedelta(minutes=self.balance_update_threshold)
-        ):
-            LOGGER.debug(
-                "Balance variable update threshold crossed, getting new values"
-            )
-            self.update_balance_variables()
-
-        return self._balance_variables[var_name]
+        return cls(**value_data)
 
     def list_transactions(
         self,
         from_datetime: datetime | None = None,
         to_datetime: datetime | None = None,
         limit: int = 100,
-    ) -> list[dict[str, object]]:
+    ) -> list[Transaction]:
         """Lists transactions for the account.
 
         Args:
@@ -153,15 +279,18 @@ class Account:
         from_datetime = from_datetime or datetime.utcnow() - timedelta(days=89)
         to_datetime = to_datetime or datetime.utcnow()
 
-        return self._monzo_client.get_json_response(
-            "/transactions",
-            params={
-                "account_id": self.id,
-                "since": from_datetime.isoformat() + "Z",
-                "before": to_datetime.isoformat() + "Z",
-                "limit": limit,
-            },
-        ).get("transactions", [])
+        return [
+            Transaction(**item)
+            for item in self.monzo_client.get_json_response(
+                "/transactions",
+                params={
+                    "account_id": self.id,
+                    "since": from_datetime.isoformat() + "Z",
+                    "before": to_datetime.isoformat() + "Z",
+                    "limit": limit,
+                },
+            )["transactions"]
+        ]
 
     def update_balance_variables(self) -> None:
         """Updates the balance-related instance attributes.
@@ -171,21 +300,25 @@ class Account:
         `balance_update_threshold` minutes ago, or if it is None. Can also be called
         manually if required.
         """
-        # pylint: disable=line-too-long
-        self._balance_variables = self._monzo_client.get_json_response(  # type: ignore[assignment]
-            "/balance", params={"account_id": self.id}
-        )
 
-        self.last_balance_update = datetime.utcnow()
+        if not hasattr(self, "_balance_variables") or self.last_balance_update <= (
+            datetime.utcnow() - timedelta(minutes=self.balance_update_threshold)
+        ):
+            LOGGER.debug(
+                "Balance variable update threshold crossed, getting new values"
+            )
 
-    @property
-    def account_number(self) -> str | None:
-        """Account number.
+            object.__setattr__(
+                self,
+                "_balance_variables",
+                BalanceVariables.parse_obj(
+                    self.monzo_client.get_json_response(
+                        f"/balance?account_id={self.id}"
+                    )
+                ),
+            )
 
-        Returns:
-            str: the account's account number
-        """
-        return self.json.get("account_number")
+            self.last_balance_update = datetime.utcnow()
 
     @property
     def balance(self) -> int | None:
@@ -194,7 +327,18 @@ class Account:
         Returns:
             float: the currently available balance of the account
         """
-        return self._get_balance_property("balance")  # type: ignore[return-value]
+        return self.balance_variables.balance
+
+    @property
+    def balance_variables(self) -> BalanceVariables:
+        """The balance variables for the account.
+
+        Returns:
+            BalanceVariables: the balance variables
+        """
+        self.update_balance_variables()
+
+        return self._balance_variables
 
     @property
     def balance_including_flexible_savings(self) -> int | None:
@@ -204,57 +348,7 @@ class Account:
             float: the currently available balance of the account, including flexible
              savings pots
         """
-        return self._get_balance_property(
-            "balance_including_flexible_savings"
-        )  # type: ignore[return-value]
-
-    @property
-    def closed(self) -> bool:
-        """Whether the account is closed.
-
-        Returns:
-            bool: the description of the account
-        """
-        return self.json.get("closed") or False
-
-    @property
-    def created_datetime(self) -> datetime | None:
-        """When the account was created.
-
-        Returns:
-            datetime: when the account was created
-        """
-        if "created" not in self.json:
-            return None
-
-        return datetime.strptime(self.json["created"], DATETIME_FORMAT)
-
-    @property
-    def description(self) -> str | None:
-        """Description of the account.
-
-        Returns:
-            str: the description of the account
-        """
-        return self.json.get("description")
-
-    @property
-    def id(self) -> str | None:
-        """Account ID.
-
-        Returns:
-            str: the account's UUID
-        """
-        return self.json["id"]
-
-    @property
-    def sort_code(self) -> str | None:
-        """Sort code.
-
-        Returns:
-            str: the account's sort code
-        """
-        return self.json.get("sort_code")
+        return self.balance_variables.balance_including_flexible_savings
 
     @property
     def spend_today(self) -> int | None:
@@ -264,7 +358,7 @@ class Account:
             int: the amount spent from this account today (considered from approx
              4am onwards)
         """
-        return self._get_balance_property("spend_today")  # type: ignore[return-value]
+        return self.balance_variables.spend_today
 
     @property
     def total_balance(self) -> int | None:
@@ -274,7 +368,7 @@ class Account:
             str: the sum of the currently available balance of the account and the
              combined total of all the user’s pots
         """
-        return self._get_balance_property("total_balance")  # type: ignore[return-value]
+        return self.balance_variables.total_balance
 
     def __eq__(self, other: object) -> bool:
         """Checks if two accounts are equal."""
@@ -288,231 +382,54 @@ class Account:
         return f"<Account {self.id}>"
 
 
-class Pot:
+class Pot(BaseModel):
     """Read-only class for Monzo pots."""
 
-    # TODO change this to Pydantic model
+    available_for_bills: bool
+    balance: float
+    charity_id: str | None
+    cover_image_url: str
+    created: datetime
+    currency: str
+    current_account_id: str
+    deleted: bool
+    goal_amount: float | None
+    has_virtual_cards: bool
+    id: str
+    is_tax_pot: bool
+    isa_wrapper: str
+    lock_type: Literal["until_date"] | None
+    locked: bool
+    locked_until: datetime | None
+    name: str
+    product_id: str
+    round_up: bool
+    round_up_multiplier: float | None
+    style: str
+    type: str
+    updated: datetime
 
-    def __init__(self, json: _MonzoPotInfo):
-        self.json = json
+    class Config:
+        """Pydantic config."""
 
-    @property
-    def available_for_bills(self) -> bool | None:
-        """Whether the pot is available for bills.
-
-        Returns:
-            bool: if the pot can be used directly for bills
-        """
-        return self.json.get("available_for_bills")
-
-    @property
-    def balance(self) -> float:
-        """Balance of the pot, in pence.
-
-        Returns:
-            float: the pot's balance in GBP
-        """
-        return float(self.json.get("balance", 0))
-
-    @property
-    def charity_id(self) -> str | None:
-        """ID of the charity this Pot is for?
-
-        Returns:
-            str: not sure!
-        """
-        return self.json.get("charity_id")
-
-    @property
-    def cover_image_url(self) -> str | None:
-        """Cover image URL for the pot.
-
-        Returns:
-            str: URL for the cover image
-        """
-        return self.json.get("cover_image_url")
-
-    @property
-    def created_datetime(self) -> datetime | None:
-        """When the pot was created.
-
-        Returns:
-            datetime: when the pot was created
-        """
-        if "created" not in self.json:
-            return None
-
-        return datetime.strptime(self.json["created"], DATETIME_FORMAT)
-
-    @property
-    def currency(self) -> str | None:
-        """Pot currency.
-
-        Returns:
-            str: the currency of the pot
-        """
-        return self.json.get("currency")
-
-    @property
-    def current_account_id(self) -> str | None:
-        """UUID of the account the pot is linked to.
-
-        Returns:
-            str: the UUID of the parent account
-        """
-        return self.json.get("current_account_id")
-
-    @property
-    def deleted(self) -> bool | None:
-        """Has the pot been deleted?
-
-        Returns:
-            bool: has the pot been deleted
-        """
-        return self.json.get("deleted")
-
-    @property
-    def goal_amount(self) -> float | None:
-        """Goal amount of the pot, in pence.
-
-        Returns:
-            float: the user-set goal amount for the pot
-        """
-        if not (goal_amount := self.json.get("goal_amount")):
-            return None
-
-        return goal_amount
-
-    @property
-    def has_virtual_cards(self) -> bool | None:
-        """Any pot with virtual cards will have this set to True.
-
-        Returns:
-            bool: if the pot has virtual cards attached
-        """
-        return self.json.get("has_virtual_cards")
-
-    @property
-    def id(self) -> str:
-        """UUID of the pot.
-
-        Returns:
-            str: the pot's UUID
-        """
-        return self.json["id"]
-
-    @property
-    def is_tax_pot(self) -> bool | None:
-        """Is this a tax pot?
-
-        Returns:
-            bool: is the pot taxed? I'm not sure
-        """
-        return self.json.get("is_tax_pot")
-
-    @property
-    def isa_wrapper(self) -> str | None:
-        """Whether the pot is ISA-wrapped.
-
-        Returns:
-            str: is the pot ISA-wrapped?
-        """
-        return self.json.get("isa_wrapper")
-
-    @property
-    def locked(self) -> bool | None:
-        """Boolean indicating whether the pot is locked.
-
-        Returns:
-            bool: is the pot locked
-        """
-        return self.json.get("locked")
-
-    @property
-    def name(self) -> str:
-        """Name of the pot.
-
-        Returns:
-            str: the name of the pot
-        """
-        return self.json["name"]
-
-    @property
-    def product_id(self) -> str | None:
-        """Product ID of the pot.
-
-        Returns:
-            str: the ID of the product applied to the pot (e.g. savings)
-        """
-        return self.json.get("product_id")
-
-    @property
-    def round_up(self) -> bool | None:
-        """Target pot for round-ups.
-
-        Returns:
-            bool: is the pot where all round ups go
-        """
-        return self.json.get("round_up")
-
-    @property
-    def round_up_multiplier(self) -> float | None:
-        """Multiplier for round ups.
-
-        Returns:
-            float: the multiplier applied to the pot's round-ups
-        """
-        return self.json.get("round_up_multiplier")
-
-    @property
-    def style(self) -> str | None:
-        """Background style of the pot.
-
-        Returns:
-            str: the pot background image
-        """
-        return self.json.get("style")
-
-    @property
-    def type(self) -> str | None:
-        """The type of pot.
-
-        Returns:
-            str: the type of pot (e.g. flex saver)
-        """
-        return self.json.get("type")
-
-    @property
-    def updated_datetime(self) -> datetime | None:
-        """Datetime when the pot was last updated.
-
-        Returns:
-            datetime: when the pot was updated last
-        """
-        if "updated" not in self.json:
-            return None
-
-        return datetime.strptime(self.json["updated"], DATETIME_FORMAT)
-
-    def __str__(self) -> str:
-        return f"{self.name} | {self.id}"
-
-    def __eq__(self, other: object) -> bool:
-        """Checks if two accounts are equal."""
-        if not isinstance(other, Pot):
-            return NotImplemented
-
-        return self.id == other.id
-
-    def __repr__(self) -> str:
-        """Representation of the account."""
-        return f"<Pot {self.id}>"
+        arbitrary_types_allowed = True
+        extra = Extra.forbid
+        validate_assignment = True
 
 
-class MonzoClient(OAuthClient):
+class MonzoGJR(TypedDict):
+    """The response type for `MonzoClient.get_json_response`."""
+
+    accounts: list[AccountJson]
+    pots: list[PotJson]
+    transactions: list[TransactionJson]
+
+
+class MonzoClient(OAuthClient[MonzoGJR]):
     """Custom client for interacting with Monzo's API."""
 
     ACCESS_TOKEN_ENDPOINT = "https://api.monzo.com/oauth2/token"
+    AUTH_LINK_BASE = "https://auth.monzo.com"
     BASE_URL = "https://api.monzo.com"
 
     DEFAULT_PARAMS: dict[str, object] = {}
@@ -523,26 +440,21 @@ class MonzoClient(OAuthClient):
         client_id: str,
         client_secret: str,
         redirect_uri: str = "http://0.0.0.0:5001/get_auth_code",
-        access_token_expiry_threshold: int = 60,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
     ):
         super().__init__(
-            client_id=client_id,
-            client_secret=client_secret,
             base_url=self.BASE_URL,
             access_token_endpoint=self.ACCESS_TOKEN_ENDPOINT,
+            auth_link_base=self.AUTH_LINK_BASE,
+            client_id=client_id,
+            client_secret=client_secret,
             redirect_uri=redirect_uri,
-            access_token_expiry_threshold=access_token_expiry_threshold,
             log_requests=log_requests,
             creds_cache_path=creds_cache_path,
         )
 
         self._current_account: Account
-
-    def get_items_from_url(self, *_: Any, **__: Any) -> None:
-        """Not implemented."""
-        raise NotImplementedError("This method is not implemented for Monzo.")
 
     def deposit_into_pot(
         self, pot: Pot, amount_pence: int, dedupe_id: str | None = None
@@ -590,7 +502,7 @@ class MonzoClient(OAuthClient):
         )
 
         return [
-            Account(account, self)
+            Account.from_json_response(account, self)
             for account in res.get("accounts", [])
             if not account.get("closed", True) or include_closed
         ]
@@ -610,7 +522,7 @@ class MonzoClient(OAuthClient):
         )
 
         return [
-            Pot(pot)
+            Pot(**pot)
             for pot in res.get("pots", [])
             if not pot.get("deleted", True) or include_deleted
         ]
@@ -652,79 +564,6 @@ class MonzoClient(OAuthClient):
         return None
 
     @property
-    def access_token_has_expired(self) -> bool:
-        """Custom expiry check for Monzo client.
-
-         The JWT doesn't seem to include expiry time. Any errors/missing credentials
-         result in a default value of True
-
-        Returns:
-            bool: expiry status of JWT
-        """
-        if not hasattr(self, "_credentials"):
-            self._load_local_credentials()
-
-        if not (access_token := self._credentials.get("access_token", False)):
-            return True
-
-        res = get(
-            f"{self.BASE_URL}/ping/whoami",
-            headers={"Authorization": f"Bearer {access_token}"},
-        )
-
-        return res.json().get("authenticated", False) is False
-
-    @property
-    def credentials(self) -> OAuthCredentialsInfo:
-        """Gets creds as necessary (including first time setup) and authenticates them.
-
-        Returns:
-            dict: the credentials for the chosen bank
-
-        Raises:
-            ValueError: if the state token returned from the request doesn't match the
-             expected value
-        """
-        if not hasattr(self, "_credentials"):
-            self._load_local_credentials()
-
-        if not self._credentials:
-            self.logger.info("Performing first time login")
-
-            state_token = "".join(choice(ascii_letters) for _ in range(32))
-
-            # pylint: disable=line-too-long
-            auth_link = f"https://auth.monzo.com/?client_id={self.client_id}&redirect_uri={self.redirect_uri}&response_type=code&state={state_token}"  # noqa: E501
-            self.logger.debug("Opening %s", auth_link)
-            open_browser(auth_link)
-
-            request_args = self.temp_auth_server.wait_for_request(
-                "/get_auth_code", kill_on_request=True
-            )
-
-            if state_token != request_args.get("state"):
-                raise ValueError(
-                    "State token received in request doesn't match expected value: "
-                    f"{request_args.get('state')} != {state_token}"
-                )
-
-            self.exchange_auth_code(request_args["code"])
-
-        if self.access_token_has_expired:
-            self.refresh_access_token()
-
-        return self._credentials
-
-    @credentials.setter
-    def credentials(self, value: OAuthCredentialsInfo) -> None:
-        """Setter for credentials.
-
-        Args:
-            value (dict): the new values to use for the creds for this project
-        """
-        self._set_credentials(value)
-
-    @property
     def current_account(self) -> Account:
         """Get the main account for the Monzo user.
 
@@ -737,3 +576,6 @@ class MonzoClient(OAuthClient):
             self._current_account = self.list_accounts(account_type="uk_retail")[0]
 
         return self._current_account
+
+
+Account.update_forward_refs()

@@ -269,7 +269,7 @@ class OAuthClient(Generic[GetJsonResponse]):
 
     def get_json_response(
         self,
-        url: str,  #  | Literal["/search"]
+        url: str,
         params: dict[str, str | int | object] | None = None,
     ) -> GetJsonResponse:  # Mapping[str, Any]:
         """Gets a simple JSON object from a URL.

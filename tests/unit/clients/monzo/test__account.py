@@ -1,74 +1,156 @@
-# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.clients.monzo.Account`."""
 
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from unittest.mock import patch
+from http import HTTPStatus
 from urllib.parse import urlencode
 
 from freezegun import freeze_time
 from pytest import LogCaptureFixture
+from pytz import utc
 from requests_mock import Mocker
 
-from conftest import monzo_account_json
+from conftest import assert_mock_requests_request_history, read_json_file
 from wg_utilities.clients.monzo import Account, MonzoClient
 
 
 def test_instantiation(monzo_client: MonzoClient) -> None:
     """Test that the class can be instantiated."""
     account = Account(
-        json={
-            "account_number": "12345678",
-            "balance": 10000,
-            "balance_including_flexible_savings": 50000,
-            "closed": False,
-            "created": "2020-01-01T00:00:00.000Z",
-            "description": "user_00001AbcdEfghIjklMnopQ",
-            "id": "acc_00001AbcdEfghIjklMnopQ",
-            "sort_code": "123456",
-            "spend_today": 0.0,
-            "total_balance": 50000,
-        },
+        account_number="12345678",
+        balance=10000,
+        balance_including_flexible_savings=50000,
+        closed=False,
+        country_code="GB",
+        created="2020-01-01T00:00:00.000Z",  # type: ignore[arg-type]
+        currency="GBP",
+        description="user_00001AbcdEfghIjklMnopQ",
+        id="acc_00001AbcdEfghIjklMnopQ",
         monzo_client=monzo_client,
+        owners=[],
+        sort_code="123456",
+        spend_today=-115,
+        total_balance=50000,
+        type="uk_retail",
     )
 
     assert isinstance(account, Account)
-    assert account.json == {
+    assert account.dict() == {
         "account_number": "12345678",
-        "balance": 10000,
-        "balance_including_flexible_savings": 50000,
         "closed": False,
-        "created": "2020-01-01T00:00:00.000Z",
+        "country_code": "GB",
+        "created": datetime(2020, 1, 1, tzinfo=utc),
+        "currency": "GBP",
         "description": "user_00001AbcdEfghIjklMnopQ",
         "id": "acc_00001AbcdEfghIjklMnopQ",
+        "initial_balance": 10000,
+        "initial_balance_including_flexible_savings": 50000,
+        "initial_spend_today": -115,
+        "initial_total_balance": 50000,
+        "owners": [],
+        "payment_details": None,
         "sort_code": "123456",
-        "spend_today": 0.0,
-        "total_balance": 50000,
+        "type": "uk_retail",
     }
-    assert account._monzo_client == monzo_client
-    assert account.last_balance_update == datetime(1970, 1, 1)
-    assert account.balance_update_threshold == 15
+    assert account.monzo_client == monzo_client
 
 
-def test_get_balance_property_method(monzo_account: Account) -> None:
-    """Test that `_get_balance_property` returns the correct value."""
+def test_list_transactions(
+    monzo_account: Account, mock_requests: Mocker, live_jwt_token: str
+) -> None:
+    """Test that the `list_transactions` method returns a list of transactions."""
 
-    monzo_account.last_balance_update = datetime.now()
+    # Freeze time to when I made the sample data, just to ensure the URL is correct
+    with freeze_time("2022-11-21T19:42:49.870206Z") as frozen_datetime:
+        transactions = monzo_account.list_transactions()
 
-    assert not hasattr(monzo_account, "_balance_variables")
-    monzo_account._balance_variables = {"balance": 123}  # type: ignore[typeddict-item]
-    assert hasattr(monzo_account, "_balance_variables")
-    assert monzo_account._get_balance_property("balance") == 123
-    assert monzo_account._get_balance_property("currency") is None
+    assert len(transactions) == 100
+    assert all(tx.account_id == "acc_0000000000000000000000" for tx in transactions)
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        expected=[
+            {
+                "url": f"{monzo_account.monzo_client.base_url}/transactions?"
+                + urlencode(
+                    {
+                        "account_id": monzo_account.id,
+                        "since": (
+                            frozen_datetime.time_to_freeze - timedelta(days=89)
+                        ).isoformat()
+                        + "Z",
+                        "before": frozen_datetime.time_to_freeze.isoformat() + "Z",
+                        "limit": 100,
+                    }
+                ),
+                "method": "GET",
+                "headers": {"Authorization": f"Bearer {live_jwt_token}"},
+            }
+        ],
+    )
 
-    with patch.object(
-        monzo_account, "update_balance_variables"
-    ) as mock_update_balance_variables, freeze_time(
-        datetime.utcnow() + timedelta(minutes=20)
-    ):
-        assert monzo_account._get_balance_property("balance") == 123
-        mock_update_balance_variables.assert_called_once()
+
+def test_list_transactions_with_limit(
+    monzo_account: Account, mock_requests: Mocker
+) -> None:
+    """Test `list_transactions` with a limit parameter."""
+
+    mock_requests.get(
+        f"{monzo_account.monzo_client.base_url}/transactions",
+        status_code=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        json={"transactions": []},
+    )
+
+    with freeze_time() as frozen_datetime:
+        monzo_account.list_transactions(limit=20)
+
+    assert (
+        mock_requests.last_request.url
+        == f"{monzo_account.monzo_client.base_url}/transactions?"
+        + urlencode(
+            {
+                "account_id": monzo_account.id,
+                "since": (
+                    frozen_datetime.time_to_freeze - timedelta(days=89)
+                ).isoformat()
+                + "Z",
+                "before": frozen_datetime.time_to_freeze.isoformat() + "Z",
+                "limit": 20,
+            }
+        )
+    )
+
+
+def test_list_transactions_with_time_parameters(
+    monzo_account: Account, mock_requests: Mocker
+) -> None:
+    """Test `list_transactions` with to and from parameters.."""
+
+    mock_requests.get(
+        f"{monzo_account.monzo_client.base_url}/transactions",
+        status_code=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        json={"transactions": []},
+    )
+
+    monzo_account.list_transactions(
+        from_datetime=datetime(2022, 4, 20),
+        to_datetime=datetime(2022, 11, 15),
+    )
+
+    assert (
+        mock_requests.last_request.url
+        == f"{monzo_account.monzo_client.base_url}/transactions?"
+        + urlencode(
+            {
+                "account_id": monzo_account.id,
+                "since": datetime(2022, 4, 20).isoformat() + "Z",
+                "before": datetime(2022, 11, 15).isoformat() + "Z",
+                "limit": 100,
+            }
+        )
+    )
 
 
 def test_update_balance_variables(
@@ -76,39 +158,34 @@ def test_update_balance_variables(
 ) -> None:
     """Test that the balance variables are updated correctly."""
 
-    monzo_account.update_balance_variables()
+    assert monzo_account.last_balance_update == datetime(1970, 1, 1)
+    with freeze_time():
+        monzo_account.update_balance_variables()
 
-    assert monzo_account._balance_variables == {
-        "balance": 10000,
-        "balance_including_flexible_savings": 50000,
+        assert monzo_account.last_balance_update == datetime.now()
+
+    assert monzo_account.balance_variables.dict() == {
+        "balance": 177009,
+        "balance_including_flexible_savings": 41472,
         "currency": "GBP",
         "local_currency": "",
-        "local_exchange_rate": "",
-        "local_spend": [{"spend_today": -115, "currency": "GBP"}],
-        "spend_today": -115,
-        "total_balance": 10000,
+        "local_exchange_rate": 0,
+        "local_spend": [{"currency": "GBP", "spend_today": -12}],
+        "spend_today": -12,
+        "total_balance": 41472,
     }
     assert mock_requests.request_history[
-        1
-    ].url == f"{monzo_account._monzo_client.base_url}/balance?" + urlencode(
+        0
+    ].url == f"{monzo_account.monzo_client.base_url}/balance?" + urlencode(
         {"account_id": monzo_account.id}
     )
-    assert mock_requests.request_history[1].method == "GET"
-
-
-def test_account_number_property(monzo_account: Account) -> None:
-    """Test that the `account_number` property returns the correct value."""
-
-    assert monzo_account.account_number == "12345678"
-
-    monzo_account.json["account_number"] = "87654321"
-    assert monzo_account.account_number == "87654321"
+    assert mock_requests.request_history[0].method == "GET"
 
 
 def test_balance_property(monzo_account: Account, caplog: LogCaptureFixture) -> None:
     """Test that the `balance` property returns the correct value."""
 
-    assert monzo_account.balance == 10000
+    assert monzo_account.balance == 177009
     assert (
         "Balance variable update threshold crossed, getting new values" in caplog.text
     )
@@ -119,58 +196,10 @@ def test_balance_including_flexible_savings_property(
 ) -> None:
     """Test the `balance_including_flexible_savings` property."""
 
-    assert monzo_account.balance_including_flexible_savings == 50000
+    assert monzo_account.balance_including_flexible_savings == 41472
     assert (
         "Balance variable update threshold crossed, getting new values" in caplog.text
     )
-
-
-def test_closed_property(monzo_account: Account) -> None:
-    """Test that the `closed` property returns the correct value."""
-
-    assert monzo_account.closed is False
-
-    monzo_account.json["closed"] = True
-    assert monzo_account.closed is True
-
-
-def test_created_datetime_property(monzo_account: Account) -> None:
-    """Test that the `created_datetime` property returns the correct value."""
-
-    assert monzo_account.created_datetime == datetime(2020, 1, 1)
-
-    monzo_account.json["created"] = "2021-02-02T00:00:00.000Z"
-    assert monzo_account.created_datetime == datetime(2021, 2, 2)
-
-    del monzo_account.json["created"]  # type: ignore[misc]
-    assert monzo_account.created_datetime is None
-
-
-def test_description_property(monzo_account: Account) -> None:
-    """Test that the `description` property returns the correct value."""
-
-    assert monzo_account.description == "test_user_id"
-
-    monzo_account.json["description"] = "yeehaw"
-    assert monzo_account.description == "yeehaw"
-
-
-def test_id_property(monzo_account: Account) -> None:
-    """Test that the `id` property returns the correct value."""
-
-    assert monzo_account.id == "test_account_id"
-
-    monzo_account.json["id"] = "test_account_id_2"
-    assert monzo_account.id == "test_account_id_2"
-
-
-def test_sort_code_property(monzo_account: Account) -> None:
-    """Test that the `sort_code` property returns the correct value."""
-
-    assert monzo_account.sort_code == "123456"
-
-    monzo_account.json["sort_code"] = "654321"
-    assert monzo_account.sort_code == "654321"
 
 
 def test_spend_today_property(
@@ -178,7 +207,7 @@ def test_spend_today_property(
 ) -> None:
     """Test that the `spend_today` property returns the correct value."""
 
-    assert monzo_account.spend_today == -115
+    assert monzo_account.spend_today == -12
     assert (
         "Balance variable update threshold crossed, getting new values" in caplog.text
     )
@@ -189,7 +218,7 @@ def test_total_balance_property(
 ) -> None:
     """Test that the `total_balance` property returns the correct value."""
 
-    assert monzo_account.total_balance == 10000
+    assert monzo_account.total_balance == 41472
     assert (
         "Balance variable update threshold crossed, getting new values" in caplog.text
     )
@@ -198,9 +227,10 @@ def test_total_balance_property(
 def test_eq(monzo_account: Account, monzo_client: MonzoClient) -> None:
     """Test the equality operator."""
     assert monzo_account == monzo_account  # pylint: disable=comparison-with-itself
-    assert monzo_account == Account(monzo_account.json, monzo_client=monzo_client)
-    assert monzo_account != Account(
-        monzo_account_json(account_type="uk_monzo_flex")["accounts"][0],
+    assert monzo_account != Account.from_json_response(
+        read_json_file("account_type=uk_retail_joint.json", host_name="monzo/accounts")[
+            "accounts"
+        ][0],
         monzo_client=monzo_client,
     )
     assert monzo_account != "test"

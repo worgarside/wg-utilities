@@ -45,7 +45,7 @@ from wg_utilities.api import TempAuthServer
 from wg_utilities.clients import MonzoClient, SpotifyClient
 from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson, SpotifyEntityJson
 from wg_utilities.clients.monzo import Account as MonzoAccount
-from wg_utilities.clients.monzo import Pot, _MonzoAccountInfo, _MonzoPotInfo
+from wg_utilities.clients.monzo import AccountJson, Pot, PotJson, TransactionJson
 from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
 from wg_utilities.clients.spotify import Album as SpotifyAlbum
 from wg_utilities.clients.spotify import Artist, Playlist, SpotifyEntity, Track, User
@@ -91,6 +91,12 @@ EXCEPTION_GENERATORS: list[
 ]
 
 FLAT_FILES_DIR = Path(__file__).parent / "tests" / "flat_files"
+
+MONZO_PATHS_TO_MOCK = [
+    "/" + str(path_object.relative_to(FLAT_FILES_DIR / "json" / "monzo"))
+    for path_object in (FLAT_FILES_DIR / "json" / "monzo").rglob("*")
+    if path_object.is_dir()
+]
 
 
 SPOTIFY_PATHS_TO_MOCK = [
@@ -149,6 +155,27 @@ def get_jwt_expiry(token: str) -> float:
 
 @overload
 def read_json_file(  # type: ignore[misc]
+    rel_file_path: str, host_name: Literal["monzo", "monzo/accounts"]
+) -> dict[Literal["accounts"], list[AccountJson]]:
+    ...
+
+
+@overload
+def read_json_file(  # type: ignore[misc]
+    rel_file_path: str, host_name: Literal["monzo/pots"]
+) -> dict[Literal["pots"], list[PotJson]]:
+    ...
+
+
+@overload
+def read_json_file(  # type: ignore[misc]
+    rel_file_path: str, host_name: Literal["monzo/transactions"]
+) -> dict[Literal["transactions"], list[TransactionJson]]:
+    ...
+
+
+@overload
+def read_json_file(  # type: ignore[misc]
     rel_file_path: str, host_name: Literal["spotify"]
 ) -> SpotifyEntityJson:
     ...
@@ -166,7 +193,9 @@ def read_json_file(rel_file_path: str) -> JSONObj:
 
 def read_json_file(
     rel_file_path: str, host_name: str | None = None
-) -> JSONObj | SpotifyEntityJson:
+) -> JSONObj | SpotifyEntityJson | dict[Literal["accounts"], list[AccountJson]] | dict[
+    Literal["pots"], list[PotJson]
+] | dict[Literal["transactions"], list[TransactionJson]]:
     """Read a JSON file from the flat files `json` subdirectory.
 
     Args:
@@ -184,7 +213,7 @@ def read_json_file(
     if host_name:
         file_path /= host_name
 
-    file_path /= rel_file_path
+    file_path /= rel_file_path.lstrip("/")
 
     return cast(JSONObj, loads(file_path.read_text()))
 
@@ -231,7 +260,9 @@ def fix_colon_keys(json_obj: JSONObj | SpotifyEntityJson) -> JSONObj:
 
 def get_flat_file_from_url(
     request: _RequestObjectProxy = None, context: _Context = None
-) -> SpotifyEntityJson:
+) -> SpotifyEntityJson | dict[Literal["accounts"], list[AccountJson]] | dict[
+    Literal["pots"], list[PotJson]
+]:
     """Retrieves the content of a flat JSON file for a mocked request response.
 
     Args:
@@ -248,149 +279,13 @@ def get_flat_file_from_url(
         f"{request.path.replace('/v1/', '')}/{request.query}".rstrip("/") + ".json"
     )
 
-    return read_json_file(file_path, host_name="spotify")
-
-
-def monzo_account_json(
-    request: _RequestObjectProxy = None,
-    _: _Context = None,
-    *,
-    account_type: str = "uk_prepaid",
-) -> dict[Literal["accounts"], list[_MonzoAccountInfo]]:
-    """Return sample Monzo account JSON.
-
-    Args:
-        request (_RequestObjectProxy): the request object from the `requests` session
-        _: the context object from the `requests` session (unused)
-        account_type (str): the type of account to return (if called manually)
-
-    Returns:
-        dict: the JSON object
-
-    Raises:
-        ValueError: if the account type is invalid
-    """
-    uk_retail = read_json_file("account/uk_retail.json", host_name="monzo")
-
-    if request is not None:
-        account_type = request.qs.get("account_type")[0]
-
-    account_list = []
-
-    if account_type == "uk_prepaid":
-        account_list.append(read_json_file("monzo/account/uk_prepaid.json"))
-    elif account_type == "uk_retail":
-        account_list.append(uk_retail)
-        account_list.append(read_json_file("monzo/account/uk_retail_closed.json"))
-
-    elif account_type == "uk_monzo_flex":
-        account_list.append(read_json_file("monzo/account/uk_monzo_flex.json"))
-
-    elif account_type == "uk_monzo_flex_backing_loan":
-        account_list.append(
-            read_json_file("monzo/account/uk_monzo_flex_backing_loan_1.json")
-        )
-        account_list.append(
-            read_json_file("monzo/account/uk_monzo_flex_backing_loan_2.json")
-        )
-        account_list.append(
-            read_json_file("monzo/account/uk_monzo_flex_backing_loan_3.json")
-        )
-
-    elif account_type == "uk_retail_joint":
-        account_list.append(read_json_file("monzo/account/uk_retail_joint.json"))
-    else:  # pragma: no cover
-        raise ValueError(f"Unknown account type: {account_type!r}")
-
-    return {"accounts": cast(list[_MonzoAccountInfo], account_list)}
-
-
-def monzo_pot_json() -> dict[Literal["pots"], list[_MonzoPotInfo]]:
-    """Return a list of sample Monzo Pot JSON objects.
-
-    Returns:
-        list[dict]: the JSON objects
-    """
-    default_pot_values = {
-        "currency": "GBP",
-        "type": "default",
-        "product_id": "default",
-        "isa_wrapper": "",
-        "cover_image_url": "https://via.placeholder.com/200x100",
-        "round_up": False,
-        "round_up_multiplier": None,
-        "is_tax_pot": False,
-        "locked": False,
-        "available_for_bills": True,
-        "has_virtual_cards": False,
-    }
-
-    return {
-        "pots": [
-            {
-                **default_pot_values,  # type: ignore[misc]
-                "id": "test_pot_id_1",
-                "name": "Bills",
-                "style": "",
-                "balance": 50000,
-                "current_account_id": "test_account_id",
-                "created": "2018-08-23T22:34:19.122Z",
-                "updated": "2020-07-10T22:39:33.262Z",
-                "deleted": False,
-            },
-            {
-                **default_pot_values,  # type: ignore[misc]
-                "id": "test_pot_id_savings",
-                "name": "Savings",
-                "style": "piggy_bank",
-                "balance": 2000000,
-                "type": "flexible_savings",
-                "product_id": "BigBank_2015-01-01_ISA",
-                "isa_wrapper": "ISA",
-                "created": "2019-05-15T06:54:56.762Z",
-                "updated": "2020-07-10T22:39:34.638Z",
-                "deleted": False,
-                "available_for_bills": False,
-            },
-            {
-                **default_pot_values,  # type: ignore[misc]
-                "id": "test_pot_id_2",
-                "name": "New Car",
-                "style": "",
-                "balance": 0,
-                "goal_amount": 100000000,
-                "created": "2019-06-05T06:59:17.502Z",
-                "updated": "2020-07-10T22:39:34.703Z",
-                "deleted": True,
-            },
-            {
-                **default_pot_values,  # type: ignore[misc]
-                "id": "test_pot_id_3",
-                "name": "Ibiza Mad One",
-                "style": "teal",
-                "balance": 0,
-                "goal_amount": 50000,
-                "created": "2019-05-14T16:51:39.657Z",
-                "updated": "2020-07-10T22:39:34.529Z",
-                "deleted": True,
-            },
-            {
-                **default_pot_values,  # type: ignore[misc]
-                "id": "test_pot_id_4",
-                "name": "Round Ups",
-                "style": "cactus",
-                "balance": 5000,
-                "round_up": True,
-                "round_up_multiplier": 1,
-                "created": "2020-11-05T22:55:54.031Z",
-                "updated": "2021-06-15T09:50:39.238Z",
-                "deleted": False,
-                "locked": True,
-                "lock_type": "until_date",
-                "locked_until": "2026-04-20T00:00:00Z",
-            },
-        ]
-    }
+    return read_json_file(  # type: ignore[return-value]
+        file_path,
+        host_name={
+            "api.spotify.com": "spotify",
+            "api.monzo.com": "monzo",
+        }[request.hostname],
+    )
 
 
 def random_nested_json() -> JSONObj:
@@ -707,75 +602,19 @@ def _mock_requests(
 ) -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 
-    def _whoami_json_cb(
-        request: _RequestObjectProxy = None,
-        _: _Context = None,
-    ) -> dict[Literal["authenticated"], bool]:
-        return {
-            "authenticated": request.headers["Authorization"]
-            != "Bearer expired_access_token",
-        }
-
     with Mocker(real_http=False) as mock_requests:
         if fullmatch(
             r"^tests/unit/clients/monzo/test__[a-z_]+\.py$", request.node.parent.name
         ):
-            mock_requests.get(
-                f"{MonzoClient.BASE_URL}/ping/whoami",
-                status_code=HTTPStatus.OK,
-                reason=HTTPStatus.OK.phrase,
-                json=_whoami_json_cb,
-            )
-
-            mock_requests.get(
-                f"{MonzoClient.BASE_URL}/balance",
-                status_code=HTTPStatus.OK,
-                reason=HTTPStatus.OK.phrase,
-                json={
-                    "balance": 10000,
-                    "balance_including_flexible_savings": 50000,
-                    "currency": "GBP",
-                    "local_currency": "",
-                    "local_exchange_rate": "",
-                    "local_spend": [{"spend_today": -115, "currency": "GBP"}],
-                    "spend_today": -115,
-                    "total_balance": 10000,
-                },
-            )
+            for url in MONZO_PATHS_TO_MOCK:
+                mock_requests.get(
+                    MonzoClient.BASE_URL + url, json=get_flat_file_from_url
+                )
 
             mock_requests.put(
-                f"{MonzoClient.BASE_URL}/pots/test_pot_id/deposit",
+                f"{MonzoClient.BASE_URL}/pots/pot_0000000000000000000014/deposit",
                 status_code=HTTPStatus.OK,
                 reason=HTTPStatus.OK.phrase,
-            )
-
-            mock_requests.get(
-                f"{MonzoClient.BASE_URL}/accounts",
-                status_code=HTTPStatus.OK,
-                reason=HTTPStatus.OK.phrase,
-                json=monzo_account_json,
-            )
-
-            mock_requests.get(
-                f"{MonzoClient.BASE_URL}/pots",
-                status_code=HTTPStatus.OK,
-                reason=HTTPStatus.OK.phrase,
-                json=monzo_pot_json(),
-            )
-
-            mock_requests.post(
-                MonzoClient.ACCESS_TOKEN_ENDPOINT,
-                status_code=HTTPStatus.OK,
-                reason=HTTPStatus.OK.phrase,
-                json={
-                    "access_token": "test_access_token_new",
-                    "client_id": "test_client_id",
-                    "expires_in": 3600,
-                    "refresh_token": "test_refresh_token_new",
-                    "scope": "test_scope,test_scope_two",
-                    "token_type": "Bearer",
-                    "user_id": "test_user_id",
-                },
             )
         elif fullmatch(
             r"^tests/unit/clients/oauth_client/test__[a-z_]+\.py$",
@@ -861,8 +700,10 @@ def _mock_requests(
 def _monzo_account(monzo_client: MonzoClient) -> MonzoAccount:
     """Fixture for creating a MonzoAccount instance."""
 
-    return MonzoAccount(
-        json=monzo_account_json(account_type="uk_retail")["accounts"][0],
+    return MonzoAccount.from_json_response(
+        read_json_file("account_Type=uk_retail.json", host_name="monzo/accounts")[
+            "accounts"
+        ][0],
         monzo_client=monzo_client,
     )
 
@@ -872,11 +713,12 @@ def _monzo_client(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
     mock_requests: Mocker,  # pylint: disable=unused-argument
+    mock_open_browser: Mocker,  # pylint: disable=unused-argument
 ) -> MonzoClient:
     """Fixture for creating a MonzoClient instance."""
 
     (creds_cache_path := temp_dir / "monzo_credentials.json").write_text(
-        dumps(fake_oauth_credentials)
+        fake_oauth_credentials.json()
     )
 
     return MonzoClient(
@@ -892,29 +734,10 @@ def _monzo_pot() -> Pot:
     """Fixture for creating a Pot instance."""
 
     return Pot(
-        json={
-            "id": "test_pot_id",
-            "name": "Pot Name",
-            "style": "",
-            "balance": 50,
-            "currency": "GBP",
-            "type": "default",
-            "product_id": "default",
-            "current_account_id": "test_account_id",
-            "cover_image_url": "https://via.placeholder.com/200x100",
-            "isa_wrapper": "",
-            "round_up": True,
-            "round_up_multiplier": None,
-            "is_tax_pot": False,
-            "created": "2020-01-01T01:00:00.000Z",
-            "updated": "2020-01-01T02:00:00.000Z",
-            "deleted": False,
-            "locked": False,
-            "available_for_bills": True,
-            "has_virtual_cards": False,
-            "goal_amount": None,
-            "charity_id": None,
-        }
+        **read_json_file(
+            "current_account_id=acc_0000000000000000000000.json",
+            host_name="monzo/pots",
+        )["pots"][14]
     )
 
 
