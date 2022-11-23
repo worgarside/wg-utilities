@@ -296,7 +296,7 @@ def test_transaction_json_annotations_vs_transaction_fields() -> None:
         tx_field_type = tx_field_type.replace("typing.", "").replace("NoneType", "None")
 
         forward_arg = av.__forward_arg__.replace(
-            "TxCategory",
+            "TransactionCategory",
             f"Literal{sorted(TxCategory.__args__)!r}",  # type: ignore[attr-defined]
         )
 

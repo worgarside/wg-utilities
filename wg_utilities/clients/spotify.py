@@ -26,8 +26,7 @@ from typing import (
 )
 from urllib.parse import urlencode
 
-from pydantic import BaseModel, Extra, Field, root_validator, validator
-from pydantic.generics import GenericModel
+from pydantic import Field, root_validator, validator
 from requests import HTTPError, delete, put
 from typing_extensions import NotRequired
 
@@ -55,7 +54,11 @@ from wg_utilities.clients._spotify_types import (
     TrackFullJson,
     UserSummaryJson,
 )
-from wg_utilities.clients.oauth_client import OAuthClient
+from wg_utilities.clients.oauth_client import (
+    BaseModelWithConfig,
+    GenericModelWithConfig,
+    OAuthClient,
+)
 from wg_utilities.functions import chunk_list
 
 LOGGER = getLogger(__name__)
@@ -79,7 +82,7 @@ class AlbumType(str, Enum):
     COMPILATION = "compilation"
 
 
-class Device(BaseModel, extra=Extra.allow):
+class Device(BaseModelWithConfig):
     # pylint: disable=too-few-public-methods
     """Model for a Spotify device."""
 
@@ -92,7 +95,7 @@ class Device(BaseModel, extra=Extra.allow):
     volume_percent: int
 
 
-class TrackAudioFeatures(BaseModel):
+class TrackAudioFeatures(BaseModelWithConfig):
     """Audio feature information for a single track."""
 
     acousticness: float
@@ -115,7 +118,7 @@ class TrackAudioFeatures(BaseModel):
     valence: float
 
 
-FJR = TypeVar("FJR")
+FJR = TypeVar("FJR", bound="SpotifyEntity[Any]")
 SJ = TypeVar("SJ", bound=SpotifyBaseEntityJson)
 
 # class SpotifyClient(OAuthClient[Union[SpotifyEntityJson, SearchResponse]]):
@@ -590,7 +593,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         }
 
 
-class SpotifyEntity(GenericModel, Generic[SJ]):
+class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
     """Base model for Spotify entities."""
 
     description: str = ""
@@ -607,13 +610,6 @@ class SpotifyEntity(GenericModel, Generic[SJ]):
         default_factory=dict, allow_mutation=False
     )  # type: ignore[assignment]
     sj_type: ClassVar[TypeAlias] = SpotifyBaseEntityJson
-
-    class Config:
-        """Pydantic config."""
-
-        arbitrary_types_allowed = True
-        extra = Extra.forbid
-        validate_assignment = True
 
     def _set_private_attr(self, attr_name: str, attr_value: Any) -> None:
         """Set private attribute on the instance.
@@ -639,9 +635,6 @@ class SpotifyEntity(GenericModel, Generic[SJ]):
         dict with the same field names it came in with, and exclude any null values
         that have been added when parsing
 
-        Only changes here from the superclass method are the defaults for `by_alias`,
-        and `exclude_unset` have been changed from False to True
-
         Original documentation is here:
           - https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeldict
 
@@ -664,9 +657,6 @@ class SpotifyEntity(GenericModel, Generic[SJ]):
 
         Returns:
             dict: the model dict
-
-        See Also:
-            Rule.json
         """
 
         if isinstance(exclude, dict):
@@ -703,9 +693,6 @@ class SpotifyEntity(GenericModel, Generic[SJ]):
         """Overrides the standard `BaseModel.json` method, so we can always return the
         dict with the same field names it came in with, and exclude any null values
         that have been added when parsing
-
-        Only changes here from the superclass method are the defaults for `by_alias`,
-        and `exclude_unset` have been changed from False to True
 
         Original documentation is here:
           - https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeljson
@@ -810,7 +797,7 @@ class SpotifyEntity(GenericModel, Generic[SJ]):
         if metadata:
             value_data["metadata"] = metadata
 
-        return cls(**value_data)
+        return cls.parse_obj(value_data)
 
     @validator("spotify_client")
     def validate_spotify_client(cls, value: SpotifyClient) -> SpotifyClient:

@@ -1,3 +1,4 @@
+# pylint: disable=too-few-public-methods
 """Generic OAuth client to allow for reusable authentication flows/checks etc."""
 from __future__ import annotations
 
@@ -17,6 +18,7 @@ from webbrowser import open as open_browser
 
 from jwt import DecodeError, decode
 from pydantic import BaseModel, Extra
+from pydantic.generics import GenericModel
 from requests import Response, get, post
 
 from wg_utilities.api import TempAuthServer
@@ -28,7 +30,29 @@ LOGGER.setLevel(DEBUG)
 add_stream_handler(LOGGER)
 
 
-class OAuthCredentials(BaseModel, extra=Extra.forbid):
+class BaseModelWithConfig(BaseModel):
+    """Reusable `BaseModel` with Config to apply to all subclasses."""
+
+    class Config:
+        """Pydantic config."""
+
+        arbitrary_types_allowed = True
+        extra = Extra.forbid
+        validate_assignment = True
+
+
+class GenericModelWithConfig(GenericModel):
+    """Reusable `GenericModel` with Config to apply to all subclasses."""
+
+    class Config:
+        """Pydantic config."""
+
+        arbitrary_types_allowed = True
+        extra = Extra.forbid
+        validate_assignment = True
+
+
+class OAuthCredentials(BaseModelWithConfig):
     """Typing info for OAuth credentials."""
 
     access_token: str
@@ -271,7 +295,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         self,
         url: str,
         params: dict[str, str | int | object] | None = None,
-    ) -> GetJsonResponse:  # Mapping[str, Any]:
+    ) -> GetJsonResponse:
         """Gets a simple JSON object from a URL.
 
         Args:

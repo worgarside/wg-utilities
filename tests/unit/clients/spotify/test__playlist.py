@@ -146,7 +146,7 @@ def test_contains_method(
 
 
 def test_gt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) -> None:
-    # pylint: disable=comparison-with-itself,unneeded-not
+    # pylint: disable=comparison-with-itself
     """Test that `playlist > playlist` statements work as expected."""
     spotify_owned_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
@@ -197,7 +197,7 @@ def test_iter_method(spotify_playlist: Playlist) -> None:
 
 
 def test_lt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) -> None:
-    # pylint: disable=comparison-with-itself,unneeded-not
+    # pylint: disable=comparison-with-itself
     """Test that `playlist < playlist` statements work as expected."""
     spotify_owned_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]

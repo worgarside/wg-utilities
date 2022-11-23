@@ -7,10 +7,10 @@ from logging import DEBUG, getLogger
 from pathlib import Path
 from typing import Any, Literal, TypedDict, final
 
-from pydantic import BaseModel, Extra, Field
+from pydantic import Extra, Field
 from requests import put
 
-from wg_utilities.clients.oauth_client import OAuthClient
+from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
 from wg_utilities.functions import DTU, cleanse_string, utcnow
 
 LOGGER = getLogger(__name__)
@@ -138,7 +138,7 @@ class TransactionJson(TypedDict):
     user_id: str
 
 
-class Transaction(BaseModel):
+class Transaction(BaseModelWithConfig):
     """Pydantic representation of a transaction."""
 
     class Config:
@@ -189,7 +189,7 @@ class Transaction(BaseModel):
     user_id: str
 
 
-class BalanceVariables(BaseModel):
+class BalanceVariables(BaseModelWithConfig):
     """Variables for an account's balance summary."""
 
     balance: int
@@ -210,7 +210,7 @@ class AccountOwner(TypedDict):
     user_id: str
 
 
-class Account(BaseModel):
+class Account(BaseModelWithConfig):
     """Class for managing individual bank accounts."""
 
     account_number: str | None
@@ -382,7 +382,7 @@ class Account(BaseModel):
         return f"<Account {self.id}>"
 
 
-class Pot(BaseModel):
+class Pot(BaseModelWithConfig):
     """Read-only class for Monzo pots."""
 
     available_for_bills: bool
