@@ -2,9 +2,8 @@
 from __future__ import annotations
 
 from datetime import datetime
-from logging import Logger
 from pathlib import Path
-from typing import Literal, TypedDict
+from typing import Any, Literal, TypedDict
 
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.functions.datetime_helpers import DatetimeFixedUnit as DFUnit
@@ -12,9 +11,6 @@ from wg_utilities.functions.datetime_helpers import utcnow
 
 
 class _DataSourceDataTypeFieldInfo(TypedDict):
-    # format: Literal[
-    #     "blob", "floatList", "floatPoint", "integer", "integerList", "map", "string"
-    # ]
     format: Literal["floatPoint", "integer"]
     name: str
 
@@ -40,13 +36,6 @@ class _GoogleFitDataPointInfo(TypedDict):
     value: list[dict[str, int]]
 
 
-class DataPointValueKeyLookupInfo(TypedDict):
-    """Typing info for the Data Point lookup dict."""
-
-    floatPoint: Literal["fpVal"]
-    integer: Literal["intVal"]
-
-
 class DataSource:
     """Class for interacting with Google Fit Data Sources.
 
@@ -64,7 +53,13 @@ class DataSource:
         "integer": "intVal",
     }
 
-    def __init__(self, data_source_id: str, *, google_client: GoogleClient):
+    class DataPointValueKeyLookupInfo(TypedDict):
+        """Typing info for the Data Point lookup dict."""
+
+        floatPoint: Literal["fpVal"]
+        integer: Literal["intVal"]
+
+    def __init__(self, data_source_id: str, *, google_client: GoogleClient[Any]):
         self.data_source_id = data_source_id
         self.url = (
             f"{GoogleFitClient.BASE_URL}/users/me/dataSources/{self.data_source_id}"
@@ -81,7 +76,7 @@ class DataSource:
             dict: the JSON description of this data source
         """
         if not hasattr(self, "_description"):
-            self._description = self.google_client.session.get(self.url).json()
+            self._description = self.google_client.get_json_response(self.url)
 
         return self._description
 
@@ -122,7 +117,7 @@ class DataSource:
 
         data_points: list[_GoogleFitDataPointInfo] = self.google_client.get_items(
             f"{self.url}/datasets/{from_nano}-{to_nano}",
-            "point",
+            list_key="point",
         )
 
         count = 0
@@ -182,7 +177,7 @@ class DataSource:
         return self.DP_VALUE_KEY_LOOKUP[self.data_type_field_format]
 
 
-class GoogleFitClient(GoogleClient):
+class GoogleFitClient(GoogleClient[Any]):
     """Custom client for interacting with the Google Fit API.
 
     See Also:
@@ -194,22 +189,20 @@ class GoogleFitClient(GoogleClient):
 
     def __init__(
         self,
-        project: str,
+        client_id: str,
+        client_secret: str,
+        *,
         scopes: list[str] | None = None,
-        client_id_json_path: Path | None = None,
         creds_cache_path: Path | None = None,
-        access_token_expiry_threshold: int = 60,
-        logger: Logger | None = None,
     ):
         super().__init__(
             base_url=self.BASE_URL,
-            project=project,
+            client_id=client_id,
+            client_secret=client_secret,
             scopes=scopes,
-            client_id_json_path=client_id_json_path,
             creds_cache_path=creds_cache_path,
-            access_token_expiry_threshold=access_token_expiry_threshold,
-            logger=logger,
         )
+
         self.data_sources: dict[str, DataSource] = {}
 
     def get_data_source(self, data_source_id: str) -> DataSource:
