@@ -24,6 +24,7 @@ add_stream_handler(LOGGER)
 
 if TYPE_CHECKING:
     from wg_utilities.clients.google_calendar import GoogleCalendarEntityJson
+    from wg_utilities.clients.google_photos import GooglePhotosEntityJson
 
 
 class GoogleCredentialsInfo(OAuthCredentials):
@@ -66,7 +67,15 @@ class PaginatedResponseFit(TypedDict):
     point: list[dict[str, object]]
 
 
-AnyPaginatedResponse: TypeAlias = PaginatedResponseCalendar | PaginatedResponseFit
+class PaginatedResponsePhotos(_PaginatedResponseBase):
+    """Paginated response specifically for the Photos client."""
+
+    albums: list[GooglePhotosEntityJson]
+
+
+AnyPaginatedResponse: TypeAlias = (
+    PaginatedResponseCalendar | PaginatedResponseFit | PaginatedResponsePhotos
+)
 
 PR = TypeVar("PR")
 
