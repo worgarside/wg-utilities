@@ -456,19 +456,11 @@ class Card(TrueLayerEntity):
     valid_to: date | None
 
 
+EntityByIdTypeVar = TypeVar("EntityByIdTypeVar", Account, Card)
+
+
 class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJson]]]):
-    """Custom client for interacting with TrueLayer's APIs.
-
-    Includes all necessary authentication functionality.
-
-    Args:
-        client_id (str): the client ID for the TrueLayer application
-        client_secret (str): the client secret
-        bank (Bank): the bank which we're working with
-        redirect_uri (str): the redirect URI for the auth flow
-        log_requests (bool): flag for choosing if to log all requests made
-        creds_cache_path (str): file path for where to cache credentials
-    """
+    """Custom client for interacting with TrueLayer's APIs."""
 
     AUTH_LINK_BASE = "https://auth.truelayer.com/"
     ACCESS_TOKEN_ENDPOINT = "https://auth.truelayer.com/connect/token"
@@ -636,8 +628,6 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
             for result in res.get("results", [])
         ]
 
-
-EntityByIdTypeVar = TypeVar("EntityByIdTypeVar", Account, Card)
 
 Account.update_forward_refs()
 Card.update_forward_refs()

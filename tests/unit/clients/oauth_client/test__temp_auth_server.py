@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from http import HTTPStatus
 from threading import Thread
 from time import sleep
 from unittest.mock import patch
@@ -102,14 +103,16 @@ def test_start_server_starts_server(temp_auth_server: TempAuthServer) -> None:
     assert temp_auth_server.is_running
     assert hasattr(temp_auth_server, "_server")
     assert temp_auth_server.server.is_alive()
-    assert get(GET_AUTH_URL).json() == {"statusCode": 200}
+    assert get(GET_AUTH_URL).status_code == HTTPStatus.OK
+    assert "Authentication Complete" in get(GET_AUTH_URL).text
 
 
 def test_server_can_be_started_multiple_times(temp_auth_server: TempAuthServer) -> None:
     """Test that the `start_server` method can be called multiple times."""
 
     temp_auth_server.start_server()
-    assert get(GET_AUTH_URL).json() == {"statusCode": 200}
+    assert get(GET_AUTH_URL).status_code == HTTPStatus.OK
+    assert "Authentication Complete" in get(GET_AUTH_URL).text
     assert temp_auth_server.is_running
     assert temp_auth_server.server.is_alive()
 
@@ -117,7 +120,8 @@ def test_server_can_be_started_multiple_times(temp_auth_server: TempAuthServer) 
     assert not temp_auth_server.is_running
 
     temp_auth_server.start_server()
-    assert get(GET_AUTH_URL).json() == {"statusCode": 200}
+    assert get(GET_AUTH_URL).status_code == HTTPStatus.OK
+    assert "Authentication Complete" in get(GET_AUTH_URL).text
     assert temp_auth_server.is_running
     assert temp_auth_server.server.is_alive()
 

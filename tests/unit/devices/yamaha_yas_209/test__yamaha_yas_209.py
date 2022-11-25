@@ -1522,6 +1522,8 @@ def test_subscribe_resubscribes_to_active_services(
     assert all(key[0] == "GET" for key in mock_aiohttp.requests.keys())
     assert "Resubscribing to all services" in caplog.text
 
+    assert call_count == 121
+
 
 def test_subscribe_resubscribes_to_failed_services(
     yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses, caplog: LogCaptureFixture
@@ -1580,6 +1582,8 @@ def test_subscribe_resubscribes_to_failed_services(
         == f"Attempting to create originally failed subscription for"
         f" {Yas209Service.RC.service_id}"
     )
+
+    assert call_count == 121
 
 
 @mark.parametrize(  # type: ignore[misc]
@@ -1664,6 +1668,8 @@ def test_subscribe_keeps_retrying_failed_subscriptions(
         f"Still unable to subscribe to {Yas209Service.RC.service_id}: "
         f'UpnpCommunicationError("{repr(response_exception)}", None)'
     )
+
+    assert call_count == 121
 
 
 def test_stop_listening_stops_listener(

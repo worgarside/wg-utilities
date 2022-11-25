@@ -2,15 +2,20 @@
 """Custom client for interacting with Monzo's API."""
 from __future__ import annotations
 
+from collections.abc import Iterable
 from datetime import datetime, timedelta
 from logging import DEBUG, getLogger
 from pathlib import Path
 from typing import Any, Literal, TypedDict, final
 
-from pydantic import Extra, Field
+from pydantic import Field
 from requests import put
 
-from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
+from wg_utilities.clients.oauth_client import (
+    BaseModelWithConfig,
+    OAuthClient,
+    StrBytIntFlt,
+)
 from wg_utilities.functions import DTU, cleanse_string, utcnow
 
 LOGGER = getLogger(__name__)
@@ -141,13 +146,6 @@ class TransactionJson(TypedDict):
 class Transaction(BaseModelWithConfig):
     """Pydantic representation of a transaction."""
 
-    class Config:
-        """Pydantic config."""
-
-        arbitrary_types_allowed = True
-        extra = Extra.forbid
-        validate_assignment = True
-
     account_id: str
     amount: int
     amount_is_pending: bool
@@ -235,13 +233,6 @@ class Account(BaseModelWithConfig):
     balance_update_threshold: int = Field(15, exclude=True)
     last_balance_update: datetime = Field(datetime(1970, 1, 1), exclude=True)
     _balance_variables: BalanceVariables
-
-    class Config:
-        """Pydantic config."""
-
-        arbitrary_types_allowed = True
-        extra = Extra.forbid
-        validate_assignment = True
 
     @classmethod
     def from_json_response(
@@ -409,13 +400,6 @@ class Pot(BaseModelWithConfig):
     type: str
     updated: datetime
 
-    class Config:
-        """Pydantic config."""
-
-        arbitrary_types_allowed = True
-        extra = Extra.forbid
-        validate_assignment = True
-
 
 class MonzoGJR(TypedDict):
     """The response type for `MonzoClient.get_json_response`."""
@@ -432,7 +416,9 @@ class MonzoClient(OAuthClient[MonzoGJR]):
     AUTH_LINK_BASE = "https://auth.monzo.com"
     BASE_URL = "https://api.monzo.com"
 
-    DEFAULT_PARAMS: dict[str, object] = {}
+    DEFAULT_PARAMS: dict[
+        StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None
+    ] = {}
 
     def __init__(
         self,

@@ -1,4 +1,3 @@
-# pylint: disable=too-many-lines
 """Pytest config file, used for creating fixtures etc."""
 
 from __future__ import annotations

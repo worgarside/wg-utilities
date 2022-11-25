@@ -297,11 +297,11 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
             spotify_client=self,
         )
 
-    def get_items_from_url(
+    def get_items(
         self,
         url: str,
-        params: None | dict[str, str | int | float | bool | dict[str, Any]] = None,
         *,
+        params: None | dict[str, str | int | float | bool | dict[str, Any]] = None,
         hard_limit: int = 1000000,
         limit_func: Callable[
             [dict[str, Any] | SpotifyEntityJson],
@@ -555,9 +555,8 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
                         instance_class.from_json_response(  # type: ignore[misc]
                             item, spotify_client=self
                         )
-                        for item in self.get_items_from_url(
-                            next_url,
-                            top_level_key=res_entity_type,
+                        for item in self.get_items(
+                            next_url, top_level_key=res_entity_type
                         )
                     ]
                 )
@@ -610,15 +609,6 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
         default_factory=dict, allow_mutation=False
     )  # type: ignore[assignment]
     sj_type: ClassVar[TypeAlias] = SpotifyBaseEntityJson
-
-    def _set_private_attr(self, attr_name: str, attr_value: Any) -> None:
-        """Set private attribute on the instance.
-
-        Args:
-            attr_name (str): the name of the attribute to set
-            attr_value (Any): the value to set the attribute to
-        """
-        object.__setattr__(self, attr_name, attr_value)
 
     def dict(
         self,
@@ -969,7 +959,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
                                 spotify_client=self.spotify_client,
                                 additional_fields={"album": self.summary_json},
                             )
-                            for item in self.spotify_client.get_items_from_url(next_url)
+                            for item in self.spotify_client.get_items(next_url)
                         ]
                     )
             else:
@@ -979,7 +969,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
                         spotify_client=self.spotify_client,
                         additional_fields={"album": self.summary_json},
                     )
-                    for item in self.spotify_client.get_items_from_url(
+                    for item in self.spotify_client.get_items(
                         f"/albums/{self.id}/tracks"
                     )
                 ]
@@ -1012,9 +1002,7 @@ class Artist(SpotifyEntity[ArtistSummaryJson]):
         if not hasattr(self, "_albums"):
             albums = [
                 Album.from_json_response(item, spotify_client=self.spotify_client)
-                for item in self.spotify_client.get_items_from_url(
-                    f"/artists/{self.id}/albums"
-                )
+                for item in self.spotify_client.get_items(f"/artists/{self.id}/albums")
             ]
 
             self._set_private_attr("_albums", albums)
@@ -1206,12 +1194,7 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
                 )
                 for item in cast(
                     list[PlaylistFullJsonTracks],
-                    self.spotify_client.get_items_from_url(
-                        # pylint: disable=line-too-long
-                        # TODO exclude available markets:
-                        #  https://developer.spotify.com/documentation/web-api/reference/#/operations/get-playlist
-                        f"/playlists/{self.id}/tracks"
-                    ),
+                    self.spotify_client.get_items(f"/playlists/{self.id}/tracks"),
                 )
                 if "track" in item.keys() and item["is_local"] is False
             ]
@@ -1361,7 +1344,7 @@ class User(SpotifyEntity[UserSummaryJson]):
             )
             for item in cast(
                 list[SavedItem],
-                self.spotify_client.get_items_from_url(
+                self.spotify_client.get_items(
                     "/me/tracks", hard_limit=track_limit, limit_func=limit_func
                 ),
             )
@@ -1462,7 +1445,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                 )
                 for item in cast(
                     list[SavedItem],
-                    self.spotify_client.get_items_from_url("/me/albums"),
+                    self.spotify_client.get_items("/me/albums"),
                 )
             ]
 
@@ -1484,7 +1467,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                     artist_json,
                     spotify_client=self.spotify_client,
                 )
-                for artist_json in self.spotify_client.get_items_from_url(
+                for artist_json in self.spotify_client.get_items(
                     "/me/following",
                     params={
                         "type": "artist",
@@ -1543,7 +1526,7 @@ class User(SpotifyEntity[UserSummaryJson]):
         """
         return [
             Device.parse_obj(device_json)
-            for device_json in self.spotify_client.get_items_from_url(
+            for device_json in self.spotify_client.get_items(
                 "/me/player/devices", list_key="devices"
             )
         ]
@@ -1561,7 +1544,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                 Playlist.from_json_response(item, spotify_client=self.spotify_client)
                 for item in cast(
                     list[PlaylistSummaryJson],
-                    self.spotify_client.get_items_from_url("/me/playlists"),
+                    self.spotify_client.get_items("/me/playlists"),
                 )
                 if item["owner"]["id"] == self.id
             ]
@@ -1584,7 +1567,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                     artist_json,
                     spotify_client=self.spotify_client,
                 )
-                for artist_json in self.spotify_client.get_items_from_url(
+                for artist_json in self.spotify_client.get_items(
                     "/me/top/artists", params={"time_range": "short_term"}
                 )
             )
@@ -1605,7 +1588,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                     track_json,
                     spotify_client=self.spotify_client,
                 )
-                for track_json in self.spotify_client.get_items_from_url(
+                for track_json in self.spotify_client.get_items(
                     "/me/top/tracks", params={"time_range": "short_term"}
                 )
             )
@@ -1630,7 +1613,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                 )
                 for item in cast(
                     list[SavedItem],
-                    self.spotify_client.get_items_from_url("/me/tracks"),
+                    self.spotify_client.get_items("/me/tracks"),
                 )
             ]
 

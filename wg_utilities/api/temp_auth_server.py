@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from datetime import datetime
-from json import dumps
+from textwrap import dedent
 from threading import Thread
 from time import sleep
-from typing import Any
+from typing import Any, cast
 
-from flask import Flask, request
+from flask import Flask, Response, request
 from werkzeug.serving import make_server
 
 
@@ -72,7 +72,7 @@ class TempAuthServer:
         """
 
         @self.app.route("/get_auth_code", methods=["GET"])
-        def get_auth_code() -> str:
+        def get_auth_code() -> Response:
             # TODO add 400 response for mismatch in state token
             """Endpoint for getting auth code from third party callback.
 
@@ -80,11 +80,30 @@ class TempAuthServer:
                 dict: simple response dict
             """
             self._request_args[request.path] = request.args
-            # return """<script>window.close();</script>"""
-            return dumps(
-                {
-                    "statusCode": 200,
-                }
+
+            return cast(
+                Response,
+                self.app.response_class(
+                    response=dedent(
+                        """
+                    <html lang="en">
+                    <head>
+                        <style>
+                            body {
+                                font-family: Verdana, sans-serif;
+                            }
+                        </style>
+                        <title>Authentication Complete</title>
+                    </head>
+                    <body>
+                    <h1>Authentication complete!</h1>
+                    <span>You may now close this window.</span>
+                    </body>
+                    </html>
+                """
+                    ).strip(),
+                    status=200,
+                ),
             )
 
     def wait_for_request(

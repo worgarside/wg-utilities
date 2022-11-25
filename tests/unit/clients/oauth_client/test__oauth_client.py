@@ -151,10 +151,7 @@ def test_get_method_sends_correct_request(
     assert request.headers["Authorization"] == f"Bearer {live_jwt_token}"
 
     assert caplog.records[0].levelno == DEBUG
-    assert caplog.records[0].message == (
-        'GET https://api.example.com/test_endpoint with params {"test_param": '
-        '"test_value"}'
-    )
+    assert caplog.records[0].message == ("GET https://api.example.com/test_endpoint")
 
 
 def test_get_raises_exception_for_non_200_response(
@@ -237,10 +234,7 @@ def test_post_method_sends_correct_request(
     assert request.headers["Authorization"] == f"Bearer {live_jwt_token}"
 
     assert caplog.records[0].levelno == DEBUG
-    assert caplog.records[0].message == (
-        'POST https://api.example.com/test_endpoint with data {"test_key": '
-        '"test_value"}'
-    )
+    assert caplog.records[0].message == ("POST https://api.example.com/test_endpoint")
 
 
 def test_post_raises_exception_for_non_200_response(
@@ -411,7 +405,6 @@ def test_run_first_time_login(
 
         assert res.status_code == HTTPStatus.OK
         assert res.reason == HTTPStatus.OK.phrase
-        assert res.json() == {"statusCode": 200}
 
         called = True
 

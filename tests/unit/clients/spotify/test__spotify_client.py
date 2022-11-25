@@ -97,10 +97,7 @@ def test_get_method_with_sample_responses(
 
     assert res.json() == loads(file_path.read_text())
 
-    assert (
-        caplog.records[0].message
-        == f"GET {SpotifyClient.BASE_URL + endpoint} with params {dumps(params or {})}"
-    )
+    assert caplog.records[0].message == f"GET {SpotifyClient.BASE_URL + endpoint}"
 
 
 @mark.parametrize(  # type: ignore[misc]
@@ -161,9 +158,7 @@ def test_get_method_without_leading_slash(
 
     assert res.json() == loads(file_path.read_text())
 
-    assert (
-        caplog.records[0].message == f"GET {endpoint} with params {dumps(params or {})}"
-    )
+    assert caplog.records[0].message == f"GET {endpoint}"
 
 
 @mark.parametrize("http_status", HTTPStatus)  # type: ignore[misc]
@@ -217,8 +212,8 @@ def test_get_items_from_url_no_pagination(
 ) -> None:
     """Test that the `get_items_from_url` method processes a single page correctly."""
 
-    items = spotify_client.get_items_from_url(
-        url="https://api.spotify.com/v1/artists/1ma3pjzpirayypnrkp3suf/albums",
+    items = spotify_client.get_items(
+        url="https://api.spotify.com/v1/artists/1ma3pjzpirayypnrkp3suf/albums"
     )
     assert len(mock_requests.request_history) == 1
 
@@ -230,8 +225,8 @@ def test_get_items_from_url_with_pagination(
 ) -> None:
     """Test that the `get_items_from_url` method processes multiple pages correctly."""
 
-    items = spotify_client.get_items_from_url(
-        url="https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
+    items = spotify_client.get_items(
+        url="https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks"
     )
     # Not testing all request details as it's covered by
     # `tests.unit.clients.spotify.test__playlist.test_tracks_property`
@@ -259,9 +254,7 @@ def test_get_items_from_url_handles_params_correctly(
         reason=HTTPStatus.OK.phrase,
     )
 
-    spotify_client.get_items_from_url(
-        "/foo", params={"key": "value", "query": "string"}
-    )
+    spotify_client.get_items("/foo", params={"key": "value", "query": "string"})
 
     assert_mock_requests_request_history(
         mock_requests.request_history,
@@ -283,7 +276,7 @@ def test_get_items_from_url_hard_limit(
 ) -> None:
     """Test the `hard_limit` argument works correctly."""
 
-    items = spotify_client.get_items_from_url(
+    items = spotify_client.get_items(
         url="https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
         hard_limit=75,
     )
@@ -321,7 +314,7 @@ def test_get_items_from_url_limit_func(
 ) -> None:
     """Test that a limit function can be passed to `get_items_from_url`."""
 
-    items = spotify_client.get_items_from_url(
+    items = spotify_client.get_items(
         url="https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
         limit_func=lambda item: datetime.strptime(
             item["added_at"],  # type: ignore[typeddict-item]
@@ -411,15 +404,14 @@ def test_get_items_from_url_limit_func(
     # Check this doesn't override the hard limit
     assert (
         len(
-            spotify_client.get_items_from_url(
-                # pylint: disable=line-too-long
-                url="https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
+            spotify_client.get_items(
+                "https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
+                hard_limit=75,
                 limit_func=lambda item: datetime.strptime(
                     item["added_at"],  # type: ignore[typeddict-item]
                     spotify_client.DATETIME_FORMAT,
                 )
                 >= datetime(2020, 1, 1),
-                hard_limit=75,
             )
         )
         == 75
@@ -429,15 +421,11 @@ def test_get_items_from_url_limit_func(
 def test_get_items_from_url_different_list_key(spotify_client: SpotifyClient) -> None:
     """Tests items under a different key are correctly extracted."""
 
-    items = spotify_client.get_items_from_url(
-        "/me/player/devices",
-    )
+    items = spotify_client.get_items("/me/player/devices")
 
     assert not items
 
-    devices = spotify_client.get_items_from_url(
-        "/me/player/devices", list_key="devices"
-    )
+    devices = spotify_client.get_items("/me/player/devices", list_key="devices")
 
     assert len(devices) == 2
 
@@ -445,7 +433,7 @@ def test_get_items_from_url_different_list_key(spotify_client: SpotifyClient) ->
 def test_get_items_from_url_with_top_level_key(spotify_client: SpotifyClient) -> None:
     """Tests items under a top level key *and* and list key are correctly extracted."""
 
-    items = spotify_client.get_items_from_url(
+    items = spotify_client.get_items(
         "/me/following",
         params={
             "type": "artist",
@@ -454,7 +442,7 @@ def test_get_items_from_url_with_top_level_key(spotify_client: SpotifyClient) ->
 
     assert not items
 
-    artists = spotify_client.get_items_from_url(
+    artists = spotify_client.get_items(
         "/me/following",
         params={
             "type": "artist",

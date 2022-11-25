@@ -139,6 +139,7 @@ def test_false_raise_after_callback_does_not_raise(
     worker()
     assert called is True
     assert finished is False
+    assert isinstance(exception, exception_type)
 
 
 @mark.parametrize(  # type: ignore[misc]
