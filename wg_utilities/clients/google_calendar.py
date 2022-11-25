@@ -1,4 +1,4 @@
-"""Custom client for interacting with Google's Drive API."""
+"""Custom client for interacting with Google's Calendar API."""
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
@@ -40,17 +40,13 @@ class EventType(Enum):
     OUT_OF_OFFICE = "outOfOffice"
 
 
-class ConferenceDataCreateRequest(TypedDict):
-    """`conferenceData.createRequest` object."""
-
+class _ConferenceDataCreateRequest(TypedDict):
     requestId: str
     conferenceSolutionKey: dict[Literal["type"], Literal["hangoutsMeet"]]
     status: dict[Literal["statusCode"], Literal["success"]]
 
 
-class ConferenceDataEntryPoints(TypedDict, total=False):
-    """`conferenceData.entryPoints` object."""
-
+class _ConferenceDataEntryPoints(TypedDict, total=False):
     entryPointType: str
     uri: str
     label: str
@@ -62,27 +58,23 @@ class ConferenceDataEntryPoints(TypedDict, total=False):
     regionCode: str | None
 
 
-class ConferenceDataConferenceSolution(TypedDict):
-    """`conferenceData.conferenceSolution` object."""
-
+class _ConferenceDataConferenceSolution(TypedDict):
     key: dict[Literal["type"], Literal["hangoutsMeet", "addOn"]]
     name: str
     iconUri: str
 
 
-class ConferenceData(TypedDict, total=False):
-    """`conferenceData` object."""
-
-    createRequest: ConferenceDataCreateRequest
-    entryPoints: list[ConferenceDataEntryPoints]
-    conferenceSolution: ConferenceDataConferenceSolution
+class _ConferenceData(TypedDict, total=False):
+    createRequest: _ConferenceDataCreateRequest
+    entryPoints: list[_ConferenceDataEntryPoints]
+    conferenceSolution: _ConferenceDataConferenceSolution
     conferenceId: str
     signature: str | None
     notes: str | None
     parameters: dict[str, object] | None
 
 
-class StartEndDatetime(BaseModelWithConfig):
+class _StartEndDatetime(BaseModelWithConfig):
     """Model for `start` and `end` datetime objects."""
 
     datetime: datetime_ | None = Field(alias="dateTime")
@@ -175,7 +167,7 @@ class GoogleCalendarEntity(GenericModelWithConfig):
         google_client: GoogleCalendarClient,
         calendar: Calendar | None = None,
     ) -> FJR:
-        """Creates an account from a JSON response."""
+        """Creates a Calendar/Event from a JSON response."""
 
         value_data: dict[str, Any] = {
             "google_client": google_client,
@@ -440,9 +432,9 @@ class EventJson(TypedDict):
     attendeesOmitted: bool | None
     created: datetime_
     colorId: str | None
-    conferenceData: ConferenceData | None
+    conferenceData: _ConferenceData | None
     creator: dict[str, str | bool]
-    end: StartEndDatetime
+    end: _StartEndDatetime
     endTimeUnspecified: bool | None
     eventType: EventType  # "default"
     extendedProperties: dict[str, dict[str, str]] | None
@@ -462,7 +454,7 @@ class EventJson(TypedDict):
     reminders: dict[str, bool | dict[str, str | int]]
     sequence: int
     source: dict[str, str] | None
-    start: StartEndDatetime
+    start: _StartEndDatetime
     status: Literal["cancelled", "confirmed", "tentative"] | None
     transparency: str | bool | None  # != transparent
     updated: datetime_
@@ -479,9 +471,9 @@ class Event(GoogleCalendarEntity):
     attendees_omitted: bool | None = Field(alias="attendeesOmitted")
     created: datetime_
     color_id: str | None = Field(alias="colorId")
-    conference_data: ConferenceData | None = Field(alias="conferenceData")
+    conference_data: _ConferenceData | None = Field(alias="conferenceData")
     creator: dict[str, str | bool]
-    end: StartEndDatetime
+    end: _StartEndDatetime
     end_time_unspecified: bool | None = Field(alias="endTimeUnspecified")
     event_type: EventType = Field(alias="eventType")  # "default"
     extended_properties: dict[str, dict[str, str]] | None = Field(
@@ -503,7 +495,7 @@ class Event(GoogleCalendarEntity):
     reminders: dict[str, bool | dict[str, str | int]]
     sequence: int
     source: dict[str, str] | None
-    start: StartEndDatetime
+    start: _StartEndDatetime
     status: Literal["cancelled", "confirmed", "tentative"] | None
     transparency: str | bool | None  # != transparent
     updated: datetime_
@@ -597,18 +589,7 @@ GoogleCalendarEntityJson: TypeAlias = CalendarJson | EventJson
 
 
 class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
-    """Custom client specifically for Google's Drive API.
-
-    Args:
-        project (str): the name of the project which this client is being used for
-        scopes (list): a list of scopes the client can be given
-        client_id_json_path (str): the path to the `client_id.json` file downloaded
-         from Google's API Console
-        creds_cache_path (str): file path for where to cache credentials
-        access_token_expiry_threshold (int): the threshold for when the access token is
-         considered expired
-        logger (RootLogger): a logger to use throughout the client functions
-    """
+    """Custom client specifically for Google's Calendar API."""
 
     BASE_URL = "https://www.googleapis.com/calendar/v3"
 
@@ -699,8 +680,8 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
             f"/calendars/{calendar.id}/events",
             json={
                 "summary": summary,
-                "start": start_params,  # type: ignore[dict-item]
-                "end": end_params,  # type: ignore[dict-item]
+                "start": start_params,
+                "end": end_params,
                 **(extra_params or {}),
             },
         )

@@ -3,11 +3,11 @@ from __future__ import annotations
 
 from collections.abc import Collection, Iterable
 from copy import deepcopy
-from logging import Logger
 from pathlib import Path
-from typing import Any, TypedDict, cast
+from typing import Any, TypedDict
 
 from wg_utilities.clients._google import GoogleClient
+from wg_utilities.clients.oauth_client import StrBytIntFlt
 from wg_utilities.exceptions import ResourceNotFound
 
 
@@ -122,10 +122,10 @@ class File:
             dict: the description JSON for this file
         """
         if force_update or not hasattr(self, "_description"):
-            self._description = self.google_client.session.get(
+            self._description = self.google_client.get_json_response(
                 f"{self.google_client.BASE_URL}/files/{self.file_id}",
                 params={"fields": ", ".join(self.DESCRIPTION_FIELDS)},
-            ).json()
+            )
 
         return self._description
 
@@ -232,20 +232,17 @@ class Directory(File):
         """
         if not self._files:
             self._files = [
-                File(**item, google_client=self.google_client)  # type: ignore[arg-type]
+                File(**item, google_client=self.google_client)
                 # TODO make this just pass in the JSON like everything else...
-                for item in cast(
-                    Iterable[dict[str, str]],
-                    self.google_client.get_items(
-                        f"{self.google_client.BASE_URL}/files",
-                        "files",
-                        params={
-                            "pageSize": "1000",
-                            "q": "mimeType != 'application/vnd.google-apps.folder' and"
-                            f" '{self.file_id}' in parents",
-                            "fields": "nextPageToken, files(id, name, parents)",
-                        },
-                    ),
+                for item in self.google_client.get_items(
+                    f"{self.google_client.BASE_URL}/files",
+                    list_key="files",
+                    params={
+                        "pageSize": "1000",
+                        "q": "mimeType != 'application/vnd.google-apps.folder' and"
+                        f" '{self.file_id}' in parents",
+                        "fields": "nextPageToken, files(id, name, parents)",
+                    },
                 )
             ]
 
@@ -345,18 +342,12 @@ class Directory(File):
         return f"Directory(id={self.file_id!r}, name={self.name!r}, parent_id={self.parent_id!r})"
 
 
-class GoogleDriveClient(GoogleClient):
+class GoogleDriveClient(GoogleClient[Any]):
     """Custom client specifically for Google's Drive API.
 
     Args:
-        project (str): the name of the project which this client is being used for
         scopes (list): a list of scopes the client can be given
-        client_id_json_path (str): the path to the `client_id.json` file downloaded
-         from Google's API Console
         creds_cache_path (str): file path for where to cache credentials
-        access_token_expiry_threshold (int): the threshold for when the access token is
-         considered expired
-        logger (RootLogger): a logger to use throughout the client functions
 
     """
 
@@ -364,24 +355,21 @@ class GoogleDriveClient(GoogleClient):
 
     def __init__(
         self,
-        project: str,
+        client_id: str,
+        client_secret: str,
+        *,
         scopes: list[str] | None = None,
-        client_id_json_path: Path | None = None,
         creds_cache_path: Path | None = None,
-        access_token_expiry_threshold: int = 60,
-        logger: Logger | None = None,
     ):
         super().__init__(
             base_url=self.BASE_URL,
-            project=project,
+            client_id=client_id,
+            client_secret=client_secret,
             scopes=scopes,
-            client_id_json_path=client_id_json_path,
             creds_cache_path=creds_cache_path,
-            access_token_expiry_threshold=access_token_expiry_threshold,
-            logger=logger,
         )
-        self._root_directory: Directory
 
+        self._root_directory: Directory
         self._directories: list[Directory] = []
 
     def _build_directory_structure(self) -> None:
@@ -396,7 +384,7 @@ class GoogleDriveClient(GoogleClient):
         directory: _DirectoryItemInfo
         for directory in self.get_items(
             f"{self.BASE_URL}/files",
-            "files",
+            list_key="files",
             params={
                 "pageSize": "1000",
                 "q": "mimeType = 'application/vnd.google-apps.folder'",
@@ -405,10 +393,10 @@ class GoogleDriveClient(GoogleClient):
         ):
             self._directories.append(
                 Directory(
-                    id=directory["id"],  # type: ignore[index]
-                    name=directory["name"],  # type: ignore[index]
+                    id=directory["id"],
+                    name=directory["name"],
                     google_client=self,
-                    parents=directory.get("parents", []),  # type: ignore[attr-defined]
+                    parents=directory.get("parents", []),
                 )
             )
 
@@ -449,7 +437,11 @@ class GoogleDriveClient(GoogleClient):
     def get_file_from_id(
         self,
         file_id: str,
-        params: dict[str, str | int | float | bool] | None = None,
+        params: dict[
+            StrBytIntFlt,
+            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+        ]
+        | None = None,
     ) -> File:
         """Find a file by its UUID.
 
@@ -469,10 +461,12 @@ class GoogleDriveClient(GoogleClient):
         if "fields" not in params:
             params["fields"] = "id, name, parents"
 
+        res = self.get_json_response(f"{self.BASE_URL}/files/{file_id}", params=params)
+
         return File(
-            **self.session.get(
-                f"{self.BASE_URL}/files/{file_id}", params=params
-            ).json(),
+            id=res["id"],
+            name=res["name"],
+            parents=res.get("parents", []),
             google_client=self,
         )
 
@@ -484,9 +478,7 @@ class GoogleDriveClient(GoogleClient):
             list: a list of Shared Drives the current user has access to
         """
         # TODO create Drive class
-        return self.get_items(  # type: ignore[return-value]
-            f"{self.BASE_URL}/drives", "drives"
-        )
+        return self.get_items(f"{self.BASE_URL}/drives", list_key="drives")
 
     @property
     def directories(self) -> list[Directory]:
@@ -508,7 +500,7 @@ class GoogleDriveClient(GoogleClient):
             Directory: the user's root directory/main Drive
         """
         if not hasattr(self, "_root_directory"):
-            res = self.session.get(f"{self.BASE_URL}/files/root")
+            res = self._get(f"{self.BASE_URL}/files/root")
             res.raise_for_status()
             self._root_directory = Directory(
                 **res.json(),

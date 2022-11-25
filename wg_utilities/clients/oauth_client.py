@@ -2,7 +2,7 @@
 """Generic OAuth client to allow for reusable authentication flows/checks etc."""
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable, Mapping
 from copy import deepcopy
 from datetime import datetime
 from http import HTTPStatus
@@ -12,7 +12,7 @@ from pathlib import Path
 from random import choice
 from string import ascii_letters
 from time import time
-from typing import Any, Generic, Literal, TypeVar
+from typing import Any, Generic, Literal, TypeAlias, TypeVar
 from urllib.parse import urlencode
 from webbrowser import open as open_browser
 
@@ -40,6 +40,15 @@ class BaseModelWithConfig(BaseModel):
         extra = Extra.forbid
         validate_assignment = True
 
+    def _set_private_attr(self, attr_name: str, attr_value: Any) -> None:
+        """Set private attribute on the instance.
+
+        Args:
+            attr_name (str): the name of the attribute to set
+            attr_value (Any): the value to set the attribute to
+        """
+        object.__setattr__(self, attr_name, attr_value)
+
 
 class GenericModelWithConfig(GenericModel):
     """Reusable `GenericModel` with Config to apply to all subclasses."""
@@ -50,6 +59,15 @@ class GenericModelWithConfig(GenericModel):
         arbitrary_types_allowed = True
         extra = Extra.forbid
         validate_assignment = True
+
+    def _set_private_attr(self, attr_name: str, attr_value: Any) -> None:
+        """Set private attribute on the instance.
+
+        Args:
+            attr_name (str): the name of the attribute to set
+            attr_value (Any): the value to set the attribute to
+        """
+        object.__setattr__(self, attr_name, attr_value)
 
 
 class OAuthCredentials(BaseModelWithConfig):
@@ -160,6 +178,8 @@ class OAuthCredentials(BaseModelWithConfig):
 
 GetJsonResponse = TypeVar("GetJsonResponse")
 
+StrBytIntFlt: TypeAlias = str | bytes | int | float
+
 
 class OAuthClient(Generic[GetJsonResponse]):
     """Custom client for interacting with OAuth APIs.
@@ -169,7 +189,12 @@ class OAuthClient(Generic[GetJsonResponse]):
 
     ACCESS_TOKEN_EXPIRY_THRESHOLD = 150
 
-    DEFAULT_PARAMS: dict[str, object] = {}
+    DATE_FORMAT = "%Y-%m-%d"
+    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+
+    DEFAULT_PARAMS: dict[
+        StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None
+    ] = {}
 
     def __init__(
         self,
@@ -201,7 +226,19 @@ class OAuthClient(Generic[GetJsonResponse]):
         if self._creds_cache_path:
             self._load_local_credentials()
 
-    def _get(self, url: str, params: dict[str, object] | None = None) -> Response:
+    def _get(
+        self,
+        url: str,
+        *,
+        params: dict[
+            StrBytIntFlt,
+            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+        ]
+        | None = None,
+        header_overrides: Mapping[str, str | bytes] | None = None,
+        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
+        json: Any | None = None,
+    ) -> Response:
         """Wrapper for GET requests which covers authentication, URL parsing, etc. etc.
 
         Args:
@@ -212,28 +249,14 @@ class OAuthClient(Generic[GetJsonResponse]):
         Returns:
             Response: the response from the HTTP request
         """
-        if params:
-            params.update(
-                {k: v for k, v in self.DEFAULT_PARAMS.items() if k not in params}
-            )
-        else:
-            params = deepcopy(self.DEFAULT_PARAMS)
-
-        if url.startswith("/"):
-            url = f"{self.base_url}{url}"
-
-        if self.log_requests:
-            LOGGER.debug("GET %s with params %s", url, dumps(params, default=str))
-
-        res = get(
-            url,
-            headers=self.request_headers,
-            params=params,  # type: ignore[arg-type]
+        return self._request(
+            method=get,
+            url=url,
+            params=params,
+            header_overrides=header_overrides,
+            timeout=timeout,
+            json=json,
         )
-
-        res.raise_for_status()
-
-        return res
 
     def _load_local_credentials(self) -> bool:
         try:
@@ -247,14 +270,14 @@ class OAuthClient(Generic[GetJsonResponse]):
         self,
         url: str,
         *,
-        json: dict[str, str | int | float | bool | list[str] | dict[object, object]]
-        | None = None,
-        header_overrides: dict[str, str] | None = None,
         params: dict[
-            str, str | bytes | int | float | Iterable[str | bytes | int | float]
+            StrBytIntFlt,
+            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
         ]
         | None = None,
-        data: dict[str, object] | None = None,
+        header_overrides: Mapping[str, str | bytes] | None = None,
+        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
+        json: Any | None = None,
     ) -> Response:
         """Wrapper for POST requests which covers authentication, URL parsing, etc. etc.
 
@@ -266,26 +289,85 @@ class OAuthClient(Generic[GetJsonResponse]):
         Returns:
             Response: the response from the HTTP request
         """
+        return self._request(
+            method=post,
+            url=url,
+            params=params,
+            header_overrides=header_overrides,
+            timeout=timeout,
+            json=json,
+        )
+
+    def _request(
+        self,
+        *,
+        method: Callable[..., Response],
+        url: str,
+        params: dict[
+            StrBytIntFlt,
+            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+        ]
+        | None = None,
+        header_overrides: Mapping[str, str | bytes] | None = None,
+        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
+        json: Any | None = None,
+    ) -> Response:
+        if params:
+            params.update(
+                {k: v for k, v in self.DEFAULT_PARAMS.items() if k not in params}
+            )
+        else:
+            params = deepcopy(self.DEFAULT_PARAMS)
 
         if url.startswith("/"):
             url = f"{self.base_url}{url}"
 
         if self.log_requests:
-            LOGGER.debug("POST %s with data %s", url, dumps(json or {}, default=str))
+            LOGGER.debug("%s %s", method.__name__.upper(), url)
 
-        res = post(
+        res = method(
             url,
             headers=header_overrides
             if header_overrides is not None
             else self.request_headers,
-            json=json or {},
-            params=params or {},
-            data=data or {},
+            params=params,
+            timeout=timeout,
+            json=json,
         )
 
         res.raise_for_status()
 
         return res
+
+    def _request_json_response(
+        self,
+        *,
+        method: Callable[..., Response],
+        url: str,
+        params: dict[
+            StrBytIntFlt,
+            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+        ]
+        | None = None,
+        header_overrides: Mapping[str, str | bytes] | None = None,
+        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
+        json: Any | None = None,
+    ) -> GetJsonResponse:
+        try:
+            res = self._request(
+                method=method,
+                url=url,
+                params=params,
+                header_overrides=header_overrides,
+                timeout=timeout,
+                json=json,
+            )
+            if res.status_code == HTTPStatus.NO_CONTENT:
+                return {}  # type: ignore[return-value]
+
+            return res.json()  # type: ignore[no-any-return]
+        except JSONDecodeError:
+            return {}  # type: ignore[return-value]
 
     def delete_creds_file(self) -> None:
         """Delete the local creds file."""
@@ -294,25 +376,76 @@ class OAuthClient(Generic[GetJsonResponse]):
     def get_json_response(
         self,
         url: str,
-        params: dict[str, str | int | object] | None = None,
+        params: dict[
+            StrBytIntFlt,
+            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+        ]
+        | None = None,
+        header_overrides: Mapping[str, str | bytes] | None = None,
+        timeout: float | None = None,
+        json: dict[str, Any] | None = None,
     ) -> GetJsonResponse:
         """Gets a simple JSON object from a URL.
 
         Args:
             url (str): the API endpoint to GET
             params (dict): the parameters to be passed in the HTTP request
+            header_overrides (dict): headers to add to/overwrite the headers in
+                `self.request_headers`. Setting this to an empty dict will erase all
+                headers; `None` will use `self.request_headers`.
+            timeout (float): How many seconds to wait for the server to send data
+                before giving up
+            json (dict): a JSON payload to pass in the request
 
         Returns:
             dict: the JSON from the response
         """
-        try:
-            res = self._get(url, params=params)
-            if res.status_code == HTTPStatus.NO_CONTENT:
-                return {}  # type: ignore[return-value]
 
-            return res.json()  # type: ignore[no-any-return]
-        except JSONDecodeError:
-            return {}  # type: ignore[return-value]
+        return self._request_json_response(
+            method=get,
+            url=url,
+            params=params,
+            header_overrides=header_overrides,
+            timeout=timeout,
+            json=json,
+        )
+
+    def post_json_response(
+        self,
+        url: str,
+        params: dict[
+            StrBytIntFlt,
+            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+        ]
+        | None = None,
+        header_overrides: Mapping[str, str | bytes] | None = None,
+        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
+        json: Any | None = None,
+    ) -> GetJsonResponse:
+        """Gets a simple JSON object from a URL from a POST request.
+
+        Args:
+            url (str): the API endpoint to GET
+            params (dict): the parameters to be passed in the HTTP request
+            header_overrides (dict): headers to add to/overwrite the headers in
+                `self.request_headers`. Setting this to an empty dict will erase all
+                headers; `None` will use `self.request_headers`.
+            timeout (float): How many seconds to wait for the server to send data
+                before giving up
+            json (dict): a JSON payload to pass in the request
+
+        Returns:
+            dict: the JSON from the response
+        """
+
+        return self._request_json_response(
+            method=post,
+            url=url,
+            params=params,
+            header_overrides=header_overrides,
+            timeout=timeout,
+            json=json,
+        )
 
     def refresh_access_token(self) -> None:
         """Refreshes access token."""
@@ -384,7 +517,7 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         res = self._post(
             self.access_token_endpoint,
-            data={
+            json={
                 "code": request_args["code"],
                 "grant_type": "authorization_code",
                 "client_id": self._client_id,
