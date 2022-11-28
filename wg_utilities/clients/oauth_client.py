@@ -46,7 +46,14 @@ class BaseModelWithConfig(BaseModel):
         Args:
             attr_name (str): the name of the attribute to set
             attr_value (Any): the value to set the attribute to
+
+        Raises:
+            ValueError: if the attribute isn't private (i.e. the name doesn't start
+                with an underscore)
         """
+        if not attr_name.startswith("_"):
+            raise ValueError("Only private attributes can be set via this method.")
+
         object.__setattr__(self, attr_name, attr_value)
 
 
@@ -66,7 +73,14 @@ class GenericModelWithConfig(GenericModel):
         Args:
             attr_name (str): the name of the attribute to set
             attr_value (Any): the value to set the attribute to
+
+        Raises:
+            ValueError: if the attribute isn't private (i.e. the name doesn't start
+                with an underscore)
         """
+        if not attr_name.startswith("_"):
+            raise ValueError("Only private attributes can be set via this method.")
+
         object.__setattr__(self, attr_name, attr_value)
 
 
@@ -176,7 +190,7 @@ class OAuthCredentials(BaseModelWithConfig):
         return self.expiry_epoch < time()
 
 
-GetJsonResponse = TypeVar("GetJsonResponse")
+GetJsonResponse = TypeVar("GetJsonResponse", bound=Mapping[Any, Any])
 
 StrBytIntFlt: TypeAlias = str | bytes | int | float
 
@@ -458,23 +472,22 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         LOGGER.info("Refreshing access token")
 
-        res = post(
+        new_creds = self.post_json_response(
             self.access_token_endpoint,
-            data={
+            json={
                 "grant_type": "refresh_token",
                 "client_id": self.client_id,
                 "client_secret": self.client_secret,
                 "refresh_token": self.credentials.refresh_token,
             },
+            header_overrides={},
         )
 
-        res.raise_for_status()
-
         self.credentials.update_access_token(
-            new_token=res.json()["access_token"],
-            expires_in=res.json()["expires_in"],
+            new_token=new_creds["access_token"],
+            expires_in=new_creds["expires_in"],
             # Monzo
-            refresh_token=res.json().get("refresh_token"),
+            refresh_token=new_creds.get("refresh_token"),
         )
 
         self.creds_cache_path.write_text(self.credentials.json(exclude_none=True))

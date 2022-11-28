@@ -1,12 +1,12 @@
 """Generic Google Client - having one client for all APIs is way too big."""
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from copy import deepcopy
 from json import dumps
 from logging import DEBUG, getLogger
 from pathlib import Path
-from typing import TYPE_CHECKING, Generic, Literal, TypeAlias, TypedDict, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypedDict, TypeVar
 
 from requests import Response, get
 
@@ -36,7 +36,9 @@ class GoogleCredentialsInfo(OAuthCredentials):
     token_uri: str
 
 
-GetJsonResponseGoogleClient = TypeVar("GetJsonResponseGoogleClient")
+GetJsonResponseGoogleClient = TypeVar(
+    "GetJsonResponseGoogleClient", bound=Mapping[Any, Any]
+)
 
 
 class _PaginatedResponseBase(TypedDict):
