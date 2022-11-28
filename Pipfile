@@ -33,6 +33,7 @@ aioresponses = "*"
 pytest-cov = "*"
 pytest-randomly = "*"
 pytest-aws-config = "*"
+exceptiongroup = "*"
 
 [packages]
 google-auth-oauthlib = ">=0.4.6"
