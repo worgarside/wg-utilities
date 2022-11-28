@@ -210,9 +210,9 @@ def read_json_file(
 
     file_path = FLAT_FILES_DIR / "json"
     if host_name:
-        file_path /= host_name
+        file_path /= host_name.lower()
 
-    file_path /= rel_file_path.lstrip("/")
+    file_path /= rel_file_path.lstrip("/").lower()
 
     return cast(JSONObj, loads(file_path.read_text()))
 
