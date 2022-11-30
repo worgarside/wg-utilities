@@ -602,7 +602,10 @@ def test_run_time_first_login_validates_state_token(
         real_http=True,
     )
 
+    called = False
+
     def _worker() -> None:
+        nonlocal called
         sleep(1)
         res = get(
             "http://0.0.0.0:5001/get_auth_code?code=test_auth_code&state=invalid_value"
@@ -610,7 +613,8 @@ def test_run_time_first_login_validates_state_token(
 
         assert res.status_code == HTTPStatus.OK
         assert res.reason == HTTPStatus.OK.phrase
-        assert res.json() == {"statusCode": 200}
+
+        called = True
 
     t = Thread(target=_worker)
     t.start()
@@ -626,6 +630,7 @@ def test_run_time_first_login_validates_state_token(
         == "State token received in request doesn't match expected value:"
         f" `invalid_value` != `{'x' * 32}`"
     )
+    assert called
 
 
 def test_access_token(
