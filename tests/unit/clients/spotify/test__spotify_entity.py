@@ -20,6 +20,23 @@ def test_summary_json_is_immutable(
     )
 
 
+def test_summary_json_is_correct(
+    spotify_entity: SpotifyEntity[SpotifyBaseEntityJson],
+) -> None:
+    """Test that the summary_json property is correct."""
+    assert spotify_entity.summary_json == {
+        "id": "0gxyHStUsqpMadRV0Di1Qt",
+        "uri": "spotify:artist:0gxyHStUsqpMadRV0Di1Qt",
+        "href": "https://api.spotify.com/v1/artists/0gxyHStUsqpMadRV0Di1Qt",
+        "external_urls": {
+            "spotify": "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt",
+        },
+    }
+
+    # There's nothing exclude-able for a SpotifyEntity's summary JSON
+    assert spotify_entity.dict() == spotify_entity.summary_json
+
+
 def test_from_json_response_instantiation(spotify_client: SpotifyClient) -> None:
     """Test instantiation of the SpotifyEntity class."""
     spotify_entity = SpotifyEntity[SpotifyBaseEntityJson].from_json_response(

@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from datetime import datetime
+from json import loads
 
+from pytest import raises
 from requests_mock import Mocker
 
 from conftest import assert_mock_requests_request_history, read_json_file
-from wg_utilities.clients.spotify import Album, Artist, SpotifyClient, Track
+from wg_utilities.clients.spotify import Album, AlbumType, Artist, SpotifyClient, Track
 
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:
@@ -19,7 +21,52 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
     album = Album.from_json_response(album_json, spotify_client=spotify_client)
 
     assert isinstance(album, Album)
+    # the loads is to convert datetimes to strings
+    assert loads(album.json()) == album_json
     assert album.spotify_client == spotify_client
+
+
+def test_release_date_validation(spotify_album: Album) -> None:
+    """Test the `release_date` value is calculated from the `release_date_precision`."""
+    spotify_album.release_date_precision = "day"
+    spotify_album.release_date = "2022-03-30"  # type: ignore[assignment]
+    assert spotify_album.release_date == datetime(2022, 3, 30).date()
+
+    spotify_album.release_date_precision = None
+    spotify_album.release_date = "2022-03-30"  # type: ignore[assignment]
+    assert spotify_album.release_date == datetime(2022, 3, 30).date()
+
+    spotify_album.release_date_precision = "month"
+    spotify_album.release_date = "2022-03"  # type: ignore[assignment]
+    assert spotify_album.release_date == datetime(2022, 3, 1).date()
+
+    spotify_album.release_date_precision = "year"
+    spotify_album.release_date = "2022"  # type: ignore[assignment]
+    assert spotify_album.release_date == datetime(2022, 1, 1).date()
+
+    spotify_album.release_date = datetime(2022, 1, 1).date()
+    assert spotify_album.release_date == datetime(2022, 1, 1).date()
+
+    for rdp, rd in [
+        ("day", "2022"),
+        ("month", "2022-03-30"),
+        ("year", "2022-03"),
+        ("year", "a-b-c-d"),
+    ]:
+        with raises(ValueError) as exc_info:
+            spotify_album.release_date_precision = rdp  # type: ignore[assignment]
+            spotify_album.release_date = rd  # type: ignore[assignment]
+
+        assert (
+            f"Incompatible release_date and release_date_precision values: '{rd}' and"
+            f" '{rdp}' respectively." in str(exc_info.value)
+        )
+
+
+def test_album_type_property(spotify_album: Album) -> None:
+    """Test the `album_type` property."""
+    assert spotify_album.album_type_str == "single"
+    assert spotify_album.album_type == AlbumType.SINGLE
 
 
 def test_artists_property(
@@ -37,36 +84,6 @@ def test_artists_property(
             spotify_client=spotify_client,
         ),
     ]
-
-
-def test_release_date_property(spotify_album: Album) -> None:
-    """Test that the `release_date` property returns the correct value."""
-
-    assert spotify_album.release_date == datetime(2022, 3, 30).date()
-
-    spotify_album.release_date_precision = "month"
-    spotify_album.release_date = "2022-03"  # type: ignore[assignment]
-    assert spotify_album.release_date == datetime(2022, 3, 1).date()
-
-    spotify_album.release_date_precision = "year"
-    spotify_album.release_date = "2022"  # type: ignore[assignment]
-    assert spotify_album.release_date == datetime(2022, 1, 1).date()
-
-
-def test_release_date_property_validation() -> None:
-    """Test that `release_date` raises a ValueError if the precision is invalid."""
-    # TODO
-
-
-def test_release_date_precision_property(spotify_album: Album) -> None:
-    """Test that the `release_date_precision` property returns the correct value."""
-    assert spotify_album.release_date_precision == "day"
-
-    spotify_album.release_date_precision = "month"
-    assert spotify_album.release_date_precision == "month"
-
-    spotify_album.release_date_precision = "year"
-    assert spotify_album.release_date_precision == "year"
 
 
 def test_tracks_property(spotify_album: Album, spotify_client: SpotifyClient) -> None:

@@ -83,7 +83,6 @@ class AlbumType(str, Enum):
 
 
 class Device(BaseModelWithConfig):
-    # pylint: disable=too-few-public-methods
     """Model for a Spotify device."""
 
     id: str
@@ -121,7 +120,7 @@ class TrackAudioFeatures(BaseModelWithConfig):
 FJR = TypeVar("FJR", bound="SpotifyEntity[Any]")
 SJ = TypeVar("SJ", bound=SpotifyBaseEntityJson)
 
-# class SpotifyClient(OAuthClient[Union[SpotifyEntityJson, SearchResponse]]):
+
 class SpotifyClient(OAuthClient[SpotifyEntityJson]):
     """Custom client for interacting with Spotify's Web API.
 
@@ -603,10 +602,10 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
     uri: str
 
     metadata: dict_[str, Any] = Field(default_factory=dict)
-    spotify_client: SpotifyClient
+    spotify_client: SpotifyClient = Field(exclude=True)
 
     summary_json: SJ = Field(
-        default_factory=dict, allow_mutation=False
+        default_factory=dict, allow_mutation=False, exclude=True
     )  # type: ignore[assignment]
     sj_type: ClassVar[TypeAlias] = SpotifyBaseEntityJson
 
@@ -621,6 +620,7 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
         exclude_defaults: bool = False,
         exclude_none: bool = False,
     ) -> dict[str, Any]:
+        # pylint: disable=useless-parent-delegation
         """Overrides the standard `BaseModel.dict` method, so we can always return the
         dict with the same field names it came in with, and exclude any null values
         that have been added when parsing
@@ -628,33 +628,10 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
         Original documentation is here:
           - https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeldict
 
-        Args:
-            include (Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']]): fields
-                to include in the returned dictionary
-            exclude (Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']]): fields
-                to exclude from the returned dictionary
-            by_alias (bool): whether field aliases should be used as keys in the
-                returned dictionary
-            skip_defaults (bool): DEPRECATED but kept for consistency, use
-                `exclude_unset` instead
-            exclude_unset (bool): whether fields which were not explicitly set when
-                creating the model should be excluded from the returned dictionary
-            exclude_defaults (bool): whether fields which are equal to their default
-                values (whether set or otherwise) should be excluded from the returned
-                dictionary
-            exclude_none (bool): whether fields which are equal to None should be
-                excluded from the returned dictionary
-
-        Returns:
-            dict: the model dict
+        Overridden Parameters:
+            by_alias: False -> True
+            exclude_unset: False -> True
         """
-
-        if isinstance(exclude, dict):
-            exclude.update({"summary_json": True, "spotify_client": True})
-        elif isinstance(exclude, set):
-            exclude.update({"summary_json", "spotify_client"})
-        else:
-            exclude = {"summary_json", "spotify_client"}
 
         return super().dict(
             include=include,
@@ -680,6 +657,7 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
         models_as_dict: bool = True,
         **dumps_kwargs: Any,
     ) -> str:
+        # pylint: disable=useless-parent-delegation
         """Overrides the standard `BaseModel.json` method, so we can always return the
         dict with the same field names it came in with, and exclude any null values
         that have been added when parsing
@@ -687,41 +665,10 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
         Original documentation is here:
           - https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeljson
 
-        Args:
-            include (Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']]): fields
-                to include in the returned dictionary
-            exclude (Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']]): fields
-                to exclude from the returned dictionary
-            by_alias (bool): whether field aliases should be used as keys in the
-                returned dictionary
-            skip_defaults (bool): DEPRECATED but kept for consistency, use
-                `exclude_unset` instead
-            exclude_unset (bool): whether fields which were not explicitly set when
-                creating the model should be excluded from the returned dictionary
-            exclude_defaults (bool): whether fields which are equal to their default
-                values (whether set or otherwise) should be excluded from the returned
-                dictionary
-            exclude_none (bool): whether fields which are equal to None should be
-                excluded from the returned dictionary
-            encoder (Callable): a custom encoder function passed to the default
-                argument of json.dumps()
-            models_as_dict (bool): ???
-            dumps_kwargs (Any): any other keyword arguments are passed to json.dumps(),
-                e.g. indent
-
-        Returns:
-            json: the model dict, in string form
-
-        See Also:
-            Rule.dict
+        Overridden Parameters:
+            by_alias: False -> True
+            exclude_unset: False -> True
         """
-
-        if isinstance(exclude, dict):
-            exclude.update({"summary_json": True, "spotify_client": True})
-        elif isinstance(exclude, set):
-            exclude.update({"summary_json", "spotify_client"})
-        else:
-            exclude = {"summary_json", "spotify_client"}
 
         return super().json(
             include=include,
@@ -789,14 +736,6 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
 
         return cls.parse_obj(value_data)
 
-    @validator("spotify_client")
-    def validate_spotify_client(cls, value: SpotifyClient) -> SpotifyClient:
-        """Validates that the SpotifyClient is a proper instance."""
-        if not isinstance(value, SpotifyClient):
-            raise ValueError("spotify_client must be a SpotifyClient")
-
-        return value
-
     @property
     def url(self) -> str:
         """URL of the entity.
@@ -849,7 +788,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
     images: list[Image]
     label: str | None
     popularity: int | None
-    release_date_precision: Literal["year", "month", "day", None]
+    release_date_precision: Literal["year", "month", "day"] | None
     release_date: date
     restrictions: dict[str, str] | None
     total_tracks: int
@@ -870,7 +809,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
         if isinstance(value, date):
             return value
 
-        rdp = values["release_date_precision"].lower()
+        rdp = (values.get("release_date_precision") or "day").lower()
 
         exception = ValueError(
             f"Incompatible release_date and release_date_precision values: {value!r}"
@@ -886,7 +825,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
                 if rdp != "month":
                     raise exception
                 return date(int(y), int(m), 1)
-            case [y]:
+            case y,:
                 if rdp != "year":
                     raise exception
                 return date(int(y), 1, 1)
@@ -898,16 +837,6 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
         """Converts the album type string to an enum value."""
 
         return AlbumType(self.album_type_str.lower())
-
-    @property
-    def artist(self) -> Artist:
-        """Track's parent artist.
-
-        Returns:
-            Artist: the main artist which this track is from
-        """
-
-        return self.artists[0]
 
     @property
     def artists(self) -> list[Artist]:

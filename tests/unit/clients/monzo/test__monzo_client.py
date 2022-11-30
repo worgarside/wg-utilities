@@ -104,8 +104,6 @@ def test_list_accounts_method(
     """Test that the `list_accounts` returns the single expected `Account` instance."""
 
     expected_accounts: list[AccountJson] = [
-        # Account.from_json_response(acc_json, monzo_client=monzo_client)
-        # for acc_json in monzo_account_json(account_type=account_type)["accounts"]
         acc
         for acc in read_json_file("accounts.json", host_name="monzo")["accounts"]
         if acc["type"] == account_type and (include_closed or not acc["closed"])

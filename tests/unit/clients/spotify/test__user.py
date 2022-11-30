@@ -74,6 +74,13 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
     }
 
 
+def test_set_user_name_value(spotify_user: User) -> None:
+    """Test that `display_name` property returns the expected value."""
+    assert spotify_user.name == "Will Garside"
+
+    assert "name" not in read_json_file("me.json", host_name="spotify")
+
+
 def test_get_playlists_by_name_unique_names(
     spotify_user: User, spotify_playlist: Playlist
 ) -> None:

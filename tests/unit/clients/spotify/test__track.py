@@ -202,15 +202,6 @@ def test_audio_features_not_found(
     assert not track.audio_features
 
 
-def test_is_local_property(spotify_track: Track) -> None:
-    """Test that the `is_local` property returns the correct value."""
-    assert spotify_track.is_local is False
-
-    local_track = spotify_track.copy(deep=True, update=dict(is_local=True))
-
-    assert local_track.is_local is True
-
-
 def test_tempo_property(spotify_track: Track) -> None:
     """Test that the `tempo` property returns the correct value."""
     assert not hasattr(spotify_track, "_audio_features")
