@@ -10,11 +10,7 @@ from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypedDict, T
 
 from requests import Response, get
 
-from wg_utilities.clients.oauth_client import (
-    OAuthClient,
-    OAuthCredentials,
-    StrBytIntFlt,
-)
+from wg_utilities.clients.oauth_client import OAuthClient, StrBytIntFlt
 from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
@@ -22,18 +18,9 @@ LOGGER.setLevel(DEBUG)
 add_stream_handler(LOGGER)
 
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from wg_utilities.clients.google_calendar import GoogleCalendarEntityJson
     from wg_utilities.clients.google_photos import GooglePhotosEntityJson
-
-
-class GoogleCredentialsInfo(OAuthCredentials):
-    """Typed dict for Google credentials."""
-
-    id_token: str | None
-    scopes: list[str]
-    token: str
-    token_uri: str
 
 
 GetJsonResponseGoogleClient = TypeVar(
@@ -78,8 +65,6 @@ class PaginatedResponsePhotos(_PaginatedResponseBase):
 AnyPaginatedResponse: TypeAlias = (
     PaginatedResponseCalendar | PaginatedResponseFit | PaginatedResponsePhotos
 )
-
-PR = TypeVar("PR")
 
 
 class GoogleClient(

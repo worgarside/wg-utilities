@@ -258,8 +258,9 @@ def test_pot_json_annotations_vs_pot_fields() -> None:
     for ak, av in PotJson.__annotations__.items():
         assert ak in Pot.__fields__
 
-        pot_field_type = Pot.__fields__[ak].type_.__name__
-        if pot_field_type == "Literal":
+        if (
+            pot_field_type := Pot.__fields__[ak].type_.__name__
+        ) == "Literal":  # pragma: no cover
             pot_field_type = f"Literal{list(Pot.__fields__[ak].type_.__args__)!r}"
 
         if Pot.__fields__[ak].required is False:
@@ -286,7 +287,7 @@ def test_transaction_json_annotations_vs_transaction_fields() -> None:
         else:
             tx_field_type = str(annotation)
 
-        if tx_field_type == "Literal":
+        if tx_field_type == "Literal":  # pragma: no cover
             tx_field_type = (
                 f"Literal{list(Transaction.__fields__[ak].type_.__args__)!r}"
             )
