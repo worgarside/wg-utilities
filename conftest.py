@@ -463,6 +463,27 @@ def _dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
     return DHT22Sensor(pigpio_pi, 4)
 
 
+@fixture(scope="function", name="fake_oauth_credentials")  # type: ignore[misc]
+def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
+    """Fixture for fake OAuth credentials."""
+    return OAuthCredentials(
+        access_token=live_jwt_token,
+        client_id="test_client_id",
+        client_secret="test_client_secret",
+        expiry_epoch=time() + 3600,
+        refresh_token="test_refresh_token",
+        scope="test_scope,test_scope_two",
+        token_type="Bearer",
+    )
+
+
+@fixture(scope="session", name="flask_app")  # type: ignore[misc]
+def _flask_app() -> Flask:
+    """Fixture for Flask app."""
+
+    return Flask(__name__)
+
+
 @fixture(scope="module", name="live_jwt_token")  # type: ignore[misc]
 def _live_jwt_token() -> str:
     """Fixture for a live JWT token."""
@@ -493,27 +514,6 @@ def _live_jwt_token_alt() -> str:
             "new_test_access_token",
         )
     )
-
-
-@fixture(scope="function", name="fake_oauth_credentials")  # type: ignore[misc]
-def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
-    """Fixture for fake OAuth credentials."""
-    return OAuthCredentials(
-        access_token=live_jwt_token,
-        client_id="test_client_id",
-        client_secret="test_client_secret",
-        expiry_epoch=time() + 3600,
-        refresh_token="test_refresh_token",
-        scope="test_scope,test_scope_two",
-        token_type="Bearer",
-    )
-
-
-@fixture(scope="session", name="flask_app")  # type: ignore[misc]
-def _flask_app() -> Flask:
-    """Fixture for Flask app."""
-
-    return Flask(__name__)
 
 
 @fixture(scope="function", name="lambda_client")  # type: ignore[misc]
