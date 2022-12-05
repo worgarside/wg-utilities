@@ -37,7 +37,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          python3 -m pip install --upgrade pip setuptools wheel pipenv
+          python3 -m pip install --upgrade pip setuptools wheel pipenv coverage
           pipenv sync --dev
 
       - name: Run Tests
