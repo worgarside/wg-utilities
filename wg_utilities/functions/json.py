@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from logging import DEBUG, getLogger
-from typing import Any, Union
+from typing import Any, Protocol, Union
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -44,11 +44,24 @@ def set_nested_value(
         json_obj[final_key] = target_value
 
 
+class TargetProcessorFunc(Protocol):
+    """Typing protocol for the user-defined function passed into the below functions."""
+
+    def __call__(
+        self,
+        value: JSONVal,
+        *,
+        dict_key: str | None = None,
+        list_index: int | None = None,
+    ) -> JSONVal:
+        """The function to be called on each value in the JSON object."""
+
+
 def process_list(
     lst: list[JSONVal],
     *,
     target_type: type[object] | tuple[type[object], ...],
-    target_processor_func: Callable[[JSONVal], JSONVal],
+    target_processor_func: TargetProcessorFunc,
     pass_on_fail: bool = True,
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,
@@ -79,7 +92,7 @@ def process_list(
     for i, elem in enumerate(lst):
         if isinstance(elem, target_type):
             try:
-                lst[i] = target_processor_func(elem)
+                lst[i] = target_processor_func(elem, list_index=i)
             except Exception as exc:  # pylint: disable=broad-except
                 if log_op_func_failures:
                     LOGGER.error("Unable to process item at index %i: %s", i, repr(exc))
@@ -108,7 +121,7 @@ def traverse_dict(
     payload_json: JSONObj,
     *,
     target_type: type[object] | tuple[type[object], ...] | type[Callable[..., Any]],
-    target_processor_func: Callable[[JSONVal], JSONVal],
+    target_processor_func: TargetProcessorFunc,
     pass_on_fail: bool = True,
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,
@@ -143,7 +156,7 @@ def traverse_dict(
     for k, v in payload_json.items():
         if isinstance(v, target_type):
             try:
-                payload_json.update({k: target_processor_func(v)})
+                payload_json.update({k: target_processor_func(v, dict_key=k)})
                 if isinstance(payload_json.get(k), dict):
                     traverse_dict(
                         payload_json,
@@ -165,7 +178,7 @@ def traverse_dict(
                     matched_single_key = True
                     if isinstance(value := v.get(only_key), target_type):
                         try:
-                            value = target_processor_func(value)
+                            value = target_processor_func(value, dict_key=only_key)
                         except Exception as exc:  # pylint: disable=broad-except
                             if log_op_func_failures:
                                 LOGGER.error(

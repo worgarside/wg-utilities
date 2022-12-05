@@ -872,7 +872,7 @@ class YamahaYas209:
         traverse_dict(
             xml_dict,
             target_type=str,
-            target_processor_func=lambda val: parse_xml(  # type: ignore[no-any-return]
+            target_processor_func=lambda val, dict_key=None, list_index=None: parse_xml(
                 val, attr_prefix="", cdata_key="text"
             ),
             single_keys_to_remove=["val", "DIDL-Lite"],

@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from logging import ERROR
 from unittest.mock import ANY, MagicMock, _Call, call, patch
 
 from pytest import LogCaptureFixture, mark, raises
 
 from wg_utilities.functions import process_list
-from wg_utilities.functions.json import JSONVal
+from wg_utilities.functions.json import JSONVal, TargetProcessorFunc
 
 
 def test_empty_list_doesnt_raise_exception() -> None:
@@ -20,7 +19,7 @@ def test_empty_list_doesnt_raise_exception() -> None:
     process_list(
         in_list,
         target_type=str,
-        target_processor_func=lambda x: x,
+        target_processor_func=lambda value, dict_key=None, list_index=None: value,
         pass_on_fail=False,
     )
 
@@ -36,7 +35,9 @@ def test_single_item_list() -> None:
     process_list(
         in_list,
         target_type=str,
-        target_processor_func=lambda x: str(x).upper(),
+        target_processor_func=lambda value, dict_key=None, list_index=None: str(
+            value
+        ).upper(),
         pass_on_fail=False,
     )
 
@@ -49,45 +50,47 @@ def test_single_item_list() -> None:
         (
             ["a", "b", "c", 1, 2, 3, "d", "e", "f"],
             str,
-            lambda x: x.upper(),
+            lambda value, list_index: value.upper(),
             ["A", "B", "C", 1, 2, 3, "D", "E", "F"],
         ),
         (
             ["a", "b", "c", 1, 2, 3, "d", "e", "f"],
             str,
-            lambda x: x.upper() if x in "abc" else x,
+            lambda value, list_index: value.upper() if value in "abc" else value,
             ["A", "B", "C", 1, 2, 3, "d", "e", "f"],
         ),
         (
             ["a", "b", "c", 1, 2, 3, "4", "5", "6"],
             int,
-            lambda x: x + 1,
+            lambda value, list_index: value + 1,
             ["a", "b", "c", 2, 3, 4, "4", "5", "6"],
         ),
         (
             ["a", "b", "c", 1, 2, 3, "4", "5", "6"],
             str,
-            lambda x: int(x) + 1,
+            lambda value, list_index: int(value) + 1,
             ["a", "b", "c", 1, 2, 3, 5, 6, 7],
         ),
         (
             ["ab", b"bc", "cd", b"de"],
             bytes,
-            lambda x: x.decode(),
+            lambda value, list_index: value.decode(),
             ["ab", "bc", "cd", "de"],
         ),
         (
             ["ab", b"bcd", "bcd", "cd", b"cd", "def"],
             str,
-            lambda x: x[::-1] if len(x) > 2 else x,
+            lambda value, list_index: value[::-1] if len(value) > 2 else value,
             ["ab", b"bcd", "dcb", "cd", b"cd", "fed"],
         ),
         (
             ["ab", b"bcd", "bcd", "cd", b"cd", "def"],
             (str, bytes),
-            lambda x: (x.decode() if isinstance(x, bytes) else x)[::-1]
-            if len(x) > 2
-            else x,
+            lambda value, list_index: (
+                value.decode() if isinstance(value, bytes) else value
+            )[::-1]
+            if len(value) > 2
+            else value,
             ["ab", "dcb", "dcb", "cd", b"cd", "fed"],
         ),
     ],
@@ -95,7 +98,7 @@ def test_single_item_list() -> None:
 def test_varying_inputs_processed_as_expected(
     in_list: list[JSONVal],
     target_type: type[JSONVal] | tuple[type[JSONVal], ...],
-    target_processor_func: Callable[[JSONVal], JSONVal],
+    target_processor_func: TargetProcessorFunc,
     expected: list[JSONVal],
 ) -> None:
     """Test various lists with different types and processor functions."""
@@ -124,7 +127,7 @@ def test_varying_inputs_processed_as_expected(
         (
             ["a", "b", "c", 1, 2, 3, "d", "e", "f"],
             (str, int),
-            lambda x: x.upper(),
+            lambda value, list_index: value.upper(),
             AttributeError,
             "'int' object has no attribute 'upper'",
             ["A", "B", "C", 1, 2, 3, "d", "e", "f"],
@@ -132,7 +135,7 @@ def test_varying_inputs_processed_as_expected(
         (
             ["a", 3, 2, 1, 0, 3, 2, 1, 0, "b"],
             int,
-            lambda x: 1 / x,
+            lambda value, list_index: 1 / value,
             ZeroDivisionError,
             "division by zero",
             ["a", 1 / 3, 0.5, 1, 0, 3, 2, 1, 0, "b"],
@@ -140,7 +143,7 @@ def test_varying_inputs_processed_as_expected(
         (
             [("a", "b", "c"), [1, 2, 3], [4, 5], [6, 7, 8], [9, 10]],
             list,
-            lambda x: [x[0], x[1], x[2] + 1],
+            lambda value, list_index: [value[0], value[1], value[2] + 1],
             IndexError,
             "list index out of range",
             [("a", "b", "c"), [1, 2, 4], [4, 5], [6, 7, 8], [9, 10]],
@@ -150,7 +153,7 @@ def test_varying_inputs_processed_as_expected(
 def test_exceptions_are_raised_correctly(
     in_list: list[JSONVal],
     target_type: type[JSONVal] | tuple[type[JSONVal], ...],
-    target_processor_func: Callable[[JSONVal], JSONVal],
+    target_processor_func: TargetProcessorFunc,
     exception_type: type[Exception],
     exception_message: str,
     expected: list[JSONVal],
@@ -185,7 +188,7 @@ def test_exceptions_are_raised_correctly(
         (
             ["a", "b", "c", 1, 2, 3, "d", "e", "f"],
             (str, int),
-            lambda x: x.upper(),
+            lambda value, list_index: value.upper(),
             AttributeError,
             "'int' object has no attribute 'upper'",
             [3, 4, 5],
@@ -194,7 +197,7 @@ def test_exceptions_are_raised_correctly(
         (
             ["a", 3, 2, 1, 0, 3, 2, 1, 0, "b"],
             int,
-            lambda x: 1 / x,
+            lambda value, list_index: 1 / value,
             ZeroDivisionError,
             "division by zero",
             [4, 8],
@@ -203,7 +206,7 @@ def test_exceptions_are_raised_correctly(
         (
             [("a", "b", "c"), [1, 2, 3], [4, 5], [6, 7, 8], [9, 10]],
             list,
-            lambda x: [x[0], x[1], x[2] + 1],
+            lambda value, list_index: [value[0], value[1], value[2] + 1],
             IndexError,
             "list index out of range",
             [2, 4],
@@ -214,7 +217,7 @@ def test_exceptions_are_raised_correctly(
 def test_exceptions_are_logged_correctly(
     in_list: list[JSONVal],
     target_type: type[JSONVal] | tuple[type[JSONVal], ...],
-    target_processor_func: Callable[[JSONVal], JSONVal],
+    target_processor_func: TargetProcessorFunc,
     exception_type: type[Exception],
     exception_message: str,
     exception_indexes: list[int],
@@ -301,7 +304,7 @@ def test_nested_lists_are_processed_correctly(
     process_list(
         in_list,
         target_type=str,
-        target_processor_func=lambda x: x.upper(),  # type: ignore[union-attr]
+        target_processor_func=lambda v, dict_key=None, list_index=None: v.upper(),
     )
 
     assert in_list == expected
@@ -396,7 +399,53 @@ def test_nested_dicts_are_passed_to_traverse_dict(
     process_list(
         in_list,
         target_type=str,
-        target_processor_func=lambda x: x.upper(),  # type: ignore[union-attr]
+        target_processor_func=lambda v, dict_key=None, list_index=None: v.upper(),
     )
 
     assert mock_traverse_dict.call_args_list == call_args_list
+
+
+@mark.parametrize(  # type: ignore[misc]
+    "in_list,target_type,target_processor_func,expected",
+    [
+        (
+            ["a", "b", "c", 1, 2, 3, "d", "e", "f"],
+            str,
+            lambda value, dict_key=None, list_index=None: value.upper()
+            if list_index % 2 == 0
+            else value,
+            ["A", "b", "C", 1, 2, 3, "D", "e", "F"],
+        ),
+        (
+            ["a", "b", "c", 1, 2, 3, "d", "e", "f"],
+            str,
+            lambda value, dict_key=None, list_index=None: value.upper()
+            if (value in "abc" and list_index % 2 == 0)
+            else value,
+            ["A", "b", "C", 1, 2, 3, "d", "e", "f"],
+        ),
+        (
+            ["ab", b"bcd", "bcd", "cd", b"cd", "def"],
+            bytes,
+            lambda value, dict_key=None, list_index=None: value.decode()[::-1]
+            if list_index == 1
+            else value,
+            ["ab", "dcb", "bcd", "cd", b"cd", "def"],
+        ),
+    ],
+)
+def test_list_index_parameter_for_target_processor_func(
+    in_list: list[JSONVal],
+    target_type: type[JSONVal] | tuple[type[JSONVal], ...],
+    target_processor_func: TargetProcessorFunc,
+    expected: list[JSONVal],
+) -> None:
+    """Test that the list index is passed to the target processor function."""
+
+    process_list(
+        in_list,
+        target_type=target_type,
+        target_processor_func=target_processor_func,
+    )
+
+    assert in_list == expected
