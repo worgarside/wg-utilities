@@ -208,6 +208,7 @@ def test_get_method_calls_request_correctly(
             header_overrides=None,
             timeout=None,
             json=None,
+            data=None,
         ),
         call(
             method=get,
@@ -216,6 +217,7 @@ def test_get_method_calls_request_correctly(
             header_overrides={"header_key": "header_value"},
             timeout=10,
             json={"json_key": "json_value"},
+            data=None,
         ),
     ]
 
@@ -264,6 +266,7 @@ def test_post_method_calls_request_correctly(
             header_overrides=None,
             timeout=None,
             json=None,
+            data=None,
         ),
         call(
             method=post,
@@ -272,6 +275,7 @@ def test_post_method_calls_request_correctly(
             header_overrides={"header_key": "header_value"},
             timeout=10,
             json={"json_key": "json_value"},
+            data=None,
         ),
     ]
 
@@ -294,7 +298,7 @@ def test_request_method_sends_correct_request(
         method=post,
         url="/test_endpoint",
         params={"test_param": "test_value"},
-        json={"test_key": "test_value"},
+        json={"test_json_key": "test_json_value"},
         header_overrides={"test_header": "test_value"},
     )
 
@@ -310,7 +314,7 @@ def test_request_method_sends_correct_request(
     assert request.url == "https://api.example.com/test_endpoint?test_param=test_value"
     assert "Authorization" not in request.headers
     assert request.headers["test_header"] == "test_value"
-    assert request.json() == {"test_key": "test_value"}
+    assert request.json() == {"test_json_key": "test_json_value"}
     assert request.qs == {"test_param": ["test_value"]}
 
     assert caplog.records[0].levelno == DEBUG
@@ -449,6 +453,7 @@ def test_get_json_response_calls_request_json_response(
         header_overrides={"test_header": "test_value"},
         timeout=10,
         json={"test_key": "test_value"},
+        data=None,
     )
 
 
@@ -475,6 +480,7 @@ def test_post_json_response_calls_request_json_response(
         header_overrides={"test_header": "test_value"},
         timeout=10,
         json={"test_key": "test_value"},
+        data=None,
     )
 
 
@@ -805,6 +811,7 @@ def test_request_headers(
     """Test the `request_headers` property returns the expected value."""
     assert oauth_client.request_headers == {
         "Authorization": f"Bearer {live_jwt_token}",
+        "Content-Type": "application/json",
     }
 
 

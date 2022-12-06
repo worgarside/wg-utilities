@@ -196,7 +196,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
 
     def add_tracks_to_playlist(
         self,
-        tracks: list[Track],
+        tracks: Iterable[Track],
         playlist: Playlist,
         *,
         log_responses: bool = False,
@@ -573,19 +573,6 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
             )
 
         return self._current_user
-
-    @property
-    def request_headers(self) -> dict[str, str]:
-        """Headers to be used in requests to the API.
-
-        Returns:
-            dict: auth headers for HTTP requests
-        """
-        return {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.access_token}",
-            "Host": "api.spotify.com",
-        }
 
 
 class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
@@ -1075,7 +1062,6 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
     #  `self.owner.id == <user ID>`
     public: bool | None
     snapshot_id: str
-    # tracks_json: dict[str, int | str  | list[dict[str, Any]] | None] = Field(
     tracks_json: PaginatedResponsePlaylistTracks | PlaylistSummaryJsonTracks = Field(
         alias="tracks"
     )

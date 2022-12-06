@@ -252,6 +252,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         header_overrides: Mapping[str, str | bytes] | None = None,
         timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
         json: Any | None = None,
+        data: Any | None = None,
     ) -> Response:
         """Wrapper for GET requests which covers authentication, URL parsing, etc. etc.
 
@@ -270,9 +271,15 @@ class OAuthClient(Generic[GetJsonResponse]):
             header_overrides=header_overrides,
             timeout=timeout,
             json=json,
+            data=data,
         )
 
     def _load_local_credentials(self) -> bool:
+        """Load credentials from the local cache.
+
+        Returns:
+            bool: True if the credentials were loaded successfully, False otherwise
+        """
         try:
             self._credentials = OAuthCredentials.parse_file(self.creds_cache_path)
         except FileNotFoundError:
@@ -292,6 +299,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         header_overrides: Mapping[str, str | bytes] | None = None,
         timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
         json: Any | None = None,
+        data: Any | None = None,
     ) -> Response:
         """Wrapper for POST requests which covers authentication, URL parsing, etc. etc.
 
@@ -310,6 +318,7 @@ class OAuthClient(Generic[GetJsonResponse]):
             header_overrides=header_overrides,
             timeout=timeout,
             json=json,
+            data=data,
         )
 
     def _request(
@@ -325,7 +334,21 @@ class OAuthClient(Generic[GetJsonResponse]):
         header_overrides: Mapping[str, str | bytes] | None = None,
         timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
         json: Any | None = None,
+        data: Any | None = None,
     ) -> Response:
+        """Make a HTTP request.
+
+        Args:
+            method (Callable): the HTTP method to use
+            url (str): the URL path to the endpoint (not necessarily including the
+                base URL)
+            params (dict): the parameters to be passed in the HTTP request
+            header_overrides (dict): any headers to override the default headers
+            timeout (float | tuple[float, float] | tuple[float, None] | None): the
+                timeout for the request
+            json (dict): the data to be passed in the HTTP request
+            data (dict): the data to be passed in the HTTP request
+        """
         if params:
             params.update(
                 {k: v for k, v in self.DEFAULT_PARAMS.items() if k not in params}
@@ -347,6 +370,7 @@ class OAuthClient(Generic[GetJsonResponse]):
             params=params,
             timeout=timeout,
             json=json,
+            data=data,
         )
 
         res.raise_for_status()
@@ -366,6 +390,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         header_overrides: Mapping[str, str | bytes] | None = None,
         timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
         json: Any | None = None,
+        data: Any | None = None,
     ) -> GetJsonResponse:
         try:
             res = self._request(
@@ -375,6 +400,7 @@ class OAuthClient(Generic[GetJsonResponse]):
                 header_overrides=header_overrides,
                 timeout=timeout,
                 json=json,
+                data=data,
             )
             if res.status_code == HTTPStatus.NO_CONTENT:
                 return {}  # type: ignore[return-value]
@@ -397,7 +423,8 @@ class OAuthClient(Generic[GetJsonResponse]):
         | None = None,
         header_overrides: Mapping[str, str | bytes] | None = None,
         timeout: float | None = None,
-        json: dict[str, Any] | None = None,
+        json: Any | None = None,
+        data: Any | None = None,
     ) -> GetJsonResponse:
         """Gets a simple JSON object from a URL.
 
@@ -410,6 +437,7 @@ class OAuthClient(Generic[GetJsonResponse]):
             timeout (float): How many seconds to wait for the server to send data
                 before giving up
             json (dict): a JSON payload to pass in the request
+            data (dict): a data payload to pass in the request
 
         Returns:
             dict: the JSON from the response
@@ -422,6 +450,7 @@ class OAuthClient(Generic[GetJsonResponse]):
             header_overrides=header_overrides,
             timeout=timeout,
             json=json,
+            data=data,
         )
 
     def post_json_response(
@@ -435,6 +464,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         header_overrides: Mapping[str, str | bytes] | None = None,
         timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
         json: Any | None = None,
+        data: Any | None = None,
     ) -> GetJsonResponse:
         """Gets a simple JSON object from a URL from a POST request.
 
@@ -447,6 +477,7 @@ class OAuthClient(Generic[GetJsonResponse]):
             timeout (float): How many seconds to wait for the server to send data
                 before giving up
             json (dict): a JSON payload to pass in the request
+            data (dict): a data payload to pass in the request
 
         Returns:
             dict: the JSON from the response
@@ -459,6 +490,7 @@ class OAuthClient(Generic[GetJsonResponse]):
             header_overrides=header_overrides,
             timeout=timeout,
             json=json,
+            data=data,
         )
 
     def refresh_access_token(self) -> None:
@@ -472,14 +504,16 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         LOGGER.info("Refreshing access token")
 
+        payload = {
+            "grant_type": "refresh_token",
+            "client_id": self.client_id,
+            "client_secret": self.client_secret,
+            "refresh_token": self.credentials.refresh_token,
+        }
+
         new_creds = self.post_json_response(
             self.access_token_endpoint,
-            json={
-                "grant_type": "refresh_token",
-                "client_id": self.client_id,
-                "client_secret": self.client_secret,
-                "refresh_token": self.credentials.refresh_token,
-            },
+            data=payload,
             header_overrides={},
         )
 
@@ -656,7 +690,10 @@ class OAuthClient(Generic[GetJsonResponse]):
         Returns:
             dict: auth headers for HTTP requests
         """
-        return {"Authorization": f"Bearer {self.access_token}"}
+        return {
+            "Authorization": f"Bearer {self.access_token}",
+            "Content-Type": "application/json",
+        }
 
     @property
     def refresh_token(self) -> str:

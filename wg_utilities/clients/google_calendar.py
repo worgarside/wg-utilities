@@ -611,6 +611,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         client_secret: str,
         *,
         scopes: list[str] | None = None,
+        log_requests: bool = False,
         creds_cache_path: Path | None = None,
     ):
         super().__init__(
@@ -618,6 +619,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
             client_id=client_id,
             client_secret=client_secret,
             scopes=scopes or self.DEFAULT_SCOPE,
+            log_requests=log_requests,
             creds_cache_path=creds_cache_path,
         )
 

@@ -303,6 +303,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
         client_secret: str,
         *,
         scopes: list[str] | None = None,
+        log_requests: bool = False,
         creds_cache_path: Path | None = None,
     ):
         super().__init__(
@@ -310,6 +311,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
             client_id=client_id,
             client_secret=client_secret,
             scopes=scopes,
+            log_requests=log_requests,
             creds_cache_path=creds_cache_path,
         )
 
