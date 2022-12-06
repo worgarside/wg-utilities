@@ -41,8 +41,14 @@ from requests_mock.response import _Context
 from voluptuous import All, Schema
 
 from wg_utilities.api import TempAuthServer
-from wg_utilities.clients import MonzoClient, SpotifyClient
+from wg_utilities.clients import GoogleCalendarClient, MonzoClient, SpotifyClient
+from wg_utilities.clients._google import GoogleClient
 from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson, SpotifyEntityJson
+from wg_utilities.clients.google_calendar import (
+    Calendar,
+    CalendarJson,
+    GoogleCalendarEntityJson,
+)
 from wg_utilities.clients.monzo import Account as MonzoAccount
 from wg_utilities.clients.monzo import AccountJson, Pot, PotJson, TransactionJson
 from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
@@ -91,32 +97,6 @@ EXCEPTION_GENERATORS: list[
 
 FLAT_FILES_DIR = Path(__file__).parent / "tests" / "flat_files"
 
-MONZO_PATHS_TO_MOCK = [
-    "/" + str(path_object.relative_to(FLAT_FILES_DIR / "json" / "monzo"))
-    for path_object in (FLAT_FILES_DIR / "json" / "monzo").rglob("*")
-    if path_object.is_dir()
-]
-
-
-SPOTIFY_PATHS_TO_MOCK = [
-    "/" + str(path_object.relative_to(FLAT_FILES_DIR / "json" / "spotify"))
-    for path_object in (FLAT_FILES_DIR / "json" / "spotify").rglob("*")
-    if path_object.is_dir()
-]
-SPOTIFY_PATTERNS_TO_MOCK = [
-    # Matches `https://api.spotify.com/v1/<entity_type>s/<entity_id>`
-    compile_regex(
-        # pylint: disable=line-too-long
-        r"^https:\/\/api\.spotify\.com\/v1\/(playlists|tracks|albums|artists|audio\-features|users)\/([a-z0-9]{4,22})$",
-        flags=IGNORECASE,
-    ),
-    # Matches `https://api.spotify.com/v1/artists/<entity_id>/albums`
-    compile_regex(
-        # pylint: disable=line-too-long
-        r"^https:\/\/api\.spotify\.com\/v1\/artists/([a-z0-9]{22})/albums(\?limit=50)?$",
-        flags=IGNORECASE,
-    ),
-]
 
 YAS_209_IP = "192.168.1.1"
 YAS_209_HOST = f"http://{YAS_209_IP}:49152"
@@ -150,6 +130,13 @@ def get_jwt_expiry(token: str) -> float:
 
 # </editor-fold>
 # <editor-fold desc="JSON Objects">
+
+
+@overload
+def read_json_file(  # type: ignore[misc]
+    rel_file_path: str, host_name: Literal["google/calendars"]
+) -> CalendarJson:
+    ...
 
 
 @overload
@@ -194,7 +181,7 @@ def read_json_file(
     rel_file_path: str, host_name: str | None = None
 ) -> JSONObj | SpotifyEntityJson | dict[Literal["accounts"], list[AccountJson]] | dict[
     Literal["pots"], list[PotJson]
-] | dict[Literal["transactions"], list[TransactionJson]]:
+] | dict[Literal["transactions"], list[TransactionJson]] | GoogleCalendarEntityJson:
     """Read a JSON file from the flat files `json` subdirectory.
 
     Args:
@@ -274,15 +261,33 @@ def get_flat_file_from_url(
     context.status_code = HTTPStatus.OK
     context.reason = HTTPStatus.OK.phrase
 
-    file_path = (
-        f"{request.path.replace('/v1/', '')}/{request.query}".rstrip("/") + ".json"
-    )
+    if request.hostname == "www.googleapis.com":
+        for child in GoogleClient.__subclasses__():
+            if request.url.startswith(
+                base_url := child.BASE_URL  # type: ignore[attr-defined]
+            ):
+                file_path = (
+                    "/".join(
+                        [
+                            request.path.replace("/v1/", "").replace(
+                                base_url.split(request.hostname)[-1], ""
+                            ),
+                            request.query,
+                        ]
+                    )
+                    + ".json"
+                )
+    else:
+        file_path = (
+            f"{request.path.replace('/v1/', '')}/{request.query}".rstrip("/") + ".json"
+        )
 
     return read_json_file(  # type: ignore[return-value]
         file_path,
         host_name={
             "api.spotify.com": "spotify",
             "api.monzo.com": "monzo",
+            "www.googleapis.com": "google",
         }[request.hostname],
     )
 
@@ -444,6 +449,15 @@ def _aws_credentials_env_vars() -> YieldFixture[None]:
         yield
 
 
+@fixture(scope="function", name="calendar")  # type: ignore[misc]
+def _calendar(google_calendar_client: GoogleCalendarClient) -> Calendar:
+    """Fixture for a Google Calendar instance."""
+    return Calendar.from_json_response(
+        read_json_file("primary.json", host_name="google/calendars"),
+        google_client=google_calendar_client,
+    )
+
+
 @fixture(scope="function", name="current_track_null")  # type: ignore[misc]
 def _current_track_null() -> CurrentTrack:
     """Return a CurrentTrack object with null values."""
@@ -482,6 +496,29 @@ def _flask_app() -> Flask:
     """Fixture for Flask app."""
 
     return Flask(__name__)
+
+
+@fixture(scope="function", name="google_calendar_client")  # type: ignore[misc]
+def _google_calendar_client(
+    temp_dir: Path,
+    fake_oauth_credentials: OAuthCredentials,
+    mock_requests: Mocker,  # pylint: disable=unused-argument
+) -> GoogleCalendarClient:
+    """Fixture for `GoogleCalendarClient` instance."""
+
+    (creds_cache_path := temp_dir / "google_calendar_credentials.json").write_text(
+        fake_oauth_credentials.json()
+    )
+
+    return GoogleCalendarClient(
+        client_id="test-client-id.apps.googleusercontent.com",
+        client_secret="test-client-secret",
+        scopes=[
+            "https://www.googleapis.com/auth/calendar",
+            "https://www.googleapis.com/auth/calendar.events",
+        ],
+        creds_cache_path=creds_cache_path,
+    )
 
 
 @fixture(scope="module", name="live_jwt_token")  # type: ignore[misc]
@@ -605,10 +642,16 @@ def _mock_requests(
         if fullmatch(
             r"^tests/unit/clients/monzo/test__[a-z_]+\.py$", request.node.parent.name
         ):
-            for url in MONZO_PATHS_TO_MOCK:
-                mock_requests.get(
-                    MonzoClient.BASE_URL + url, json=get_flat_file_from_url
-                )
+            for path_object in (FLAT_FILES_DIR / "json" / "monzo").rglob("*"):
+                if path_object.is_dir():
+                    mock_requests.get(
+                        MonzoClient.BASE_URL
+                        + "/"
+                        + str(
+                            path_object.relative_to(FLAT_FILES_DIR / "json" / "monzo")
+                        ),
+                        json=get_flat_file_from_url,
+                    )
 
             mock_requests.put(
                 f"{MonzoClient.BASE_URL}/pots/pot_0000000000000000000014/deposit",
@@ -635,11 +678,32 @@ def _mock_requests(
         elif fullmatch(
             r"^tests/unit/clients/spotify/test__[a-z_]+\.py$", request.node.parent.name
         ):
-            for url in SPOTIFY_PATHS_TO_MOCK:
-                mock_requests.get(
-                    SpotifyClient.BASE_URL + url, json=get_flat_file_from_url
-                )
-            for pattern in SPOTIFY_PATTERNS_TO_MOCK:
+
+            for path_object in (FLAT_FILES_DIR / "json" / "spotify").rglob("*"):
+                if path_object.is_dir():
+                    mock_requests.get(
+                        SpotifyClient.BASE_URL
+                        + "/"
+                        + str(
+                            path_object.relative_to(FLAT_FILES_DIR / "json" / "spotify")
+                        ),
+                        json=get_flat_file_from_url,
+                    )
+
+            for pattern in (
+                # Matches `https://api.spotify.com/v1/<entity_type>s/<entity_id>`
+                compile_regex(
+                    # pylint: disable=line-too-long
+                    r"^https:\/\/api\.spotify\.com\/v1\/(playlists|tracks|albums|artists|audio\-features|users)\/([a-z0-9]{4,22})$",
+                    flags=IGNORECASE,
+                ),
+                # Matches `https://api.spotify.com/v1/artists/<entity_id>/albums`
+                compile_regex(
+                    # pylint: disable=line-too-long
+                    r"^https:\/\/api\.spotify\.com\/v1\/artists/([a-z0-9]{22})/albums(\?limit=50)?$",
+                    flags=IGNORECASE,
+                ),
+            ):
                 mock_requests.get(
                     pattern,
                     json=get_flat_file_from_url,
@@ -691,6 +755,19 @@ def _mock_requests(
                 reason=HTTPStatus.OK.phrase,
                 json=spotify_create_playlist_callback,
             )
+        elif fullmatch(
+            r"^tests/unit/clients/google/test__[a-z_]+\.py$", request.node.parent.name
+        ):
+            for path_object in (FLAT_FILES_DIR / "json" / "google").rglob("*"):
+                if path_object.is_dir():
+                    mock_requests.get(
+                        GoogleCalendarClient.BASE_URL
+                        + "/"
+                        + str(
+                            path_object.relative_to(FLAT_FILES_DIR / "json" / "google")
+                        ),
+                        json=get_flat_file_from_url,
+                    )
 
         yield mock_requests
 

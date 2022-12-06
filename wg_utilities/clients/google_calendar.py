@@ -139,7 +139,7 @@ class CalendarJson(TypedDict):
     summary: str
 
     kind: Literal["calendar#calendar"]
-    timeZone: tzinfo  # noqa: N815
+    timeZone: str  # noqa: N815
     conferenceProperties: dict[  # noqa: N815
         Literal["allowedConferenceSolutionTypes"],
         list[Literal["eventHangout", "eventNamedHangout", "hangoutsMeet"]],
@@ -345,7 +345,7 @@ class Calendar(GoogleCalendarEntity):
     def validate_timezone(  # pylint: disable=no-self-argument
         cls, value: str  # noqa: N805
     ) -> tzinfo:
-        """Validates the timezone."""
+        """Converts the timezone string into a tzinfo object."""
         return timezone(value)
 
     def get_events(
@@ -355,6 +355,7 @@ class Calendar(GoogleCalendarEntity):
         from_datetime: datetime_ | None = None,
         to_datetime: datetime_ | None = None,
         combine_recurring_events: bool = False,
+        day_limit: int | None = None,
     ) -> list[Event]:
         """Retrieve events from the calendar according to a set of criteria.
 
@@ -363,12 +364,13 @@ class Calendar(GoogleCalendarEntity):
             order_by (Literal["updated", "startTime"]): the order of the events
              returned within the result
             from_datetime (datetime): lower bound (exclusive) for an event's end time
-             to filter by
+             to filter by. Defaults to 90 days ago.
             to_datetime (datetime): upper bound (exclusive) for an event's start time
-             to filter by
+             to filter by. Defaults to now.
             combine_recurring_events (bool): whether to expand recurring events into
              instances and only return single one-off events and instances of recurring
              events, but not the underlying recurring events themselves
+            day_limit (int): the maximum number of days to return events for.
 
         Returns:
             List[Event]: a list of Event instances
@@ -381,14 +383,17 @@ class Calendar(GoogleCalendarEntity):
             "orderBy": order_by,
             "singleEvents": str(not combine_recurring_events),
         }
-        if from_datetime or to_datetime:
-            from_datetime = from_datetime or datetime_.utcnow() - timedelta(days=90)
-            to_datetime = to_datetime or datetime_.utcnow()
+        if from_datetime or to_datetime or day_limit:
 
-            if from_datetime >= to_datetime:
-                raise ValueError(
-                    "If timeMax is set, timeMin must be smaller than timeMax, and vice"
-                    " versa"
+            to_datetime = to_datetime or datetime_.utcnow()
+            from_datetime = from_datetime or to_datetime - timedelta(
+                days=day_limit or 90
+            )
+
+            if day_limit is not None:
+                # Force the to_datetime to be within the day_limit
+                to_datetime = min(
+                    to_datetime, from_datetime + timedelta(days=day_limit)
                 )
 
             if from_datetime.tzinfo is None:

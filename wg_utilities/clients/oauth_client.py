@@ -349,7 +349,7 @@ class OAuthClient(Generic[GetJsonResponse]):
             json (dict): the data to be passed in the HTTP request
             data (dict): the data to be passed in the HTTP request
         """
-        if params:
+        if params is not None:
             params.update(
                 {k: v for k, v in self.DEFAULT_PARAMS.items() if k not in params}
             )

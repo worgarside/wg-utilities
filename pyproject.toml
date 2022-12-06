@@ -83,6 +83,7 @@ ignore = [
     "D202",  # NoBlankLineAfterFunction
     "D203",  # OneBlankLineBeforeClass
     "D213",  # MultiLineSummarySecondLine
+    "D400",  # FirstLineEndsWithPeriod
     "D406",  # NewLineAfterSectionName
     "D407",  # DashedUnderlineAfterSection
 ]
