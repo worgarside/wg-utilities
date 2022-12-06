@@ -155,10 +155,10 @@ class OAuthCredentials(BaseModelWithConfig):
             if expiry_time_str := value.get("expiry"):
                 expiry_time = datetime.fromisoformat(expiry_time_str)
                 if abs(expiry_epoch - expiry_time.timestamp()) > 60:
-                    raise ValueError(  # pylint: disable=raise-missing-from
+                    raise ValueError(
                         "`expiry` and `expires_in` are not consistent with each other:"
                         f" expiry: {expiry_time_str}, expires_in: {expiry_epoch}"
-                    )
+                    ) from None
 
         value["expiry_epoch"] = expiry_epoch
 

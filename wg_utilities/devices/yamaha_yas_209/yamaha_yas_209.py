@@ -1,4 +1,4 @@
-"""This module has classes etc. for subscribing to YAS-209 updates."""
+"""Classes etc. for subscribing to YAS-209 updates."""
 from __future__ import annotations
 
 from asyncio import new_event_loop, run
@@ -42,7 +42,7 @@ class StateVariable(BaseModel, extra=Extra.allow):
 class CurrentTrackMetaDataItemRes(BaseModel, extra=Extra.allow):
     """BaseModel for part of the DLNA payload."""
 
-    protocolInfo: str
+    protocolInfo: str  # noqa: N815
     duration: str
     text: str | None
 
@@ -64,7 +64,7 @@ class TrackMetaDataItem(BaseModel, extra=Extra.allow):
     dc_creator: str | None = Field("", alias="dc:creator")
     upnp_artist: str | None = Field(..., alias="upnp:artist")
     upnp_album: str | None = Field(..., alias="upnp:album")
-    upnp_albumArtURI: str = Field(..., alias="upnp:albumArtURI")
+    upnp_albumArtURI: str = Field(..., alias="upnp:albumArtURI")  # noqa: N815
 
 
 # pylint: disable=too-few-public-methods
@@ -342,9 +342,11 @@ class CurrentTrack:
         return self.json == other.json
 
     def __repr__(self) -> str:
+        """Get a string representation of this instance."""
         return f"{self.__class__.__name__}({self.__str__()!r})"
 
     def __str__(self) -> str:
+        """String representation of the current track."""
 
         if self.media_title is None and self.media_artist is None:
             return self.NULL_TRACK_STR

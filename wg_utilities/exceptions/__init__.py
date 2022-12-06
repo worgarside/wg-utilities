@@ -24,7 +24,7 @@ HA_LOG_ENDPOINT = getenv("HA_LOG_ENDPOINT", "homeassistant.local:8001")
 LOGGER: Logger | None = None
 
 
-class ResourceNotFound(Exception):
+class ResourceNotFoundError(Exception):
     """Custom exception for when some kind of resource isn't found."""
 
 
@@ -151,4 +151,4 @@ def on_exception(
     return _decorator
 
 
-__all__ = ["on_exception", "send_exception_to_home_assistant", "ResourceNotFound"]
+__all__ = ["on_exception", "send_exception_to_home_assistant", "ResourceNotFoundError"]

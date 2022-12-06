@@ -357,7 +357,7 @@ class Account(BaseModelWithConfig):
 
         Returns:
             str: the sum of the currently available balance of the account and the
-             combined total of all the user’s pots
+             combined total of all the user's pots
         """
         return self.balance_variables.total_balance
 

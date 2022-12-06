@@ -31,13 +31,13 @@ GetJsonResponseGoogleClient = TypeVar(
 class _PaginatedResponseBase(TypedDict):
     """Typing info for a paginated response."""
 
-    accessRole: str
-    defaultReminders: list[dict[str, object]]
+    accessRole: str  # noqa: N815
+    defaultReminders: list[dict[str, object]]  # noqa: N815
     etag: str
     kind: Literal["calendar#events"]
-    nextPageToken: str
+    nextPageToken: str  # noqa: N815
     summary: str
-    timeZone: str
+    timeZone: str  # noqa: N815
     updated: str
 
 
@@ -50,9 +50,9 @@ class PaginatedResponseCalendar(_PaginatedResponseBase):
 class PaginatedResponseFit(TypedDict):
     """Paginated response specifically for the Fit client."""
 
-    minStartTimeNs: str
-    maxEndTimeNs: str
-    dataSourceId: str
+    minStartTimeNs: str  # noqa: N815
+    maxEndTimeNs: str  # noqa: N815
+    dataSourceId: str  # noqa: N815
     point: list[dict[str, object]]
 
 

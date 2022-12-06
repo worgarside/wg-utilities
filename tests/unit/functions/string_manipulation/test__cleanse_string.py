@@ -14,7 +14,7 @@ from wg_utilities.functions import cleanse_string
     "in_str,expected",
     [
         ("   ", ""),
-        ("@bcd3fgh!jk|MNØPQRST∪VWXYZ", "bcd3fghjkMNPQRSTVWXYZ"),
+        ("@bcd3fgh!jk|MNØPQRST∪VWXYZ", "bcd3fghjkMNPQRSTVWXYZ"),  # noqa: RUF001
         ("abcdefghijABCDEFGHIJ1234567890", "abcdefghijABCDEFGHIJ1234567890"),
         ("!QAZ@WSX#EDC$RFV%TGB^YHN&UJM*IK<OL>?:P{}|", "QAZWSXEDCRFVTGBYHNUJMIKOLP"),
         (

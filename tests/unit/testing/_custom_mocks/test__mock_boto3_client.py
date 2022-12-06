@@ -52,40 +52,43 @@ def test_boto3_calls_are_logged_correctly(
         s3_client.list_buckets()
         s3_client.create_bucket(
             **(
-                create_bucket_args := dict(
-                    ACL="private",
-                    Bucket="string",
-                    CreateBucketConfiguration={"LocationConstraint": "af-south-1"},
-                    GrantFullControl="string",
-                    GrantRead="string",
-                    GrantReadACP="string",
-                    GrantWrite="string",
-                    GrantWriteACP="string",
-                    ObjectLockEnabledForBucket=True,
-                    ObjectOwnership="BucketOwnerPreferred",
-                )
+                create_bucket_args := {
+                    "ACL": "private",
+                    "Bucket": "string",
+                    "CreateBucketConfiguration": {"LocationConstraint": "af-south-1"},
+                    "GrantFullControl": "string",
+                    "GrantRead": "string",
+                    "GrantReadACP": "string",
+                    "GrantWrite": "string",
+                    "GrantWriteACP": "string",
+                    "ObjectLockEnabledForBucket": True,
+                    "ObjectOwnership": "BucketOwnerPreferred",
+                }
             )
         )
         lambda_client.list_functions()
         lambda_client.create_function(
             **(
-                create_function_args := dict(
-                    FunctionName="string",
-                    Runtime="string",
-                    Role="string",
-                    Handler="string",
-                    Code={"ZipFile": b"string"},
-                    Description="string",
-                    Timeout=123,
-                    MemorySize=123,
-                    Publish=True,
-                    VpcConfig={"SubnetIds": ["string"], "SecurityGroupIds": ["string"]},
-                    Environment={"Variables": {"string": "string"}},
-                    KMSKeyArn="string",
-                    TracingConfig={"Mode": "Active"},
-                    Tags={"string": "string"},
-                    Layers=["string"],
-                    FileSystemConfigs=[
+                create_function_args := {
+                    "FunctionName": "string",
+                    "Runtime": "string",
+                    "Role": "string",
+                    "Handler": "string",
+                    "Code": {"ZipFile": b"string"},
+                    "Description": "string",
+                    "Timeout": 123,
+                    "MemorySize": 123,
+                    "Publish": True,
+                    "VpcConfig": {
+                        "SubnetIds": ["string"],
+                        "SecurityGroupIds": ["string"],
+                    },
+                    "Environment": {"Variables": {"string": "string"}},
+                    "KMSKeyArn": "string",
+                    "TracingConfig": {"Mode": "Active"},
+                    "Tags": {"string": "string"},
+                    "Layers": ["string"],
+                    "FileSystemConfigs": [
                         {
                             "Arn": "string",
                             "LocalMountPath": "string",
@@ -95,11 +98,11 @@ def test_boto3_calls_are_logged_correctly(
                             },
                         }
                     ],
-                    DeadLetterConfig={"TargetArn": "string"},
-                    ImageConfig={"RepositoryAccessMode": "string"},
-                    PackageType="Zip",
-                    CodeSigningConfigArn="string",
-                )
+                    "DeadLetterConfig": {"TargetArn": "string"},
+                    "ImageConfig": {"RepositoryAccessMode": "string"},
+                    "PackageType": "Zip",
+                    "CodeSigningConfigArn": "string",
+                }
             )
         )
 
@@ -316,83 +319,85 @@ def test_lookup_overrides_in_api_call_builder(
 # method, but I couldn't get it to work (or I can't remember which moto operations
 # return "'DEFAULT'"), so I'm leaving it here for now
 
+# pylint: disable=pointless-string-statement
+"""
+@mock_pinpoint  # type: ignore[misc]
+@mark.mocked_operation_lookup(  # type: ignore[misc]
+    {
+        "GetApp": {
+            "ApplicationResponse": {
+                "Arn": "string",
+                "Id": "string",
+                "Name": "string",
+                "tags": {"string": "string"},
+                "CreationDate": "string",
+            }
+        }
+    }
+)
+def test_non_moto_supported_operations_raise_exception(
+    mb3c: MockBoto3Client, pinpoint_client: PinpointClient
+) -> None:
+    "Test that non-moto supported operations raise an exception."
+    with patch(
+        MockBoto3Client.PATCH_METHOD,
+        mb3c.build_api_call(),
+    ), freeze_time(frozen_time := datetime.now().replace(microsecond=0)):
+        # Prove moto is working
+        res = pinpoint_client.create_app(
+            CreateApplicationRequest={
+                "Name": "test-app",
+            }
+        )
 
-# @mock_pinpoint  # type: ignore[misc]
-# @mark.mocked_operation_lookup(  # type: ignore[misc]
-#     {
-#         "GetApp": {
-#             "ApplicationResponse": {
-#                 "Arn": "string",
-#                 "Id": "string",
-#                 "Name": "string",
-#                 "tags": {"string": "string"},
-#                 "CreationDate": "string",
-#             }
-#         }
-#     }
-# )
-# def test_non_moto_supported_operations_raise_exception(
-#     mb3c: MockBoto3Client, pinpoint_client: PinpointClient
-# ) -> None:
-#     """Test that non-moto supported operations raise an exception."""
-#     with patch(
-#         MockBoto3Client.PATCH_METHOD,
-#         mb3c.build_api_call(),
-#     ), freeze_time(frozen_time := datetime.now().replace(microsecond=0)):
-#         # Prove moto is working
-#         res = pinpoint_client.create_app(
-#             CreateApplicationRequest={
-#                 "Name": "test-app",
-#             }
-#         )
-#
-#         # This changes every time, so we can't test it
-#         app_id = res["ApplicationResponse"]["Id"]
-#
-#         assert res == {
-#             "ApplicationResponse": {
-#                 "Arn": f"arn:aws:mobiletargeting:us-east-1:"
-#                 "123456789012:apps/{app_id}",
-#                 "CreationDate": frozen_time.timestamp(),
-#                 "Id": app_id,
-#                 "Name": "test-app",
-#             },
-#             "ResponseMetadata": {
-#                 "HTTPHeaders": {},
-#                 "HTTPStatusCode": 201,
-#                 "RetryAttempts": 0,
-#             },
-#         }
-#
-#         # Prove the MockBoto3Client is working
-#         res = pinpoint_client.get_app(ApplicationId=app_id)
-#
-#         assert res == {
-#             "ApplicationResponse": {
-#                 "Arn": "string",
-#                 "Id": "string",
-#                 "Name": "string",
-#                 "tags": {"string": "string"},
-#                 "CreationDate": "string",
-#             }
-#         }
-#
-#         # Finally prove that the non-moto, non-mocked supported operation raises an
-#         # exception
-#
-#         with raises(NotImplementedError) as exc_info:
-#             # I've just picked something I think moto are unlikely to support any time
-#             # soon!
-#             pinpoint_client.verify_otp_message(
-#                 ApplicationId=app_id,
-#                 VerifyOTPMessageRequestParameters={
-#                     "DestinationIdentity": "string",
-#                     "Otp": "string",
-#                     "ReferenceId": "string",
-#                 },
-#             )
-#
-#         assert (
-#             str(exc_info.value)
-#             == "Operation 'VerifyOTPMessage' is not supported by moto yet"
-#         )
+        # This changes every time, so we can't test it
+        app_id = res["ApplicationResponse"]["Id"]
+
+        assert res == {
+            "ApplicationResponse": {
+                "Arn": f"arn:aws:mobiletargeting:us-east-1:"
+                "123456789012:apps/{app_id}",
+                "CreationDate": frozen_time.timestamp(),
+                "Id": app_id,
+                "Name": "test-app",
+            },
+            "ResponseMetadata": {
+                "HTTPHeaders": {},
+                "HTTPStatusCode": 201,
+                "RetryAttempts": 0,
+            },
+        }
+
+        # Prove the MockBoto3Client is working
+        res = pinpoint_client.get_app(ApplicationId=app_id)
+
+        assert res == {
+            "ApplicationResponse": {
+                "Arn": "string",
+                "Id": "string",
+                "Name": "string",
+                "tags": {"string": "string"},
+                "CreationDate": "string",
+            }
+        }
+
+        # Finally prove that the non-moto, non-mocked supported operation raises an
+        # exception
+
+        with raises(NotImplementedError) as exc_info:
+            # I've just picked something I think moto are unlikely to support any time
+            # soon!
+            pinpoint_client.verify_otp_message(
+                ApplicationId=app_id,
+                VerifyOTPMessageRequestParameters={
+                    "DestinationIdentity": "string",
+                    "Otp": "string",
+                    "ReferenceId": "string",
+                },
+            )
+
+        assert (
+            str(exc_info.value)
+            == "Operation 'VerifyOTPMessage' is not supported by moto yet"
+        )
+"""
