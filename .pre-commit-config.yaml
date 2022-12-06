@@ -1,7 +1,7 @@
 ---
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.2.2
+    rev: v3.3.0
     hooks:
       - id: pyupgrade
         args:
@@ -138,6 +138,6 @@ repos:
           - '*.svg,*.json'
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.141
+    rev: v0.0.158
     hooks:
       - id: ruff

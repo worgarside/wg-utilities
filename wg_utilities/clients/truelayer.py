@@ -399,6 +399,7 @@ class TrueLayerEntity(GenericModelWithConfig):
         return self._get_balance_property("payment_due_date")
 
     def __str__(self) -> str:
+        """String representation of the entity."""
         return f"{self.display_name} | {self.provider.display_name}"
 
 
@@ -420,6 +421,7 @@ class Transaction(BaseModelWithConfig):
     transaction_type: str
 
     def __str__(self) -> str:
+        """String representation of the transaction."""
         return f"{self.description} | {self.amount} | {self.merchant_name}"
 
 

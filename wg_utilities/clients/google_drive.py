@@ -8,7 +8,7 @@ from typing import Any, TypedDict
 
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.clients.oauth_client import StrBytIntFlt
-from wg_utilities.exceptions import ResourceNotFound
+from wg_utilities.exceptions import ResourceNotFoundError
 
 
 class File:
@@ -164,17 +164,25 @@ class File:
         return "/" + current_path
 
     def __gt__(self, other: File) -> bool:
+        """Compare two files by name."""
         return self.name.lower() > other.name.lower()
 
     def __lt__(self, other: File) -> bool:
+        """Compare two files by name."""
         return self.name.lower() < other.name.lower()
 
     def __str__(self) -> str:
+        """Returns the file name."""
         return self.name
 
     def __repr__(self) -> str:
-        # pylint: disable=line-too-long
-        return f"File(id={self.file_id!r}, name={self.name!r}, parent_id={self.parent_id!r})"
+        """String representation of the file."""
+        return (
+            f"File("
+            f"id={self.file_id!r}, "
+            f"name={self.name!r}, "
+            f"parent_id={self.parent_id!r})"
+        )
 
 
 class _DirectoryItemInfo(TypedDict):
@@ -338,8 +346,13 @@ class Directory(File):
         return output
 
     def __repr__(self) -> str:
-        # pylint: disable=line-too-long
-        return f"Directory(id={self.file_id!r}, name={self.name!r}, parent_id={self.parent_id!r})"
+        """String representation of the directory."""
+        return (
+            f"Directory("
+            f"id={self.file_id!r}, "
+            f"name={self.name!r}, "
+            f"parent_id={self.parent_id!r})"
+        )
 
 
 class GoogleDriveClient(GoogleClient[Any]):
@@ -424,13 +437,13 @@ class GoogleDriveClient(GoogleClient[Any]):
             Directory: the directory being searched for, if it was found
 
         Raises:
-            ResourceNotFound: if no matching directory exists
+            ResourceNotFoundError: if no matching directory exists
         """
         for directory in self.directories:
             if getattr(directory, attribute) == value:
                 return directory
 
-        raise ResourceNotFound(
+        raise ResourceNotFoundError(
             f"Unable to find directory where attribute {attribute!r} == {str(value)}"
         )
 

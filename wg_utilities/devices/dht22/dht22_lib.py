@@ -7,7 +7,7 @@ from pigpio import EITHER_EDGE, INPUT, LOW, PUD_OFF, pi, tickDiff
 
 
 class DHT22Sensor:
-    """Class for DHT22 sensor, I can't remember where I got this from!
+    """Class for DHT22 sensor, I can't remember where I got this from.
 
     Args:
         pi_obj (pi): a PI instance from pigpio

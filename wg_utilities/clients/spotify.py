@@ -412,9 +412,6 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
                 if playlist.id == id_:
                     return playlist
 
-        # if isinstance(res.get("owner"), dict):
-        #     res["owner"]["spotify_client"] = self
-
         return Playlist.from_json_response(
             self.get_json_response(f"/playlists/{id_}"),
             spotify_client=self,

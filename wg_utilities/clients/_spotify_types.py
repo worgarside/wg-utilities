@@ -251,7 +251,7 @@ class TrackLocalJson(SpotifyLocalEntityJson, total=False):
     available_markets: list[None]
     disc_number: int
     duration_ms: int
-    # episode: NotRequired[bool]
+    episode: NotRequired[bool]
     explicit: bool
     external_ids: dict[None, None]
     is_local: Literal[True]

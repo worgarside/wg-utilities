@@ -1,4 +1,4 @@
-"""This is a single "test" which is used to log the `pytest-randomly` seed."""
+"""A single "test" which is used to log the `pytest-randomly` seed."""
 
 from __future__ import annotations
 
@@ -14,6 +14,6 @@ add_stream_handler(_LOGGER)
 
 
 def test_randomly_seed(request: FixtureRequest) -> None:
-    """This isn't a test, it's just to ensure the randomly seed is always logged."""
+    """Ensure the randomly seed is always logged."""
 
     _LOGGER.info("Randomly seed: %s", request.config.getoption("--randomly-seed"))

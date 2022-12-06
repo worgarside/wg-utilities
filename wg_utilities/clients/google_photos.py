@@ -31,17 +31,17 @@ add_stream_handler(LOGGER)
 
 
 class _SharedAlbumOptionsInfo(TypedDict):
-    isCollaborative: bool
-    isCommentable: bool
+    isCollaborative: bool  # noqa: N815
+    isCommentable: bool  # noqa: N815
 
 
 class _ShareInfoInfo(TypedDict):
-    isJoinable: bool
-    isJoined: bool
-    isOwned: bool
-    shareableUrl: str
-    sharedAlbumOptions: _SharedAlbumOptionsInfo
-    shareToken: str
+    isJoinable: bool  # noqa: N815
+    isJoined: bool  # noqa: N815
+    isOwned: bool  # noqa: N815
+    shareableUrl: str  # noqa: N815
+    sharedAlbumOptions: _SharedAlbumOptionsInfo  # noqa: N815
+    shareToken: str  # noqa: N815
 
 
 class _MediaItemMetadataPhoto(BaseModelWithConfig):
@@ -108,13 +108,13 @@ class AlbumJson(TypedDict):
     """JSON representation of an Album."""
 
     id: str
-    productUrl: str
+    productUrl: str  # noqa: N815
 
-    coverPhotoBaseUrl: str
-    coverPhotoMediaItemId: str
-    isWriteable: bool | None
-    mediaItemsCount: int
-    shareInfo: _ShareInfoInfo | None
+    coverPhotoBaseUrl: str  # noqa: N815
+    coverPhotoMediaItemId: str  # noqa: N815
+    isWriteable: bool | None  # noqa: N815
+    mediaItemsCount: int  # noqa: N815
+    shareInfo: _ShareInfoInfo | None  # noqa: N815
     title: str
 
 
@@ -160,14 +160,14 @@ class MediaItemJson(TypedDict):
     """JSON representation of a Media Item (photo or video)."""
 
     id: str
-    productUrl: str
+    productUrl: str  # noqa: N815
 
-    baseUrl: str
-    contributorInfo: dict[str, str] | None
+    baseUrl: str  # noqa: N815
+    contributorInfo: dict[str, str] | None  # noqa: N815
     description: str | None
     filename: str
-    mediaMetadata: _MediaItemMetadata
-    mimeType: str
+    mediaMetadata: _MediaItemMetadata  # noqa: N815
+    mimeType: str  # noqa: N815
 
 
 class MediaItem(GooglePhotosEntity):

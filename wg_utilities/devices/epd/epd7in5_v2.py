@@ -120,12 +120,10 @@ class EPD:  # noqa: D101
         return 0
 
     def getbuffer(self, image: Image) -> list[int]:  # noqa: D102
-        # logging.debug("bufsiz = ",int(self.width/8) * self.height)
         buf = [0xFF] * (int(self.width / 8) * self.height)
         image_monocolor = image.convert("1")
         imwidth, imheight = image_monocolor.size
         pixels = image_monocolor.load()  # type: ignore[func-returns-value]
-        # logging.debug("imwidth = %d, imheight = %d",imwidth,imheight)
         if imwidth == self.width and imheight == self.height:
             debug("Vertical")
             for y in range(imheight):

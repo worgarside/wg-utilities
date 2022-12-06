@@ -173,7 +173,7 @@ def test_iter_method(spotify_playlist: Playlist) -> None:
     """Test that the `Playlist.__iter__` method works as expected."""
     assert all(isinstance(track, Track) for track in spotify_playlist)
 
-    assert list(t for t in spotify_playlist) == spotify_playlist.tracks
+    assert list(spotify_playlist) == spotify_playlist.tracks
 
 
 def test_lt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) -> None:

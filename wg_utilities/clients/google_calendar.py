@@ -41,34 +41,34 @@ class EventType(Enum):
 
 
 class _ConferenceDataCreateRequest(TypedDict):
-    requestId: str
-    conferenceSolutionKey: dict[Literal["type"], Literal["hangoutsMeet"]]
+    requestId: str  # noqa: N815
+    conferenceSolutionKey: dict[Literal["type"], Literal["hangoutsMeet"]]  # noqa: N815
     status: dict[Literal["statusCode"], Literal["success"]]
 
 
 class _ConferenceDataEntryPoints(TypedDict, total=False):
-    entryPointType: str
+    entryPointType: str  # noqa: N815
     uri: str
     label: str
     pin: str | None
-    accessCode: str | None
-    meetingCode: str | None
+    accessCode: str | None  # noqa: N815
+    meetingCode: str | None  # noqa: N815
     passcode: str | None
     password: str | None
-    regionCode: str | None
+    regionCode: str | None  # noqa: N815
 
 
 class _ConferenceDataConferenceSolution(TypedDict):
     key: dict[Literal["type"], Literal["hangoutsMeet", "addOn"]]
     name: str
-    iconUri: str
+    iconUri: str  # noqa: N815
 
 
 class _ConferenceData(TypedDict, total=False):
-    createRequest: _ConferenceDataCreateRequest
-    entryPoints: list[_ConferenceDataEntryPoints]
-    conferenceSolution: _ConferenceDataConferenceSolution
-    conferenceId: str
+    createRequest: _ConferenceDataCreateRequest  # noqa: N815
+    entryPoints: list[_ConferenceDataEntryPoints]  # noqa: N815
+    conferenceSolution: _ConferenceDataConferenceSolution  # noqa: N815
+    conferenceId: str  # noqa: N815
     signature: str | None
     notes: str | None
     parameters: dict[str, object] | None
@@ -139,8 +139,8 @@ class CalendarJson(TypedDict):
     summary: str
 
     kind: Literal["calendar#calendar"]
-    timeZone: tzinfo
-    conferenceProperties: dict[
+    timeZone: tzinfo  # noqa: N815
+    conferenceProperties: dict[  # noqa: N815
         Literal["allowedConferenceSolutionTypes"],
         list[Literal["eventHangout", "eventNamedHangout", "hangoutsMeet"]],
     ]
@@ -415,6 +415,7 @@ class Calendar(GoogleCalendarEntity):
         ]
 
     def __str__(self) -> str:
+        """Returns the calendar name."""
         return self.summary
 
 
@@ -429,28 +430,28 @@ class EventJson(TypedDict):
 
     attachments: list[dict[str, str]] | None
     attendees: list[dict[str, str | bool]] | None
-    attendeesOmitted: bool | None
+    attendeesOmitted: bool | None  # noqa: N815
     created: datetime_
-    colorId: str | None
-    conferenceData: _ConferenceData | None
+    colorId: str | None  # noqa: N815
+    conferenceData: _ConferenceData | None  # noqa: N815
     creator: dict[str, str | bool]
     end: _StartEndDatetime
-    endTimeUnspecified: bool | None
-    eventType: EventType  # "default"
-    extendedProperties: dict[str, dict[str, str]] | None
-    guestsCanInviteOthers: bool | None
-    guestsCanModify: bool | None
-    guestsCanSeeOtherGuests: bool | None
-    hangoutLink: str | None
-    htmlLink: str
-    iCalUID: str
+    endTimeUnspecified: bool | None  # noqa: N815
+    eventType: EventType  # "default"  # noqa: N815
+    extendedProperties: dict[str, dict[str, str]] | None  # noqa: N815
+    guestsCanInviteOthers: bool | None  # noqa: N815
+    guestsCanModify: bool | None  # noqa: N815
+    guestsCanSeeOtherGuests: bool | None  # noqa: N815
+    hangoutLink: str | None  # noqa: N815
+    htmlLink: str  # noqa: N815
+    iCalUID: str  # noqa: N815
     kind: Literal["calendar#event"]
     locked: bool | None
     organizer: dict[str, str | bool]
     original_start_time: dict[str, str] | None
-    privateCopy: bool | None
+    privateCopy: bool | None  # noqa: N815
     recurrence: list[str] | None
-    recurringEventId: str | None
+    recurringEventId: str | None  # noqa: N815
     reminders: dict[str, bool | dict[str, str | int]]
     sequence: int
     source: dict[str, str] | None
@@ -563,18 +564,21 @@ class Event(GoogleCalendarEntity):
         return start_datetime
 
     def __lt__(self, other: Event) -> bool:
+        """Compares two events by their start time (or name)."""
         if self.start_datetime == other.start_datetime:
             return self.summary.lower() < other.summary.lower()
 
         return self.start_datetime < other.start_datetime
 
     def __gt__(self, other: Event) -> bool:
+        """Compares two events by their start time (or name)."""
         if self.start_datetime == other.start_datetime:
             return self.summary.lower() > other.summary.lower()
 
         return self.start_datetime > other.start_datetime
 
     def __str__(self) -> str:
+        """Returns the event's summary."""
         try:
             return (
                 f"{self.summary} ("

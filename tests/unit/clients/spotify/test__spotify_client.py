@@ -203,10 +203,6 @@ def test_get_method_with_exception(
         )
 
 
-# def test_post_method(spotify_client: SpotifyClient, mock_requests: Mocker) -> None:
-#     """Test that `_post` forms the request correct, returns the correct response."""
-
-
 def test_get_items_from_url_no_pagination(
     spotify_client: SpotifyClient, spotify_artist: Artist, mock_requests: Mocker
 ) -> None:
