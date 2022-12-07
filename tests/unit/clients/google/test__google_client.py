@@ -60,7 +60,9 @@ def test_get_items_method() -> None:
                 # No next page token
             }
 
-        raise ValueError(f"Unexpected request: {method!r}, {url}, {params!r}")
+        raise ValueError(  # pragma: no cover
+            f"Unexpected request: {method!r}, {url}, {params!r}"
+        )
 
     with patch.object(
         client, "_request_json_response", wraps=_req_json_res_side_effect

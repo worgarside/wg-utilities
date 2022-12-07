@@ -22,7 +22,7 @@ from wg_utilities.clients.oauth_client import (
 )
 
 
-class ResponseStatus(Enum):
+class ResponseStatus(str, Enum):
     """Enumeration for event attendee response statuses."""
 
     ACCEPTED = "accepted"
@@ -32,7 +32,7 @@ class ResponseStatus(Enum):
     UNKNOWN = "unknown"
 
 
-class EventType(Enum):
+class EventType(str, Enum):
     """Enumeration for event types."""
 
     DEFAULT = "default"
@@ -158,7 +158,7 @@ class GoogleCalendarEntity(GenericModelWithConfig):
     location: str | None
     summary: str
 
-    google_client: GoogleCalendarClient
+    google_client: GoogleCalendarClient = Field(exclude=True)
 
     @classmethod
     def from_json_response(
@@ -190,43 +190,19 @@ class GoogleCalendarEntity(GenericModelWithConfig):
         exclude_defaults: bool = False,
         exclude_none: bool = False,
     ) -> dict[str, Any]:
+        # pylint: disable=useless-parent-delegation
         """Overrides the standard `BaseModel.dict` method.
 
-        Allows us to we can always return the dict with the same field names it came
-        in with, and exclude any null values that have been added when parsing.
+        Allows us to consistently return the dict with the same field names it came in
+        with, and exclude any null values that have been added when parsing.
 
         Original documentation is here:
           - https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeldict
 
-        Args:
-            include (Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']]): fields
-                to include in the returned dictionary
-            exclude (Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']]): fields
-                to exclude from the returned dictionary
-            by_alias (bool): whether field aliases should be used as keys in the
-                returned dictionary
-            skip_defaults (bool): DEPRECATED but kept for consistency, use
-                `exclude_unset` instead
-            exclude_unset (bool): whether fields which were not explicitly set when
-                creating the model should be excluded from the returned dictionary
-            exclude_defaults (bool): whether fields which are equal to their default
-                values (whether set or otherwise) should be excluded from the returned
-                dictionary
-            exclude_none (bool): whether fields which are equal to None should be
-                excluded from the returned dictionary
-
-        Returns:
-            dict: the model dict
+        Overridden Parameters:
+            by_alias: False -> True
+            exclude_unset: False -> True
         """
-
-        if isinstance(exclude, dict):
-            exclude.update({"google_client": True})
-        elif isinstance(exclude, set):
-            exclude.update({"google_client"})
-        else:
-            exclude = {
-                "google_client",
-            }
 
         return super().dict(
             include=include,
@@ -271,51 +247,20 @@ class GoogleCalendarEntity(GenericModelWithConfig):
         models_as_dict: bool = True,
         **dumps_kwargs: Any,
     ) -> str:
-        """Overrides the standard `BaseModel.dict` method.
+        # pylint: disable=useless-parent-delegation
+        """Overrides the standard `BaseModel.json` method.
 
-        Allows us to we can always return the dict with the same field names it came
-        in with, and exclude any null values that have been added when parsing.
+        Allows us to consistently return the dict with the same field names it came in
+        with, and exclude any null values that have been added when parsing.
 
         Original documentation is here:
           - https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeljson
 
-        Args:
-            include (Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']]): fields
-                to include in the returned dictionary
-            exclude (Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']]): fields
-                to exclude from the returned dictionary
-            by_alias (bool): whether field aliases should be used as keys in the
-                returned dictionary
-            skip_defaults (bool): DEPRECATED but kept for consistency, use
-                `exclude_unset` instead
-            exclude_unset (bool): whether fields which were not explicitly set when
-                creating the model should be excluded from the returned dictionary
-            exclude_defaults (bool): whether fields which are equal to their default
-                values (whether set or otherwise) should be excluded from the returned
-                dictionary
-            exclude_none (bool): whether fields which are equal to None should be
-                excluded from the returned dictionary
-            encoder (Callable): a custom encoder function passed to the default
-                argument of json.dumps()
-            models_as_dict (bool): ???
-            dumps_kwargs (Any): any other keyword arguments are passed to json.dumps(),
-                e.g. indent
-
-        Returns:
-            json: the model dict, in string form
-
-        See Also:
-            Rule.dict
+        Overridden Parameters:
+            by_alias: False -> True
+            exclude_unset: False -> True
+            encoder: None -> self._json_encoder
         """
-
-        if isinstance(exclude, dict):
-            exclude.update({"google_client": True})
-        elif isinstance(exclude, set):
-            exclude.update({"google_client"})
-        else:
-            exclude = {
-                "google_client",
-            }
 
         return super().json(
             include=include,
@@ -603,7 +548,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
     BASE_URL = "https://www.googleapis.com/calendar/v3"
 
     DATE_FORMAT = "%Y-%m-%d"
-    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
+    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%Z"
 
     DEFAULT_SCOPE = [
         "https://www.googleapis.com/auth/calendar",
@@ -765,5 +710,6 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         return self._primary_calendar
 
 
+GoogleCalendarEntity.update_forward_refs()
 Calendar.update_forward_refs()
 Event.update_forward_refs()

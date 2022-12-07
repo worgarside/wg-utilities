@@ -269,12 +269,12 @@ def get_flat_file_from_url(
                 file_path = (
                     "/".join(
                         [
-                            request.path.replace("/v1/", "").replace(
+                            request.path.replace(
                                 base_url.split(request.hostname)[-1], ""
                             ),
                             request.query,
                         ]
-                    )
+                    ).rstrip("/")
                     + ".json"
                 )
     else:
@@ -642,14 +642,14 @@ def _mock_requests(
         if fullmatch(
             r"^tests/unit/clients/monzo/test__[a-z_]+\.py$", request.node.parent.name
         ):
-            for path_object in (FLAT_FILES_DIR / "json" / "monzo").rglob("*"):
+            for path_object in (monzo_dir := FLAT_FILES_DIR / "json" / "monzo").rglob(
+                "*"
+            ):
                 if path_object.is_dir():
                     mock_requests.get(
                         MonzoClient.BASE_URL
                         + "/"
-                        + str(
-                            path_object.relative_to(FLAT_FILES_DIR / "json" / "monzo")
-                        ),
+                        + str(path_object.relative_to(monzo_dir)),
                         json=get_flat_file_from_url,
                     )
 
@@ -679,14 +679,14 @@ def _mock_requests(
             r"^tests/unit/clients/spotify/test__[a-z_]+\.py$", request.node.parent.name
         ):
 
-            for path_object in (FLAT_FILES_DIR / "json" / "spotify").rglob("*"):
+            for path_object in (
+                spotify_dir := FLAT_FILES_DIR / "json" / "spotify"
+            ).rglob("*"):
                 if path_object.is_dir():
                     mock_requests.get(
                         SpotifyClient.BASE_URL
                         + "/"
-                        + str(
-                            path_object.relative_to(FLAT_FILES_DIR / "json" / "spotify")
-                        ),
+                        + str(path_object.relative_to(spotify_dir)),
                         json=get_flat_file_from_url,
                     )
 
@@ -768,6 +768,11 @@ def _mock_requests(
                         ),
                         json=get_flat_file_from_url,
                     )
+
+                mock_requests.get(
+                    f"{GoogleCalendarClient.BASE_URL}/calendars/primary",
+                    json=get_flat_file_from_url,
+                )
 
         yield mock_requests
 
