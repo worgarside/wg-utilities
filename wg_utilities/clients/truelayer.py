@@ -249,8 +249,8 @@ class TrueLayerEntity(GenericModelWithConfig):
                 StrBytIntFlt,
                 StrBytIntFlt | Iterable[StrBytIntFlt] | None,
             ] | None = {
-                "from": from_datetime.strftime(self.truelayer_client.DATETIME_FORMAT),
-                "to": to_datetime.strftime(self.truelayer_client.DATETIME_FORMAT),
+                "from": from_datetime.isoformat(),
+                "to": to_datetime.isoformat(),
             }
         else:
             params = None

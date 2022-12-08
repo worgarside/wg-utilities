@@ -1,7 +1,7 @@
 """Custom client for interacting with Google's Calendar API."""
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from datetime import date as date_
 from datetime import datetime as datetime_
 from datetime import timedelta, tzinfo
@@ -10,7 +10,7 @@ from json import dumps
 from pathlib import Path
 from typing import AbstractSet, Any, Literal, TypeAlias, TypedDict, TypeVar
 
-from pydantic import Field, validator
+from pydantic import Field, root_validator, validator
 from pytz import UTC, timezone
 from requests import delete
 from tzlocal import get_localzone
@@ -19,6 +19,7 @@ from wg_utilities.clients._google import GoogleClient
 from wg_utilities.clients.oauth_client import (
     BaseModelWithConfig,
     GenericModelWithConfig,
+    StrBytIntFlt,
 )
 
 
@@ -38,6 +39,21 @@ class EventType(str, Enum):
     DEFAULT = "default"
     FOCUS_TIME = "focusTime"
     OUT_OF_OFFICE = "outOfOffice"
+
+
+class _Attendee(BaseModelWithConfig):  # pylint: disable=too-few-public-methods
+    additionalGuests: int | None  # noqa: N815
+    comment: str | None
+    display_name: str | None = Field(alias="displayName", default=None)
+    email: str
+    id: str | None
+    optional: bool = False
+    organizer: bool = False
+    resource: bool = False
+    response_status: ResponseStatus = Field(
+        alias="responseStatus", default=ResponseStatus.UNKNOWN
+    )
+    self: bool = False
 
 
 class _ConferenceDataCreateRequest(TypedDict):
@@ -74,59 +90,49 @@ class _ConferenceData(TypedDict, total=False):
     parameters: dict[str, object] | None
 
 
+class _Creator(BaseModelWithConfig):  # pylint: disable=too-few-public-methods
+    display_name: str | None = Field(alias="displayName", default=None)
+    email: str
+    self: bool = False
+
+
 class _StartEndDatetime(BaseModelWithConfig):
     """Model for `start` and `end` datetime objects."""
 
-    datetime: datetime_ | None = Field(alias="dateTime")
-    date: date_ = None  # type: ignore[assignment]
+    datetime: datetime_ = Field(alias="dateTime")
+    date: date_
     timezone: tzinfo = Field(alias="timeZone", default_factory=get_localzone)
 
-    @validator("datetime", pre=True, always=True)
-    def validate_datetime(  # pylint: disable=no-self-argument
+    @root_validator(pre=True)
+    def validate_datetime_or_date(  # pylint: disable=no-self-argument
         cls,  # noqa: N805
-        value: str,
         values: dict[str, Any],
-    ) -> datetime_ | None:
-        """Validate the `datetime` field.
+    ) -> dict[str, Any]:
+        """Validate that either `datetime` or `date` is provided."""
 
-        Args:
-            value (str): The value to validate.
-            values (dict[str, Any]): The values of the model.
+        values["timeZone"] = (
+            timezone(values["timeZone"]) if "timeZone" in values else get_localzone()
+        )
 
-        Returns:
-            datetime_: The validated value.
-        """
-        if value is None:
-            return value
+        dt: date_ | None = values.get("date")
+        dttm: datetime_ | None = values.get("dateTime")
 
-        return_value = datetime_.strptime(value, "%Y-%m-%dT%H:%M:%S%z")
-        values["date"] = return_value.date()
+        if dt is None and dttm is None:
+            raise ValueError("Either `date` or `dateTime` must be provided.")
 
-        return return_value
+        if dt is None:
+            dttm = datetime_.strptime(
+                dttm, "%Y-%m-%dT%H:%M:%S%z"  # type: ignore[arg-type]
+            ).replace(tzinfo=values["timeZone"])
+            dt = dttm.date()
+        else:
+            dt = date_.fromisoformat(dt)  # type: ignore[arg-type]
+            dttm = datetime_(dt.year, dt.month, dt.day, tzinfo=values["timeZone"])
 
-    @validator("date", pre=True, always=True)
-    def validate_date(  # pylint: disable=no-self-argument
-        cls,  # noqa: N805
-        value: str,
-        values: dict[Literal["date"], date_],
-    ) -> date_:
-        """Validate the `date` field.
+        values["date"] = dt
+        values["dateTime"] = dttm
 
-        Args:
-            value (str): The value to validate.
-            values (dict[str, Any]): The values of the model.
-
-        Returns:
-            date_: The validated value.
-        """
-        return date_.fromisoformat(value) if value else values["date"]
-
-    @validator("timezone", pre=True)
-    def validate_timezone(  # pylint: disable=no-self-argument
-        cls, value: str  # noqa: N805
-    ) -> tzinfo:
-        """Validates the timezone."""
-        return timezone(value)
+        return values
 
 
 class CalendarJson(TypedDict):
@@ -226,7 +232,7 @@ class GoogleCalendarEntity(GenericModelWithConfig):
         """
 
         if isinstance(o, datetime_):
-            return o.strftime(GoogleCalendarClient.DATETIME_FORMAT)
+            return o.isoformat()
 
         if isinstance(o, tzinfo):
             return o.tzname(None) or ""
@@ -293,6 +299,24 @@ class Calendar(GoogleCalendarEntity):
         """Converts the timezone string into a tzinfo object."""
         return timezone(value)
 
+    def get_event_by_id(self, event_id: str) -> Event:
+        """Gets an event by its ID.
+
+        Args:
+            event_id (str): ID of the event to get
+
+        Returns:
+            Event: Event object
+        """
+
+        return Event.from_json_response(
+            self.google_client.get_json_response(
+                f"/calendars/{self.id}/events/{event_id}", params={"maxResults": None}
+            ),
+            google_client=self.google_client,
+            calendar=self,
+        )
+
     def get_events(
         self,
         page_size: int = 500,
@@ -347,12 +371,8 @@ class Calendar(GoogleCalendarEntity):
             if to_datetime.tzinfo is None:
                 to_datetime = to_datetime.replace(tzinfo=UTC)
 
-            params["timeMin"] = from_datetime.strftime(
-                GoogleCalendarClient.DATETIME_FORMAT
-            )
-            params["timeMax"] = to_datetime.strftime(
-                GoogleCalendarClient.DATETIME_FORMAT
-            )
+            params["timeMin"] = from_datetime.isoformat()
+            params["timeMax"] = to_datetime.isoformat()
 
         return [
             Event.from_json_response(
@@ -379,12 +399,12 @@ class EventJson(TypedDict):
     summary: str | None
 
     attachments: list[dict[str, str]] | None
-    attendees: list[dict[str, str | bool]] | None
+    attendees: list[_Attendee] | None
     attendeesOmitted: bool | None  # noqa: N815
     created: datetime_
     colorId: str | None  # noqa: N815
     conferenceData: _ConferenceData | None  # noqa: N815
-    creator: dict[str, str | bool]
+    creator: _Creator
     end: _StartEndDatetime
     endTimeUnspecified: bool | None  # noqa: N815
     eventType: EventType  # "default"  # noqa: N815
@@ -397,7 +417,7 @@ class EventJson(TypedDict):
     iCalUID: str  # noqa: N815
     kind: Literal["calendar#event"]
     locked: bool | None
-    organizer: dict[str, str | bool]
+    organizer: dict[str, bool | str]
     original_start_time: dict[str, str] | None
     privateCopy: bool | None  # noqa: N815
     recurrence: list[str] | None
@@ -407,7 +427,7 @@ class EventJson(TypedDict):
     source: dict[str, str] | None
     start: _StartEndDatetime
     status: Literal["cancelled", "confirmed", "tentative"] | None
-    transparency: str | bool | None  # != transparent
+    transparency: str | None
     updated: datetime_
     visibility: Literal["default", "public", "private", "confidential"] | None
 
@@ -418,15 +438,15 @@ class Event(GoogleCalendarEntity):
     summary: str = "(No Title)"
 
     attachments: list[dict[str, str]] | None
-    attendees: list[dict[str, str | bool]] = Field(default_factory=list)
+    attendees: list[_Attendee] = Field(default_factory=list)
     attendees_omitted: bool | None = Field(alias="attendeesOmitted")
     created: datetime_
     color_id: str | None = Field(alias="colorId")
     conference_data: _ConferenceData | None = Field(alias="conferenceData")
-    creator: dict[str, str | bool]
+    creator: _Creator
     end: _StartEndDatetime
     end_time_unspecified: bool | None = Field(alias="endTimeUnspecified")
-    event_type: EventType = Field(alias="eventType")  # "default"
+    event_type: EventType = Field(alias="eventType")
     extended_properties: dict[str, dict[str, str]] | None = Field(
         alias="extendedProperties"
     )
@@ -438,7 +458,7 @@ class Event(GoogleCalendarEntity):
     ical_uid: str = Field(alias="iCalUID")
     kind: Literal["calendar#event"]
     locked: bool | None
-    organizer: dict[str, str | bool]
+    organizer: dict[str, bool | str]
     original_start_time: dict[str, str] | None = Field(alias="originalStartTime")
     private_copy: bool | None = Field(alias="privateCopy")
     recurrence: list[str] | None
@@ -448,7 +468,7 @@ class Event(GoogleCalendarEntity):
     source: dict[str, str] | None
     start: _StartEndDatetime
     status: Literal["cancelled", "confirmed", "tentative"] | None
-    transparency: str | bool | None  # != transparent
+    transparency: str | None  # != transparent
     updated: datetime_
     visibility: Literal["default", "public", "private", "confidential"] | None
 
@@ -457,28 +477,12 @@ class Event(GoogleCalendarEntity):
     def delete(self) -> None:
         """Deletes the event from the host calendar."""
         res = delete(
-            f"{self.google_client.base_url}/calendars/"
-            f"{self.calendar.id}/events/{self.id}",
+            # pylint: disable=line-too-long
+            f"{self.google_client.base_url}/calendars/{self.calendar.id}/events/{self.id}",
             headers=self.google_client.request_headers,
         )
 
         res.raise_for_status()
-
-    @property
-    def end_datetime(self) -> datetime_:
-        """End time of the event as a datetime object.
-
-        Returns:
-            datetime: the datetime at which this event ends/ed
-        """
-        end_datetime = self.end.datetime or datetime_.combine(
-            self.end.date, datetime_.min.time()
-        )
-
-        if end_datetime.tzinfo is None:
-            end_datetime = end_datetime.replace(tzinfo=self.end.timezone)
-
-        return end_datetime
 
     @property
     def response_status(self) -> ResponseStatus:
@@ -488,52 +492,46 @@ class Event(GoogleCalendarEntity):
             ResponseStatus: the response status for the authenticated user
         """
         for attendee in self.attendees:
-            if attendee.get("self") is True:
-                return ResponseStatus(attendee.get("responseStatus", "unknown"))
+            if attendee.self is True:
+                return attendee.response_status
 
         # Own events don't always have attendees
-        if self.creator.get("self") is True:
+        if self.creator.self:
             return ResponseStatus.ACCEPTED
 
-        return ResponseStatus("unknown")
-
-    @property
-    def start_datetime(self) -> datetime_:
-        """Start time of the event as a datetime object.
-
-        Returns:
-            datetime: the datetime at which this event starts/ed
-        """
-        start_datetime = self.start.datetime or datetime_.combine(
-            self.start.date, datetime_.min.time()
-        )
-
-        if start_datetime.tzinfo is None:
-            start_datetime = start_datetime.replace(tzinfo=self.start.timezone)
-
-        return start_datetime
-
-    def __lt__(self, other: Event) -> bool:
-        """Compares two events by their start time (or name)."""
-        if self.start_datetime == other.start_datetime:
-            return self.summary.lower() < other.summary.lower()
-
-        return self.start_datetime < other.start_datetime
+        return ResponseStatus.UNKNOWN
 
     def __gt__(self, other: Event) -> bool:
-        """Compares two events by their start time (or name)."""
-        if self.start_datetime == other.start_datetime:
-            return self.summary.lower() > other.summary.lower()
+        """Compares two events by their start time, end time, or name."""
 
-        return self.start_datetime > other.start_datetime
+        if not isinstance(other, Event):
+            return NotImplemented
+
+        return (self.start.datetime, self.end.datetime, self.summary) > (
+            other.start.datetime,
+            other.end.datetime,
+            other.summary,
+        )
+
+    def __lt__(self, other: Event) -> bool:
+        """Compares two events by their start time, end time, or name."""
+
+        if not isinstance(other, Event):
+            return NotImplemented
+
+        return (self.start.datetime, self.end.datetime, self.summary) < (
+            other.start.datetime,
+            other.end.datetime,
+            other.summary,
+        )
 
     def __str__(self) -> str:
         """Returns the event's summary."""
         try:
             return (
                 f"{self.summary} ("
-                f"{self.start_datetime.strftime('%Y-%m-%d %H:%M:%S')} - "
-                f"{self.end_datetime.strftime('%Y-%m-%d %H:%M:%S')})"
+                f"{self.start.datetime.strftime('%Y-%m-%d %H:%M:%S')} - "
+                f"{self.end.datetime.strftime('%Y-%m-%d %H:%M:%S')})"
             )
         except AttributeError:
             return self.summary + dumps(self.start)
@@ -548,7 +546,10 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
     BASE_URL = "https://www.googleapis.com/calendar/v3"
 
     DATE_FORMAT = "%Y-%m-%d"
-    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%Z"
+
+    DEFAULT_PARAMS: dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None] = {
+        "maxResults": "250",
+    }
 
     DEFAULT_SCOPE = [
         "https://www.googleapis.com/auth/calendar",
@@ -609,9 +610,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         }
 
         if isinstance(start_datetime, datetime_):
-            start_params["dateTime"] = start_datetime.strftime(
-                GoogleCalendarClient.DATETIME_FORMAT
-            )
+            start_params["dateTime"] = start_datetime.isoformat()
         elif isinstance(start_datetime, date_):
             start_params["date"] = start_datetime.strftime(
                 GoogleCalendarClient.DATE_FORMAT
@@ -624,9 +623,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         }
 
         if isinstance(end_datetime, datetime_):
-            end_params["dateTime"] = end_datetime.strftime(
-                GoogleCalendarClient.DATETIME_FORMAT
-            )
+            end_params["dateTime"] = end_datetime.isoformat()
         elif isinstance(end_datetime, date_):
             end_params["date"] = end_datetime.strftime(GoogleCalendarClient.DATE_FORMAT)
         else:
@@ -703,7 +700,9 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         """
         if not self._primary_calendar:
             self._primary_calendar = Calendar.from_json_response(
-                self.get_json_response("/calendars/primary", params={"pageSize": None}),
+                self.get_json_response(
+                    "/calendars/primary", params={"maxResults": None}
+                ),
                 google_client=self,
             )
 

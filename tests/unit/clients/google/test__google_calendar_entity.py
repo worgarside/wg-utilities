@@ -2,13 +2,20 @@
 from __future__ import annotations
 
 from datetime import datetime, tzinfo
-from random import randint
+from json import loads
+from pathlib import Path
+from random import choice
 from unittest.mock import patch
 
 from pytest import mark
 
 from wg_utilities.clients import GoogleCalendarClient
-from wg_utilities.clients.google_calendar import GoogleCalendarEntity
+from wg_utilities.clients.google_calendar import (
+    Calendar,
+    Event,
+    EventJson,
+    GoogleCalendarEntity,
+)
 
 
 def test_from_json_response_instantiation(
@@ -40,16 +47,29 @@ def test_from_json_response_instantiation(
     assert google_calendar_entity.google_client == google_calendar_client
 
 
+ALL_EVENTS = []
+
+for file in (
+    Path(__file__).parents[4]
+    / "tests/flat_files/json/google/calendars/google-user@gmail.com/events"
+).glob("*.json"):
+    ALL_EVENTS.extend(loads(file.read_text()).get("items", []))
+
+
 @mark.parametrize(  # type: ignore[misc]
-    "event_index",
-    [randint(0, 1011) for _ in range(25)],
+    "event_json",
+    (choice(ALL_EVENTS) for _ in range(100)),
 )
 def test_json_encoder(
-    event_index: int, google_calendar_client: GoogleCalendarClient
+    event_json: EventJson,
+    google_calendar_client: GoogleCalendarClient,
+    calendar: Calendar,
 ) -> None:
     """Test that the `json` method returns a correctly-encoded JSON string."""
 
-    event = google_calendar_client.primary_calendar.get_events()[event_index]
+    event = Event.from_json_response(
+        event_json, google_client=google_calendar_client, calendar=calendar
+    )
 
     assert isinstance(event, GoogleCalendarEntity)
 
@@ -58,15 +78,15 @@ def test_json_encoder(
         "_json_encoder",
         wraps=GoogleCalendarEntity._json_encoder,  # pylint: disable=protected-access
     ) as mock_json_encoder:
-        event_json = event.json()
+        returned_json = event.json()
 
     for call in mock_json_encoder.call_args_list:
         value = call.args[0]
 
         if isinstance(value, datetime):
-            assert value.strftime(GoogleCalendarClient.DATETIME_FORMAT) in event_json
+            assert value.isoformat() in returned_json
         elif isinstance(value, tzinfo):
             # The `str()` call below will convert `None` to `"None"`, which will cause
             # this to fail. It's intentional; I'm yet to see a missing timeZone field
             # in the JSON responses from the Google Calendar API.
-            assert str(value.tzname(None)) in event_json
+            assert str(value.tzname(None)) in returned_json

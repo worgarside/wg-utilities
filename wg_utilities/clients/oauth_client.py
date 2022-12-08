@@ -204,7 +204,6 @@ class OAuthClient(Generic[GetJsonResponse]):
     ACCESS_TOKEN_EXPIRY_THRESHOLD = 150
 
     DATE_FORMAT = "%Y-%m-%d"
-    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
     DEFAULT_PARAMS: dict[
         StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None

@@ -49,6 +49,16 @@ def test_timezone_tzinfo_conversion(
     assert "timezone" not in calendar.dict()
 
 
+def test_get_event_by_id(calendar: Calendar) -> None:
+    """Test that the `get_event_by_id` method returns an `Event` object."""
+
+    event = calendar.get_event_by_id("jt171go86rkonwwkyd5q7m84mm")
+
+    assert isinstance(event, Event)
+    assert event.id == "jt171go86rkonwwkyd5q7m84mm"
+    assert event.calendar == calendar
+
+
 def test_get_events_method(calendar: Calendar) -> None:
     """Test that the `get_events` method returns a list of `Event` objects."""
 
@@ -71,8 +81,8 @@ def test_get_events_method(calendar: Calendar) -> None:
                 "maxResults": 500,
                 "orderBy": "updated",
                 "singleEvents": "True",
-                "timeMin": "1996-04-20T12:30:45+0000",
-                "timeMax": "1997-11-15T12:30:45+0000",
+                "timeMin": "1996-04-20T12:30:45+00:00",
+                "timeMax": "1997-11-15T12:30:45+00:00",
             },
         ),
         (
@@ -83,8 +93,8 @@ def test_get_events_method(calendar: Calendar) -> None:
                 "maxResults": 500,
                 "orderBy": "updated",
                 "singleEvents": "True",
-                "timeMin": "1996-04-20T12:30:45+0000",
-                "timeMax": "2022-01-01T00:00:00+0000",
+                "timeMin": "1996-04-20T12:30:45+00:00",
+                "timeMax": "2022-01-01T00:00:00+00:00",
             },
         ),
         (
@@ -95,8 +105,8 @@ def test_get_events_method(calendar: Calendar) -> None:
                 "maxResults": 500,
                 "orderBy": "updated",
                 "singleEvents": "True",
-                "timeMin": "1997-08-17T12:30:45+0000",
-                "timeMax": "1997-11-15T12:30:45+0000",
+                "timeMin": "1997-08-17T12:30:45+00:00",
+                "timeMax": "1997-11-15T12:30:45+00:00",
             },
         ),
         (
@@ -117,8 +127,8 @@ def test_get_events_method(calendar: Calendar) -> None:
                 "maxResults": 500,
                 "orderBy": "updated",
                 "singleEvents": "True",
-                "timeMin": "1996-04-20T12:30:45+0000",
-                "timeMax": "1996-05-04T12:30:45+0000",
+                "timeMin": "1996-04-20T12:30:45+00:00",
+                "timeMax": "1996-05-04T12:30:45+00:00",
             },
         ),
         (
@@ -129,8 +139,8 @@ def test_get_events_method(calendar: Calendar) -> None:
                 "maxResults": 500,
                 "orderBy": "updated",
                 "singleEvents": "True",
-                "timeMin": "1996-04-20T12:30:45+0000",
-                "timeMax": "1996-05-04T12:30:45+0000",
+                "timeMin": "1996-04-20T12:30:45+00:00",
+                "timeMax": "1996-05-04T12:30:45+00:00",
             },
         ),
         (
@@ -141,8 +151,8 @@ def test_get_events_method(calendar: Calendar) -> None:
                 "maxResults": 500,
                 "orderBy": "updated",
                 "singleEvents": "True",
-                "timeMin": "1997-11-01T12:30:45+0000",
-                "timeMax": "1997-11-15T12:30:45+0000",
+                "timeMin": "1997-11-01T12:30:45+00:00",
+                "timeMax": "1997-11-15T12:30:45+00:00",
             },
         ),
         (
@@ -153,8 +163,8 @@ def test_get_events_method(calendar: Calendar) -> None:
                 "maxResults": 500,
                 "orderBy": "updated",
                 "singleEvents": "True",
-                "timeMin": "2021-12-18T00:00:00+0000",
-                "timeMax": "2022-01-01T00:00:00+0000",
+                "timeMin": "2021-12-18T00:00:00+00:00",
+                "timeMax": "2022-01-01T00:00:00+00:00",
             },
         ),
     ),

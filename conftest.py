@@ -47,6 +47,7 @@ from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson, SpotifyEn
 from wg_utilities.clients.google_calendar import (
     Calendar,
     CalendarJson,
+    Event,
     GoogleCalendarEntityJson,
 )
 from wg_utilities.clients.monzo import Account as MonzoAccount
@@ -477,6 +478,19 @@ def _dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
     return DHT22Sensor(pigpio_pi, 4)
 
 
+@fixture(scope="function", name="event")  # type: ignore[misc]
+def _event(google_calendar_client: GoogleCalendarClient, calendar: Calendar) -> Event:
+    """Fixture for a Google Calendar event."""
+    return Event.from_json_response(
+        read_json_file(
+            "google-user@gmail.com/events/jt171go86rkonwwkyd5q7m84mm.json",
+            host_name="google/calendars",
+        ),
+        google_client=google_calendar_client,
+        calendar=calendar,
+    )
+
+
 @fixture(scope="function", name="fake_oauth_credentials")  # type: ignore[misc]
 def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
     """Fixture for fake OAuth credentials."""
@@ -759,12 +773,16 @@ def _mock_requests(
             r"^tests/unit/clients/google/test__[a-z_]+\.py$", request.node.parent.name
         ):
             for path_object in (FLAT_FILES_DIR / "json" / "google").rglob("*"):
-                if path_object.is_dir():
+                if path_object.is_dir() or (
+                    path_object.is_file() and "=" not in path_object.name
+                ):
                     mock_requests.get(
                         GoogleCalendarClient.BASE_URL
                         + "/"
                         + str(
-                            path_object.relative_to(FLAT_FILES_DIR / "json" / "google")
+                            path_object.relative_to(
+                                FLAT_FILES_DIR / "json" / "google"
+                            ).with_suffix("")
                         ),
                         json=get_flat_file_from_url,
                     )

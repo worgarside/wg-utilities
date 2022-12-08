@@ -28,7 +28,7 @@ repos:
     hooks:
       - id: check-added-large-files
         args:
-          - --maxkb=1000
+          - --maxkb=1750
       - id: check-case-conflict
       - id: check-merge-conflict
       - id: debug-statements
