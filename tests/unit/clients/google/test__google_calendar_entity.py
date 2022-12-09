@@ -90,3 +90,32 @@ def test_json_encoder(
             # this to fail. It's intentional; I'm yet to see a missing timeZone field
             # in the JSON responses from the Google Calendar API.
             assert str(value.tzname(None)) in returned_json
+
+
+def test_eq(google_calendar_client: GoogleCalendarClient) -> None:
+    """Test the __eq__ method of the `GoogleCalendarEntity` class."""
+
+    google_calendar_entity = GoogleCalendarEntity.from_json_response(
+        {  # type: ignore[arg-type]
+            "etag": '"u2O-pzpMJslGoV7Iyoc4Zcqzpgb"',
+            "id": "google-user@gmail.com",
+            "summary": "Hbhboqhj Ahtuozm",
+        },
+        google_client=google_calendar_client,
+    )
+
+    other_google_calendar_entity = GoogleCalendarEntity.from_json_response(
+        {  # type: ignore[arg-type]
+            "etag": '"u2O-pzabcdefghijkoc4Zcqzpgb"',
+            "id": "google-user-2@gmail.com",
+            "summary": "Summary Thing",
+        },
+        google_client=google_calendar_client,
+    )
+
+    assert (
+        google_calendar_entity  # pylint: disable=comparison-with-itself
+        == google_calendar_entity
+    )
+    assert google_calendar_entity != other_google_calendar_entity
+    assert google_calendar_entity != "something else"

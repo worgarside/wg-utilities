@@ -1,3 +1,4 @@
+# pylint: disable=too-few-public-methods
 """Custom client for interacting with Google's Calendar API."""
 from __future__ import annotations
 
@@ -6,7 +7,6 @@ from datetime import date as date_
 from datetime import datetime as datetime_
 from datetime import timedelta, tzinfo
 from enum import Enum
-from json import dumps
 from pathlib import Path
 from typing import AbstractSet, Any, Literal, TypeAlias, TypedDict, TypeVar
 
@@ -281,16 +281,59 @@ class GoogleCalendarEntity(GenericModelWithConfig):
             **dumps_kwargs,
         )
 
+    def __eq__(self, other: Any) -> bool:
+        """Compares two GoogleCalendarEntity objects by ID."""
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self.id == other.id
+
+
+class _Reminder(BaseModelWithConfig):
+    """Base class for Event reminders."""
+
+    method: Literal["email", "popup"]
+    minutes: int
+
+
+class _Notification(BaseModelWithConfig):
+    """Base class for Event notifications."""
+
+    method: Literal["email", "sms"]
+    type: Literal[
+        "eventCreation", "eventChange", "eventCancellation", "eventResponse", "agenda"
+    ]
+
 
 class Calendar(GoogleCalendarEntity):
     """Class for Google calendar instances."""
 
-    kind: Literal["calendar#calendar"]
-    timezone: tzinfo = Field(alias="timeZone")
+    access_role: Literal["freeBusyReader", "reader", "writer", "owner"] | None = Field(
+        None, alias="accessRole"
+    )
+    background_color: str | None = Field(None, alias="backgroundColor")
+    color_id: str | None = Field(None, alias="colorId")
     conference_properties: dict[
         Literal["allowedConferenceSolutionTypes"],
         list[Literal["eventHangout", "eventNamedHangout", "hangoutsMeet"]],
     ] = Field(alias="conferenceProperties")
+    default_reminders: list[_Reminder] = Field(
+        alias="defaultReminders", default_factory=list
+    )
+    deleted: bool = False
+    foreground_color: str | None = Field(None, alias="foregroundColor")
+    hidden: bool = False
+    kind: Literal["calendar#calendar", "calendar#calendarListEntry"]
+    notification_settings: dict[Literal["notifications"], list[_Notification],] = Field(
+        alias="notificationSettings", default_factory=list  # type: ignore[assignment]
+    )
+    primary: bool = False
+    selected: bool = False
+    summary_override: str | None = Field(alias="summaryOverride")
+    timezone: tzinfo = Field(alias="timeZone")
+
+    # mypy can't get this type from the parent class for some reason...
+    google_client: GoogleCalendarClient = Field(exclude=True)
 
     @validator("timezone", pre=True)
     def validate_timezone(  # pylint: disable=no-self-argument
@@ -309,13 +352,9 @@ class Calendar(GoogleCalendarEntity):
             Event: Event object
         """
 
-        return Event.from_json_response(
-            self.google_client.get_json_response(
-                f"/calendars/{self.id}/events/{event_id}", params={"maxResults": None}
-            ),
-            google_client=self.google_client,
-            calendar=self,
-        )
+        event = self.google_client.get_event_by_id(event_id, calendar=self)
+
+        return event
 
     def get_events(
         self,
@@ -380,7 +419,7 @@ class Calendar(GoogleCalendarEntity):
             )
             for item in self.google_client.get_items(
                 f"{self.google_client.base_url}/calendars/{self.id}/events",
-                params=params,
+                params=params,  # type: ignore[arg-type]
             )
         ]
 
@@ -476,13 +515,7 @@ class Event(GoogleCalendarEntity):
 
     def delete(self) -> None:
         """Deletes the event from the host calendar."""
-        res = delete(
-            # pylint: disable=line-too-long
-            f"{self.google_client.base_url}/calendars/{self.calendar.id}/events/{self.id}",
-            headers=self.google_client.request_headers,
-        )
-
-        res.raise_for_status()
+        self.google_client.delete_event_by_id(event_id=self.id, calendar=self.calendar)
 
     @property
     def response_status(self) -> ResponseStatus:
@@ -526,15 +559,12 @@ class Event(GoogleCalendarEntity):
         )
 
     def __str__(self) -> str:
-        """Returns the event's summary."""
-        try:
-            return (
-                f"{self.summary} ("
-                f"{self.start.datetime.strftime('%Y-%m-%d %H:%M:%S')} - "
-                f"{self.end.datetime.strftime('%Y-%m-%d %H:%M:%S')})"
-            )
-        except AttributeError:
-            return self.summary + dumps(self.start)
+        """Returns the event's summary and start/end datetimes."""
+        return (
+            f"{self.summary} ("
+            f"{self.start.datetime.isoformat()} - "
+            f"{self.end.datetime.isoformat()})"
+        )
 
 
 GoogleCalendarEntityJson: TypeAlias = CalendarJson | EventJson
@@ -544,8 +574,6 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
     """Custom client specifically for Google's Calendar API."""
 
     BASE_URL = "https://www.googleapis.com/calendar/v3"
-
-    DATE_FORMAT = "%Y-%m-%d"
 
     DEFAULT_PARAMS: dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None] = {
         "maxResults": "250",
@@ -574,7 +602,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
             creds_cache_path=creds_cache_path,
         )
 
-        self._primary_calendar: Calendar | None = None
+        self._primary_calendar: Calendar
 
     def create_event(
         self,
@@ -612,9 +640,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         if isinstance(start_datetime, datetime_):
             start_params["dateTime"] = start_datetime.isoformat()
         elif isinstance(start_datetime, date_):
-            start_params["date"] = start_datetime.strftime(
-                GoogleCalendarClient.DATE_FORMAT
-            )
+            start_params["date"] = start_datetime.isoformat()
         else:
             raise TypeError("`start_datetime` must be either a date or a datetime")
 
@@ -625,11 +651,11 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         if isinstance(end_datetime, datetime_):
             end_params["dateTime"] = end_datetime.isoformat()
         elif isinstance(end_datetime, date_):
-            end_params["date"] = end_datetime.strftime(GoogleCalendarClient.DATE_FORMAT)
+            end_params["date"] = end_datetime.isoformat()
         else:
             raise TypeError("`end_datetime` must be either a date or a datetime")
 
-        res = self._post(
+        event_json = self.post_json_response(
             f"/calendars/{calendar.id}/events",
             json={
                 "summary": summary,
@@ -637,13 +663,16 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
                 "end": end_params,
                 **(extra_params or {}),
             },
+            params={"maxResults": None},
         )
 
         return Event.from_json_response(
-            res.json(), calendar=calendar, google_client=self
+            event_json, calendar=calendar, google_client=self
         )
 
-    def delete_event(self, event_id: str, calendar: Calendar | None = None) -> None:
+    def delete_event_by_id(
+        self, event_id: str, calendar: Calendar | None = None
+    ) -> None:
         """Deletes an event from a calendar.
 
         Args:
@@ -659,7 +688,9 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
 
         res.raise_for_status()
 
-    def get_event_by_id(self, event_id: str, calendar: Calendar | None = None) -> Event:
+    def get_event_by_id(
+        self, event_id: str, *, calendar: Calendar | None = None
+    ) -> Event:
         """Get a specific event by ID.
 
         Args:
@@ -672,7 +703,10 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         calendar = calendar or self.primary_calendar
 
         return Event.from_json_response(
-            self.get_json_response(f"/calendars/{calendar.id}/events/{event_id}"),
+            self.get_json_response(
+                f"/calendars/{calendar.id}/events/{event_id}",
+                params={"maxResults": None},
+            ),
             calendar=calendar,
             google_client=self,
         )
@@ -687,7 +721,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         return [
             Calendar.from_json_response(cal_json, google_client=self)
             for cal_json in self.get_items(
-                f"{self.base_url}/users/me/calendarList",
+                "/users/me/calendarList",
             )
         ]
 
@@ -698,7 +732,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         Returns:
             Calendar: the current user's primary calendar
         """
-        if not self._primary_calendar:
+        if not hasattr(self, "_primary_calendar"):
             self._primary_calendar = Calendar.from_json_response(
                 self.get_json_response(
                     "/calendars/primary", params={"maxResults": None}

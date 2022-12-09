@@ -251,3 +251,13 @@ def test_lt_method(event: Event) -> None:
 
     with raises(TypeError):
         assert event < "test"  # type: ignore[operator]
+
+
+def test_str_method(event: Event) -> None:
+    """Test that the `__str__` method returns a string repr of the event."""
+
+    assert str(event) == (
+        f"{event.summary} ("
+        f"{event.start.datetime.isoformat()} - "
+        f"{event.end.datetime.isoformat()})"
+    )

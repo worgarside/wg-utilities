@@ -191,3 +191,9 @@ def test_get_events_datetime_parameters(
         "https://www.googleapis.com/calendar/v3/calendars/google-user@gmail.com/events",
         params=expected_params,
     )
+
+
+def test_str_method(calendar: Calendar) -> None:
+    """Test that the `__str__` method returns a string repr of the calendar."""
+
+    assert str(calendar) == calendar.summary

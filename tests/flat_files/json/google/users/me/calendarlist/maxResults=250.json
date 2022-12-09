@@ -1,0 +1,156 @@
+{
+  "etag": "\"a53zl9dx2ehayd9b\"",
+  "items": [
+    {
+      "accessRole": "reader",
+      "backgroundColor": "#42d692",
+      "colorId": "7",
+      "conferenceProperties": {
+        "allowedConferenceSolutionTypes": [
+          "hangoutsMeet"
+        ]
+      },
+      "defaultReminders": [],
+      "description": "Holidays and Observances in United Kingdom",
+      "etag": "\"3409220243112778\"",
+      "foregroundColor": "#000000",
+      "id": "en.uk#holiday@group.v.calendar.google.com",
+      "kind": "calendar#calendarListEntry",
+      "selected": true,
+      "summary": "Holidays in United Kingdom",
+      "summaryOverride": "Holidays in United Kingdom",
+      "timeZone": "Europe/London"
+    },
+    {
+      "accessRole": "writer",
+      "backgroundColor": "#19c7bb",
+      "colorId": "7",
+      "conferenceProperties": {
+        "allowedConferenceSolutionTypes": [
+          "hangoutsMeet"
+        ]
+      },
+      "defaultReminders": [],
+      "etag": "\"3296974544987208\"",
+      "foregroundColor": "#000000",
+      "id": "ktqcts14328433726561406119@cpwla.tbcrzhpq.gvtcwk.sip",
+      "kind": "calendar#calendarListEntry",
+      "summary": "Vztoiq",
+      "timeZone": "UTC"
+    },
+    {
+      "accessRole": "freeBusyReader",
+      "backgroundColor": "#c2c2c2",
+      "colorId": "19",
+      "conferenceProperties": {
+        "allowedConferenceSolutionTypes": [
+          "hangoutsMeet"
+        ]
+      },
+      "defaultReminders": [],
+      "etag": "\"4706770804629509\"",
+      "foregroundColor": "#000000",
+      "id": "google-user-2@gmail.com",
+      "kind": "calendar#calendarListEntry",
+      "summary": "google-user-2@gmail.com",
+      "timeZone": "Europe/London"
+    },
+    {
+      "accessRole": "reader",
+      "backgroundColor": "#92e1c0",
+      "colorId": "13",
+      "conferenceProperties": {
+        "allowedConferenceSolutionTypes": [
+          "hangoutsMeet"
+        ]
+      },
+      "defaultReminders": [],
+      "description": "Displays birthdays, anniversaries and other event dates of people in Google Contacts.",
+      "etag": "\"6844962183321851\"",
+      "foregroundColor": "#000000",
+      "id": "addressbook#contacts@group.v.calendar.google.com",
+      "kind": "calendar#calendarListEntry",
+      "selected": true,
+      "summary": "Birthdays",
+      "summaryOverride": "Contacts",
+      "timeZone": "Europe/London"
+    },
+    {
+      "accessRole": "reader",
+      "backgroundColor": "#ff0000",
+      "colorId": "3",
+      "conferenceProperties": {
+        "allowedConferenceSolutionTypes": [
+          "hangoutsMeet"
+        ]
+      },
+      "defaultReminders": [],
+      "etag": "\"5736985636709535\"",
+      "foregroundColor": "#ffffff",
+      "id": "a0dg9k3i0a7gz2hrb2o1a5d7ytkyye06@lwgyzb.voropmsy.znzdhu.yzn",
+      "kind": "calendar#calendarListEntry",
+      "summary": "Summary summary summary",
+      "summaryOverride": "XrinmVqeg",
+      "timeZone": "Europe/London"
+    },
+    {
+      "accessRole": "owner",
+      "backgroundColor": "#fa573c",
+      "colorId": "4",
+      "conferenceProperties": {
+        "allowedConferenceSolutionTypes": [
+          "hangoutsMeet"
+        ]
+      },
+      "defaultReminders": [],
+      "etag": "\"7102279238816194\"",
+      "foregroundColor": "#000000",
+      "id": "google-user@gmail.com",
+      "kind": "calendar#calendarListEntry",
+      "notificationSettings": {
+        "notifications": [
+          {
+            "method": "email",
+            "type": "eventCreation"
+          },
+          {
+            "method": "email",
+            "type": "eventChange"
+          },
+          {
+            "method": "email",
+            "type": "eventCancellation"
+          },
+          {
+            "method": "email",
+            "type": "eventResponse"
+          }
+        ]
+      },
+      "primary": true,
+      "selected": true,
+      "summary": "Hbhboqhj Ahtuozm",
+      "timeZone": "Europe/London"
+    },
+    {
+      "accessRole": "owner",
+      "backgroundColor": "#cabdbf",
+      "colorId": "20",
+      "conferenceProperties": {
+        "allowedConferenceSolutionTypes": [
+          "hangoutsMeet"
+        ]
+      },
+      "defaultReminders": [],
+      "etag": "\"4432682951082616\"",
+      "foregroundColor": "#000000",
+      "id": "0mt4cg2asec00m95m46gyjfd65@fbjuj.nxglgqnp.znxsfz.vvb",
+      "kind": "calendar#calendarListEntry",
+      "selected": true,
+      "summary": "Jqdcv kc Wluxpiv",
+      "timeZone": "Europe/London"
+    }
+  ],
+  "kind": "calendar#calendarList",
+  "nextSyncToken": "PUQul-lX1FiNYcS9q3GsGGVtcOPbTCbuFXwpIeOjmM=="
+}
