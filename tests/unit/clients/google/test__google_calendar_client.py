@@ -473,7 +473,9 @@ def test_calendar_list(google_calendar_client: GoogleCalendarClient) -> None:
     ) as mock_get_items:
         calendars = google_calendar_client.calendar_list
 
-    mock_get_items.assert_called_once_with("/users/me/calendarList")
+    mock_get_items.assert_called_once_with(
+        "/users/me/calendarList", params={"maxResults": None}
+    )
 
     assert isinstance(calendars, list)
     assert all(isinstance(calendar, Calendar) for calendar in calendars)

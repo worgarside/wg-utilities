@@ -722,6 +722,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
             Calendar.from_json_response(cal_json, google_client=self)
             for cal_json in self.get_items(
                 "/users/me/calendarList",
+                params={"maxResults": None},
             )
         ]
 

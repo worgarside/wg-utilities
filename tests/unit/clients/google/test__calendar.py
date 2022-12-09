@@ -16,7 +16,9 @@ from wg_utilities.clients.google_calendar import Calendar, Event, GoogleCalendar
 def test_instantiation(google_calendar_client: GoogleCalendarClient) -> None:
     """Test that the `Calendar` class can be instantiated."""
 
-    calendar_json = read_json_file("primary.json", host_name="google/calendars")
+    calendar_json = read_json_file(
+        "v3/calendars/primary.json", host_name="google/calendar"
+    )
 
     calendar = Calendar.from_json_response(
         calendar_json,
@@ -34,7 +36,9 @@ def test_timezone_tzinfo_conversion(
 ) -> None:
     """Test that the `timeZone` field validator successfully converts str to tzinfo."""
 
-    calendar_json = read_json_file("primary.json", host_name="google/calendars")
+    calendar_json = read_json_file(
+        "v3/calendars/primary.json", host_name="google/calendar"
+    )
 
     assert calendar_json["timeZone"] == "Europe/London"
 

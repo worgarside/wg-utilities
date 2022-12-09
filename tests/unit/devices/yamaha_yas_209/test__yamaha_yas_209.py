@@ -285,6 +285,9 @@ def test_listen_starts_listening(
 
         assert self == yamaha_yas_209
 
+    # Sometimes logs from the teardown of the previous test get caught here... -.-
+    caplog.clear()
+
     with patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.YamahaYas209._subscribe",
         _mock_async_function,

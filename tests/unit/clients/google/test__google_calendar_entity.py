@@ -51,7 +51,7 @@ ALL_EVENTS = []
 
 for file in (
     Path(__file__).parents[4]
-    / "tests/flat_files/json/google/calendars/google-user@gmail.com/events"
+    / "tests/flat_files/json/google/calendar/v3/calendars/google-user@gmail.com/events"
 ).glob("*.json"):
     ALL_EVENTS.extend(loads(file.read_text()).get("items", []))
 

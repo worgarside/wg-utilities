@@ -26,8 +26,8 @@ def test_instantiation(
     """Test that the `Event` class can be instantiated."""
 
     event_json = read_json_file(
-        "google-user@gmail.com/events/jt171go86rkonwwkyd5q7m84mm.json",
-        host_name="google/calendars",
+        "v3/calendars/google-user@gmail.com/events/jt171go86rkonwwkyd5q7m84mm.json",
+        host_name="google/calendar",
     )
 
     event = Event.from_json_response(

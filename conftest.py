@@ -42,7 +42,6 @@ from voluptuous import All, Schema
 
 from wg_utilities.api import TempAuthServer
 from wg_utilities.clients import GoogleCalendarClient, MonzoClient, SpotifyClient
-from wg_utilities.clients._google import GoogleClient
 from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson, SpotifyEntityJson
 from wg_utilities.clients.google_calendar import (
     Calendar,
@@ -135,7 +134,7 @@ def get_jwt_expiry(token: str) -> float:
 
 @overload
 def read_json_file(  # type: ignore[misc]
-    rel_file_path: str, host_name: Literal["google/calendars"]
+    rel_file_path: str, host_name: Literal["google/calendar"]
 ) -> CalendarJson:
     ...
 
@@ -262,26 +261,9 @@ def get_flat_file_from_url(
     context.status_code = HTTPStatus.OK
     context.reason = HTTPStatus.OK.phrase
 
-    if request.hostname == "www.googleapis.com":
-        for child in GoogleClient.__subclasses__():
-            if request.url.startswith(
-                base_url := child.BASE_URL  # type: ignore[attr-defined]
-            ):
-                file_path = (
-                    "/".join(
-                        [
-                            request.path.replace(
-                                base_url.split(request.hostname)[-1], ""
-                            ),
-                            request.query,
-                        ]
-                    ).rstrip("/")
-                    + ".json"
-                )
-    else:
-        file_path = (
-            f"{request.path.replace('/v1/', '')}/{request.query}".rstrip("/") + ".json"
-        )
+    file_path = (
+        f"{request.path.replace('/v1/', '')}/{request.query}".rstrip("/") + ".json"
+    )
 
     return read_json_file(  # type: ignore[return-value]
         file_path,
@@ -454,7 +436,7 @@ def _aws_credentials_env_vars() -> YieldFixture[None]:
 def _calendar(google_calendar_client: GoogleCalendarClient) -> Calendar:
     """Fixture for a Google Calendar instance."""
     return Calendar.from_json_response(
-        read_json_file("primary.json", host_name="google/calendars"),
+        read_json_file("v3/calendars/primary.json", host_name="google/calendar"),
         google_client=google_calendar_client,
     )
 
@@ -483,8 +465,8 @@ def _event(google_calendar_client: GoogleCalendarClient, calendar: Calendar) -> 
     """Fixture for a Google Calendar event."""
     return Event.from_json_response(
         read_json_file(
-            "google-user@gmail.com/events/jt171go86rkonwwkyd5q7m84mm.json",
-            host_name="google/calendars",
+            "v3/calendars/google-user@gmail.com/events/jt171go86rkonwwkyd5q7m84mm.json",
+            host_name="google/calendar",
         ),
         google_client=google_calendar_client,
         calendar=calendar,
@@ -652,7 +634,7 @@ def _mock_requests(
 ) -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 
-    with Mocker(real_http=False) as mock_requests:
+    with Mocker(real_http=False, case_sensitive=False) as mock_requests:
         if fullmatch(
             r"^tests/unit/clients/monzo/test__[a-z_]+\.py$", request.node.parent.name
         ):
@@ -772,25 +754,18 @@ def _mock_requests(
         elif fullmatch(
             r"^tests/unit/clients/google/test__[a-z_]+\.py$", request.node.parent.name
         ):
-            for path_object in (FLAT_FILES_DIR / "json" / "google").rglob("*"):
+            for path_object in (
+                google_dir := FLAT_FILES_DIR / "json" / "google" / "calendar" / "v3"
+            ).rglob("*"):
                 if path_object.is_dir() or (
                     path_object.is_file() and "=" not in path_object.name
                 ):
                     mock_requests.get(
                         GoogleCalendarClient.BASE_URL
                         + "/"
-                        + str(
-                            path_object.relative_to(
-                                FLAT_FILES_DIR / "json" / "google"
-                            ).with_suffix("")
-                        ),
+                        + str(path_object.relative_to(google_dir).with_suffix("")),
                         json=get_flat_file_from_url,
                     )
-
-                mock_requests.get(
-                    f"{GoogleCalendarClient.BASE_URL}/calendars/primary",
-                    json=get_flat_file_from_url,
-                )
 
         yield mock_requests
 
