@@ -13,7 +13,7 @@ def user_data_dir(
     file_name: str | None = None,
     _platform: str = platform,
 ) -> Path:
-    """Get OS specific data directory path.
+    r"""Get OS specific data directory path.
 
     Typical user data directories are:
         macOS:    ~/Library/Application Support

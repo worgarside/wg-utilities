@@ -101,6 +101,7 @@ def test_tracks_property(
             False,
             True,
         ),
+        strict=True,
     ),
 )
 def test_contains_method(
