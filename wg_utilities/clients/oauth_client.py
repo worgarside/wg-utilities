@@ -359,7 +359,9 @@ class OAuthClient(Generic[GetJsonResponse]):
             url = f"{self.base_url}{url}"
 
         if self.log_requests:
-            LOGGER.debug("%s %s", method.__name__.upper(), url)
+            LOGGER.debug(
+                "%s %s: %s", method.__name__.upper(), url, dumps(params, default=str)
+            )
 
         res = method(
             url,

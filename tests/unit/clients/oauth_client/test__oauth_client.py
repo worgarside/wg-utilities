@@ -318,7 +318,10 @@ def test_request_method_sends_correct_request(
     assert request.qs == {"test_param": ["test_value"]}
 
     assert caplog.records[0].levelno == DEBUG
-    assert caplog.records[0].message == "POST https://api.example.com/test_endpoint"
+    assert (
+        caplog.records[0].message
+        == 'POST https://api.example.com/test_endpoint: {"test_param": "test_value"}'
+    )
 
 
 def test_request_raises_exception_for_non_200_response(

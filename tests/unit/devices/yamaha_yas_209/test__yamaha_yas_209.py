@@ -285,13 +285,12 @@ def test_listen_starts_listening(
 
         assert self == yamaha_yas_209
 
-    # Sometimes logs from the teardown of the previous test get caught here... -.-
-    caplog.clear()
-
     with patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.YamahaYas209._subscribe",
         _mock_async_function,
     ):
+        # Sometimes logs from the teardown of the previous test get caught here... -.-
+        caplog.clear()
         yamaha_yas_209.listen()
 
     # For some reason this is called way more than I'd expect: AFAICT it's only called
@@ -1034,6 +1033,7 @@ def test_stop_listening_sets_attribute(
 
     yamaha_yas_209._listening = True
 
+    caplog.clear()
     yamaha_yas_209.stop_listening()
 
     assert yamaha_yas_209.is_listening is False
@@ -1384,7 +1384,7 @@ def test_subscribe_creates_notify_server_with_correct_subscriptions(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
         side_effect=_sleep_side_effect,
     ):
-
+        caplog.clear()
         new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
 
         assert fake_aiohttp_server is not None
@@ -1454,7 +1454,7 @@ def test_subscribe_creates_notify_server_logs_subscription_errors(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
         side_effect=_sleep_side_effect,
     ):
-
+        caplog.clear()
         new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
 
     # Verbose debug log
@@ -1512,7 +1512,7 @@ def test_subscribe_resubscribes_to_active_services(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
         side_effect=_sleep_side_effect,
     ):
-
+        caplog.clear()
         new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
 
     assert mock_aiohttp.requests.pop(
@@ -1567,7 +1567,7 @@ def test_subscribe_resubscribes_to_failed_services(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
         side_effect=_sleep_side_effect,
     ):
-
+        caplog.clear()
         new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
 
     assert caplog.records[-1].levelno == DEBUG
@@ -1650,7 +1650,7 @@ def test_subscribe_keeps_retrying_failed_subscriptions(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
         side_effect=_sleep_side_effect,
     ):
-
+        caplog.clear()
         new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
 
     assert mock_aiohttp.requests.pop(
@@ -1697,6 +1697,7 @@ def test_stop_listening_stops_listener(
         def _worker() -> None:
             new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
 
+        caplog.clear()
         stopper_thread = Thread(target=_worker)
         stopper_thread.start()
         sleep(1)

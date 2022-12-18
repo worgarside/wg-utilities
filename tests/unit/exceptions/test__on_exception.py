@@ -271,6 +271,7 @@ def test_ignorant_warning_suppression_via_env_var(
     def worker() -> None:
         raise_func(*raise_args)
 
+    caplog.clear()
     worker()
 
     assert len(caplog.records) == 0

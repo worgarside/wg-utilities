@@ -97,7 +97,10 @@ def test_get_method_with_sample_responses(
 
     assert res.json() == loads(file_path.read_text())
 
-    assert caplog.records[0].message == f"GET {SpotifyClient.BASE_URL + endpoint}"
+    assert (
+        caplog.records[0].message
+        == f"GET {SpotifyClient.BASE_URL + endpoint}: {dumps(params or {})}"
+    )
 
 
 @mark.parametrize(  # type: ignore[misc]
@@ -158,7 +161,7 @@ def test_get_method_without_leading_slash(
 
     assert res.json() == loads(file_path.read_text())
 
-    assert caplog.records[0].message == f"GET {endpoint}"
+    assert caplog.records[0].message == f"GET {endpoint}: {dumps(params or {})}"
 
 
 @mark.parametrize("http_status", HTTPStatus)  # type: ignore[misc]
