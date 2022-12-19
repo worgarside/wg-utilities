@@ -3,9 +3,12 @@ name: Python Unit Tests
 
 # yamllint disable-line rule:truthy
 on:
-  - push
-  - pull_request
-  - workflow_dispatch
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref }}
