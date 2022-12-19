@@ -78,7 +78,7 @@ extend-select = [
     "UP", # PyUpgrade
     "W", # Pycodestyle warnings
 ]
-ignore = [
+extend-ignore = [
     "D107",  # PublicInit
     "D202",  # NoBlankLineAfterFunction
     "D203",  # OneBlankLineBeforeClass
