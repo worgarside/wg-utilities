@@ -47,7 +47,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/pycqa/isort
-    rev: 5.11.0
+    rev: v5.11.3
     hooks:
       - id: isort
         name: isort (python)
@@ -138,6 +138,6 @@ repos:
           - '*.svg,*.json'
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.176
+    rev: v0.0.186
     hooks:
       - id: ruff
