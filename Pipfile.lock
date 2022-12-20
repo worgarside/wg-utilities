@@ -957,11 +957,11 @@
     },
     "aioresponses": {
       "hashes": [
-        "sha256:2c64ed5710ee8cb4e958c569184dad12f4c9cd5939135cb38f88c6a8261cceb3",
-        "sha256:7b1897169062c92fa87d6ecc503ac566ac87fbfacb2504f8ca81c8035a2eb068"
+        "sha256:1160486b5ea96fcae6170cf2bdef029b9d3a283b7dbeabb3d7f1182769bfb6b7",
+        "sha256:9b8c108b36354c04633bad0ea752b55d956a7602fe3e3234b939fc44af96f1d8"
       ],
       "index": "pypi",
-      "version": "==0.7.3"
+      "version": "==0.7.4"
     },
     "aiosignal": {
       "hashes": [
