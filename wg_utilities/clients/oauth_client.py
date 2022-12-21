@@ -355,6 +355,8 @@ class OAuthClient(Generic[GetJsonResponse]):
         else:
             params = deepcopy(self.DEFAULT_PARAMS)
 
+        params = {k: v for k, v in params.items() if v is not None}
+
         if url.startswith("/"):
             url = f"{self.base_url}{url}"
 

@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 """Pytest config file, used for creating fixtures etc."""
 
 from __future__ import annotations
@@ -41,7 +42,12 @@ from requests_mock.response import _Context
 from voluptuous import All, Schema
 
 from wg_utilities.api import TempAuthServer
-from wg_utilities.clients import GoogleCalendarClient, MonzoClient, SpotifyClient
+from wg_utilities.clients import (
+    GoogleCalendarClient,
+    GoogleDriveClient,
+    MonzoClient,
+    SpotifyClient,
+)
 from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson, SpotifyEntityJson
 from wg_utilities.clients.google_calendar import (
     Calendar,
@@ -49,6 +55,7 @@ from wg_utilities.clients.google_calendar import (
     Event,
     GoogleCalendarEntityJson,
 )
+from wg_utilities.clients.google_drive import Directory, Drive
 from wg_utilities.clients.monzo import Account as MonzoAccount
 from wg_utilities.clients.monzo import AccountJson, Pot, PotJson, TransactionJson
 from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
@@ -460,6 +467,29 @@ def _dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
     return DHT22Sensor(pigpio_pi, 4)
 
 
+@fixture(scope="function", name="directory")  # type: ignore[misc]
+def _directory(drive: Drive, google_drive_client: GoogleDriveClient) -> Directory:
+    """Fixture for a Google Drive Directory instance."""
+    return Directory.from_json_response(
+        read_json_file(
+            "v3/files/7tqryz0a9oyjfzf1cpbmllsblj-ohbi1e/fields=%2a.json",
+            host_name="google/drive",
+        ),
+        google_client=google_drive_client,
+        host_drive=drive,
+        parent=drive,
+    )
+
+
+@fixture(scope="function", name="drive")  # type: ignore[misc]
+def _drive(google_drive_client: GoogleDriveClient) -> Drive:
+    """Fixture for a Google Drive instance."""
+    return Drive.from_json_response(
+        read_json_file("v3/files/root/fields=%2a.json", host_name="google/drive"),
+        google_client=google_drive_client,
+    )
+
+
 @fixture(scope="function", name="event")  # type: ignore[misc]
 def _event(google_calendar_client: GoogleCalendarClient, calendar: Calendar) -> Event:
     """Fixture for a Google Calendar event."""
@@ -512,6 +542,28 @@ def _google_calendar_client(
         scopes=[
             "https://www.googleapis.com/auth/calendar",
             "https://www.googleapis.com/auth/calendar.events",
+        ],
+        creds_cache_path=creds_cache_path,
+    )
+
+
+@fixture(scope="function", name="google_drive_client")  # type: ignore[misc]
+def _google_drive_client(
+    temp_dir: Path,
+    fake_oauth_credentials: OAuthCredentials,
+    mock_requests: Mocker,  # pylint: disable=unused-argument
+) -> GoogleDriveClient:
+    """Fixture for `GoogleDriveClient` instance."""
+
+    (creds_cache_path := temp_dir / "google_drive_credentials.json").write_text(
+        fake_oauth_credentials.json()
+    )
+
+    return GoogleDriveClient(
+        client_id="test-client-id.apps.googleusercontent.com",
+        client_secret="test-client-secret",
+        scopes=[
+            "https://www.googleapis.com/auth/drive",
         ],
         creds_cache_path=creds_cache_path,
     )

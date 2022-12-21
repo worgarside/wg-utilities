@@ -53,7 +53,7 @@ class _ImageMediaMetadata(BaseModelWithConfig):
     width: int
     height: int
     rotation: int | None
-    location: dict[str, float] | None
+    location: dict[str, float] = {}
     time: str | None
     camera_make: str | None = Field(alias="cameraMake")
     camera_model: str | None = Field(alias="cameraModel")
@@ -287,7 +287,7 @@ class GoogleDriveEntity(GenericModelWithConfig):
         if isinstance(self, (File, Directory)):
             return self.host_drive_
 
-        raise TypeError(f"Cannot get host drive of {self!r}")
+        raise TypeError(f"Cannot get host drive of {self.__class__.__name__}.")
 
     @property
     def parent(self) -> Directory | Drive:
@@ -307,6 +307,10 @@ class GoogleDriveEntity(GenericModelWithConfig):
                 self.parent_ = self.host_drive.get_directory_by_id(parent_id)
 
         return self.parent_  # type: ignore[return-value]
+
+    def __str__(self) -> str:
+        """Returns the file name."""
+        return self.name
 
 
 class _CanHaveChildren(GoogleDriveEntity):
@@ -610,61 +614,55 @@ class File(GoogleDriveEntity):
 
     kind: EntityKind = Field(alias="kind", const=True, default=EntityKind.FILE)
 
-    # Optional, can be retrieved with the `describe` method
-    description: str | None
-    starred: bool | None
-    trashed: bool | None
-    explicitly_trashed: bool | None = Field(alias="explicitlyTrashed")
-    trashing_user: _User | None = Field(alias="trashingUser")
-    trashed_time: datetime | None = Field(alias="trashedTime")
-    parents: list[str] | None
-    properties: dict[str, str] | None
-    app_properties: dict[str, str] | None
-    spaces: list[str] | None
-    version: int | None
-    web_content_link: str | None = Field(alias="webContentLink")
-    web_view_link: str | None = Field(alias="webViewLink")
-    icon_link: str | None = Field(alias="iconLink")
-    has_thumbnail: bool | None = Field(alias="hasThumbnail")
-    thumbnail_link: str | None = Field(alias="thumbnailLink")
-    thumbnail_version: int | None = Field(alias="thumbnailVersion")
-    viewed_by_me: bool | None = Field(alias="viewedByMe")
-    viewed_by_me_time: datetime | None = Field(alias="viewedByMeTime")
-    created_time: datetime | None = Field(alias="createdTime")
-    modified_time: datetime | None = Field(alias="modifiedTime")
-    modified_by_me_time: datetime | None = Field(alias="modifiedByMeTime")
-    modified_by_me: bool | None = Field(alias="modifiedByMe")
-    shared_with_me_time: datetime | None = Field(alias="sharedWithMeTime")
-    sharing_user: _User | None = Field(alias="sharingUser")
-    owners: list[_User] | None
-    drive_id: str | None = Field(alias="driveId")
-    last_modifying_user: _User | None = Field(alias="lastModifyingUser")
-    shared: bool | None
-    owned_by_me: bool | None = Field(alias="ownedByMe")
-    capabilities: dict[str, bool] | None
-    viewers_can_copy_content: bool | None = Field(alias="viewersCanCopyContent")
+    # Optional, can be retrieved with the `describe` method or by getting the attribute
+    app_properties: dict[str, str] = {}
+    capabilities: _DriveCapabilities | None
+    content_hints: _ContentHints | None = Field(alias="contentHints")
+    content_restrictions: list[_ContentRestriction] | None = Field(
+        alias="contentRestrictions"
+    )
     copy_requires_writer_permission: bool | None = Field(
         alias="copyRequiresWriterPermission"
     )
-    writers_can_share: bool | None = Field(alias="writersCanShare")
-    permissions: list[_Permission] | None
-    permission_ids: list[str] | None = Field(alias="permissionIds")
-    has_augmented_permissions: bool | None = Field(alias="hasAugmentedPermissions")
+    created_time: datetime | None = Field(alias="createdTime")
+    description: str | None
+    drive_id: str | None = Field(alias="driveId")
+    explicitly_trashed: bool | None = Field(alias="explicitlyTrashed")
+    export_links: dict[str, str] = Field(alias="exportLinks", default_factory=dict)
     folder_color_rgb: str | None = Field(alias="folderColorRgb")
-    original_filename: str | None = Field(alias="originalFilename")
-    full_file_extension: str | None = Field(alias="fullFileExtension")
     file_extension: str | None = Field(alias="fileExtension")
+    full_file_extension: str | None = Field(alias="fullFileExtension")
+    has_augmented_permissions: bool | None = Field(alias="hasAugmentedPermissions")
+    has_thumbnail: bool | None = Field(alias="hasThumbnail")
+    head_revision_id: str | None = Field(alias="headRevisionId")
+    icon_link: str | None = Field(alias="iconLink")
+    image_media_metadata: _ImageMediaMetadata | None = Field(alias="imageMediaMetadata")
+    is_app_authorized: bool | None = Field(alias="isAppAuthorized")
+    label_info: dict[Literal["labels"], list[_Label]] = Field(
+        alias="labelInfo", default_factory=dict
+    )
+    last_modifying_user: _User | None = Field(alias="lastModifyingUser")
+    link_share_metadata: dict[
+        Literal["securityUpdateEligible", "securityUpdateEnabled"], bool
+    ] = Field(alias="linkShareMetadata", default_factory=dict)
     md5_checksum: str | None = Field(alias="md5Checksum")
+    modified_by_me: bool | None = Field(alias="modifiedByMe")
+    modified_by_me_time: datetime | None = Field(alias="modifiedByMeTime")
+    modified_time: datetime | None = Field(alias="modifiedTime")
+    original_filename: str | None = Field(alias="originalFilename")
+    owned_by_me: bool | None = Field(alias="ownedByMe")
+    owners: list[_User] = []
+    parents: list[str] = []
+    properties: dict[str, str] = {}
+    permissions: list[_Permission] = []
+    permission_ids: list[str] = Field(alias="permissionIds", default_factory=list)
+    quota_bytes_used: float | None = Field(alias="quotaBytesUsed")
+    resource_key: str | None = Field(alias="resourceKey")
+    shared: bool | None
     sha1_checksum: str | None = Field(alias="sha1Checksum")
     sha256_checksum: str | None = Field(alias="sha256Checksum")
-    size: float | None
-    quota_bytes_used: float | None = Field(alias="quotaBytesUsed")
-    head_revision_id: str | None = Field(alias="headRevisionId")
-    content_hints: _ContentHints | None = Field(alias="contentHints")
-    image_media_metadata: _ImageMediaMetadata | None = Field(alias="imageMediaMetadata")
-    video_media_metadata: _VideoMediaMetadata | None = Field(alias="videoMediaMetadata")
-    is_app_authorized: bool | None = Field(alias="isAppAuthorized")
-    export_links: dict[str, str] | None = Field(alias="exportLinks")
+    shared_with_me_time: datetime | None = Field(alias="sharedWithMeTime")
+    sharing_user: _User | None = Field(alias="sharingUser")
     shortcut_details: dict[
         Literal[
             "targetId",
@@ -672,13 +670,23 @@ class File(GoogleDriveEntity):
             "targetResourceKey",
         ],
         str,
-    ] | None = Field(alias="shortcutDetails")
-    content_restrictions: list[_ContentRestriction] | None = Field(
-        alias="contentRestrictions"
-    )
-    label_info: dict[Literal["labels"], list[_Label]] | None = Field(alias="labelInfo")
-    resource_key: str | None = Field(alias="resourceKey")
-    link_share_metadata: dict[str, bool] | None = Field(alias="linkShareMetadata")
+    ] = Field(alias="shortcutDetails", default_factory=dict)
+    size: float | None
+    spaces: list[str] = []
+    starred: bool | None
+    thumbnail_link: str | None = Field(alias="thumbnailLink")
+    thumbnail_version: int | None = Field(alias="thumbnailVersion")
+    trashed: bool | None
+    trashed_time: datetime | None = Field(alias="trashedTime")
+    trashing_user: _User | None = Field(alias="trashingUser")
+    version: int | None
+    video_media_metadata: _VideoMediaMetadata | None = Field(alias="videoMediaMetadata")
+    viewed_by_me: bool | None = Field(alias="viewedByMe")
+    viewed_by_me_time: datetime | None = Field(alias="viewedByMeTime")
+    viewers_can_copy_content: bool | None = Field(alias="viewersCanCopyContent")
+    web_content_link: str | None = Field(alias="webContentLink")
+    web_view_link: str | None = Field(alias="webViewLink")
+    writers_can_share: bool | None = Field(alias="writersCanShare")
 
     _description: dict[str, str | bool | float | int] = Field(exclude=True)
     host_drive_: Drive = Field(exclude=True)
@@ -694,10 +702,12 @@ class File(GoogleDriveEntity):
         """
 
         # If the attributes isn't a field, just return the value
-        if name == "__fields__" or name not in self.__fields__:
+        if (
+            name.startswith("__") and name.endswith("__")
+        ) or name not in self.__fields__:
             return super().__getattribute__(name)
 
-        if name not in self.__fields_set__:
+        if name not in self.__fields_set__ or not super().__getattribute__(name):
             # If IMR is enabled, load all metadata
             if (
                 self.google_client.item_metadata_retrieval
@@ -806,10 +816,6 @@ class File(GoogleDriveEntity):
         """Compare two files by name."""
         return self.name.lower() < other.name.lower()
 
-    def __str__(self) -> str:
-        """Returns the file name."""
-        return self.name
-
     def __repr__(self) -> str:
         """str representation of the file."""
         return f"File(" f"id={self.id!r}, " f"name={self.name!r})"
@@ -824,6 +830,16 @@ class Directory(File, _CanHaveChildren):
     )
 
     host_drive_: Drive = Field(exclude=True)
+
+    @validator("kind", always=True, pre=True)
+    def _validate_kind(cls, value: str | None) -> str:  # noqa: N805
+        """Set the kind to "drive#folder"."""
+
+        # Drives are just a subtype of files, so `"drive#file"` is okay too
+        if value not in (EntityKind.DIRECTORY, EntityKind.FILE):
+            raise ValueError(f"Invalid kind for Directory: {value}")
+
+        return "drive#folder"
 
     @validator("mime_type")
     def _validate_mime_type(cls, mime_type: str) -> str:  # noqa: N805
@@ -841,31 +857,67 @@ class Directory(File, _CanHaveChildren):
 
 
 class _DriveCapabilities(BaseModelWithConfig):
-    can_add_children: bool = Field(alias="canAddChildren")
-    can_change_copy_requires_writer_permission_restriction: bool = Field(
+
+    can_accept_ownership: bool | None = Field(alias="canAcceptOwnership")
+    can_add_children: bool | None = Field(alias="canAddChildren")
+    can_add_folder_from_another_drive: bool | None = Field(
+        alias="canAddFolderFromAnotherDrive"
+    )
+    can_add_my_drive_parent: bool | None = Field(alias="canAddMyDriveParent")
+    can_change_copy_requires_writer_permission: bool | None = Field(
+        alias="canChangeCopyRequiresWriterPermission"
+    )
+    can_change_copy_requires_writer_permission_restriction: bool | None = Field(
         alias="canChangeCopyRequiresWriterPermissionRestriction"
     )
-    can_change_domain_users_only_restriction: bool = Field(
+    can_change_domain_users_only_restriction: bool | None = Field(
         alias="canChangeDomainUsersOnlyRestriction"
     )
-    can_change_drive_background: bool = Field(alias="canChangeDriveBackground")
-    can_change_drive_members_only_restriction: bool = Field(
+    can_change_drive_background: bool | None = Field(alias="canChangeDriveBackground")
+    can_change_drive_members_only_restriction: bool | None = Field(
         alias="canChangeDriveMembersOnlyRestriction"
     )
-    can_comment: bool = Field(alias="canComment")
-    can_copy: bool = Field(alias="canCopy")
-    can_delete_children: bool = Field(alias="canDeleteChildren")
-    can_delete_drive: bool = Field(alias="canDeleteDrive")
-    can_download: bool = Field(alias="canDownload")
-    can_edit: bool = Field(alias="canEdit")
-    can_list_children: bool = Field(alias="canListChildren")
-    can_manage_members: bool = Field(alias="canManageMembers")
+    can_change_security_update_enabled: bool | None = Field(
+        alias="canChangeSecurityUpdateEnabled"
+    )
+    can_change_viewers_can_copy_content: bool | None = Field(
+        alias="canChangeViewersCanCopyContent"
+    )
+    can_comment: bool | None = Field(alias="canComment")
+    can_copy: bool | None = Field(alias="canCopy")
+    can_delete: bool | None = Field(alias="canDelete")
+    can_delete_children: bool | None = Field(alias="canDeleteChildren")
+    can_delete_drive: bool | None = Field(alias="canDeleteDrive")
+    can_download: bool | None = Field(alias="canDownload")
+    can_edit: bool | None = Field(alias="canEdit")
+    can_list_children: bool | None = Field(alias="canListChildren")
+    can_manage_members: bool | None = Field(alias="canManageMembers")
+    can_modify_content: bool | None = Field(alias="canModifyContent")
+    can_modify_content_restriction: bool | None = Field(
+        alias="canModifyContentRestriction"
+    )
+    can_modify_labels: bool | None = Field(alias="canModifyLabels")
+    can_move_children_out_of_drive: bool | None = Field(
+        alias="canMoveChildrenOutOfDrive"
+    )
+    can_move_children_within_drive: bool | None = Field(
+        alias="canMoveChildrenWithinDrive"
+    )
+    can_move_item_into_team_drive: bool | None = Field(alias="canMoveItemIntoTeamDrive")
+    can_move_item_out_of_drive: bool | None = Field(alias="canMoveItemOutOfDrive")
+    can_move_item_within_drive: bool | None = Field(alias="canMoveItemWithinDrive")
+    can_read_labels: bool | None = Field(alias="canReadLabels")
     can_read_revisions: bool = Field(alias="canReadRevisions")
-    can_rename: bool = Field(alias="canRename")
-    can_rename_drive: bool = Field(alias="canRenameDrive")
-    can_reset_drive_restrictions: bool = Field(alias="canResetDriveRestrictions")
-    can_share: bool = Field(alias="canShare")
-    can_trash_children: bool = Field(alias="canTrashChildren")
+    can_read_drive: bool | None = Field(alias="canReadDrive")
+    can_remove_children: bool | None = Field(alias="canRemoveChildren")
+    can_remove_my_drive_parent: bool | None = Field(alias="canRemoveMyDriveParent")
+    can_rename: bool | None = Field(alias="canRename")
+    can_rename_drive: bool | None = Field(alias="canRenameDrive")
+    can_reset_drive_restrictions: bool | None = Field(alias="canResetDriveRestrictions")
+    can_share: bool | None = Field(alias="canShare")
+    can_trash: bool | None = Field(alias="canTrash")
+    can_trash_children: bool | None = Field(alias="canTrashChildren")
+    can_untrash: bool | None = Field(alias="canUntrash")
 
 
 class _DriveRestrictions(BaseModelWithConfig):
@@ -890,17 +942,48 @@ class Drive(_CanHaveChildren):
         alias="mimeType", const=True, default="application/vnd.google-apps.folder"
     )
 
-    theme_id: str | None = Field(alias="themeId")
-    color_rgb: str | None = Field(alias="colorRgb")
+    # Optional, can be retrieved with the `describe` method or by getting the attribute
     background_image_file: _DriveBackgroundImageFile | None = Field(
         alias="backgroundImageFile"
     )
     background_image_link: str | None = Field(alias="backgroundImageLink")
     capabilities: _DriveCapabilities | None
+    color_rgb: str | None = Field(alias="colorRgb")
+    copy_requires_writer_permission: bool | None = Field(
+        alias="copyRequiresWriterPermission"
+    )
     created_time: datetime | None = Field(alias="createdTime")
-    org_unit_id: str | None = Field(alias="orgUnitId")
+    explicitly_trashed: bool | None = Field(alias="explicitlyTrashed")
+    folder_color_rgb: str | None = Field(alias="folderColorRgb")
+    has_thumbnail: bool | None = Field(alias="hasThumbnail")
     hidden: bool | None
+    icon_link: str | None = Field(alias="iconLink")
+    is_app_authorized: bool | None = Field(alias="isAppAuthorized")
+    last_modifying_user: _User | None = Field(alias="lastModifyingUser")
+    link_share_metadata: dict[
+        Literal["securityUpdateEligible", "securityUpdateEnabled"], bool
+    ] = Field(alias="linkShareMetadata", default_factory=dict)
+    modified_by_me: bool | None = Field(alias="modifiedByMe")
+    modified_by_me_time: datetime | None = Field(alias="modifiedByMeTime")
+    modified_time: datetime | None = Field(alias="modifiedTime")
+    org_unit_id: str | None = Field(alias="orgUnitId")
+    owned_by_me: bool | None = Field(alias="ownedByMe")
+    owners: list[_User] = []
+    permissions: list[_Permission] = []
+    permission_ids: list[str] = Field(alias="permissionIds", default_factory=list)
+    quota_bytes_used: float | None = Field(alias="quotaBytesUsed")
     restrictions: _DriveRestrictions | None
+    shared: bool | None
+    spaces: list[str] = []
+    starred: bool | None
+    theme_id: str | None = Field(alias="themeId")
+    thumbnail_version: int | None = Field(alias="thumbnailVersion")
+    trashed: bool | None
+    version: int | None
+    viewed_by_me: bool | None = Field(alias="viewedByMe")
+    viewers_can_copy_content: bool | None = Field(alias="viewersCanCopyContent")
+    web_view_link: str | None = Field(alias="webViewLink")
+    writers_can_share: bool | None = Field(alias="writersCanShare")
 
     parent_: None = Field(exclude=True, const=True, default=None)
     host_drive_: None = Field(exclude=True, const=True, default=None)
@@ -911,7 +994,7 @@ class Drive(_CanHaveChildren):
     _files_mapped: bool = False
 
     @validator("kind", always=True, pre=True)
-    def set_kind(cls, value: str | None) -> str:  # noqa: N805
+    def _validate_kind(cls, value: str | None) -> str:  # noqa: N805
         """Set the kind to "drive#drive"."""
 
         # Drives are just a subtype of files, so `"drive#file"` is okay too
@@ -949,6 +1032,7 @@ class Drive(_CanHaveChildren):
                     f"/files/{directory_id}",
                     params={
                         "fields": file_fields,
+                        "pageSize": None,
                     },
                 ),
                 google_client=self.google_client,
@@ -958,6 +1042,47 @@ class Drive(_CanHaveChildren):
 
         raise ResourceNotFoundError(
             f"Unable to find directory with ID {directory_id} in Drive {self.name}"
+        )
+
+    def get_file_by_id(self, file_id: str) -> File:
+        """Get a file by its ID.
+
+        Args:
+            file_id (str): the ID of the file to get
+
+        Returns:
+            File: the file with the given ID
+
+        Raises:
+            ResourceNotFoundError: if a file with the given ID does not exist
+        """
+        try:
+            for file in self._files:
+                if file.id == file_id:
+                    return file
+        except TypeError:
+            file_fields = (
+                "*"
+                if self.google_client.item_metadata_retrieval
+                == ItemMetadataRetrieval.ON_INIT
+                else "id, name, parents, mimeType, kind"
+            )
+
+            return File.from_json_response(
+                self.google_client.get_json_response(
+                    f"/files/{file_id}",
+                    params={
+                        "fields": file_fields,
+                        "pageSize": None,
+                    },
+                ),
+                google_client=self.google_client,
+                host_drive=self,
+                _block_describe_call=True,
+            )
+
+        raise ResourceNotFoundError(
+            f"Unable to find file with ID {file_id} in Drive {self.name}"
         )
 
     def map(self, map_type: EntityType = EntityType.FILE) -> None:
@@ -1191,6 +1316,16 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
 
     BASE_URL = "https://www.googleapis.com/drive/v3"
 
+    DEFAULT_SCOPE = [
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/drive.file",
+        "https://www.googleapis.com/auth/drive.readonly",
+        "https://www.googleapis.com/auth/drive.metadata.readonly",
+        "https://www.googleapis.com/auth/drive.appdata",
+        "https://www.googleapis.com/auth/drive.metadata",
+        "https://www.googleapis.com/auth/drive.photos.readonly",
+    ]
+
     def __init__(
         self,
         client_id: str,
@@ -1206,7 +1341,7 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
             base_url=self.BASE_URL,
             client_id=client_id,
             client_secret=client_secret,
-            scopes=scopes,
+            scopes=scopes or self.DEFAULT_SCOPE,
             log_requests=log_requests,
             creds_cache_path=creds_cache_path,
         )
@@ -1224,7 +1359,7 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
         if not hasattr(self, "_my_drive"):
             self._my_drive = Drive.from_json_response(
                 self.get_json_response(
-                    "/files/root", params={"fields": "id, name, mimeType, kind"}
+                    "/files/root", params={"fields": "*", "pageSize": None}
                 ),
                 google_client=self,
             )
@@ -1244,14 +1379,14 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
                 google_client=self,
             )
             for drive in self.get_items(
-                "/drives", list_key="drives", params={"fields": "id, name, mimeType"}
+                "/drives", list_key="drives", params={"fields": "*"}
             )
         ]
 
 
 FJR = TypeVar("FJR", bound=GoogleDriveEntity)
 
-
+GoogleDriveEntity.update_forward_refs()
 File.update_forward_refs()
 Directory.update_forward_refs()
 Drive.update_forward_refs()
