@@ -1,0 +1,110 @@
+{
+  "capabilities": {
+    "canAcceptOwnership": false,
+    "canAddChildren": false,
+    "canAddMyDriveParent": false,
+    "canChangeCopyRequiresWriterPermission": true,
+    "canChangeSecurityUpdateEnabled": false,
+    "canChangeViewersCanCopyContent": true,
+    "canComment": true,
+    "canCopy": true,
+    "canDelete": true,
+    "canDownload": true,
+    "canEdit": true,
+    "canListChildren": false,
+    "canModifyContent": true,
+    "canModifyLabels": false,
+    "canMoveChildrenWithinDrive": false,
+    "canMoveItemIntoTeamDrive": true,
+    "canMoveItemOutOfDrive": true,
+    "canMoveItemWithinDrive": true,
+    "canReadLabels": false,
+    "canReadRevisions": true,
+    "canRemoveChildren": false,
+    "canRemoveMyDriveParent": true,
+    "canRename": true,
+    "canShare": true,
+    "canTrash": true,
+    "canUntrash": true
+  },
+  "copyRequiresWriterPermission": false,
+  "createdTime": "2022-12-22T11:34:54.221Z",
+  "explicitlyTrashed": false,
+  "exportLinks": {
+    "application/pdf": "https://docs.google.com/spreadsheets/export?id=1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B&exportFormat=pdf",
+    "application/vnd.oasis.opendocument.spreadsheet": "https://docs.google.com/spreadsheets/export?id=1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B&exportFormat=ods",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "https://docs.google.com/spreadsheets/export?id=1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B&exportFormat=xlsx",
+    "application/x-vnd.oasis.opendocument.spreadsheet": "https://docs.google.com/spreadsheets/export?id=1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B&exportFormat=ods",
+    "application/zip": "https://docs.google.com/spreadsheets/export?id=1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B&exportFormat=zip",
+    "text/csv": "https://docs.google.com/spreadsheets/export?id=1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B&exportFormat=csv",
+    "text/tab-separated-values": "https://docs.google.com/spreadsheets/export?id=1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B&exportFormat=tsv"
+  },
+  "hasThumbnail": true,
+  "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.spreadsheet",
+  "id": "1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B",
+  "isAppAuthorized": false,
+  "kind": "drive#file",
+  "lastModifyingUser": {
+    "displayName": "Google User",
+    "emailAddress": "google-user@gmail.com",
+    "kind": "drive#user",
+    "me": true,
+    "permissionId": "31838237028322295771",
+    "photoLink": "https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64"
+  },
+  "linkShareMetadata": {
+    "securityUpdateEligible": false,
+    "securityUpdateEnabled": true
+  },
+  "mimeType": "application/vnd.google-apps.spreadsheet",
+  "modifiedByMe": true,
+  "modifiedByMeTime": "2022-12-22T11:35:03.931Z",
+  "modifiedTime": "2022-12-22T11:35:03.931Z",
+  "name": "Archive Log",
+  "ownedByMe": true,
+  "owners": [
+    {
+      "displayName": "Google User",
+      "emailAddress": "google-user@gmail.com",
+      "kind": "drive#user",
+      "me": true,
+      "permissionId": "31838237028322295771",
+      "photoLink": "https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64"
+    }
+  ],
+  "parents": [
+    "7tqryz0A9oYJfzF1cpBMLLsblJ-oHBi1e"
+  ],
+  "permissionIds": [
+    "31838237028322295771"
+  ],
+  "permissions": [
+    {
+      "deleted": false,
+      "displayName": "Google User",
+      "emailAddress": "google-user@gmail.com",
+      "id": "31838237028322295771",
+      "kind": "drive#permission",
+      "pendingOwner": false,
+      "photoLink": "https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64",
+      "role": "owner",
+      "type": "user"
+    }
+  ],
+  "quotaBytesUsed": "0670",
+  "shared": false,
+  "size": "0670",
+  "spaces": [
+    "drive"
+  ],
+  "starred": false,
+  "thumbnailLink": "https://docs.google.com/feeds/vt?gd=true&id=1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B&v=1&s=AMedNnoAAAAAY6Rj8Kw42um4zoB76veLlXn9uq3dkLeR&sz=s220",
+  "thumbnailVersion": "2",
+  "trashed": false,
+  "version": "8",
+  "viewedByMe": true,
+  "viewedByMeTime": "2022-12-22T11:35:03.931Z",
+  "viewersCanCopyContent": true,
+  "webViewLink": "https://docs.google.com/spreadsheets/d/1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B/edit?usp=drivesdk",
+  "writersCanShare": true
+}

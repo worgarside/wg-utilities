@@ -17,6 +17,7 @@ from textwrap import dedent
 from time import sleep, time
 from typing import Any, Literal, TypeVar, cast, overload
 from unittest.mock import MagicMock, patch
+from urllib.parse import unquote
 from xml.etree import ElementTree
 
 from aioresponses import aioresponses
@@ -55,7 +56,12 @@ from wg_utilities.clients.google_calendar import (
     Event,
     GoogleCalendarEntityJson,
 )
-from wg_utilities.clients.google_drive import Directory, Drive
+from wg_utilities.clients.google_drive import (
+    Directory,
+    Drive,
+    File,
+    ItemMetadataRetrieval,
+)
 from wg_utilities.clients.monzo import Account as MonzoAccount
 from wg_utilities.clients.monzo import AccountJson, Pot, PotJson, TransactionJson
 from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
@@ -264,6 +270,9 @@ def get_flat_file_from_url(
 
     Returns:
         dict: the content of the flat JSON file
+
+    Raises:
+        ValueError: if the URL is not recognised
     """
     context.status_code = HTTPStatus.OK
     context.reason = HTTPStatus.OK.phrase
@@ -272,14 +281,20 @@ def get_flat_file_from_url(
         f"{request.path.replace('/v1/', '')}/{request.query}".rstrip("/") + ".json"
     )
 
-    return read_json_file(  # type: ignore[return-value]
-        file_path,
-        host_name={
-            "api.spotify.com": "spotify",
-            "api.monzo.com": "monzo",
-            "www.googleapis.com": "google",
-        }[request.hostname],
-    )
+    try:
+        return read_json_file(  # type: ignore[return-value]
+            file_path,
+            host_name={
+                "api.spotify.com": "spotify",
+                "api.monzo.com": "monzo",
+                "www.googleapis.com": "google",
+            }[request.hostname],
+        )
+    except FileNotFoundError as exc:  # pragma: no cover
+        raise ValueError(
+            "Unable to dynamically load JSON file for "
+            f"https://{request.hostname}{request.path}?{unquote(request.query)}"
+        ) from exc
 
 
 def random_nested_json() -> JSONObj:
@@ -478,6 +493,7 @@ def _directory(drive: Drive, google_drive_client: GoogleDriveClient) -> Director
         google_client=google_drive_client,
         host_drive=drive,
         parent=drive,
+        _block_describe_call=True,
     )
 
 
@@ -514,6 +530,21 @@ def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
         refresh_token="test_refresh_token",
         scope="test_scope,test_scope_two",
         token_type="Bearer",
+    )
+
+
+@fixture(scope="function", name="file")  # type: ignore[misc]
+def _file(drive: Drive, google_drive_client: GoogleDriveClient) -> File:
+    """Fixture for a Google Drive File instance."""
+
+    return File.from_json_response(
+        read_json_file(
+            "v3/files/7fvjoh2-g6v1snpxpnrkl2pf174lrkhe6/fields=%2a.json",
+            host_name="google/drive",
+        ),
+        google_client=google_drive_client,
+        host_drive=drive,
+        _block_describe_call=True,
     )
 
 
@@ -566,7 +597,39 @@ def _google_drive_client(
             "https://www.googleapis.com/auth/drive",
         ],
         creds_cache_path=creds_cache_path,
+        item_metadata_retrieval=ItemMetadataRetrieval.ON_INIT,
     )
+
+
+@fixture(scope="function", name="drive_comparison_entity_lookup")  # type: ignore[misc]
+def _drive_comparison_entity_lookup(
+    drive: Drive, google_drive_client: GoogleDriveClient
+) -> dict[str, Drive | File | Directory]:
+    """A lookup for Google Drive entities, makes assertions easier to write."""
+
+    lookup: dict[str, Drive | File | Directory] = {}
+
+    for file in (FLAT_FILES_DIR / "json/google/drive/v3/files").rglob("*"):
+        if file.is_file() and file.name == "fields=%2a.json":
+            file_json: dict[str, str] = loads(file.read_text())
+
+            if file_json["mimeType"] == Directory.MIME_TYPE:
+                if file_json["name"] == "My Drive":
+                    continue
+                cls: type[File | Directory] = Directory
+            else:
+                cls = File
+
+            lookup[file_json["name"]] = cls.from_json_response(
+                file_json,
+                google_client=google_drive_client,
+                host_drive=drive,
+                _block_describe_call=True,
+            )
+
+    lookup[drive.name] = drive
+
+    return lookup
 
 
 @fixture(scope="module", name="live_jwt_token")  # type: ignore[misc]
@@ -684,6 +747,7 @@ def _mock_aiohttp() -> YieldFixture[aioresponses]:
 def _mock_requests(
     request: FixtureRequest, live_jwt_token_alt: str
 ) -> YieldFixture[Mocker]:
+    # pylint: disable=too-many-branches
     """Fixture for mocking sync HTTP requests."""
 
     with Mocker(real_http=False, case_sensitive=False) as mock_requests:
@@ -804,7 +868,8 @@ def _mock_requests(
                 json=spotify_create_playlist_callback,
             )
         elif fullmatch(
-            r"^tests/unit/clients/google/test__[a-z_]+\.py$", request.node.parent.name
+            r"^tests/unit/clients/google/calendar/test__[a-z_]+\.py$",
+            request.node.parent.name,
         ):
             for path_object in (
                 google_dir := FLAT_FILES_DIR / "json" / "google" / "calendar" / "v3"
@@ -814,6 +879,22 @@ def _mock_requests(
                 ):
                     mock_requests.get(
                         GoogleCalendarClient.BASE_URL
+                        + "/"
+                        + str(path_object.relative_to(google_dir).with_suffix("")),
+                        json=get_flat_file_from_url,
+                    )
+        elif fullmatch(
+            r"^tests/unit/clients/google/drive/test__[a-z_]+\.py$",
+            request.node.parent.name,
+        ):
+            for path_object in (
+                google_dir := FLAT_FILES_DIR / "json" / "google" / "drive" / "v3"
+            ).rglob("*"):
+                if path_object.is_dir() or (
+                    path_object.is_file() and "=" not in path_object.name
+                ):
+                    mock_requests.get(
+                        GoogleDriveClient.BASE_URL
                         + "/"
                         + str(path_object.relative_to(google_dir).with_suffix("")),
                         json=get_flat_file_from_url,

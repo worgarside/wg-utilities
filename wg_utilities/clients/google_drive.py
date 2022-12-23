@@ -8,9 +8,9 @@ from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
 from re import sub
-from typing import AbstractSet, Any, Literal, TypeVar
+from typing import AbstractSet, Any, ClassVar, Literal, TypeVar
 
-from pydantic import Field, root_validator, validator
+from pydantic import Field, validator
 from pydantic.fields import FieldInfo
 
 from wg_utilities.clients._google import GoogleClient
@@ -18,7 +18,6 @@ from wg_utilities.clients.oauth_client import (
     BaseModelWithConfig,
     GenericModelWithConfig,
 )
-from wg_utilities.exceptions import ResourceNotFoundError
 from wg_utilities.functions.json import JSONObj
 
 
@@ -143,7 +142,7 @@ class _ContentRestriction(BaseModelWithConfig):
     type: str
 
 
-class GoogleDriveEntity(GenericModelWithConfig):
+class _GoogleDriveEntity(GenericModelWithConfig):
     """Base class for Google Drive entities."""
 
     id: str
@@ -151,8 +150,6 @@ class GoogleDriveEntity(GenericModelWithConfig):
     mime_type: str = Field(alias="mimeType")
 
     google_client: GoogleDriveClient = Field(exclude=True)
-    host_drive_: Drive | None = Field(exclude=True, allow_mutation=False)
-    parent_: Directory | Drive | None = Field(exclude=True)
 
     @classmethod
     def from_json_response(
@@ -172,7 +169,7 @@ class GoogleDriveEntity(GenericModelWithConfig):
             parent (Directory, optional): The parent directory.
 
         Returns:
-            GoogleDriveEntity: The new instance.
+            _GoogleDriveEntity: The new instance.
         """
 
         value_data: dict[str, Any] = {
@@ -183,6 +180,15 @@ class GoogleDriveEntity(GenericModelWithConfig):
         }
 
         instance = cls(**value_data)
+
+        if (
+            isinstance(instance, (File, Directory))
+            and isinstance(host_drive, Drive)
+            and host_drive.id == instance.parents[0]
+        ):
+            # pylint: disable=attribute-defined-outside-init
+            instance.parent_ = host_drive
+            host_drive.add_child(instance)
 
         if (
             not _block_describe_call
@@ -290,46 +296,56 @@ class GoogleDriveEntity(GenericModelWithConfig):
         raise TypeError(f"Cannot get host drive of {self.__class__.__name__}.")
 
     @property
-    def parent(self) -> Directory | Drive:
-        """Get the parent directory of this file.
+    def path(self) -> str:
+        """Path to this file, relative to the root directory.
 
         Returns:
-            Directory: the parent directory of this file
+            str: the path to this file in Google Drive
         """
-        if (
-            self.parent_ is None
-            and isinstance(self, (File, Directory))
-            and self.parents
-        ):
-            if (parent_id := self.parents[0]) == self.host_drive.id:
-                self.parent_ = self.host_drive
-            else:
-                self.parent_ = self.host_drive.get_directory_by_id(parent_id)
+        current_path = self.name
+        parent_dir: _GoogleDriveEntity = self
 
-        return self.parent_  # type: ignore[return-value]
+        while hasattr(parent_dir, "parent") and (parent_dir := parent_dir.parent):
+            current_path = "/".join([parent_dir.name, current_path])
+
+        return "/" + current_path
+
+    def __eq__(self, other: Any) -> bool:
+
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return self.id == other.id
 
     def __str__(self) -> str:
         """Returns the file name."""
         return self.name
 
 
-class _CanHaveChildren(GoogleDriveEntity):
+class _CanHaveChildren(_GoogleDriveEntity):
     """Mixin for entities that can have children."""
 
-    # These are only here for mypy
-    host_drive_: Drive | None = Field(exclude=True)
-    parent_: Directory | Drive | None = Field(exclude=True)
+    _directories: list[Directory] = Field(exclude=True, default_factory=list)
+    _files: list[File] = Field(exclude=True, default_factory=list)
 
-    _directories: list[Directory] = Field(default_factory=list, exclude=True)
-    _files: list[File] = Field(default_factory=list, exclude=True)
-    _tree: str = Field(exclude=True)
+    _files_loaded: bool = Field(exclude=True, default=False)
+    _directories_loaded: bool = Field(exclude=True, default=False)
 
     def _add_directory(self, directory: Directory) -> None:
         """Adds a child directory to this directory's children record.
 
         Args:
             directory (Directory): the directory to add
+
+        Raises:
+            ValueError: if the directory is already in the list
         """
+        if not isinstance(directory, Directory):
+            raise TypeError(
+                f"Cannot add `{directory.__class__.__name__}` instance to "
+                "`self.directories`."
+            )
+
         if not isinstance(self._directories, list):
             self._set_private_attr("_directories", [directory])
         elif directory not in self._directories:
@@ -340,11 +356,37 @@ class _CanHaveChildren(GoogleDriveEntity):
 
         Args:
             file (File): the file to add
+
+        Raises:
+            TypeError: if the file is not a File
         """
+
+        if type(file) is not File:  # pylint: disable=unidiomatic-typecheck
+            # This isn't an `isinstance` check because we don't want to allow
+            # subclasses of `File` to be added to the list. Yes, according to the
+            # Liskov substitution principle, you should be able to process a Directory
+            # as a File, but that would be illogical here.
+            raise TypeError(
+                f"Cannot add `{file.__class__.__name__}` instance to `self.files`."
+            )
+
         if not isinstance(self._files, list):
             self._set_private_attr("_files", [file])
         elif file not in self._files:
             self._files.append(file)
+
+    def add_child(self, child: File | Directory) -> None:
+        """Adds a child to this directory's children record."""
+
+        if isinstance(child, Directory):
+            self._add_directory(child)
+        elif isinstance(child, File):
+            self._add_file(child)
+        else:
+            raise TypeError(
+                f"Cannot add `{child.__class__.__name__}` instance to {self.name}'s "
+                "children."
+            )
 
     def navigate(self, path: str) -> _CanHaveChildren | File:
         # pylint: disable=too-many-return-statements
@@ -360,74 +402,172 @@ class _CanHaveChildren(GoogleDriveEntity):
             Directory: The directory at the end of the path.
         """
 
-        if path.startswith("./"):
-            return self.navigate(path[2:])
+        if "//" in path:
+            raise ValueError("Path cannot contain `//`.")
 
-        if path == ".":
-            return self
+        if path.startswith("..") and not isinstance(self, Directory):
+            raise ValueError("Cannot navigate to parent of Drive.")
 
-        if path.startswith("/"):
-            return self.host_drive.navigate(path)
-
-        if path == "..":
-            if self.parent is None:
-                raise ValueError("Cannot navigate to parent.")
-
-            return self.parent
-
-        if "/" in path:
-            first, rest = path.split("/", 1)
-            return self.navigate(first).navigate(rest)
-
-        for child in self.all_known_children:
-            if child.name == path:
-                return child
-
-        try:
-            file_fields = (
-                "*"
-                if self.google_client.item_metadata_retrieval
-                == ItemMetadataRetrieval.ON_INIT
-                else "id, name, parents, mimeType, kind"
-            )
-
-            item = self.google_client.get_items(
-                "/files",
-                list_key="files",
-                params={
-                    "pageSize": "1",
-                    "fields": f"files({file_fields})",
-                    "q": f"'{self.id}' in parents and name = '{path}'",
-                },
-            ).pop()
-        except IndexError:
-            raise ValueError(f"Invalid path: {path}") from None
-        else:
-            if item["mimeType"] == "application/vnd.google-apps.folder":
-                directory = Directory.from_json_response(
-                    item,
-                    google_client=self.google_client,
-                    parent=self,
-                    host_drive=self.host_drive,
-                    _block_describe_call=True,
+        match path.split("/"):  # noqa: E999
+            case ["."] | [".", ""] | [""]:  # Empty string could've come from e.g. "./"
+                return self
+            case [".."] | ["..", ""]:
+                return self.parent  # type: ignore[attr-defined,no-any-return]
+            case ["/"] | ["/", ""] | ["", ""] | ["~"] | ["~", ""]:  # / or ~
+                return self.host_drive
+            case [".", *rest]:  # ./<potential>/<values>
+                return self.navigate("/".join(rest))
+            case ["..", *rest]:  # ../<potential>/<values>
+                return self.parent.navigate(  # type: ignore[attr-defined,no-any-return]
+                    "/".join(rest)
                 )
-                self._add_directory(directory)
-                return directory
+            case ["~", *rest]:  # ~/<potential>/<values>
+                return self.host_drive.navigate("/".join(rest))
+            case ["", drive_name, *rest]:  # /<drive_name>/<potential>/<values>
+                # If the first value is an empty string then the first value of `path`
+                # must be a slash, therefore the first part of the path must be the
+                # (host) drive's name.
+                if drive_name != self.host_drive.name:
+                    raise ValueError(
+                        f"Cannot navigate to Drive {drive_name!r} from "
+                        f"`{self.host_drive.name}`."
+                    )
 
-            file = File.from_json_response(
-                item,
-                google_client=self.google_client,
-                parent=self,
-                host_drive=self.host_drive,
-                _block_describe_call=True,
-            )
-            self._add_file(file)
-            return file
+                return self.host_drive.navigate("/".join(rest))
+            case [directory_name, *rest]:  # <directory_name>/<potential>/<values>
+                # Must be a directory if there are subsequent values in the path.
+
+                for child in self.all_known_children:
+                    if child.name == directory_name:
+                        return child.navigate("/".join(rest))
+
+                try:
+                    file_fields = (
+                        "*"
+                        if self.google_client.item_metadata_retrieval
+                        == ItemMetadataRetrieval.ON_INIT
+                        else "id, name, parents, mimeType, kind"
+                    )
+
+                    item = self.google_client.get_items(
+                        "/files",
+                        list_key="files",
+                        params={
+                            "pageSize": "1",
+                            "fields": f"files({file_fields})",
+                            "q": f"'{self.id}' in parents and name = "
+                            f"'{directory_name}'",
+                        },
+                    ).pop()
+                except IndexError:
+                    raise ValueError(f"Invalid path: {path!r}") from None
+                else:
+                    if item["mimeType"] == Directory.MIME_TYPE:
+                        directory = Directory.from_json_response(
+                            item,
+                            google_client=self.google_client,
+                            parent=self,
+                            host_drive=self.host_drive,
+                            _block_describe_call=True,
+                        )
+                        self._add_directory(directory)
+                        return directory.navigate("/".join(rest))
+
+                    file = File.from_json_response(
+                        item,
+                        google_client=self.google_client,
+                        parent=self,
+                        host_drive=self.host_drive,
+                        _block_describe_call=True,
+                    )
+                    self._add_file(file)
+                    return file
+            case _:  # pragma: no cover
+                # I haven't found a way to trigger this but have kept it just in case
+                raise ValueError(f"Unprocessable path: {path!r}")
 
     def reset_known_children(self) -> None:
         """Resets the list of known children."""
         self._set_private_attr("_directories", None)
+        self._set_private_attr("_directories_loaded", False)
         self._set_private_attr("_files", None)
+        self._set_private_attr("_files_loaded", False)
+
+    def tree(self, local_only: bool = False, include_files: bool = False) -> str:
+        """A "simple" copy of the Linux `tree` command.
+
+        This builds a directory tree in text form for quick visualisation. Not really
+        intended for use in production, but useful for debugging.
+
+        Args:
+            local_only (bool, optional): Whether to only show files we already have
+                local definitions for. Defaults to False.
+            include_files (bool, optional): Whether to include files in the tree.
+                Defaults to False.
+
+        Returns:
+            str: the full directory tree in text form
+        """
+
+        if not local_only:
+            self.host_drive.map(
+                map_type=EntityType.FILE if include_files else EntityType.DIRECTORY
+            )
+
+        output = self.name
+
+        def build_sub_tree(
+            parent_dir: _CanHaveChildren,
+            level: int,
+            block_pipes_at_levels: list[int] | None = None,
+        ) -> None:
+            """Builds a subtree of a given directory.
+
+            Args:
+                parent_dir (Directory): the directory to create the subtree of
+                level (int): the depth level of this directory
+                block_pipes_at_levels (list): a list of levels to block further
+                    pipes at
+            """
+
+            nonlocal output
+
+            # Creating a deep copy means that when we go back up from the recursion,
+            # the previous iteration still has the correct levels in the list
+            block_pipes_at_levels = deepcopy(block_pipes_at_levels) or []
+
+            for i, child_item in enumerate(sorted(parent_dir.all_known_children)):
+                if include_files is False and not isinstance(child_item, Directory):
+                    continue
+
+                prefix = "\n"
+
+                # build out the spaces and pipes on this line, in such a way to
+                # maintain continuity from the previous line
+                for j in range(level):
+                    prefix += " " if j in block_pipes_at_levels else "│"
+                    prefix += "    "
+
+                # if this is the last child
+                if i + 1 == len(parent_dir.all_known_children):
+                    prefix += "└"
+                    block_pipes_at_levels.append(level)
+                else:
+                    prefix += "├"
+
+                if isinstance(child_item, Directory):
+                    prefix += "─── "
+                else:
+                    prefix += "--> "
+
+                output += prefix + child_item.name
+
+                if isinstance(child_item, Directory):
+                    build_sub_tree(child_item, level + 1, block_pipes_at_levels)
+
+        build_sub_tree(self, 0)
+
+        return output
 
     @property
     def all_known_children(self) -> list[Directory | File]:
@@ -466,7 +606,7 @@ class _CanHaveChildren(GoogleDriveEntity):
             list: the directories contained within this directory
         """
 
-        if not hasattr(self, "_directories") or not isinstance(self._directories, list):
+        if self._directories_loaded is not True:
             file_fields = (
                 "*"
                 if self.google_client.item_metadata_retrieval
@@ -474,6 +614,9 @@ class _CanHaveChildren(GoogleDriveEntity):
                 else "id, name, parents, mimeType, kind"
             )
 
+            # TODO: this needs to be changed to only get *new* folders - currently this
+            #   will overwrite any known children, including all metadata ad further
+            #   descendents
             self._set_private_attr(
                 "_directories",
                 sorted(
@@ -490,7 +633,7 @@ class _CanHaveChildren(GoogleDriveEntity):
                             list_key="files",
                             params={
                                 "pageSize": 1000,
-                                "q": f"mimeType = 'application/vnd.google-apps.folder'"
+                                "q": f"mimeType = '{Directory.MIME_TYPE}'"
                                 f" and '{self.id}' in parents",
                                 "fields": f"nextPageToken, files({file_fields})",
                             },
@@ -498,6 +641,8 @@ class _CanHaveChildren(GoogleDriveEntity):
                     ]
                 ),
             )
+
+            self._set_private_attr("_directories_loaded", True)
 
         return self._directories
 
@@ -508,7 +653,7 @@ class _CanHaveChildren(GoogleDriveEntity):
         Returns:
             list: the list of files contained within this directory
         """
-        if not isinstance(self._files, list):
+        if self._files_loaded is not True:
             file_fields = (
                 "*"
                 if self.google_client.item_metadata_retrieval
@@ -531,85 +676,19 @@ class _CanHaveChildren(GoogleDriveEntity):
                         list_key="files",
                         params={
                             "pageSize": 1000,
-                            "q": "mimeType != 'application/vnd.google-apps.folder' and"
+                            "q": f"mimeType != '{Directory.MIME_TYPE}' and"
                             f" '{self.id}' in parents",
                             "fields": f"nextPageToken, files({file_fields})",
                         },
                     )
                 ],
             )
+            self._set_private_attr("_files_loaded", True)
 
         return list(self._files)
 
-    @property
-    def tree(self) -> str:
-        """A "simple" copy of the Linux `tree` command.
 
-        This builds a directory tree in text form for quick visualisation. Not really
-        intended for use in production, but useful for debugging.
-
-        Returns:
-            str: the full directory tree in text form
-        """
-
-        if isinstance(self._tree, FieldInfo):
-            self.host_drive.map()
-            output = self.name
-
-            def build_sub_tree(
-                parent_dir: _CanHaveChildren,
-                level: int,
-                block_pipes_at_levels: list[int] | None = None,
-            ) -> None:
-                """Builds a subtree of a given directory.
-
-                Args:
-                    parent_dir (Directory): the directory to create the subtree of
-                    level (int): the depth level of this directory
-                    block_pipes_at_levels (list): a list of levels to block further
-                        pipes at
-                """
-
-                nonlocal output
-
-                # Creating a deep copy means that when we go back up from the recursion,
-                # the previous iteration still has the correct levels in the list
-                block_pipes_at_levels = deepcopy(block_pipes_at_levels) or []
-
-                for i, child_item in enumerate(sorted(parent_dir.all_known_children)):
-                    prefix = "\n"
-
-                    # build out the spaces and pipes on this line, in such a way to
-                    # maintain continuity from the previous line
-                    for j in range(level):
-                        prefix += " " if j in block_pipes_at_levels else "│"
-                        prefix += "    "
-
-                    # if this is the last child
-                    if i + 1 == len(parent_dir.all_known_children):
-                        prefix += "└"
-                        block_pipes_at_levels.append(level)
-                    else:
-                        prefix += "├"
-
-                    if isinstance(child_item, Directory):
-                        prefix += "─── "
-                    else:
-                        prefix += "--> "
-
-                    output += prefix + child_item.name
-
-                    if isinstance(child_item, Directory):
-                        build_sub_tree(child_item, level + 1, block_pipes_at_levels)
-
-            build_sub_tree(self, 0)
-
-            self._set_private_attr("_tree", output)
-
-        return self._tree
-
-
-class File(GoogleDriveEntity):
+class File(_GoogleDriveEntity):
     """A file object within Google Drive."""
 
     kind: EntityKind = Field(alias="kind", const=True, default=EntityKind.FILE)
@@ -652,7 +731,7 @@ class File(GoogleDriveEntity):
     original_filename: str | None = Field(alias="originalFilename")
     owned_by_me: bool | None = Field(alias="ownedByMe")
     owners: list[_User] = []
-    parents: list[str] = []
+    parents: list[str]
     properties: dict[str, str] = {}
     permissions: list[_Permission] = []
     permission_ids: list[str] = Field(alias="permissionIds", default_factory=list)
@@ -688,8 +767,11 @@ class File(GoogleDriveEntity):
     web_view_link: str | None = Field(alias="webViewLink")
     writers_can_share: bool | None = Field(alias="writersCanShare")
 
-    _description: dict[str, str | bool | float | int] = Field(exclude=True)
+    _description: dict[str, str | bool | float | int] = Field(
+        exclude=True,
+    )
     host_drive_: Drive = Field(exclude=True)
+    parent_: Directory | Drive | None = Field(exclude=True)
 
     def __getattribute__(self, name: str) -> Any:
         """Override the default `__getattribute__` to allow for lazy metadata loading.
@@ -701,10 +783,12 @@ class File(GoogleDriveEntity):
             Any: The value of the attribute.
         """
 
-        # If the attributes isn't a field, just return the value
+        # If the attribute isn't a field, just return the value
         if (
-            name.startswith("__") and name.endswith("__")
-        ) or name not in self.__fields__:
+            (name.startswith("__") and name.endswith("__"))
+            or name not in self.__fields__
+            or self.__fields__[name].field_info.exclude is True
+        ):
             return super().__getattribute__(name)
 
         if name not in self.__fields_set__ or not super().__getattribute__(name):
@@ -726,30 +810,49 @@ class File(GoogleDriveEntity):
 
         return super().__getattribute__(name)
 
-    @root_validator(pre=True)
-    def _validate_root(cls, values: dict[str, Any]) -> dict[str, Any]:  # noqa: N805
-
-        # Ensure there's only one parent
-        if len(values.get("parents", [None])) != 1:
-            raise ValueError("A file can only have one parent")
-
-        return values
-
     @validator("mime_type")
-    def _validate_mime_type(cls, mime_type: str) -> str:  # noqa: N805
+    def _validate_mime_type(cls, mime_type: str) -> str:
 
-        if mime_type == "application/vnd.google-apps.folder":
+        if mime_type == Directory.MIME_TYPE:
             raise ValueError("Use `Directory` class to create a directory")
 
         return mime_type
 
     @validator("parents")
-    def _validate_parents(cls, parents: list[str]) -> list[str]:  # noqa: N805
+    def _validate_parents(cls, parents: list[str]) -> list[str]:
 
         if len(parents) != 1:
             raise ValueError(f"A {cls.__name__} must have exactly one parent")
 
         return parents
+
+    @validator("parent_")
+    def _validate_parent_instance(
+        cls, value: Directory | Drive | None, values: dict[str, Any]
+    ) -> Directory | Drive | None:
+        """Validate that the parent instance's ID matches the expected parent ID.
+
+        Args:
+            value (Directory, Drive): The parent instance.
+            values (dict): The values of the other fields
+
+        Returns:
+            Directory, Drive: The parent instance.
+
+        Raises:
+            ValueError: If the parent instance's ID does not match the expected parent
+                ID.
+        """
+
+        if value is None:
+            return value
+
+        if value.id != values["parents"][0]:
+            raise ValueError(
+                f"Parent ID mismatch: {value.id} != {values['parents'][0]}"
+            )
+
+        return value
 
     def describe(
         self, force_update: bool = False
@@ -776,7 +879,7 @@ class File(GoogleDriveEntity):
                 "_description",
                 self.google_client.get_json_response(
                     f"/files/{self.id}",
-                    params={"fields": "*"},
+                    params={"fields": "*", "pageSize": None},
                 ),
             )
 
@@ -787,26 +890,28 @@ class File(GoogleDriveEntity):
                     setattr(self, google_key, value)
                 elif key not in self.__fields__:
                     raise ValueError(
-                        f"Received unexpected field '{key}' with value '{str(value)}'"
-                        f" from Google Drive API"
+                        f"Received unexpected field {key!r} with value {value!r}"
+                        " from Google Drive API"
                     )
 
         return self._description
 
     @property
-    def path(self) -> str:
-        """Path to this file, relative to the root directory.
+    def parent(self) -> Directory | Drive:
+        """Get the parent directory of this file.
 
         Returns:
-            str: the path to this file in Google Drive
+            Directory: the parent directory of this file
         """
-        current_path = self.name
-        parent_dir: GoogleDriveEntity = self
+        if self.parent_ is None and isinstance(self, (File, Directory)):
+            if (parent_id := self.parents[0]) == self.host_drive.id:
+                self.parent_ = self.host_drive
+            else:
+                self.parent_ = self.host_drive.get_directory_by_id(parent_id)
 
-        while parent_dir := parent_dir.parent:
-            current_path = "/".join([parent_dir.name, current_path])
+            self.parent_.add_child(self)
 
-        return "/" + current_path
+        return self.parent_
 
     def __gt__(self, other: File) -> bool:
         """Compare two files by name."""
@@ -824,15 +929,19 @@ class File(GoogleDriveEntity):
 class Directory(File, _CanHaveChildren):
     """A Google Drive directory - basically a File with extended functionality."""
 
+    MIME_TYPE: ClassVar[
+        Literal["application/vnd.google-apps.folder"]
+    ] = "application/vnd.google-apps.folder"
+
     kind: EntityKind = Field(default=EntityKind.DIRECTORY, const=True)
     mime_type: Literal["application/vnd.google-apps.folder"] = Field(
-        alias="mimeType", const=True, default="application/vnd.google-apps.folder"
+        alias="mimeType", const=True, default=MIME_TYPE
     )
 
     host_drive_: Drive = Field(exclude=True)
 
     @validator("kind", always=True, pre=True)
-    def _validate_kind(cls, value: str | None) -> str:  # noqa: N805
+    def _validate_kind(cls, value: str | None) -> str:
         """Set the kind to "drive#folder"."""
 
         # Drives are just a subtype of files, so `"drive#file"` is okay too
@@ -842,9 +951,9 @@ class Directory(File, _CanHaveChildren):
         return "drive#folder"
 
     @validator("mime_type")
-    def _validate_mime_type(cls, mime_type: str) -> str:  # noqa: N805
+    def _validate_mime_type(cls, mime_type: str) -> str:
 
-        if mime_type != "application/vnd.google-apps.folder":
+        if mime_type != Directory.MIME_TYPE:
             raise ValueError(
                 f"Use `File` class to create a file with mimeType {mime_type}"
             )
@@ -939,7 +1048,7 @@ class Drive(_CanHaveChildren):
 
     kind: EntityKind = Field(alias="kind", const=True, default=EntityKind.DRIVE)
     mime_type: Literal["application/vnd.google-apps.folder"] = Field(
-        alias="mimeType", const=True, default="application/vnd.google-apps.folder"
+        alias="mimeType", const=True, default=Directory.MIME_TYPE
     )
 
     # Optional, can be retrieved with the `describe` method or by getting the attribute
@@ -989,12 +1098,12 @@ class Drive(_CanHaveChildren):
     host_drive_: None = Field(exclude=True, const=True, default=None)
 
     _all_directories: list[Directory] = Field(exclude=True, default_factory=list)
-    _directories_mapped: bool = False
+    _directories_mapped: bool = Field(exclude=True, default=False)
     _all_files: list[File] = Field(exclude=True, default_factory=list)
-    _files_mapped: bool = False
+    _files_mapped: bool = Field(exclude=True, default=False)
 
     @validator("kind", always=True, pre=True)
-    def _validate_kind(cls, value: str | None) -> str:  # noqa: N805
+    def _validate_kind(cls, value: str | None) -> str:
         """Set the kind to "drive#drive"."""
 
         # Drives are just a subtype of files, so `"drive#file"` is okay too
@@ -1015,33 +1124,29 @@ class Drive(_CanHaveChildren):
         Raises:
             ResourceNotFoundError: if a directory with the given ID does not exist
         """
-        try:
+        if isinstance(self._directories, list):
             for directory in self._directories:
                 if directory.id == directory_id:
                     return directory
-        except TypeError:
-            file_fields = (
-                "*"
-                if self.google_client.item_metadata_retrieval
-                == ItemMetadataRetrieval.ON_INIT
-                else "id, name, parents, mimeType, kind"
-            )
 
-            return Directory.from_json_response(
-                self.google_client.get_json_response(
-                    f"/files/{directory_id}",
-                    params={
-                        "fields": file_fields,
-                        "pageSize": None,
-                    },
-                ),
-                google_client=self.google_client,
-                host_drive=self,
-                _block_describe_call=True,
-            )
+        file_fields = (
+            "*"
+            if self.google_client.item_metadata_retrieval
+            == ItemMetadataRetrieval.ON_INIT
+            else "id, name, parents, mimeType, kind"
+        )
 
-        raise ResourceNotFoundError(
-            f"Unable to find directory with ID {directory_id} in Drive {self.name}"
+        return Directory.from_json_response(
+            self.google_client.get_json_response(
+                f"/files/{directory_id}",
+                params={
+                    "fields": file_fields,
+                    "pageSize": None,
+                },
+            ),
+            google_client=self.google_client,
+            host_drive=self,
+            _block_describe_call=True,
         )
 
     def get_file_by_id(self, file_id: str) -> File:
@@ -1056,33 +1161,29 @@ class Drive(_CanHaveChildren):
         Raises:
             ResourceNotFoundError: if a file with the given ID does not exist
         """
-        try:
+        if isinstance(self._files, list):
             for file in self._files:
                 if file.id == file_id:
                     return file
-        except TypeError:
-            file_fields = (
-                "*"
-                if self.google_client.item_metadata_retrieval
-                == ItemMetadataRetrieval.ON_INIT
-                else "id, name, parents, mimeType, kind"
-            )
 
-            return File.from_json_response(
-                self.google_client.get_json_response(
-                    f"/files/{file_id}",
-                    params={
-                        "fields": file_fields,
-                        "pageSize": None,
-                    },
-                ),
-                google_client=self.google_client,
-                host_drive=self,
-                _block_describe_call=True,
-            )
+        file_fields = (
+            "*"
+            if self.google_client.item_metadata_retrieval
+            == ItemMetadataRetrieval.ON_INIT
+            else "id, name, parents, mimeType, kind"
+        )
 
-        raise ResourceNotFoundError(
-            f"Unable to find file with ID {file_id} in Drive {self.name}"
+        return File.from_json_response(
+            self.google_client.get_json_response(
+                f"/files/{file_id}",
+                params={
+                    "fields": file_fields,
+                    "pageSize": None,
+                },
+            ),
+            google_client=self.google_client,
+            host_drive=self,
+            _block_describe_call=True,
         )
 
     def map(self, map_type: EntityType = EntityType.FILE) -> None:
@@ -1113,7 +1214,7 @@ class Drive(_CanHaveChildren):
         }
 
         if map_type == EntityType.DIRECTORY:
-            params["q"] = "mimeType = 'application/vnd.google-apps.folder'"
+            params["q"] = f"mimeType = '{Directory.MIME_TYPE}'"
 
         all_items = self.google_client.get_items(
             "/files",
@@ -1123,6 +1224,8 @@ class Drive(_CanHaveChildren):
         all_files = []
         all_directories = []
         all_items = [item for item in all_items if "parents" in item]
+
+        known_child_ids = [child.id for child in self.all_known_children]
 
         def build_sub_structure(
             parent_dir: _CanHaveChildren,
@@ -1146,8 +1249,12 @@ class Drive(_CanHaveChildren):
                 except KeyError:
                     continue
 
+                if item["id"] in known_child_ids:
+                    if item["mimeType"] == Directory.MIME_TYPE:
+                        to_be_mapped.append(self.get_directory_by_id(item["id"]))
+
                 # Can't use `kind` here as it can be `drive#file` for directories
-                if item["mimeType"] == "application/vnd.google-apps.folder":
+                if item["mimeType"] == Directory.MIME_TYPE:
                     directory = Directory.from_json_response(
                         item,
                         google_client=self.google_client,
@@ -1155,8 +1262,7 @@ class Drive(_CanHaveChildren):
                         host_drive=self,
                         _block_describe_call=True,
                     )
-                    # pylint: disable=protected-access
-                    parent_dir._add_directory(directory)
+                    parent_dir.add_child(directory)
                     all_directories.append(directory)
                     to_be_mapped.append(directory)
                 else:
@@ -1167,8 +1273,7 @@ class Drive(_CanHaveChildren):
                         host_drive=self,
                         _block_describe_call=True,
                     )
-                    # pylint: disable=protected-access
-                    parent_dir._add_file(file)
+                    parent_dir.add_child(file)
                     all_files.append(file)
 
             all_items = remaining_items
@@ -1236,7 +1341,7 @@ class Drive(_CanHaveChildren):
         ]
 
         if entity_type == Directory:
-            query_conditions.append("mimeType = 'application/vnd.google-apps.folder'")
+            query_conditions.append(f"mimeType = '{Directory.MIME_TYPE}'")
 
         if created_range:
             query_conditions.append(f"createdTime > '{created_range[0].isoformat()}'")
@@ -1252,9 +1357,7 @@ class Drive(_CanHaveChildren):
 
         return [
             (
-                Directory
-                if item["mimeType"] == "application/vnd.google-apps.folder"
-                else File
+                Directory if item["mimeType"] == Directory.MIME_TYPE else File
             ).from_json_response(
                 item,
                 host_drive=self,
@@ -1384,9 +1487,9 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
         ]
 
 
-FJR = TypeVar("FJR", bound=GoogleDriveEntity)
+FJR = TypeVar("FJR", bound=_GoogleDriveEntity)
 
-GoogleDriveEntity.update_forward_refs()
+_GoogleDriveEntity.update_forward_refs()
 File.update_forward_refs()
 Directory.update_forward_refs()
 Drive.update_forward_refs()

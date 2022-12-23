@@ -1,0 +1,112 @@
+{
+  "files": [
+    {
+      "capabilities": {
+        "canAcceptOwnership": false,
+        "canAddChildren": false,
+        "canAddMyDriveParent": false,
+        "canChangeCopyRequiresWriterPermission": true,
+        "canChangeSecurityUpdateEnabled": false,
+        "canChangeViewersCanCopyContent": true,
+        "canComment": true,
+        "canCopy": true,
+        "canDelete": true,
+        "canDownload": true,
+        "canEdit": true,
+        "canListChildren": false,
+        "canModifyContent": true,
+        "canModifyLabels": false,
+        "canMoveChildrenWithinDrive": false,
+        "canMoveItemIntoTeamDrive": true,
+        "canMoveItemOutOfDrive": true,
+        "canMoveItemWithinDrive": true,
+        "canReadLabels": false,
+        "canReadRevisions": true,
+        "canRemoveChildren": false,
+        "canRemoveMyDriveParent": true,
+        "canRename": true,
+        "canShare": true,
+        "canTrash": true,
+        "canUntrash": true
+      },
+      "copyRequiresWriterPermission": false,
+      "createdTime": "2022-12-22T01:54:00.644Z",
+      "explicitlyTrashed": false,
+      "fileExtension": "zip",
+      "fullFileExtension": "zip",
+      "hasThumbnail": false,
+      "headRevisionId": "6W3-kmkOrE29doIJ2wrUUYdDjj59McqznuM4PVrBWNEnvcWgTIB",
+      "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/zip",
+      "id": "1QX74t7epvdq55uqNwXgaKohfnyDxmc21",
+      "isAppAuthorized": false,
+      "kind": "drive#file",
+      "lastModifyingUser": {
+        "displayName": "Google User",
+        "emailAddress": "google-user@gmail.com",
+        "kind": "drive#user",
+        "me": true,
+        "permissionId": "31838237028322295771",
+        "photoLink": "https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64"
+      },
+      "linkShareMetadata": {
+        "securityUpdateEligible": false,
+        "securityUpdateEnabled": true
+      },
+      "md5Checksum": "yg51038774c3511zirc16222qev92169",
+      "mimeType": "application/zip",
+      "modifiedByMe": true,
+      "modifiedByMeTime": "2022-12-22T01:54:11.058Z",
+      "modifiedTime": "2022-12-22T01:54:11.058Z",
+      "name": "School Reports.zip",
+      "originalFilename": "Qvlb ul Bosb kp GK2396 2567-83-15.ufi",
+      "ownedByMe": true,
+      "owners": [
+        {
+          "displayName": "Google User",
+          "emailAddress": "google-user@gmail.com",
+          "kind": "drive#user",
+          "me": true,
+          "permissionId": "31838237028322295771",
+          "photoLink": "https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64"
+        }
+      ],
+      "parents": [
+        "3yz1SpGR2YtgnocrGzphb-qkKTfU4htSx"
+      ],
+      "permissionIds": [
+        "31838237028322295771"
+      ],
+      "permissions": [
+        {
+          "deleted": false,
+          "displayName": "Google User",
+          "emailAddress": "google-user@gmail.com",
+          "id": "31838237028322295771",
+          "kind": "drive#permission",
+          "pendingOwner": false,
+          "photoLink": "https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64",
+          "role": "owner",
+          "type": "user"
+        }
+      ],
+      "quotaBytesUsed": "95816",
+      "sha1Checksum": "8x56zj0cvk3vltl13k649k30256sf964145413x7",
+      "sha256Checksum": "543919575727yt0x086541514qfo1ji5s8596mz0jd02llp9q6y95p94lg47b3o9",
+      "shared": false,
+      "size": "95816",
+      "spaces": [
+        "drive"
+      ],
+      "starred": false,
+      "thumbnailVersion": "0",
+      "trashed": false,
+      "version": "3",
+      "viewedByMe": true,
+      "viewedByMeTime": "2022-12-22T01:54:00.644Z",
+      "viewersCanCopyContent": true,
+      "webContentLink": "https://drive.google.com/uc?id=1QX74t7epvdq55uqNwXgaKohfnyDxmc21&export=download",
+      "webViewLink": "https://drive.google.com/file/d/1QX74t7epvdq55uqNwXgaKohfnyDxmc21/view?usp=drivesdk",
+      "writersCanShare": true
+    }
+  ]
+}

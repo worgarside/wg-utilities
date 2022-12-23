@@ -1,26 +1,26 @@
 {
   "capabilities": {
     "canAcceptOwnership": false,
-    "canAddChildren": true,
+    "canAddChildren": false,
     "canAddMyDriveParent": false,
-    "canChangeCopyRequiresWriterPermission": false,
+    "canChangeCopyRequiresWriterPermission": true,
     "canChangeSecurityUpdateEnabled": false,
-    "canChangeViewersCanCopyContent": false,
+    "canChangeViewersCanCopyContent": true,
     "canComment": true,
-    "canCopy": false,
+    "canCopy": true,
     "canDelete": true,
     "canDownload": true,
     "canEdit": true,
-    "canListChildren": true,
+    "canListChildren": false,
     "canModifyContent": true,
     "canModifyLabels": false,
-    "canMoveChildrenWithinDrive": true,
+    "canMoveChildrenWithinDrive": false,
     "canMoveItemIntoTeamDrive": true,
     "canMoveItemOutOfDrive": true,
     "canMoveItemWithinDrive": true,
     "canReadLabels": false,
-    "canReadRevisions": false,
-    "canRemoveChildren": true,
+    "canReadRevisions": true,
+    "canRemoveChildren": false,
     "canRemoveMyDriveParent": true,
     "canRename": true,
     "canShare": true,
@@ -28,12 +28,14 @@
     "canUntrash": true
   },
   "copyRequiresWriterPermission": false,
-  "createdTime": "2022-11-08T19:12:20.975Z",
+  "createdTime": "2022-11-08T23:19:13.329Z",
   "explicitlyTrashed": false,
-  "folderColorRgb": "#8f8f8f",
+  "fileExtension": "zip",
+  "fullFileExtension": "zip",
   "hasThumbnail": false,
-  "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.folder",
-  "id": "7tqryz0A9oYJfzF1cpBMLLsblJ-oHBi1e",
+  "headRevisionId": "4V5-bleQlT20tN5FlQwkffklezwO1CKpRLc7TZN9CJUb8hH7wEA",
+  "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/zip",
+  "id": "7FVjoh2-g6v1sNPXPNRkl2PF174lRKHe6",
   "isAppAuthorized": false,
   "kind": "drive#file",
   "lastModifyingUser": {
@@ -48,11 +50,13 @@
     "securityUpdateEligible": false,
     "securityUpdateEnabled": true
   },
-  "mimeType": "application/vnd.google-apps.folder",
+  "md5Checksum": "fj5e1r81a47580s945o31dke8e3i83d5",
+  "mimeType": "application/zip",
   "modifiedByMe": true,
-  "modifiedByMeTime": "2022-11-08T19:12:20.975Z",
-  "modifiedTime": "2022-11-08T19:12:20.975Z",
-  "name": "Archives",
+  "modifiedByMeTime": "2022-11-09T12:24:00.897Z",
+  "modifiedTime": "2022-11-09T12:24:00.897Z",
+  "name": "128GB SD Card - Old MacBook.zip",
+  "originalFilename": "945KM XJ Jzmp - Gbntz SgjWqsh.ofu",
   "ownedByMe": true,
   "owners": [
     {
@@ -65,12 +69,20 @@
     }
   ],
   "parents": [
-    "6HP-cwhAzI78zEi4NNZ"
+    "0LNGOTumxU0BKMPRayWVRnqT8KmlwFwp1"
   ],
   "permissionIds": [
+    "anyoneWithLink",
     "31838237028322295771"
   ],
   "permissions": [
+    {
+      "allowFileDiscovery": false,
+      "id": "anyoneWithLink",
+      "kind": "drive#permission",
+      "role": "reader",
+      "type": "anyone"
+    },
     {
       "deleted": false,
       "displayName": "Google User",
@@ -83,18 +95,22 @@
       "type": "user"
     }
   ],
-  "quotaBytesUsed": "0",
-  "shared": false,
+  "quotaBytesUsed": "9433392362",
+  "sha1Checksum": "dclc2m1ow7y4g19lv4o98kf2c8u6p3143515k5vm",
+  "sha256Checksum": "8104ycu602v0mxzan41575920mt9873002y0hg1535zdb5101p3gat3j0o483s13",
+  "shared": true,
+  "size": "9433392362",
   "spaces": [
     "drive"
   ],
   "starred": false,
   "thumbnailVersion": "0",
   "trashed": false,
-  "version": "8",
+  "version": "0",
   "viewedByMe": true,
-  "viewedByMeTime": "2022-12-15T21:52:49.660Z",
+  "viewedByMeTime": "2022-11-08T23:19:13.329Z",
   "viewersCanCopyContent": true,
-  "webViewLink": "https://drive.google.com/drive/folders/7tqryz0A9oYJfzF1cpBMLLsblJ-oHBi1e",
+  "webContentLink": "https://drive.google.com/uc?id=5WFqud2-c1y8qDDHAYGmq2IM538hOZVw0&export=download",
+  "webViewLink": "https://drive.google.com/file/d/7FVjoh2-g6v1sNPXPNRkl2PF174lRKHe6/view?usp=drivesdk",
   "writersCanShare": true
 }

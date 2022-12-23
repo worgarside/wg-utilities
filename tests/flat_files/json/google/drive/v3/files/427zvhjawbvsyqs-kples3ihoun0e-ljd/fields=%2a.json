@@ -1,26 +1,26 @@
 {
   "capabilities": {
     "canAcceptOwnership": false,
-    "canAddChildren": true,
+    "canAddChildren": false,
     "canAddMyDriveParent": false,
-    "canChangeCopyRequiresWriterPermission": false,
+    "canChangeCopyRequiresWriterPermission": true,
     "canChangeSecurityUpdateEnabled": false,
-    "canChangeViewersCanCopyContent": false,
+    "canChangeViewersCanCopyContent": true,
     "canComment": true,
-    "canCopy": false,
+    "canCopy": true,
     "canDelete": true,
     "canDownload": true,
     "canEdit": true,
-    "canListChildren": true,
+    "canListChildren": false,
     "canModifyContent": true,
     "canModifyLabels": false,
-    "canMoveChildrenWithinDrive": true,
+    "canMoveChildrenWithinDrive": false,
     "canMoveItemIntoTeamDrive": true,
     "canMoveItemOutOfDrive": true,
     "canMoveItemWithinDrive": true,
     "canReadLabels": false,
-    "canReadRevisions": false,
-    "canRemoveChildren": true,
+    "canReadRevisions": true,
+    "canRemoveChildren": false,
     "canRemoveMyDriveParent": true,
     "canRename": true,
     "canShare": true,
@@ -28,12 +28,14 @@
     "canUntrash": true
   },
   "copyRequiresWriterPermission": false,
-  "createdTime": "2022-11-08T19:12:20.975Z",
+  "createdTime": "2022-11-08T19:40:22.372Z",
   "explicitlyTrashed": false,
-  "folderColorRgb": "#8f8f8f",
+  "fileExtension": "zip",
+  "fullFileExtension": "zip",
   "hasThumbnail": false,
-  "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.folder",
-  "id": "7tqryz0A9oYJfzF1cpBMLLsblJ-oHBi1e",
+  "headRevisionId": "2D7-qayJxT25yeWWBNPJXeYuqOWw3SQqugSIwYyVjsSXHdShSOV",
+  "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/zip",
+  "id": "427zVhjAwBVSyqS-kplES3IhOUN0e-Ljd",
   "isAppAuthorized": false,
   "kind": "drive#file",
   "lastModifyingUser": {
@@ -48,11 +50,13 @@
     "securityUpdateEligible": false,
     "securityUpdateEnabled": true
   },
-  "mimeType": "application/vnd.google-apps.folder",
+  "md5Checksum": "px0231hc5q7u30h84f82h1l0z10t83eq",
+  "mimeType": "application/zip",
   "modifiedByMe": true,
-  "modifiedByMeTime": "2022-11-08T19:12:20.975Z",
-  "modifiedTime": "2022-11-08T19:12:20.975Z",
-  "name": "Archives",
+  "modifiedByMeTime": "2022-11-08T19:11:21.000Z",
+  "modifiedTime": "2022-11-08T19:11:21.000Z",
+  "name": "Photos Library.zip",
+  "originalFilename": "Kxxsaa Rddhgdy.oez",
   "ownedByMe": true,
   "owners": [
     {
@@ -65,12 +69,20 @@
     }
   ],
   "parents": [
-    "6HP-cwhAzI78zEi4NNZ"
+    "0LNGOTumxU0BKMPRayWVRnqT8KmlwFwp1"
   ],
   "permissionIds": [
+    "anyoneWithLink",
     "31838237028322295771"
   ],
   "permissions": [
+    {
+      "allowFileDiscovery": false,
+      "id": "anyoneWithLink",
+      "kind": "drive#permission",
+      "role": "reader",
+      "type": "anyone"
+    },
     {
       "deleted": false,
       "displayName": "Google User",
@@ -83,18 +95,22 @@
       "type": "user"
     }
   ],
-  "quotaBytesUsed": "0",
-  "shared": false,
+  "quotaBytesUsed": "3208451378",
+  "sha1Checksum": "690i0645y3830nq2d5145bt037075iy2r71yle5q",
+  "sha256Checksum": "069x14246qm4aoe9bg5lka31y7982597p9y781886u48qk6ur0g7118486s7017k",
+  "shared": true,
+  "size": "3208451378",
   "spaces": [
     "drive"
   ],
   "starred": false,
   "thumbnailVersion": "0",
   "trashed": false,
-  "version": "8",
+  "version": "0",
   "viewedByMe": true,
-  "viewedByMeTime": "2022-12-15T21:52:49.660Z",
+  "viewedByMeTime": "2022-11-08T19:40:22.372Z",
   "viewersCanCopyContent": true,
-  "webViewLink": "https://drive.google.com/drive/folders/7tqryz0A9oYJfzF1cpBMLLsblJ-oHBi1e",
+  "webContentLink": "https://drive.google.com/uc?id=427zVhjAwBVSyqS-kplES3IhOUN0e-Ljd&export=download",
+  "webViewLink": "https://drive.google.com/file/d/427zVhjAwBVSyqS-kplES3IhOUN0e-Ljd/view?usp=drivesdk",
   "writersCanShare": true
 }

@@ -28,12 +28,12 @@
     "canUntrash": true
   },
   "copyRequiresWriterPermission": false,
-  "createdTime": "2022-11-08T19:12:20.975Z",
+  "createdTime": "2022-11-08T19:12:27.245Z",
   "explicitlyTrashed": false,
   "folderColorRgb": "#8f8f8f",
   "hasThumbnail": false,
-  "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.folder",
-  "id": "7tqryz0A9oYJfzF1cpBMLLsblJ-oHBi1e",
+  "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.folder+shared",
+  "id": "0LNGOTumxU0BKMPRayWVRnqT8KmlwFwp1",
   "isAppAuthorized": false,
   "kind": "drive#file",
   "lastModifyingUser": {
@@ -50,9 +50,9 @@
   },
   "mimeType": "application/vnd.google-apps.folder",
   "modifiedByMe": true,
-  "modifiedByMeTime": "2022-11-08T19:12:20.975Z",
-  "modifiedTime": "2022-11-08T19:12:20.975Z",
-  "name": "Archives",
+  "modifiedByMeTime": "2022-11-09T12:19:12.419Z",
+  "modifiedTime": "2022-11-09T12:19:12.419Z",
+  "name": "MacBook Clones",
   "ownedByMe": true,
   "owners": [
     {
@@ -65,12 +65,20 @@
     }
   ],
   "parents": [
-    "6HP-cwhAzI78zEi4NNZ"
+    "7tqryz0A9oYJfzF1cpBMLLsblJ-oHBi1e"
   ],
   "permissionIds": [
+    "anyoneWithLink",
     "31838237028322295771"
   ],
   "permissions": [
+    {
+      "allowFileDiscovery": false,
+      "id": "anyoneWithLink",
+      "kind": "drive#permission",
+      "role": "reader",
+      "type": "anyone"
+    },
     {
       "deleted": false,
       "displayName": "Google User",
@@ -84,17 +92,17 @@
     }
   ],
   "quotaBytesUsed": "0",
-  "shared": false,
+  "shared": true,
   "spaces": [
     "drive"
   ],
   "starred": false,
   "thumbnailVersion": "0",
   "trashed": false,
-  "version": "8",
+  "version": "2",
   "viewedByMe": true,
-  "viewedByMeTime": "2022-12-15T21:52:49.660Z",
+  "viewedByMeTime": "2022-12-15T21:52:50.726Z",
   "viewersCanCopyContent": true,
-  "webViewLink": "https://drive.google.com/drive/folders/7tqryz0A9oYJfzF1cpBMLLsblJ-oHBi1e",
+  "webViewLink": "https://drive.google.com/drive/folders/0LNGOTumxU0BKMPRayWVRnqT8KmlwFwp1",
   "writersCanShare": true
 }
