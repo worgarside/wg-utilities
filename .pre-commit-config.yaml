@@ -31,7 +31,6 @@ repos:
           - --maxkb=1000
       - id: check-case-conflict
       - id: check-merge-conflict
-      - id: check-json
       - id: debug-statements
       - id: end-of-file-fixer
       - id: mixed-line-ending
@@ -48,7 +47,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/pycqa/isort
-    rev: v5.11.3
+    rev: 5.11.4
     hooks:
       - id: isort
         name: isort (python)
@@ -139,6 +138,6 @@ repos:
           - '*.svg,*.json'
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.186
+    rev: v0.0.194
     hooks:
       - id: ruff
