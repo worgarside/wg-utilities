@@ -59,6 +59,5 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Check on UT failures
-        # yamllint disable-line rule:line-length
         if: steps.unit_tests.outcome != 'success'
         run: exit 1

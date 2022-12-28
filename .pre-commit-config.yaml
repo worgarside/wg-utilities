@@ -141,3 +141,12 @@ repos:
     rev: v0.0.194
     hooks:
       - id: ruff
+
+  - repo: local
+    hooks:
+      - id: lower-case-only-test-files
+        name: lower case only test files
+        entry: JSON test file names must be lowercase
+        language: fail
+        # yamllint disable-line rule:line-length
+        files: 'tests\/flat_files\/json\/google\/drive\/v3\/files\/.*[^a-z0-9._=&%?@+\-/@].*\.json'
