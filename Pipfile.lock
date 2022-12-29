@@ -1052,7 +1052,7 @@
         "sha256:748fbc0bd45a579415a13cbe7d95b405ce9d4b3935f4cb85766f8174628d803a",
         "sha256:74d1c0583820cd3ae351246c7becd3392dc308b10e447689ada0691642d8e1aa"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4.0'",
+      "markers": "python_version >= '3.7' and python_version < '4'",
       "version": "==1.29.39"
     },
     "certifi": {
@@ -1879,11 +1879,11 @@
     },
     "pre-commit": {
       "hashes": [
-        "sha256:51a5ba7c480ae8072ecdb6933df22d2f812dc897d5fe848778116129a681aac7",
-        "sha256:a978dac7bc9ec0bcee55c18a277d553b0f419d259dadb4b9418ff2d00eb43959"
+        "sha256:31ef31af7e474a8d8995027fefdfcf509b5c913ff31f2015b4ec4beb26a6f658",
+        "sha256:e2f91727039fc39a92f58a588a25b87f936de6567eed4f0e673e0507edc75bad"
       ],
       "index": "pypi",
-      "version": "==2.20.0"
+      "version": "==2.21.0"
     },
     "pycln": {
       "hashes": [
@@ -2071,7 +2071,7 @@
         "sha256:a4eb26484f2c82589bd9a17c73d32a010b1e29d89f1604cd9bf3a2097b81bb5e",
         "sha256:ba3a3775974105c221d31141f2c116f4fd65c5ceb0698657a11e9f295ec93fd0"
       ],
-      "markers": "python_version < '4.0' and python_full_version >= '3.6.3'",
+      "markers": "python_version < '4' and python_full_version >= '3.6.3'",
       "version": "==12.6.0"
     },
     "s3transfer": {
@@ -2151,7 +2151,7 @@
         "sha256:666948cb1868d77a274153ec4310ed58b995b3ec0aed4045a633b394a92c35b1",
         "sha256:d19535554446ac89f50641936a7780f66228419853ee6dbd006b2bb6f19130d9"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4.0'",
+      "markers": "python_version >= '3.7' and python_version < '4'",
       "version": "==0.16.3"
     },
     "types-pytz": {
@@ -2174,7 +2174,7 @@
         "sha256:2cf1e07cf4d1a5a2a68d89c654f45d9c3b678d39f7fe03a6f36903b6dbd3bcbc",
         "sha256:cfcbee11c16d60af3feb3dbffea3a85b32129235b562912dece310a45ae83a2c"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4.0'",
+      "markers": "python_version >= '3.7' and python_version < '4'",
       "version": "==0.6.0.post5"
     },
     "types-setuptools": {
