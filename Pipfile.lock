@@ -125,10 +125,10 @@
     },
     "async-upnp-client": {
       "hashes": [
-        "sha256:e3ac0bd5e2af0c2e232c918bfd2f0938b38dee85cea6dd9f356d061a67fd06b2"
+        "sha256:b9b0cf225b400a19a8f81125d3f084940d72f68e268aafadf294e3405b6d4f4d"
       ],
       "index": "pypi",
-      "version": "==0.32.3"
+      "version": "==0.33.0"
     },
     "attrs": {
       "hashes": [
