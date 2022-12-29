@@ -140,11 +140,11 @@
     },
     "botocore": {
       "hashes": [
-        "sha256:22b6659d7c8002844db5bf8bda400d0219e8bde5722d810a47d93fea0daf3dfe",
-        "sha256:303f8c3ba40b11563b0b6740af8c053d3ed187a4824e495a652ccdb593dd612e"
+        "sha256:3f48020d7d51bbd68e51c1fbf6ecac139579aa50378c0ca83d4f908313041be9",
+        "sha256:c8f7c8de902e42b71dbf7e2205a40a1aab8b1fb37342d8fdff198cc1610c39c7"
       ],
       "index": "pypi",
-      "version": "==1.29.33"
+      "version": "==1.29.39"
     },
     "cachetools": {
       "hashes": [
@@ -1041,11 +1041,11 @@
     },
     "botocore": {
       "hashes": [
-        "sha256:22b6659d7c8002844db5bf8bda400d0219e8bde5722d810a47d93fea0daf3dfe",
-        "sha256:303f8c3ba40b11563b0b6740af8c053d3ed187a4824e495a652ccdb593dd612e"
+        "sha256:3f48020d7d51bbd68e51c1fbf6ecac139579aa50378c0ca83d4f908313041be9",
+        "sha256:c8f7c8de902e42b71dbf7e2205a40a1aab8b1fb37342d8fdff198cc1610c39c7"
       ],
       "index": "pypi",
-      "version": "==1.29.33"
+      "version": "==1.29.39"
     },
     "botocore-stubs": {
       "hashes": [
@@ -1285,11 +1285,11 @@
     },
     "exceptiongroup": {
       "hashes": [
-        "sha256:542adf9dea4055530d6e1279602fa5cb11dab2395fa650b8674eaec35fc4a828",
-        "sha256:bd14967b79cd9bdb54d97323216f8fdf533e278df937aa2a90089e7d6e06e5ec"
+        "sha256:327cbda3da756e2de031a3107b81ab7b3770a602c4d16ca618298c526f4bec1e",
+        "sha256:bcb67d800a4497e1b404c2dd44fca47d3b7a5e5433dbab67f96c1a685cdfdf23"
       ],
       "index": "pypi",
-      "version": "==1.0.4"
+      "version": "==1.1.0"
     },
     "filelock": {
       "hashes": [
@@ -2163,11 +2163,11 @@
     },
     "types-requests": {
       "hashes": [
-        "sha256:091d4a5a33c1b4f20d8b1b952aa8fa27a6e767c44c3cf65e56580df0b05fd8a9",
-        "sha256:a7df37cc6fb6187a84097da951f8e21d335448aa2501a6b0a39cbd1d7ca9ee2a"
+        "sha256:0ae38633734990d019b80f5463dfa164ebd3581998ac8435f526da6fe4d598c3",
+        "sha256:b6a2fca8109f4fdba33052f11ed86102bddb2338519e1827387137fefc66a98b"
       ],
       "index": "pypi",
-      "version": "==2.28.11.5"
+      "version": "==2.28.11.7"
     },
     "types-s3transfer": {
       "hashes": [
