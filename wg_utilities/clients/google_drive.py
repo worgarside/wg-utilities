@@ -11,7 +11,6 @@ from re import sub
 from typing import AbstractSet, Any, ClassVar, Literal, TypeVar
 
 from pydantic import Field, validator
-from pydantic.fields import FieldInfo
 
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.clients.oauth_client import (
@@ -607,6 +606,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
         """
 
         if self._directories_loaded is not True:
+            # TODO replace these with a `file_fields` property
             file_fields = (
                 "*"
                 if self.google_client.item_metadata_retrieval
@@ -798,15 +798,19 @@ class File(_GoogleDriveEntity):
                 == ItemMetadataRetrieval.ON_FIRST_REQUEST
             ):
                 self.describe()
-            else:
-                # Otherwise just get the single field
-                google_key = self.__fields__[name].alias or name
+                return super().__getattribute__(name)
 
-                res = self.google_client.get_json_response(
-                    f"/files/{self.id}",
-                    params={"fields": google_key, "pageSize": None},
-                )
-                setattr(self, name, res.pop(google_key, None))
+            # Otherwise just get the single field
+            google_key = self.__fields__[name].alias or name
+
+            res = self.google_client.get_json_response(
+                f"/files/{self.id}",
+                params={"fields": google_key, "pageSize": None},
+            )
+            setattr(self, name, res.pop(google_key, None))
+
+            # I can't just return the value of `res.pop(google_key, None)` here because
+            # it needs to go through Pydantic's validators first
 
         return super().__getattribute__(name)
 
@@ -814,7 +818,7 @@ class File(_GoogleDriveEntity):
     def _validate_mime_type(cls, mime_type: str) -> str:
 
         if mime_type == Directory.MIME_TYPE:
-            raise ValueError("Use `Directory` class to create a directory")
+            raise ValueError("Use `Directory` class to create a directory.")
 
         return mime_type
 
@@ -822,7 +826,7 @@ class File(_GoogleDriveEntity):
     def _validate_parents(cls, parents: list[str]) -> list[str]:
 
         if len(parents) != 1:
-            raise ValueError(f"A {cls.__name__} must have exactly one parent")
+            raise ValueError(f"A {cls.__name__} must have exactly one parent.")
 
         return parents
 
@@ -840,7 +844,7 @@ class File(_GoogleDriveEntity):
             Directory, Drive: The parent instance.
 
         Raises:
-            ValueError: If the parent instance's ID does not match the expected parent
+            ValueError: If the parent instance's ID doesn't match the expected parent
                 ID.
         """
 
@@ -873,7 +877,7 @@ class File(_GoogleDriveEntity):
         if (
             force_update
             or not hasattr(self, "_description")
-            or isinstance(self._description, FieldInfo)
+            or not isinstance(self._description, dict)
         ):
             self._set_private_attr(
                 "_description",
@@ -886,13 +890,13 @@ class File(_GoogleDriveEntity):
             for key, value in self._description.items():
                 google_key = sub("([A-Z])", r"_\1", key).lower()
 
-                if key not in self.__fields_set__:
+                try:
                     setattr(self, google_key, value)
-                elif key not in self.__fields__:
+                except ValueError as exc:
                     raise ValueError(
                         f"Received unexpected field {key!r} with value {value!r}"
                         " from Google Drive API"
-                    )
+                    ) from exc
 
         return self._description
 
@@ -923,7 +927,7 @@ class File(_GoogleDriveEntity):
 
     def __repr__(self) -> str:
         """str representation of the file."""
-        return f"File(" f"id={self.id!r}, " f"name={self.name!r})"
+        return f"File(id={self.id!r}, name={self.name!r})"
 
 
 class Directory(File, _CanHaveChildren):
@@ -1194,8 +1198,8 @@ class Drive(_CanHaveChildren):
                 EntityType.FILE.
         """
 
-        if (map_type == EntityType.DIRECTORY and self._directories_mapped) or (
-            map_type == EntityType.FILE and self._files_mapped
+        if (map_type == EntityType.DIRECTORY and self._directories_mapped is True) or (
+            map_type == EntityType.FILE and self._files_mapped is True
         ):
             return
 

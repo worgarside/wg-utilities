@@ -534,16 +534,19 @@ def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
 
 
 @fixture(scope="function", name="file")  # type: ignore[misc]
-def _file(drive: Drive, google_drive_client: GoogleDriveClient) -> File:
+def _file(
+    drive: Drive, directory: Directory, google_drive_client: GoogleDriveClient
+) -> File:
     """Fixture for a Google Drive File instance."""
 
     return File.from_json_response(
         read_json_file(
-            "v3/files/7fvjoh2-g6v1snpxpnrkl2pf174lrkhe6/fields=%2a.json",
+            "v3/files/1x9xhqui0chzagahgr1d0lion2jj5mzo-wu7l5fhcn4b/fields=%2a.json",
             host_name="google/drive",
         ),
         google_client=google_drive_client,
         host_drive=drive,
+        parent=directory,
         _block_describe_call=True,
     )
 
@@ -1041,6 +1044,25 @@ def _server_thread(flask_app: Flask) -> YieldFixture[TempAuthServer.ServerThread
 
     server_thread.shutdown()
     del server_thread
+
+
+@fixture(scope="function", name="simple_file")  # type: ignore[misc]
+def _simple_file(
+    drive: Drive, directory: Directory, google_drive_client: GoogleDriveClient
+) -> File:
+    """Fixture for a Google Drive File instance."""
+
+    return File.from_json_response(
+        read_json_file(
+            # pylint: disable=line-too-long
+            "v3/files/1x9xhqui0chzagahgr1d0lion2jj5mzo-wu7l5fhcn4b/fields=id%2c+name%2c+parents%2c+mimetype%2c+kind.json",
+            host_name="google/drive",
+        ),
+        google_client=google_drive_client,
+        host_drive=drive,
+        parent=directory,
+        _block_describe_call=True,
+    )
 
 
 @fixture(scope="function", name="spotify_album")  # type: ignore[misc]
