@@ -956,11 +956,7 @@ class Directory(File, _CanHaveChildren):
 
     @validator("mime_type")
     def _validate_mime_type(cls, mime_type: str) -> str:
-
-        if mime_type != Directory.MIME_TYPE:
-            raise ValueError(
-                f"Use `File` class to create a file with mimeType {mime_type}"
-            )
+        """Just an override for the parent class's validator."""
 
         return mime_type
 
