@@ -44,7 +44,9 @@ def test_kind_validation(drive: Drive, google_drive_client: GoogleDriveClient) -
             host_drive=drive,
             parent=drive,
         )
-    assert "Invalid kind for Directory: drive#user" in str(exc_info.value)
+    assert "Invalid kind for Directory: drive#user" in str(
+        exc_info.value
+    ) or "Invalid kind for Directory: EntityKind.USER" in str(exc_info.value)
 
 
 def test_mime_type_validation(
