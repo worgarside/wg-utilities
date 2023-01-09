@@ -16,7 +16,7 @@ exclude = '''
 '''
 
 [tool.codespell]
-skip = '*.json,*.csv,*.xml'
+skip = '*.json,*.csv,*.xml,*google_drive_tree.txt'
 
 [tool.isort]
 profile = "black"

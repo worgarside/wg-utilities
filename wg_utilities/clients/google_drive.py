@@ -567,7 +567,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
                 if isinstance(child_item, Directory):
                     prefix += "─── "
                 else:
-                    prefix += "--> "
+                    prefix += "──> "
 
                 output += prefix + child_item.name
 

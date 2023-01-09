@@ -10,12 +10,13 @@ from pydantic.fields import FieldInfo
 from pytest import mark, raises
 from requests_mock import Mocker
 
-from conftest import assert_mock_requests_request_history
+from conftest import FLAT_FILES_DIR, assert_mock_requests_request_history
 from wg_utilities.clients.google_drive import (
     Directory,
     Drive,
     File,
     GoogleDriveClient,
+    ItemMetadataRetrieval,
     _CanHaveChildren,
     _GoogleDriveEntity,
 )
@@ -292,13 +293,13 @@ def test_navigate_method(
 
     My Drive
     └─── Archives
-         ├--> Archive Log
+         ├──> Archive Log
          ├─── Old Documents
-         │    ├--> Harvard Transcripts.zip
-         │    └--> School Reports.zip
+         │    ├──> Harvard Transcripts.zip
+         │    └──> School Reports.zip
          └─── MacBook Clones
-              ├--> 128GB SD Card - Old MacBook.zip
-              └--> Photos Library.zip
+              ├──> 128GB SD Card - Old MacBook.zip
+              └──> Photos Library.zip
     """
 
     expected = drive_comparison_entity_lookup[instance_path.split("/")[-1]]
@@ -371,12 +372,12 @@ def test_reset_known_children(directory: Directory) -> None:
     (
         (
             True,
-            "My Drive\n└─── Archives\n     └--> Archive Log",
+            "My Drive\n└─── Archives\n     └──> Archive Log",
             dedent(
                 """
                 My Drive
                 └─── Archives
-                     ├--> Archive Log
+                     ├──> Archive Log
                      ├─── MacBook Clones
                      └─── Old Documents
                 """
@@ -385,13 +386,13 @@ def test_reset_known_children(directory: Directory) -> None:
                 """
                 My Drive
                 └─── Archives
-                     ├--> Archive Log
+                     ├──> Archive Log
                      ├─── MacBook Clones
-                     │    ├--> 128GB SD Card - Old MacBook.zip
-                     │    └--> Photos Library.zip
+                     │    ├──> 128GB SD Card - Old MacBook.zip
+                     │    └──> Photos Library.zip
                      └─── Old Documents
-                          ├--> Harvard Transcripts.zip
-                          └--> School Reports.zip
+                          ├──> Harvard Transcripts.zip
+                          └──> School Reports.zip
                 """
             ).strip(),
         ),
@@ -446,6 +447,16 @@ def test_tree_method_local_only(
         _ = d.files
 
     assert drive.tree(include_files=include_files, local_only=True) == complete_tree
+
+
+def test_tree_not_local_only(drive: Drive) -> None:
+    """Test that the `tree` method behaves as expected when `local_only` is `False`."""
+
+    drive.google_client.item_metadata_retrieval = ItemMetadataRetrieval.ON_DEMAND
+
+    expected = (FLAT_FILES_DIR / "text/google_drive_tree.txt").read_text().strip()
+
+    assert drive.tree(include_files=True, local_only=False) == expected
 
 
 @mark.parametrize(  # type: ignore[misc]
