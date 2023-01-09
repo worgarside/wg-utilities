@@ -178,16 +178,14 @@ class _GoogleDriveEntity(GenericModelWithConfig):
             **value,
         }
 
-        instance = cls(**value_data)
+        instance = cls.parse_obj(value_data)
 
-        if (
-            isinstance(instance, (File, Directory))
-            and isinstance(host_drive, Drive)
-            and host_drive.id == instance.parents[0]
-        ):
-            # pylint: disable=attribute-defined-outside-init
-            instance.parent_ = host_drive
-            host_drive.add_child(instance)
+        if isinstance(instance, (File, Directory)):
+            if parent is not None:
+                parent.add_child(instance)
+            elif host_drive is not None and host_drive.id == instance.parents[0]:
+                instance.parent_ = host_drive
+                host_drive.add_child(instance)
 
         if (
             not _block_describe_call
@@ -350,6 +348,12 @@ class _CanHaveChildren(_GoogleDriveEntity):
         elif directory not in self._directories:
             self._directories.append(directory)
 
+        if hasattr(self, "_all_directories"):
+            if not isinstance(self._all_directories, list):
+                self._set_private_attr("_all_directories", [directory])
+            elif directory not in self._all_directories:
+                self._all_directories.append(directory)
+
     def _add_file(self, file: File) -> None:
         """Adds a file to this directory's files record.
 
@@ -373,6 +377,12 @@ class _CanHaveChildren(_GoogleDriveEntity):
             self._set_private_attr("_files", [file])
         elif file not in self._files:
             self._files.append(file)
+
+        if hasattr(self, "_all_files"):
+            if not isinstance(self._all_files, list):
+                self._set_private_attr("_all_files", [file])
+            elif file not in self._all_files:
+                self._all_files.append(file)
 
     def add_child(self, child: File | Directory) -> None:
         """Adds a child to this directory's children record."""
@@ -948,7 +958,7 @@ class Directory(File, _CanHaveChildren):
     def _validate_kind(cls, value: str | None) -> str:
         """Set the kind to "drive#folder"."""
 
-        # Drives are just a subtype of files, so `"drive#file"` is okay too
+        # Directories are just a subtype of files, so `"drive#file"` is okay too
         if value not in (EntityKind.DIRECTORY, EntityKind.FILE):
             raise ValueError(f"Invalid kind for Directory: {value}")
 
@@ -962,7 +972,7 @@ class Directory(File, _CanHaveChildren):
 
     def __repr__(self) -> str:
         """str representation of the directory."""
-        return f"Directory(" f"id={self.id!r}, " f"name={self.name!r})"
+        return f"Directory(id={self.id!r}, name={self.name!r})"
 
 
 class _DriveCapabilities(BaseModelWithConfig):
@@ -1043,6 +1053,9 @@ class _DriveBackgroundImageFile(BaseModelWithConfig):
     width: float
 
 
+DriveSubEntity = TypeVar("DriveSubEntity", Directory, File)
+
+
 class Drive(_CanHaveChildren):
     """A Google Drive: Drive - basically a Directory with extended functionality."""
 
@@ -1112,6 +1125,35 @@ class Drive(_CanHaveChildren):
 
         return "drive#drive"
 
+    def _get_entity_by_id(
+        self, cls: type[DriveSubEntity], entity_id: str
+    ) -> DriveSubEntity:
+        """Get either a Directory or File by its ID.
+
+        Args:
+            cls (type): The class of the entity to get.
+            entity_id (str): The ID of the entity to get.
+        """
+        file_fields = (
+            "*"
+            if self.google_client.item_metadata_retrieval
+            == ItemMetadataRetrieval.ON_INIT
+            else "id, name, parents, mimeType, kind"
+        )
+
+        return cls.from_json_response(
+            self.google_client.get_json_response(
+                f"/files/{entity_id}",
+                params={
+                    "fields": file_fields,
+                    "pageSize": None,
+                },
+            ),
+            google_client=self.google_client,
+            host_drive=self,
+            _block_describe_call=True,
+        )
+
     def get_directory_by_id(self, directory_id: str) -> Directory:
         """Get a directory by its ID.
 
@@ -1124,30 +1166,13 @@ class Drive(_CanHaveChildren):
         Raises:
             ResourceNotFoundError: if a directory with the given ID does not exist
         """
-        if isinstance(self._directories, list):
-            for directory in self._directories:
+        if isinstance(self._all_directories, list):
+            print(directory_id in [d.id for d in self._all_directories])
+            for directory in self._all_directories:
                 if directory.id == directory_id:
                     return directory
 
-        file_fields = (
-            "*"
-            if self.google_client.item_metadata_retrieval
-            == ItemMetadataRetrieval.ON_INIT
-            else "id, name, parents, mimeType, kind"
-        )
-
-        return Directory.from_json_response(
-            self.google_client.get_json_response(
-                f"/files/{directory_id}",
-                params={
-                    "fields": file_fields,
-                    "pageSize": None,
-                },
-            ),
-            google_client=self.google_client,
-            host_drive=self,
-            _block_describe_call=True,
-        )
+        return self._get_entity_by_id(Directory, directory_id)
 
     def get_file_by_id(self, file_id: str) -> File:
         """Get a file by its ID.
@@ -1161,30 +1186,12 @@ class Drive(_CanHaveChildren):
         Raises:
             ResourceNotFoundError: if a file with the given ID does not exist
         """
-        if isinstance(self._files, list):
-            for file in self._files:
+        if isinstance(self._all_files, list):
+            for file in self._all_files:
                 if file.id == file_id:
                     return file
 
-        file_fields = (
-            "*"
-            if self.google_client.item_metadata_retrieval
-            == ItemMetadataRetrieval.ON_INIT
-            else "id, name, parents, mimeType, kind"
-        )
-
-        return File.from_json_response(
-            self.google_client.get_json_response(
-                f"/files/{file_id}",
-                params={
-                    "fields": file_fields,
-                    "pageSize": None,
-                },
-            ),
-            google_client=self.google_client,
-            host_drive=self,
-            _block_describe_call=True,
-        )
+        return self._get_entity_by_id(File, file_id)
 
     def map(self, map_type: EntityType = EntityType.FILE) -> None:
         """Traverse the entire Drive to map its content.
@@ -1225,7 +1232,7 @@ class Drive(_CanHaveChildren):
         all_directories = []
         all_items = [item for item in all_items if "parents" in item]
 
-        known_child_ids = [child.id for child in self.all_known_children]
+        known_descendent_ids = [child.id for child in self.all_known_descendents]
 
         def build_sub_structure(
             parent_dir: _CanHaveChildren,
@@ -1243,18 +1250,18 @@ class Drive(_CanHaveChildren):
             to_be_mapped = []
             for item in all_items:
                 try:
-                    if parent_dir.id not in item["parents"]:
+                    if parent_dir.id != item["parents"][0]:
                         remaining_items.append(item)
                         continue
-                except KeyError:
+                except LookupError:
                     continue
 
-                if item["id"] in known_child_ids:
+                if item["id"] in known_descendent_ids:
                     if item["mimeType"] == Directory.MIME_TYPE:
                         to_be_mapped.append(self.get_directory_by_id(item["id"]))
 
                 # Can't use `kind` here as it can be `drive#file` for directories
-                if item["mimeType"] == Directory.MIME_TYPE:
+                elif item["mimeType"] == Directory.MIME_TYPE:
                     directory = Directory.from_json_response(
                         item,
                         google_client=self.google_client,
@@ -1304,7 +1311,7 @@ class Drive(_CanHaveChildren):
     def search(
         self,
         term: str,
-        entity_type: type[File] | type[Directory] | None = None,
+        entity_type: EntityType | None = None,
         max_results: int = 50,
         exact_match: bool = False,
         created_range: tuple[datetime, datetime] | None = None,
@@ -1313,15 +1320,21 @@ class Drive(_CanHaveChildren):
 
         Args:
             term (str): the term to search for
-            entity_type (type[File] | type[Directory] | None, optional): the type of
+            entity_type (EntityType | None, optional): the type of
                 entity to search for. Defaults to None.
             max_results (int, optional): the maximum number of results to return.
                 Defaults to 50.
             exact_match (bool, optional): whether to only return results that exactly
                 match the search term. Defaults to False.
-            created_range (tuple[datetime, datetime] | None, optional): a tuple
-                containing the start and end of the date range to search in. Defaults
-                to None.
+            created_range (tuple[datetime, datetime], optional): a tuple containing the
+                start and end of the date range to search in. Defaults to None.
+
+        Returns:
+            list[File | Directory]: the files and directories that match the search
+                term
+
+        Raises:
+            ValueError: if the given entity type is not supported
         """
 
         file_fields = (
@@ -1332,7 +1345,7 @@ class Drive(_CanHaveChildren):
         )
 
         params = {
-            "pageSize": 1 if exact_match else max(max_results, 1000),
+            "pageSize": 1 if exact_match else min(max_results, 1000),
             "fields": f"nextPageToken, files({file_fields})",
         }
 
@@ -1340,8 +1353,15 @@ class Drive(_CanHaveChildren):
             f"name = '{term}'" if exact_match else f"name contains '{term}'",
         ]
 
-        if entity_type == Directory:
+        if entity_type == EntityType.DIRECTORY:
             query_conditions.append(f"mimeType = '{Directory.MIME_TYPE}'")
+        elif entity_type == EntityType.FILE:
+            query_conditions.append(f"mimeType != '{Directory.MIME_TYPE}'")
+        elif entity_type is not None:
+            raise ValueError(
+                "`entity_type` must be either EntityType.FILE or EntityType.DIRECTORY,"
+                " or None to search for both",
+            )
 
         if created_range:
             query_conditions.append(f"createdTime > '{created_range[0].isoformat()}'")
@@ -1368,10 +1388,28 @@ class Drive(_CanHaveChildren):
         ]
 
     @property
+    def all_known_descendents(self) -> list[Directory | File]:
+        """Gets all known children of this directory.
+
+        No HTTP requests are made to get these children, so this may not be an
+        exhaustive list.
+
+        Returns:
+            list[Directory | File]: The list of children.
+        """
+        if not isinstance(self._all_directories, list):
+            self._set_private_attr("_all_directories", [])
+
+        if not isinstance(self._all_files, list):
+            self._set_private_attr("_all_files", [])
+
+        return self._all_files + self._all_directories  # type: ignore[operator]
+
+    @property
     def all_directories(self) -> list[Directory]:
         """Get all directories in the Drive."""
 
-        if not self._directories_mapped:
+        if self._directories_mapped is not True:
             self.map(map_type=EntityType.DIRECTORY)
 
         return self._all_directories
@@ -1380,14 +1418,14 @@ class Drive(_CanHaveChildren):
     def all_files(self) -> list[File]:
         """Get all files in the Drive."""
 
-        if not self._files_mapped:
+        if self._files_mapped is not True:
             self.map()
 
         return self._all_files
 
     def __repr__(self) -> str:
         """str representation of the directory."""
-        return f"Drive(" f"id={self.id!r}, " f"name={self.name!r}"
+        return f"Drive(id={self.id!r}, name={self.name!r}"
 
 
 class ItemMetadataRetrieval(str, Enum):

@@ -1,4 +1,5 @@
-# pylint: disable=missing-module-docstring,invalid-name
+# pylint: disable=invalid-name
+"""Utilities package for my other projects."""
 from __future__ import annotations
 
 name = "wg_utilities"

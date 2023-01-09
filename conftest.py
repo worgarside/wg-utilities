@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Generator
+from hashlib import md5
 from http import HTTPStatus
 from json import dumps, loads
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, LogRecord, getLogger
@@ -17,7 +18,7 @@ from textwrap import dedent
 from time import sleep, time
 from typing import Any, Literal, TypeVar, cast, overload
 from unittest.mock import MagicMock, patch
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
 from xml.etree import ElementTree
 
 from aioresponses import aioresponses
@@ -33,6 +34,7 @@ from jwt import decode, encode
 from mypy_boto3_lambda import LambdaClient
 from mypy_boto3_s3 import S3Client
 from pigpio import _callback
+from pydantic.fields import Field
 from pytest import FixtureRequest, fixture
 from requests import get
 from requests.exceptions import ConnectionError as RequestsConnectionError
@@ -262,6 +264,7 @@ def get_flat_file_from_url(
 ) -> SpotifyEntityJson | dict[Literal["accounts"], list[AccountJson]] | dict[
     Literal["pots"], list[PotJson]
 ]:
+    # pylint: disable=missing-raises-doc
     """Retrieves the content of a flat JSON file for a mocked request response.
 
     Args:
@@ -281,20 +284,32 @@ def get_flat_file_from_url(
         f"{request.path.replace('/v1/', '')}/{request.query}".rstrip("/") + ".json"
     )
 
+    host_name = {
+        "api.spotify.com": "spotify",
+        "api.monzo.com": "monzo",
+        "www.googleapis.com": "google",
+    }[request.hostname]
+
     try:
         return read_json_file(  # type: ignore[return-value]
             file_path,
-            host_name={
-                "api.spotify.com": "spotify",
-                "api.monzo.com": "monzo",
-                "www.googleapis.com": "google",
-            }[request.hostname],
+            host_name=host_name,
         )
     except FileNotFoundError as exc:  # pragma: no cover
         raise ValueError(
             "Unable to dynamically load JSON file for "
             f"https://{request.hostname}{request.path}?{unquote(request.query)}"
         ) from exc
+    except OSError:
+        if "pagetoken" in request.qs and len(request.qs["pagetoken"]) == 1:
+            file_path = file_path.replace(
+                quote(request.qs["pagetoken"][0]).lower(),
+                md5(request.qs["pagetoken"][0].encode()).hexdigest(),
+            )
+            return read_json_file(  # type: ignore[return-value]
+                file_path, host_name=host_name
+            )
+        raise
 
 
 def random_nested_json() -> JSONObj:
@@ -484,8 +499,9 @@ def _dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
 
 @fixture(scope="function", name="directory")  # type: ignore[misc]
 def _directory(drive: Drive, google_drive_client: GoogleDriveClient) -> Directory:
+    # pylint: disable=protected-access
     """Fixture for a Google Drive Directory instance."""
-    return Directory.from_json_response(
+    diry = Directory.from_json_response(
         read_json_file(
             "v3/files/7tqryz0a9oyjfzf1cpbmllsblj-ohbi1e/fields=%2a.json",
             host_name="google/drive",
@@ -495,6 +511,16 @@ def _directory(drive: Drive, google_drive_client: GoogleDriveClient) -> Director
         parent=drive,
         _block_describe_call=True,
     )
+
+    drive._set_private_attr("_all_files", Field(exclude=True, default_factory=list))
+    drive._set_private_attr("_files", Field(exclude=True, default_factory=list))
+
+    drive._set_private_attr(
+        "_all_directories", Field(exclude=True, default_factory=list)
+    )
+    drive._set_private_attr("_directories", Field(exclude=True, default_factory=list))
+
+    return diry
 
 
 @fixture(scope="function", name="drive")  # type: ignore[misc]
@@ -537,9 +563,10 @@ def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
 def _file(
     drive: Drive, directory: Directory, google_drive_client: GoogleDriveClient
 ) -> File:
+    # pylint: disable=protected-access
     """Fixture for a Google Drive File instance."""
 
-    return File.from_json_response(
+    file = File.from_json_response(
         read_json_file(
             "v3/files/1x9xhqui0chzagahgr1d0lion2jj5mzo-wu7l5fhcn4b/fields=%2a.json",
             host_name="google/drive",
@@ -549,6 +576,15 @@ def _file(
         parent=directory,
         _block_describe_call=True,
     )
+
+    # Don't "dirty" the `directory` fixture
+    directory._set_private_attr(  # pylint: disable=protected-access
+        "_files", Field(exclude=True, default_factory=list)
+    )
+
+    drive._set_private_attr("_all_files", Field(exclude=True, default_factory=list))
+
+    return file
 
 
 @fixture(scope="session", name="flask_app")  # type: ignore[misc]
@@ -1052,7 +1088,7 @@ def _simple_file(
 ) -> File:
     """Fixture for a Google Drive File instance."""
 
-    return File.from_json_response(
+    simple_file = File.from_json_response(
         read_json_file(
             # pylint: disable=line-too-long
             "v3/files/1x9xhqui0chzagahgr1d0lion2jj5mzo-wu7l5fhcn4b/fields=id%2c+name%2c+parents%2c+mimetype%2c+kind.json",
@@ -1063,6 +1099,12 @@ def _simple_file(
         parent=directory,
         _block_describe_call=True,
     )
+
+    # Don't "dirty" the `directory` fixture
+    directory._set_private_attr(  # pylint: disable=protected-access
+        "_files", Field(exclude=True, default_factory=list)
+    )
+    return simple_file
 
 
 @fixture(scope="function", name="spotify_album")  # type: ignore[misc]
