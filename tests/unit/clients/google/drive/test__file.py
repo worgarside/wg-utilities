@@ -307,7 +307,7 @@ def test_parent_property(simple_file: File, directory: Directory, drive: Drive) 
 
         mock_get_directory_by_id.assert_called_once_with(directory.id)
 
-    assert directory.all_known_children == [simple_file]
+    assert simple_file.parent.all_known_children == [simple_file]
 
     # This looks like I'm testing the Directory class, but it's a File subclass, so it's
     # fine :)

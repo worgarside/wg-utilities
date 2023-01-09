@@ -1,0 +1,77 @@
+{
+  "drives": [
+    {
+      "backgroundImageLink": "https://ssl.gstatic.com/team_drive_themes/clams_background.jpg",
+      "capabilities": {
+        "canAddChildren": true,
+        "canChangeCopyRequiresWriterPermissionRestriction": false,
+        "canChangeDomainUsersOnlyRestriction": false,
+        "canChangeDriveBackground": true,
+        "canChangeDriveMembersOnlyRestriction": false,
+        "canComment": true,
+        "canCopy": true,
+        "canDeleteChildren": true,
+        "canDeleteDrive": true,
+        "canDownload": true,
+        "canEdit": true,
+        "canListChildren": true,
+        "canManageMembers": true,
+        "canReadRevisions": true,
+        "canRename": true,
+        "canRenameDrive": true,
+        "canResetDriveRestrictions": false,
+        "canShare": true,
+        "canTrashChildren": true
+      },
+      "colorRgb": "#e91e63",
+      "createdTime": "2018-04-16T11:53:47.026Z",
+      "hidden": false,
+      "id": "2MRTrlO0S2aKbXx3OIN",
+      "kind": "drive#drive",
+      "name": "XLU5874 - Kvmqkys Xnoietq",
+      "restrictions": {
+        "adminManagedRestrictions": false,
+        "copyRequiresWriterPermission": false,
+        "domainUsersOnly": false,
+        "driveMembersOnly": false
+      }
+    },
+    {
+      "backgroundImageLink": "https://ssl.gstatic.com/team_drive_themes/circuit_background.jpg",
+      "capabilities": {
+        "canAddChildren": true,
+        "canChangeCopyRequiresWriterPermissionRestriction": false,
+        "canChangeDomainUsersOnlyRestriction": false,
+        "canChangeDriveBackground": true,
+        "canChangeDriveMembersOnlyRestriction": false,
+        "canComment": true,
+        "canCopy": true,
+        "canDeleteChildren": true,
+        "canDeleteDrive": true,
+        "canDownload": true,
+        "canEdit": true,
+        "canListChildren": true,
+        "canManageMembers": true,
+        "canReadRevisions": true,
+        "canRename": true,
+        "canRenameDrive": true,
+        "canResetDriveRestrictions": false,
+        "canShare": true,
+        "canTrashChildren": true
+      },
+      "colorRgb": "#039be5",
+      "createdTime": "2018-04-12T18:22:50.119Z",
+      "hidden": false,
+      "id": "7LUC-DSr43i5CPz8IHB",
+      "kind": "drive#drive",
+      "name": "MAH1632 - Kgz Mcvlrtvxiog Jdz",
+      "restrictions": {
+        "adminManagedRestrictions": false,
+        "copyRequiresWriterPermission": false,
+        "domainUsersOnly": false,
+        "driveMembersOnly": false
+      }
+    }
+  ],
+  "kind": "drive#driveList"
+}
