@@ -97,7 +97,11 @@ def test_kind_validation(google_drive_client: GoogleDriveClient) -> None:
             drive_json,
             google_client=google_drive_client,
         )
-    assert "Invalid kind for Drive: drive#user" in str(exc_info.value)
+    assert "Invalid kind for Drive: drive#user" in str(exc_info.value) or (
+        # Python 3.11
+        "Invalid kind for Drive: EntityKind.USER "
+        in str(exc_info.value)
+    )
 
 
 @mark.parametrize(  # type: ignore[misc]

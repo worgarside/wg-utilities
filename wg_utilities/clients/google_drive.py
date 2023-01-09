@@ -1253,7 +1253,7 @@ class Drive(_CanHaveChildren):
                     if parent_dir.id != item["parents"][0]:
                         remaining_items.append(item)
                         continue
-                except LookupError:
+                except LookupError:  # pragma: no cover
                     continue
 
                 if item["id"] in known_descendent_ids:
