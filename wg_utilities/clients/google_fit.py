@@ -59,11 +59,9 @@ class DataSource:
         floatPoint: Literal["fpVal"]  # noqa: N815
         integer: Literal["intVal"]
 
-    def __init__(self, data_source_id: str, *, google_client: GoogleClient[Any]):
+    def __init__(self, data_source_id: str, *, google_client: GoogleFitClient):
         self.data_source_id = data_source_id
-        self.url = (
-            f"{GoogleFitClient.BASE_URL}/users/me/dataSources/{self.data_source_id}"
-        )
+        self.url = f"/users/me/dataSources/{self.data_source_id}"
         self.google_client = google_client
 
         self._description: _DataSourceDescriptionInfo
@@ -91,8 +89,9 @@ class DataSource:
         `to_datetime` is provided then it defaults to now.
 
         Args:
-            from_datetime (datetime): lower boundary for step count
-            to_datetime (datetime): upper boundary for step count
+            from_datetime (datetime): lower boundary for step count. Defaults to
+                start of today.
+            to_datetime (datetime): upper boundary for step count. Defaults to now.
 
         Returns:
             int: a sum of data points in the given range
@@ -112,7 +111,7 @@ class DataSource:
         to_nano = int(
             int(to_datetime.timestamp() * 1000000000)
             if to_datetime
-            else utcnow(DFUnit.NANOSECOND)  # type: ignore[arg-type]
+            else utcnow(DFUnit.NANOSECOND)
         )
 
         data_points: list[_GoogleFitDataPointInfo] = self.google_client.get_items(
@@ -159,7 +158,7 @@ class DataSource:
         """
         data_type_fields = self.description["dataType"]["field"]
         if len(data_type_fields) != 1:
-            raise Exception(
+            raise ValueError(
                 f"Unexpected number of dataType fields ({len(data_type_fields)}): "
                 + ", ".join(f["name"] for f in data_type_fields)
             )
@@ -187,6 +186,13 @@ class GoogleFitClient(GoogleClient[Any]):
 
     BASE_URL = "https://www.googleapis.com/fitness/v1"
 
+    DEFAULT_SCOPES = [
+        "https://www.googleapis.com/auth/fitness.activity.read",
+        "https://www.googleapis.com/auth/fitness.body.read",
+        "https://www.googleapis.com/auth/fitness.location.read",
+        "https://www.googleapis.com/auth/fitness.nutrition.read",
+    ]
+
     def __init__(
         self,
         client_id: str,
@@ -200,7 +206,7 @@ class GoogleFitClient(GoogleClient[Any]):
             base_url=self.BASE_URL,
             client_id=client_id,
             client_secret=client_secret,
-            scopes=scopes,
+            scopes=scopes or self.DEFAULT_SCOPES,
             log_requests=log_requests,
             creds_cache_path=creds_cache_path,
         )
@@ -219,9 +225,8 @@ class GoogleFitClient(GoogleClient[Any]):
             DataSource: an instance, ready to use!
         """
 
-        # TODO why isn't this just a list and we compare the instance IDs?
         if (data_source := self.data_sources.get(data_source_id)) is None:
-            data_source = DataSource(data_source_id, google_client=self)
+            data_source = DataSource(data_source_id=data_source_id, google_client=self)
             self.data_sources[data_source_id] = data_source
 
         return data_source

@@ -1,0 +1,579 @@
+{
+  "dataSourceId": "derived:com.google.step_count.delta:com.google.android.gms:estimated_steps",
+  "maxEndTimeNs": "1673367300000000000",
+  "minStartTimeNs": "1673308800000000000",
+  "point": [
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673310112268361754",
+      "modifiedTimeMillis": "1673313324199",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673310052268361754",
+      "value": [
+        {
+          "intVal": 3,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673310269352803955",
+      "modifiedTimeMillis": "1673313324199",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673310209352803955",
+      "value": [
+        {
+          "intVal": 19,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673311413683453735",
+      "modifiedTimeMillis": "1673313324199",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673311353683453735",
+      "value": [
+        {
+          "intVal": 3,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673312370867560973",
+      "modifiedTimeMillis": "1673313324199",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673312310867560973",
+      "value": [
+        {
+          "intVal": 10,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673312715051970763",
+      "modifiedTimeMillis": "1673313324199",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673312655051970763",
+      "value": [
+        {
+          "intVal": 6,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673312776286141112",
+      "modifiedTimeMillis": "1673313324199",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673312716286141112",
+      "value": [
+        {
+          "intVal": 5,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673313019954268249",
+      "modifiedTimeMillis": "1673313324199",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673312959954268249",
+      "value": [
+        {
+          "intVal": 2,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673313681830038683",
+      "modifiedTimeMillis": "1673316937110",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673313621830038683",
+      "value": [
+        {
+          "intVal": 16,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673313733613480287",
+      "modifiedTimeMillis": "1673316937110",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673313681830038683",
+      "value": [
+        {
+          "intVal": 4,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673342317681170349",
+      "modifiedTimeMillis": "1673345560641",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673342257681170349",
+      "value": [
+        {
+          "intVal": 4,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673343377455743163",
+      "modifiedTimeMillis": "1673345560641",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673343317455743163",
+      "value": [
+        {
+          "intVal": 6,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673343719368961852",
+      "modifiedTimeMillis": "1673345560641",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673343659368961852",
+      "value": [
+        {
+          "intVal": 3,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673346873945462340",
+      "modifiedTimeMillis": "1673349205600",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673346813945462340",
+      "value": [
+        {
+          "intVal": 12,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673347061321937987",
+      "modifiedTimeMillis": "1673349205600",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673347001321937987",
+      "value": [
+        {
+          "intVal": 9,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673347703610849852",
+      "modifiedTimeMillis": "1673349205600",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673347643610849852",
+      "value": [
+        {
+          "intVal": 27,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673347742608844237",
+      "modifiedTimeMillis": "1673349205600",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673347703610849852",
+      "value": [
+        {
+          "intVal": 11,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673347886643263122",
+      "modifiedTimeMillis": "1673349205600",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673347826643263122",
+      "value": [
+        {
+          "intVal": 18,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673347958578771911",
+      "modifiedTimeMillis": "1673349205600",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673347898578771911",
+      "value": [
+        {
+          "intVal": 12,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673348206903717406",
+      "modifiedTimeMillis": "1673349205600",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673348146903717406",
+      "value": [
+        {
+          "intVal": 11,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673351238953296967",
+      "modifiedTimeMillis": "1673352989228",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673351178953296967",
+      "value": [
+        {
+          "intVal": 9,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673351771363616486",
+      "modifiedTimeMillis": "1673352989228",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673351711363616486",
+      "value": [
+        {
+          "intVal": 6,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673356356612512055",
+      "modifiedTimeMillis": "1673360253252",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673356254612502839",
+      "value": [
+        {
+          "intVal": 51,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673356453444294707",
+      "modifiedTimeMillis": "1673360253252",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673356356612512055",
+      "value": [
+        {
+          "intVal": 81,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673356509132226603",
+      "modifiedTimeMillis": "1673360253252",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673356453444294707",
+      "value": [
+        {
+          "intVal": 64,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673356585417243054",
+      "modifiedTimeMillis": "1673360253252",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673356509132226603",
+      "value": [
+        {
+          "intVal": 80,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673356680976572841",
+      "modifiedTimeMillis": "1673360253252",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673356585417243054",
+      "value": [
+        {
+          "intVal": 54,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673356829386120986",
+      "modifiedTimeMillis": "1673360253252",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673356680976572841",
+      "value": [
+        {
+          "intVal": 177,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673356925685711456",
+      "modifiedTimeMillis": "1673360253252",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673356829386120986",
+      "value": [
+        {
+          "intVal": 76,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673356994198164093",
+      "modifiedTimeMillis": "1673360253252",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673356934198164093",
+      "value": [
+        {
+          "intVal": 6,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673357288338731354",
+      "modifiedTimeMillis": "1673360253252",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673357228338731354",
+      "value": [
+        {
+          "intVal": 8,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673359028004761139",
+      "modifiedTimeMillis": "1673360253252",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673358818004758067",
+      "value": [
+        {
+          "intVal": 105,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673359107003115754",
+      "modifiedTimeMillis": "1673360253252",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673359028004761139",
+      "value": [
+        {
+          "intVal": 86,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673359157158344574",
+      "modifiedTimeMillis": "1673360253252",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673359107003115754",
+      "value": [
+        {
+          "intVal": 25,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673360411574928681",
+      "modifiedTimeMillis": "1673363875619",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673360351574928681",
+      "value": [
+        {
+          "intVal": 12,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673361734644832917",
+      "modifiedTimeMillis": "1673363875619",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673361674644832917",
+      "value": [
+        {
+          "intVal": 3,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673362537316025971",
+      "modifiedTimeMillis": "1673363875619",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673362477316025971",
+      "value": [
+        {
+          "intVal": 2,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673363619482072968",
+      "modifiedTimeMillis": "1673363875619",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673363559482072968",
+      "value": [
+        {
+          "intVal": 24,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673363973042879914",
+      "modifiedTimeMillis": "1673367494781",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673363913042879914",
+      "value": [
+        {
+          "intVal": 5,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673364088030477875",
+      "modifiedTimeMillis": "1673367494781",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673364002030476851",
+      "value": [
+        {
+          "intVal": 43,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673364101712624177",
+      "modifiedTimeMillis": "1673367494781",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673364088030477875",
+      "value": [
+        {
+          "intVal": 2,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673364307847393830",
+      "modifiedTimeMillis": "1673367494781",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673364247847393830",
+      "value": [
+        {
+          "intVal": 3,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673364420958818573",
+      "modifiedTimeMillis": "1673367494781",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673364360958818573",
+      "value": [
+        {
+          "intVal": 12,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673365556515613495",
+      "modifiedTimeMillis": "1673367494781",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673365474515610423",
+      "value": [
+        {
+          "intVal": 41,
+          "mapVal": []
+        }
+      ]
+    },
+    {
+      "dataTypeName": "com.google.step_count.delta",
+      "endTimeNanos": "1673365614843104302",
+      "modifiedTimeMillis": "1673367494781",
+      "originDataSourceId": "raw:com.google.step_count.cumulative:Google:Pixel 6 Pro:1ab234c5:Step Counter",
+      "startTimeNanos": "1673365556515613495",
+      "value": [
+        {
+          "intVal": 27,
+          "mapVal": []
+        }
+      ]
+    }
+  ]
+}

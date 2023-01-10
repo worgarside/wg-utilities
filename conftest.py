@@ -48,6 +48,7 @@ from wg_utilities.api import TempAuthServer
 from wg_utilities.clients import (
     GoogleCalendarClient,
     GoogleDriveClient,
+    GoogleFitClient,
     MonzoClient,
     SpotifyClient,
 )
@@ -64,6 +65,7 @@ from wg_utilities.clients.google_drive import (
     File,
     ItemMetadataRetrieval,
 )
+from wg_utilities.clients.google_fit import DataSource
 from wg_utilities.clients.monzo import Account as MonzoAccount
 from wg_utilities.clients.monzo import AccountJson, Pot, PotJson, TransactionJson
 from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
@@ -214,6 +216,9 @@ def read_json_file(
     if host_name:
         file_path /= host_name.lower()
 
+        if host_name == "spotify":
+            rel_file_path = rel_file_path.replace("/v1/", "/")
+
     file_path /= rel_file_path.lstrip("/").lower()
 
     return cast(JSONObj, loads(file_path.read_text()))
@@ -280,9 +285,7 @@ def get_flat_file_from_url(
     context.status_code = HTTPStatus.OK
     context.reason = HTTPStatus.OK.phrase
 
-    file_path = (
-        f"{request.path.replace('/v1/', '')}/{request.query}".rstrip("/") + ".json"
-    )
+    file_path = f"{request.path}/{request.query}".rstrip("/") + ".json"
 
     host_name = {
         "api.spotify.com": "spotify",
@@ -490,6 +493,16 @@ def _current_track_null() -> CurrentTrack:
     )
 
 
+@fixture(scope="function", name="data_source")  # type: ignore[misc]
+def _data_source(google_fit_client: GoogleFitClient) -> DataSource:
+    """Fixture for a Google Fit DataSource instance."""
+    return DataSource(
+        # pylint: disable=line-too-long
+        data_source_id="derived:com.google.step_count.delta:com.google.android.gms:estimated_steps",
+        google_client=google_fit_client,
+    )
+
+
 @fixture(scope="function", name="dht22_sensor")  # type: ignore[misc]
 def _dht22_sensor(pigpio_pi: MagicMock) -> DHT22Sensor:
     """Fixture for DHT22 sensor."""
@@ -530,6 +543,37 @@ def _drive(google_drive_client: GoogleDriveClient) -> Drive:
         read_json_file("v3/files/root/fields=%2a.json", host_name="google/drive"),
         google_client=google_drive_client,
     )
+
+
+@fixture(scope="function", name="drive_comparison_entity_lookup")  # type: ignore[misc]
+def _drive_comparison_entity_lookup(
+    drive: Drive, google_drive_client: GoogleDriveClient
+) -> dict[str, Drive | File | Directory]:
+    """A lookup for Google Drive entities, makes assertions easier to write."""
+
+    lookup: dict[str, Drive | File | Directory] = {}
+
+    for file in (FLAT_FILES_DIR / "json/google/drive/v3/files").rglob("*"):
+        if file.is_file() and file.name == "fields=%2a.json":
+            file_json: dict[str, str] = loads(file.read_text())
+
+            if file_json["mimeType"] == Directory.MIME_TYPE:
+                if file_json["name"] == "My Drive":
+                    continue
+                cls: type[File | Directory] = Directory
+            else:
+                cls = File
+
+            lookup[file_json["name"]] = cls.from_json_response(
+                file_json,
+                google_client=google_drive_client,
+                host_drive=drive,
+                _block_describe_call=True,
+            )
+
+    lookup[drive.name] = drive
+
+    return lookup
 
 
 @fixture(scope="function", name="event")  # type: ignore[misc]
@@ -609,10 +653,6 @@ def _google_calendar_client(
     return GoogleCalendarClient(
         client_id="test-client-id.apps.googleusercontent.com",
         client_secret="test-client-secret",
-        scopes=[
-            "https://www.googleapis.com/auth/calendar",
-            "https://www.googleapis.com/auth/calendar.events",
-        ],
         creds_cache_path=creds_cache_path,
     )
 
@@ -632,43 +672,28 @@ def _google_drive_client(
     return GoogleDriveClient(
         client_id="test-client-id.apps.googleusercontent.com",
         client_secret="test-client-secret",
-        scopes=[
-            "https://www.googleapis.com/auth/drive",
-        ],
         creds_cache_path=creds_cache_path,
         item_metadata_retrieval=ItemMetadataRetrieval.ON_INIT,
     )
 
 
-@fixture(scope="function", name="drive_comparison_entity_lookup")  # type: ignore[misc]
-def _drive_comparison_entity_lookup(
-    drive: Drive, google_drive_client: GoogleDriveClient
-) -> dict[str, Drive | File | Directory]:
-    """A lookup for Google Drive entities, makes assertions easier to write."""
+@fixture(scope="function", name="google_fit_client")  # type: ignore[misc]
+def _google_fit_client(
+    temp_dir: Path,
+    fake_oauth_credentials: OAuthCredentials,
+    mock_requests: Mocker,  # pylint: disable=unused-argument
+) -> GoogleFitClient:
+    """Fixture for `GoogleFitClient` instance."""
 
-    lookup: dict[str, Drive | File | Directory] = {}
+    (creds_cache_path := temp_dir / "google_fit_credentials.json").write_text(
+        fake_oauth_credentials.json()
+    )
 
-    for file in (FLAT_FILES_DIR / "json/google/drive/v3/files").rglob("*"):
-        if file.is_file() and file.name == "fields=%2a.json":
-            file_json: dict[str, str] = loads(file.read_text())
-
-            if file_json["mimeType"] == Directory.MIME_TYPE:
-                if file_json["name"] == "My Drive":
-                    continue
-                cls: type[File | Directory] = Directory
-            else:
-                cls = File
-
-            lookup[file_json["name"]] = cls.from_json_response(
-                file_json,
-                google_client=google_drive_client,
-                host_drive=drive,
-                _block_describe_call=True,
-            )
-
-    lookup[drive.name] = drive
-
-    return lookup
+    return GoogleFitClient(
+        client_id="test-client-id.apps.googleusercontent.com",
+        client_secret="test-client-secret",
+        creds_cache_path=creds_cache_path,
+    )
 
 
 @fixture(scope="module", name="live_jwt_token")  # type: ignore[misc]
@@ -782,7 +807,8 @@ def _mock_aiohttp() -> YieldFixture[aioresponses]:
         yield mock_aiohttp
 
 
-@fixture(scope="function", name="mock_requests")  # type: ignore[misc]
+# TODO: make this "session" scoped
+@fixture(scope="function", name="mock_requests", autouse=True)  # type: ignore[misc]
 def _mock_requests(
     request: FixtureRequest, live_jwt_token_alt: str
 ) -> YieldFixture[Mocker]:
@@ -938,6 +964,34 @@ def _mock_requests(
                         + str(path_object.relative_to(google_dir).with_suffix("")),
                         json=get_flat_file_from_url,
                     )
+        elif fullmatch(
+            r"^tests/unit/clients/google/fit/test__[a-z_]+\.py$",
+            request.node.parent.name,
+        ):
+            for path_object in (
+                google_dir := FLAT_FILES_DIR / "json" / "google" / "fitness" / "v1"
+            ).rglob("*"):
+                if path_object.is_dir() or (
+                    path_object.is_file() and "=" not in path_object.name
+                ):
+                    mock_requests.get(
+                        GoogleFitClient.BASE_URL
+                        + "/"
+                        + str(path_object.relative_to(google_dir)).replace(".json", ""),
+                        json=get_flat_file_from_url,
+                    )
+
+        mock_requests.get(
+            compile_regex(
+                # pylint: disable=line-too-long
+                r"^https?:\/\/(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+(\/.*)?$",
+            ),
+            real_http=True,
+        )
+        mock_requests.get(
+            "http://www.not-a-real-website-abc.com",
+            real_http=True,
+        )
 
         yield mock_requests
 

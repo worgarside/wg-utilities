@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
+from typing import overload
 
 
 class DatetimeFixedUnit(Enum):
@@ -24,8 +25,17 @@ class DatetimeFixedUnit(Enum):
 DTU = DatetimeFixedUnit
 
 
+@overload
+def utcnow() -> datetime:
+    ...
+
+
+@overload
+def utcnow(unit: DatetimeFixedUnit) -> int:
+    ...
+
+
 def utcnow(unit: DatetimeFixedUnit | None = None) -> datetime | int:
-    # TODO overload(?) this function for the type hinting
     """`datetime.utcnow` with optional unit conversion.
 
     Gets the current UTC time and returns it in a chosen unit. If no unit is
@@ -35,7 +45,7 @@ def utcnow(unit: DatetimeFixedUnit | None = None) -> datetime | int:
         unit (DatetimeFixedUnit): the unit in which to provide the current datetime
 
     Returns:
-        Union([datetime, float, int]): the current UTC datetime in the chosen unit
+        Union([datetime, int]): the current UTC datetime in the chosen unit
     """
 
     if not unit:
