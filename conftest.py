@@ -49,6 +49,7 @@ from wg_utilities.clients import (
     GoogleCalendarClient,
     GoogleDriveClient,
     GoogleFitClient,
+    GooglePhotosClient,
     MonzoClient,
     SpotifyClient,
 )
@@ -690,6 +691,25 @@ def _google_fit_client(
     )
 
     return GoogleFitClient(
+        client_id="test-client-id.apps.googleusercontent.com",
+        client_secret="test-client-secret",
+        creds_cache_path=creds_cache_path,
+    )
+
+
+@fixture(scope="function", name="google_photos_client")  # type: ignore[misc]
+def _google_photos_client(
+    temp_dir: Path,
+    fake_oauth_credentials: OAuthCredentials,
+    mock_requests: Mocker,  # pylint: disable=unused-argument
+) -> GooglePhotosClient:
+    """Fixture for `GooglePhotosClient` instance."""
+
+    (creds_cache_path := temp_dir / "google_photos_credentials.json").write_text(
+        fake_oauth_credentials.json()
+    )
+
+    return GooglePhotosClient(
         client_id="test-client-id.apps.googleusercontent.com",
         client_secret="test-client-secret",
         creds_cache_path=creds_cache_path,

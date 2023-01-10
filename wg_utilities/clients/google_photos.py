@@ -80,12 +80,12 @@ FJR = TypeVar("FJR", bound="GooglePhotosEntity")
 
 
 class GooglePhotosEntity(GenericModelWithConfig):
-    """Base class for Google Photos} entities."""
+    """Base class for Google Photos entities."""
 
     id: str
     product_url: str = Field(alias="productUrl")
 
-    google_client: GooglePhotosClient
+    google_client: GooglePhotosClient = Field(exclude=True)
 
     @classmethod
     def from_json_response(
@@ -94,7 +94,7 @@ class GooglePhotosEntity(GenericModelWithConfig):
         *,
         google_client: GooglePhotosClient,
     ) -> FJR:
-        """Creates a Calendar/Event from a JSON response."""
+        """Creates an entity from a JSON response."""
 
         value_data: dict[str, Any] = {
             "google_client": google_client,
@@ -297,6 +297,13 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
 
     BASE_URL = "https://photoslibrary.googleapis.com/v1"
 
+    DEFAULT_SCOPES = [
+        "https://www.googleapis.com/auth/photoslibrary.readonly",
+        "https://www.googleapis.com/auth/photoslibrary.appendonly",
+        "https://www.googleapis.com/auth/photoslibrary.readonly.appcreateddata",
+        "https://www.googleapis.com/auth/photoslibrary.edit.appcreateddata",
+    ]
+
     def __init__(
         self,
         client_id: str,
@@ -310,7 +317,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
             base_url=self.BASE_URL,
             client_id=client_id,
             client_secret=client_secret,
-            scopes=scopes,
+            scopes=scopes or self.DEFAULT_SCOPES,
             log_requests=log_requests,
             creds_cache_path=creds_cache_path,
         )

@@ -744,6 +744,5 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         return self._primary_calendar
 
 
-GoogleCalendarEntity.update_forward_refs()
 Calendar.update_forward_refs()
 Event.update_forward_refs()

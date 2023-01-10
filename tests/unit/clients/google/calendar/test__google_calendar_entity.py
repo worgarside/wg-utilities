@@ -17,6 +17,8 @@ from wg_utilities.clients.google_calendar import (
     GoogleCalendarEntity,
 )
 
+GoogleCalendarEntity.update_forward_refs()
+
 
 def test_from_json_response_instantiation(
     google_calendar_client: GoogleCalendarClient,
