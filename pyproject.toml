@@ -93,6 +93,7 @@ max-complexity = 20
 
 [tool.coverage.report]
 exclude_lines = [
+    "pragma: no cover",
     "def __repr__",
     "def __str__",
 ]
