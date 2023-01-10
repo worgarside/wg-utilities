@@ -16,7 +16,7 @@ exclude = '''
 '''
 
 [tool.codespell]
-skip = '*.json,*.csv,*.xml'
+skip = '*.json,*.csv,*.xml,*google_drive_tree.txt'
 
 [tool.isort]
 profile = "black"
@@ -90,3 +90,10 @@ extend-ignore = [
 
 [tool.ruff.mccabe]
 max-complexity = 20
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "def __str__",
+]

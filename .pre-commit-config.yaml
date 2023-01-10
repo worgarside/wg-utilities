@@ -133,11 +133,10 @@ repos:
     rev: v2.2.2
     hooks:
       - id: codespell
-        args:
-          - --skip
-          - '*.svg,*.json'
+        additional_dependencies:
+          - tomli
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.206
+    rev: v0.0.216
     hooks:
       - id: ruff
