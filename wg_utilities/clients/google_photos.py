@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,no-self-argument
 """Custom client for interacting with Google's Photos API."""
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from os import getenv
 from pathlib import Path
 from typing import Any, Literal, TypeAlias, TypedDict, TypeVar
 
-from pydantic import Field
+from pydantic import Field, validator
 from requests import get, post
 
 from wg_utilities.clients._google import GoogleClient
@@ -130,6 +130,15 @@ class Album(GooglePhotosEntity):
 
     _media_items: list[MediaItem]
 
+    @validator("title")
+    def _validate_title(cls, value: str) -> str:  # noqa: N805
+        """Validates the title of the album."""
+
+        if not value:
+            raise ValueError("Album title cannot be empty.")
+
+        return value.strip()
+
     @property
     def media_items(self) -> list[MediaItem]:
         # noinspection GrazieInspection
@@ -146,9 +155,9 @@ class Album(GooglePhotosEntity):
                     MediaItem.from_json_response(item, google_client=self.google_client)
                     for item in self.google_client.get_items(
                         "/mediaItems:search",
-                        method=post,
+                        method_override=post,
                         list_key="mediaItems",
-                        params={"albumId": self.id},
+                        params={"albumId": self.id, "pageSize": 100},
                     )
                 ],
             )
@@ -323,6 +332,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
         )
 
         self._albums: list[Album]
+        self._album_count: int
 
     def get_album_by_id(self, album_id: str) -> Album:
         """Get an album by its ID.
@@ -339,10 +349,17 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
                 if album.id == album_id:
                     return album
 
-        return Album.from_json_response(
-            self.get_json_response(f"/albums/{album_id}"),
+        album = Album.from_json_response(
+            self.get_json_response(f"/albums/{album_id}", params={"pageSize": None}),
             google_client=self,
         )
+
+        if not hasattr(self, "_albums"):
+            self._albums = [album]
+        else:
+            self._albums.append(album)
+
+        return album
 
     def get_album_by_name(self, album_name: str) -> Album:
         """Gets an album definition from the Google API based on the album name.
@@ -378,8 +395,25 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
                 for item in self.get_items(
                     f"{self.BASE_URL}/albums",
                     list_key="albums",
+                    params={"pageSize": 100},
                 )
             ]
+            self._album_count = len(self._albums)
+        elif not hasattr(self, "_album_count"):
+            album_ids = [album.id for album in self._albums]
+            self._albums.extend(
+                [
+                    Album.from_json_response(item, google_client=self)
+                    for item in self.get_items(
+                        f"{self.BASE_URL}/albums",
+                        list_key="albums",
+                        params={"pageSize": 100},
+                    )
+                    if item["id"] not in album_ids
+                ]
+            )
+
+            self._album_count = len(self._albums)
 
         return self._albums
 

@@ -45,7 +45,7 @@ def test_instantiation() -> None:
     "file_path",
     [
         path_object
-        for path_object in (FLAT_FILES_DIR / "json" / "spotify").rglob("*")
+        for path_object in (FLAT_FILES_DIR / "json" / "spotify" / "v1").rglob("*")
         if path_object.is_file() and path_object.suffix == ".json"
     ],
 )
@@ -59,7 +59,7 @@ def test_get_method_with_sample_responses(
     """Test the `_get` method processes a request and its response correctly."""
 
     endpoint = (
-        f"/{file_path.relative_to(FLAT_FILES_DIR / 'json' / 'spotify').with_suffix('')}"
+        f"/{file_path.relative_to(FLAT_FILES_DIR / 'json/spotify/v1').with_suffix('')}"
     )
     if "=" in endpoint:
         endpoint, query_string = endpoint.rsplit("/", 1)
@@ -107,7 +107,7 @@ def test_get_method_with_sample_responses(
     "file_path",
     [
         path_object
-        for path_object in (FLAT_FILES_DIR / "json" / "spotify").rglob("*")
+        for path_object in (FLAT_FILES_DIR / "json/spotify/v1").rglob("*")
         if path_object.is_file() and path_object.suffix == ".json"
     ],
 )
@@ -121,7 +121,7 @@ def test_get_method_without_leading_slash(
     """Test the `_get` method processes a request and its response correctly."""
 
     endpoint = (
-        f"/{file_path.relative_to(FLAT_FILES_DIR / 'json' / 'spotify').with_suffix('')}"
+        f"/{file_path.relative_to(FLAT_FILES_DIR / 'json/spotify/v1').with_suffix('')}"
     )
     if "=" in endpoint:
         endpoint, query_string = endpoint.rsplit("/", 1)
@@ -510,7 +510,7 @@ def test_get_json_response_returns_json(
             Album,
             "album",
             "https://api.spotify.com/v1/search?query=mirrors&type=album&limit=1",
-            "albums/7FvnTARvgjUyWnUT0flUN7.json",
+            "v1/albums/7FvnTARvgjUyWnUT0flUN7.json",
         ),
         # pylint: disable=line-too-long
         (
@@ -518,21 +518,21 @@ def test_get_json_response_returns_json(
             Artist,
             "artist",
             "https://api.spotify.com/v1/search?query=ross+from+friends&type=artist&limit=1",
-            "artists/1Ma3pJzPIrAyYPNRkp3SUF.json",
+            "v1/artists/1Ma3pJzPIrAyYPNRkp3SUF.json",
         ),
         (
             "Chill Electronica",
             Playlist,
             "playlist",
             "https://api.spotify.com/v1/search?query=Chill+Electronica&type=playlist&limit=1",
-            "playlists/2lmx8fu0seq7ea5kcmlnpx.json",
+            "v1/playlists/2lmx8fu0seq7ea5kcmlnpx.json",
         ),
         (
             "Past Life Tame Impala",
             Track,
             "track",
             "https://api.spotify.com/v1/search?query=past+life+tame+impala&type=track&limit=1",
-            "tracks/4a9fw33myr8lhxboluhbff.json",
+            "v1/tracks/4a9fw33myr8lhxboluhbff.json",
         ),
     ],
 )

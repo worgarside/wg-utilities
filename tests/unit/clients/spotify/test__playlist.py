@@ -19,7 +19,7 @@ from wg_utilities.clients.spotify import Playlist, Track, User
 def test_instantiation(spotify_client: SpotifyClient) -> None:
     """Test that the `Playlist` class instantiates correctly."""
 
-    playlist_json = read_json_file("spotify/playlists/37i9dqzf1e8pj76jxe3egf.json")
+    playlist_json = read_json_file("spotify/v1/playlists/37i9dqzf1e8pj76jxe3egf.json")
 
     playlist = Playlist.from_json_response(
         playlist_json, spotify_client=spotify_client  # type: ignore[arg-type]
@@ -37,10 +37,10 @@ def test_owner_property(
     assert spotify_playlist.owner == spotify_user
 
     assert Playlist.from_json_response(
-        read_json_file("playlists/37i9dqzf1e8pj76jxe3egf.json", host_name="spotify"),
+        read_json_file("v1/playlists/37i9dqzf1e8pj76jxe3egf.json", host_name="spotify"),
         spotify_client=spotify_client,
     ).owner == User.from_json_response(
-        read_json_file("users/spotify.json", host_name="spotify"),
+        read_json_file("v1/users/spotify.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 
@@ -91,7 +91,7 @@ def test_tracks_property(
 @mark.parametrize(  # type: ignore[misc]
     ["track_response_filename", "in_playlist"],
     zip(
-        sorted(listdir(FLAT_FILES_DIR / "json" / "spotify" / "tracks")),
+        sorted(listdir(FLAT_FILES_DIR / "json" / "spotify" / "v1" / "tracks")),
         (
             False,
             True,
@@ -113,7 +113,7 @@ def test_contains_method(
     """Test that `track in playlist` statements work as expected."""
     track = Track.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            f"spotify/tracks/{track_response_filename}"
+            f"spotify/v1/tracks/{track_response_filename}"
         ),
         spotify_client=spotify_client,
     )
@@ -131,21 +131,21 @@ def test_gt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) ->
     """Test that `playlist > playlist` statements work as expected."""
     spotify_owned_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/playlists/37i9dqzf1e8pj76jxe3egf.json"
+            "spotify/v1/playlists/37i9dqzf1e8pj76jxe3egf.json"
         ),
         spotify_client=spotify_client,
     )
 
     my_other_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/playlists/4vv023mazsc8ntwz4wjvil.json"
+            "spotify/v1/playlists/4vv023mazsc8ntwz4wjvil.json"
         ),
         spotify_client=spotify_client,
     )
 
     another_third_party_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/playlists/2wsnkxlm217jpznkagyzph.json"
+            "spotify/v1/playlists/2wsnkxlm217jpznkagyzph.json"
         ),
         spotify_client=spotify_client,
     )
@@ -182,21 +182,21 @@ def test_lt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) ->
     """Test that `playlist < playlist` statements work as expected."""
     spotify_owned_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/playlists/37i9dqzf1e8pj76jxe3egf.json"
+            "spotify/v1/playlists/37i9dqzf1e8pj76jxe3egf.json"
         ),
         spotify_client=spotify_client,
     )
 
     my_other_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/playlists/4vv023mazsc8ntwz4wjvil.json"
+            "spotify/v1/playlists/4vv023mazsc8ntwz4wjvil.json"
         ),
         spotify_client=spotify_client,
     )
 
     another_third_party_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/playlists/2wsnkxlm217jpznkagyzph.json"
+            "spotify/v1/playlists/2wsnkxlm217jpznkagyzph.json"
         ),
         spotify_client=spotify_client,
     )

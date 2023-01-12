@@ -45,36 +45,47 @@ from requests_mock.response import _Context
 from voluptuous import All, Schema
 
 from wg_utilities.api import TempAuthServer
-from wg_utilities.clients import (
-    GoogleCalendarClient,
-    GoogleDriveClient,
-    GoogleFitClient,
-    GooglePhotosClient,
-    MonzoClient,
-    SpotifyClient,
-)
 from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson, SpotifyEntityJson
 from wg_utilities.clients.google_calendar import (
     Calendar,
     CalendarJson,
     Event,
+    GoogleCalendarClient,
     GoogleCalendarEntityJson,
 )
 from wg_utilities.clients.google_drive import (
     Directory,
     Drive,
     File,
+    GoogleDriveClient,
     ItemMetadataRetrieval,
 )
-from wg_utilities.clients.google_fit import DataSource
+from wg_utilities.clients.google_fit import DataSource, GoogleFitClient
+from wg_utilities.clients.google_photos import Album as GooglePhotosAlbum
+from wg_utilities.clients.google_photos import AlbumJson, GooglePhotosClient
 from wg_utilities.clients.monzo import Account as MonzoAccount
-from wg_utilities.clients.monzo import AccountJson, Pot, PotJson, TransactionJson
+from wg_utilities.clients.monzo import (
+    AccountJson,
+    MonzoClient,
+    Pot,
+    PotJson,
+    TransactionJson,
+)
 from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
 from wg_utilities.clients.spotify import Album as SpotifyAlbum
-from wg_utilities.clients.spotify import Artist, Playlist, SpotifyEntity, Track, User
+from wg_utilities.clients.spotify import (
+    Artist,
+    Playlist,
+    SpotifyClient,
+    SpotifyEntity,
+    Track,
+    User,
+)
 from wg_utilities.devices.dht22 import DHT22Sensor
-from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
-from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import CurrentTrack
+from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import (
+    CurrentTrack,
+    YamahaYas209,
+)
 from wg_utilities.functions import force_mkdir
 from wg_utilities.functions.json import JSONObj
 from wg_utilities.loggers import ListHandler
@@ -159,6 +170,13 @@ def read_json_file(  # type: ignore[misc]
 
 @overload
 def read_json_file(  # type: ignore[misc]
+    rel_file_path: str, host_name: Literal["google/photos"]
+) -> AlbumJson:
+    ...
+
+
+@overload
+def read_json_file(  # type: ignore[misc]
     rel_file_path: str, host_name: Literal["monzo", "monzo/accounts"]
 ) -> dict[Literal["accounts"], list[AccountJson]]:
     ...
@@ -199,7 +217,9 @@ def read_json_file(
     rel_file_path: str, host_name: str | None = None
 ) -> JSONObj | SpotifyEntityJson | dict[Literal["accounts"], list[AccountJson]] | dict[
     Literal["pots"], list[PotJson]
-] | dict[Literal["transactions"], list[TransactionJson]] | GoogleCalendarEntityJson:
+] | dict[
+    Literal["transactions"], list[TransactionJson]
+] | GoogleCalendarEntityJson | AlbumJson:
     """Read a JSON file from the flat files `json` subdirectory.
 
     Args:
@@ -217,10 +237,9 @@ def read_json_file(
     if host_name:
         file_path /= host_name.lower()
 
-        if host_name == "spotify":
-            rel_file_path = rel_file_path.replace("/v1/", "/")
-
     file_path /= rel_file_path.lstrip("/").lower()
+
+    print("reading", file_path)
 
     return cast(JSONObj, loads(file_path.read_text()))
 
@@ -288,10 +307,13 @@ def get_flat_file_from_url(
 
     file_path = f"{request.path}/{request.query}".rstrip("/") + ".json"
 
+    print("file_path", file_path)
+
     host_name = {
         "api.spotify.com": "spotify",
         "api.monzo.com": "monzo",
         "www.googleapis.com": "google",
+        "photoslibrary.googleapis.com": "google/photos",
     }[request.hostname]
 
     try:
@@ -350,17 +372,10 @@ def spotify_create_playlist_callback(
     Returns:
         JSONObj: the JSON response
     """
-    res = read_json_file("spotify/users/worgarside/playlists.json")
+    res = read_json_file("spotify/v1/users/worgarside/playlists.json")
 
-    if request.json()["collaborative"] is True:
-        res["collaborative"] = True
-    else:
-        res["collaborative"] = False
-
-    if request.json()["public"] is True:
-        res["public"] = True
-    else:
-        res["public"] = False
+    res["collaborative"] = request.json()["collaborative"] is True
+    res["public"] = request.json()["public"] is True
 
     return res
 
@@ -697,6 +712,20 @@ def _google_fit_client(
     )
 
 
+@fixture(scope="function", name="google_photos_album")  # type: ignore[misc]
+def _google_photos_album(google_photos_client: GooglePhotosClient) -> GooglePhotosAlbum:
+    """Fixture for a Google Photos Album."""
+
+    return GooglePhotosAlbum.from_json_response(
+        read_json_file(
+            # pylint: disable=line-too-long
+            "v1/albums/aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json",
+            host_name="google/photos",
+        ),
+        google_client=google_photos_client,
+    )
+
+
 @fixture(scope="function", name="google_photos_client")  # type: ignore[misc]
 def _google_photos_client(
     temp_dir: Path,
@@ -877,7 +906,7 @@ def _mock_requests(
         ):
 
             for path_object in (
-                spotify_dir := FLAT_FILES_DIR / "json" / "spotify"
+                spotify_dir := FLAT_FILES_DIR / "json" / "spotify" / "v1"
             ).rglob("*"):
                 if path_object.is_dir():
                     mock_requests.get(
@@ -996,6 +1025,22 @@ def _mock_requests(
                 ):
                     mock_requests.get(
                         GoogleFitClient.BASE_URL
+                        + "/"
+                        + str(path_object.relative_to(google_dir)).replace(".json", ""),
+                        json=get_flat_file_from_url,
+                    )
+        elif fullmatch(
+            r"^tests/unit/clients/google/photos/test__[a-z_]+\.py$",
+            request.node.parent.name,
+        ):
+            for path_object in (
+                google_dir := FLAT_FILES_DIR / "json" / "google" / "photos" / "v1"
+            ).rglob("*"):
+                if path_object.is_dir() or (
+                    path_object.is_file() and "=" not in path_object.name
+                ):
+                    mock_requests.post(
+                        GooglePhotosClient.BASE_URL
                         + "/"
                         + str(path_object.relative_to(google_dir)).replace(".json", ""),
                         json=get_flat_file_from_url,
@@ -1190,7 +1235,7 @@ def _spotify_album(spotify_client: SpotifyClient) -> SpotifyAlbum:
     """
 
     return SpotifyAlbum.from_json_response(
-        read_json_file("albums/4julBAGYv4WmRXwhjJ2LPD.json", host_name="spotify"),
+        read_json_file("v1/albums/4julBAGYv4WmRXwhjJ2LPD.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 
@@ -1204,7 +1249,7 @@ def _spotify_artist(spotify_client: SpotifyClient) -> Artist:
     """
 
     return Artist.from_json_response(
-        read_json_file("artists/1Ma3pJzPIrAyYPNRkp3SUF.json", host_name="spotify"),
+        read_json_file("v1/artists/1Ma3pJzPIrAyYPNRkp3SUF.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 
@@ -1257,7 +1302,7 @@ def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
     """
 
     return Playlist.from_json_response(
-        read_json_file("playlists/2lmx8fu0seq7ea5kcmlnpx.json", host_name="spotify"),
+        read_json_file("v1/playlists/2lmx8fu0seq7ea5kcmlnpx.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 
@@ -1267,7 +1312,7 @@ def _spotify_track(spotify_client: SpotifyClient) -> Track:
     """Fixture for creating a `Track` instance."""
 
     return Track.from_json_response(
-        read_json_file("tracks/27cgqh0vrhvem61ugtnord.json", host_name="spotify"),
+        read_json_file("v1/tracks/27cgqh0vrhvem61ugtnord.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 
@@ -1277,7 +1322,7 @@ def _spotify_user(spotify_client: SpotifyClient) -> User:
     """Fixture for creating a Spotify User instance."""
 
     return User.from_json_response(
-        read_json_file("me.json", host_name="spotify"),
+        read_json_file("v1/me.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 

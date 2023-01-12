@@ -659,7 +659,7 @@ class YamahaYas209:
             sleep(0.01)
 
         if worker_exception is not None:
-            raise worker_exception  # pylint: disable=raising-bad-type
+            raise worker_exception
 
         if self._logging:
             LOGGER.debug(

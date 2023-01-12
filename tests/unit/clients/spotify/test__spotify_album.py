@@ -15,7 +15,7 @@ from wg_utilities.clients.spotify import Album, AlbumType, Artist, SpotifyClient
 def test_instantiation(spotify_client: SpotifyClient) -> None:
     """Test instantiation of the Album class."""
     album_json = read_json_file(
-        "albums/7FvnTARvgjUyWnUT0flUN7.json", host_name="spotify"
+        "v1/albums/7FvnTARvgjUyWnUT0flUN7.json", host_name="spotify"
     )
 
     album = Album.from_json_response(album_json, spotify_client=spotify_client)
@@ -76,11 +76,15 @@ def test_artists_property(
     """Test the `artists` property."""
     assert spotify_album.artists == [
         Artist.from_json_response(
-            read_json_file("artists/0q8eApZJs5WDBxayY9769C.json", host_name="spotify"),
+            read_json_file(
+                "v1/artists/0q8eApZJs5WDBxayY9769C.json", host_name="spotify"
+            ),
             spotify_client=spotify_client,
         ),
         Artist.from_json_response(
-            read_json_file("artists/1Ma3pJzPIrAyYPNRkp3SUF.json", host_name="spotify"),
+            read_json_file(
+                "v1/artists/1Ma3pJzPIrAyYPNRkp3SUF.json", host_name="spotify"
+            ),
             spotify_client=spotify_client,
         ),
     ]
@@ -92,11 +96,15 @@ def test_tracks_property(spotify_album: Album, spotify_client: SpotifyClient) ->
     assert not hasattr(spotify_album, "_tracks")
     assert spotify_album.tracks == [
         Track.from_json_response(
-            read_json_file("tracks/1PfbIpFjsS1BayUoqB3X7O.json", host_name="spotify"),
+            read_json_file(
+                "v1/tracks/1PfbIpFjsS1BayUoqB3X7O.json", host_name="spotify"
+            ),
             spotify_client=spotify_client,
         ),
         Track.from_json_response(
-            read_json_file("tracks/5U5X1TnRhnp9GogRfaE9XQ.json", host_name="spotify"),
+            read_json_file(
+                "v1/tracks/5U5X1TnRhnp9GogRfaE9XQ.json", host_name="spotify"
+            ),
             spotify_client=spotify_client,
         ),
     ]
@@ -109,7 +117,7 @@ def test_tracks_property_paginates(
     """Test the `tracks` property paginates when it needs to."""
 
     album = Album.from_json_response(
-        read_json_file("albums/6tb9drnfh9z4sq0pexbbnd.json", host_name="spotify"),
+        read_json_file("v1/albums/6tb9drnfh9z4sq0pexbbnd.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 

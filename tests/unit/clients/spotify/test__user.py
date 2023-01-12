@@ -78,7 +78,7 @@ def test_set_user_name_value(spotify_user: User) -> None:
     """Test that `display_name` property returns the expected value."""
     assert spotify_user.name == "Will Garside"
 
-    assert "name" not in read_json_file("me.json", host_name="spotify")
+    assert "name" not in read_json_file("v1/me.json", host_name="spotify")
 
 
 def test_get_playlists_by_name_unique_names(
@@ -268,7 +268,7 @@ def test_save_unsave_methods_with_invalid_type(spotify_user: User) -> None:
     """Test that `save` method raises an error if an invalid entity type is passed."""
 
     device = Device.parse_obj(
-        read_json_file("spotify/me/player/devices/limit=50.json")["devices"][
+        read_json_file("spotify/v1/me/player/devices/limit=50.json")["devices"][
             0  # type: ignore[index]
         ]
     )
@@ -333,7 +333,7 @@ def test_artists_property(
 ) -> None:
     """Test that `artists` property makes the expected request."""
 
-    prefix = "spotify/me/following/type=artist&"
+    prefix = "spotify/v1/me/following/type=artist&"
 
     assert spotify_user.artists == [
         Artist.from_json_response(artist_json, spotify_client=spotify_client)
@@ -390,7 +390,7 @@ def test_current_track_property(
 
     assert spotify_user.current_track == Track.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/tracks/6zJUp1ihdid6Kn3Ndgcy82.json"
+            "spotify/v1/tracks/6zJUp1ihdid6Kn3Ndgcy82.json"
         ),
         spotify_client=spotify_user.spotify_client,
     )
@@ -480,7 +480,7 @@ def test_devices_property(
     assert spotify_user.devices == [
         Device.parse_obj(device_json)
         for device_json in read_json_file(
-            "spotify/me/player/devices/limit=50.json"
+            "spotify/v1/me/player/devices/limit=50.json"
         )[  # type: ignore[union-attr]
             "devices"
         ]
