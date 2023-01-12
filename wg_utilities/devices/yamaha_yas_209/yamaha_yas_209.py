@@ -643,7 +643,7 @@ class YamahaYas209:
                 )
             return
 
-        worker_exception: Exception | None = None
+        worker_exception: BaseException | None = None
 
         def _worker() -> None:
             nonlocal worker_exception
@@ -658,8 +658,8 @@ class YamahaYas209:
         while not self._listening and worker_exception is None:
             sleep(0.01)
 
-        if worker_exception is not None:
-            raise worker_exception
+        if isinstance(worker_exception, BaseException):
+            raise worker_exception  # pylint: disable=raising-bad-type
 
         if self._logging:
             LOGGER.debug(
