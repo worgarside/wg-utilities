@@ -2260,11 +2260,11 @@
     },
     "types-setuptools": {
       "hashes": [
-        "sha256:7ddd7415282fa97ab18e490206067c0cdb126b103743e72ee86783d7af6481c5",
-        "sha256:ad729fc3a9a3946f73915eaab16ce56b30ed5ae998479253d809d76b3889ee09"
+        "sha256:667597f0773464f0259524d349d37503bffefc9d0d3fae621e4493d2fd7b1602",
+        "sha256:fe89f2d15caee7015708bed8fb68ff578b4d96f9a64b6e2010dad42bb9cc82a6"
       ],
       "index": "pypi",
-      "version": "==65.6.0.3"
+      "version": "==65.7.0.1"
     },
     "types-toml": {
       "hashes": [
