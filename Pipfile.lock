@@ -1875,10 +1875,11 @@
     },
     "pathspec": {
       "hashes": [
-        "sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a",
-        "sha256:e564499435a2673d586f6b2130bb5b95f04a3ba06f81b8f895b651a3c76aabb1"
+        "sha256:3c95343af8b756205e2aba76e843ba9520a24dd84f68c22b9f93251507509dd6",
+        "sha256:56200de4077d9d0791465aa9095a01d421861e405b5096955051deefd697d6f6"
       ],
-      "version": "==0.9.0"
+      "markers": "python_version >= '3.7'",
+      "version": "==0.10.3"
     },
     "pillow": {
       "hashes": [
@@ -1997,11 +1998,11 @@
     },
     "pycln": {
       "hashes": [
-        "sha256:aeba833e233c8bb0c4945d4b61ecbcb08a0441c89d8f018d0ee904e7bba8efab",
-        "sha256:b0dcd6d443e72ba84790c53157bdd44c5afbb5ac5b933f10faef0e898fcbb63a"
+        "sha256:161142502e4ff9853cd462a38401e29eb56235919856df2cb7fa4c84e463717f",
+        "sha256:a33bfc64ded74a623b7cf49eca38b58db4348facc60c35af26d45de149b256f5"
       ],
       "index": "pypi",
-      "version": "==2.1.2"
+      "version": "==2.1.3"
     },
     "pycparser": {
       "hashes": [
