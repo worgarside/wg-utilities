@@ -56,7 +56,7 @@ def test_exception_is_sent_to_ha_by_default(mock_requests: Mocker) -> None:
 
     @on_exception(raise_after_callback=False)
     def worker() -> None:
-        raise Exception("Test Exception")
+        raise Exception("Test Exception")  # pylint: disable=broad-exception-raised
 
     worker()
 

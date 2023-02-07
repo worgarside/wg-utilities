@@ -83,7 +83,7 @@ class DataSource:
         from_datetime: datetime | None = None,
         to_datetime: datetime | None = None,
     ) -> int:
-        """Gets the sum of data points in the given range.
+        """Get the sum of data points in the given range.
 
         If no `from_datetime` is provided, it defaults to the start of today; if no
         `to_datetime` is provided then it defaults to now.
@@ -214,7 +214,7 @@ class GoogleFitClient(GoogleClient[Any]):
         self.data_sources: dict[str, DataSource] = {}
 
     def get_data_source(self, data_source_id: str) -> DataSource:
-        """Gets a data source based on its UID.
+        """Get a data source based on its UID.
 
         DataSource instances are cached for the lifetime of the GoogleClient instance
 

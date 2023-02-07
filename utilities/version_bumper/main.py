@@ -38,7 +38,7 @@ class Bump(Enum):
 
 
 def get_latest_version() -> str:
-    """Gets the latest release number (x.y.z) from GitHub.
+    """Get the latest release number (x.y.z) from GitHub.
 
     Returns:
         str: the latest release number (x.y.z)
@@ -60,7 +60,7 @@ def get_latest_version() -> str:
 
 
 def get_new_version(bump_type: Bump, latest_version: str) -> str:
-    """Builds a new version number.
+    """Build a new version number.
 
     Args:
         bump_type (Bump): the type of bump we're executing
@@ -81,7 +81,7 @@ def get_new_version(bump_type: Bump, latest_version: str) -> str:
 
 
 def create_release_branch(old: str, new: str) -> None:
-    """Creates (and completes!) a release branch with the new release number.
+    """Create (and complete!) a release branch with the new release number.
 
     Args:
         old (str): the old release number (x.y.z)
@@ -124,7 +124,7 @@ def create_release_branch(old: str, new: str) -> None:
 def _update_file(
     *, file_path: Path, version_line_prefix: str, old: str, new: str
 ) -> None:
-    """Updates the given file with the new version number.
+    """Update the given file with the new version number.
 
     Args:
         file_path (Path): the path to the file to update
@@ -148,7 +148,7 @@ def _update_file(
 
 
 def update_setup_py_file(old: str, new: str) -> None:
-    """Updates the `setup.py` file with the new version number.
+    """Update the `setup.py` file with the new version number.
 
     Args:
         old (str): the old release number (x.y.z)
@@ -163,7 +163,7 @@ def update_setup_py_file(old: str, new: str) -> None:
 
 
 def update_wg_utils_package_init_file(old: str, new: str) -> None:
-    """Updates the `wg_utilities/__init__.py` file with the new version number.
+    """Update the `wg_utilities/__init__.py` file with the new version number.
 
     Args:
         old (str): the old release number (x.y.z)
@@ -178,7 +178,7 @@ def update_wg_utils_package_init_file(old: str, new: str) -> None:
 
 
 def main() -> None:
-    """Main function for this script."""
+    """Handle the main logic for this script."""
     parser = ArgumentParser()
     parser.add_argument("--bump")
     args = parser.parse_args()
