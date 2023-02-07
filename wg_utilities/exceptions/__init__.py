@@ -73,7 +73,7 @@ def on_exception(
     _suppress_ignorant_warnings: bool | None = None,
 ) -> Callable[[Any], Any]:
     # pylint: disable=useless-type-doc,useless-param-doc
-    """Decorator factory to allow parameterizing the inner decorator.
+    """Parameterize the inner decorator with a decorator factory.
 
     Args:
         exception_callback (Callable): callback function to process the exception
@@ -89,7 +89,7 @@ def on_exception(
     """
 
     def _decorator(func: Callable[[Any], Any]) -> Callable[[Any, Any], Any]:
-        """Decorator to allow simple cover-all exception handler callback behaviour.
+        """Allow simple cover-all exception handler callback behaviour.
 
         Args:
             func (Callable): the function being wrapped
@@ -100,7 +100,7 @@ def on_exception(
 
         @wraps(func)
         def worker(*args: Any, **kwargs: Any) -> Any:
-            """Tries to run the decorated function and calls the callback function.
+            """Try to run the decorated function and calls the callback function.
 
             Args:
                 *args (Any): any args passed to the inner func

@@ -308,14 +308,13 @@ class _GoogleDriveEntity(GenericModelWithConfig):
         return "/" + current_path
 
     def __eq__(self, other: Any) -> bool:
-
         if not isinstance(other, type(self)):
             return NotImplemented
 
         return self.id == other.id
 
     def __str__(self) -> str:
-        """Returns the file name."""
+        """Return the file name."""
         return self.name
 
 
@@ -399,7 +398,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
 
     def navigate(self, path: str) -> _CanHaveChildren | File:
         # pylint: disable=too-many-return-statements
-        """Navigate to a directory within this directory.
+        """Navigate to a directory within this directory
 
         Args:
             path (str): The path to navigate to.
@@ -470,33 +469,33 @@ class _CanHaveChildren(_GoogleDriveEntity):
                     ).pop()
                 except IndexError:
                     raise ValueError(f"Invalid path: {path!r}") from None
-                else:
-                    if item["mimeType"] == Directory.MIME_TYPE:
-                        directory = Directory.from_json_response(
-                            item,
-                            google_client=self.google_client,
-                            parent=self,
-                            host_drive=self.host_drive,
-                            _block_describe_call=True,
-                        )
-                        self._add_directory(directory)
-                        return directory.navigate("/".join(rest))
 
-                    file = File.from_json_response(
+                if item["mimeType"] == Directory.MIME_TYPE:
+                    directory = Directory.from_json_response(
                         item,
                         google_client=self.google_client,
                         parent=self,
                         host_drive=self.host_drive,
                         _block_describe_call=True,
                     )
-                    self._add_file(file)
-                    return file
+                    self._add_directory(directory)
+                    return directory.navigate("/".join(rest))
+
+                file = File.from_json_response(
+                    item,
+                    google_client=self.google_client,
+                    parent=self,
+                    host_drive=self.host_drive,
+                    _block_describe_call=True,
+                )
+                self._add_file(file)
+                return file
             case _:  # pragma: no cover
                 # I haven't found a way to trigger this but have kept it just in case
                 raise ValueError(f"Unprocessable path: {path!r}")
 
     def reset_known_children(self) -> None:
-        """Resets the list of known children."""
+        """Reset the list of known children."""
         self._set_private_attr("_directories", None)
         self._set_private_attr("_directories_loaded", False)
         self._set_private_attr("_files", None)
@@ -530,7 +529,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
             level: int,
             block_pipes_at_levels: list[int] | None = None,
         ) -> None:
-            """Builds a subtree of a given directory.
+            """Build a subtree of a given directory.
 
             Args:
                 parent_dir (Directory): the directory to create the subtree of
@@ -580,7 +579,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
 
     @property
     def all_known_children(self) -> list[Directory | File]:
-        """Gets all known children of this directory.
+        """Get all known children of this directory.
 
         No HTTP requests are made to get these children, so this may not be an
         exhaustive list.
@@ -598,7 +597,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
 
     @property
     def children(self) -> list[Directory | File]:
-        """Gets all immediate children of this Drive/Directory.
+        """Get all immediate children of this Drive/Directory.
 
         Returns:
             list[Directory | File]: The list of children.
@@ -826,7 +825,6 @@ class File(_GoogleDriveEntity):
 
     @validator("mime_type")
     def _validate_mime_type(cls, mime_type: str) -> str:
-
         if mime_type == Directory.MIME_TYPE:
             raise ValueError("Use `Directory` class to create a directory.")
 
@@ -834,7 +832,6 @@ class File(_GoogleDriveEntity):
 
     @validator("parents")
     def _validate_parents(cls, parents: list[str]) -> list[str]:
-
         if len(parents) != 1:
             raise ValueError(f"A {cls.__name__} must have exactly one parent.")
 
@@ -976,7 +973,6 @@ class Directory(File, _CanHaveChildren):
 
 
 class _DriveCapabilities(BaseModelWithConfig):
-
     can_accept_ownership: bool | None = Field(alias="canAcceptOwnership")
     can_add_children: bool | None = Field(alias="canAddChildren")
     can_add_folder_from_another_drive: bool | None = Field(
@@ -1389,7 +1385,7 @@ class Drive(_CanHaveChildren):
 
     @property
     def all_known_descendents(self) -> list[Directory | File]:
-        """Gets all known children of this directory.
+        """Get all known children of this directory.
 
         No HTTP requests are made to get these children, so this may not be an
         exhaustive list.

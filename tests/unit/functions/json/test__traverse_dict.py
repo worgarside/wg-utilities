@@ -448,7 +448,6 @@ def test_single_keys_are_removed_as_expected_two_keys() -> None:
             if isinstance(v, dict):
                 _traverse(v, _parent_key=k)
             else:
-
                 # Avoid the start/end cases for simplicity
                 if _parent_key is not None and v is not None:
                     assert (

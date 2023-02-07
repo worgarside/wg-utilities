@@ -173,7 +173,7 @@ class GoogleCalendarEntity(GenericModelWithConfig):
         google_client: GoogleCalendarClient,
         calendar: Calendar | None = None,
     ) -> FJR:
-        """Creates a Calendar/Event from a JSON response."""
+        """Create a Calendar/Event from a JSON response."""
 
         value_data: dict[str, Any] = {
             "google_client": google_client,
@@ -197,7 +197,7 @@ class GoogleCalendarEntity(GenericModelWithConfig):
         exclude_none: bool = False,
     ) -> dict[str, Any]:
         # pylint: disable=useless-parent-delegation
-        """Overrides the standard `BaseModel.dict` method.
+        """Override the standard `BaseModel.dict` method.
 
         Allows us to consistently return the dict with the same field names it came in
         with, and exclude any null values that have been added when parsing.
@@ -222,7 +222,7 @@ class GoogleCalendarEntity(GenericModelWithConfig):
 
     @staticmethod
     def _json_encoder(o: Any) -> str:
-        """Custom encoder for GoogleCalendarEntity JSON serialization.
+        """Custom-encode GoogleCalendarEntity JSON.
 
         Args:
             o (Any): object to encode
@@ -254,7 +254,7 @@ class GoogleCalendarEntity(GenericModelWithConfig):
         **dumps_kwargs: Any,
     ) -> str:
         # pylint: disable=useless-parent-delegation
-        """Overrides the standard `BaseModel.json` method.
+        """Override the standard `BaseModel.json` method.
 
         Allows us to consistently return the dict with the same field names it came in
         with, and exclude any null values that have been added when parsing.
@@ -282,7 +282,7 @@ class GoogleCalendarEntity(GenericModelWithConfig):
         )
 
     def __eq__(self, other: Any) -> bool:
-        """Compares two GoogleCalendarEntity objects by ID."""
+        """Compare two GoogleCalendarEntity objects by ID."""
         if not isinstance(other, type(self)):
             return NotImplemented
 
@@ -324,7 +324,10 @@ class Calendar(GoogleCalendarEntity):
     foreground_color: str | None = Field(None, alias="foregroundColor")
     hidden: bool = False
     kind: Literal["calendar#calendar", "calendar#calendarListEntry"]
-    notification_settings: dict[Literal["notifications"], list[_Notification],] = Field(
+    notification_settings: dict[
+        Literal["notifications"],
+        list[_Notification],
+    ] = Field(
         alias="notificationSettings", default_factory=list  # type: ignore[assignment]
     )
     primary: bool = False
@@ -339,11 +342,11 @@ class Calendar(GoogleCalendarEntity):
     def validate_timezone(  # pylint: disable=no-self-argument
         cls, value: str  # noqa: N805
     ) -> tzinfo:
-        """Converts the timezone string into a tzinfo object."""
+        """Convert the timezone string into a tzinfo object."""
         return timezone(value)
 
     def get_event_by_id(self, event_id: str) -> Event:
-        """Gets an event by its ID.
+        """Get an event by its ID.
 
         Args:
             event_id (str): ID of the event to get
@@ -392,7 +395,6 @@ class Calendar(GoogleCalendarEntity):
             "singleEvents": str(not combine_recurring_events),
         }
         if from_datetime or to_datetime or day_limit:
-
             to_datetime = to_datetime or datetime_.utcnow()
             from_datetime = from_datetime or to_datetime - timedelta(
                 days=day_limit or 90
@@ -424,7 +426,7 @@ class Calendar(GoogleCalendarEntity):
         ]
 
     def __str__(self) -> str:
-        """Returns the calendar name."""
+        """Return the calendar name."""
         return self.summary
 
 
@@ -514,7 +516,7 @@ class Event(GoogleCalendarEntity):
     calendar: Calendar
 
     def delete(self) -> None:
-        """Deletes the event from the host calendar."""
+        """Delete the event from the host calendar."""
         self.google_client.delete_event_by_id(event_id=self.id, calendar=self.calendar)
 
     @property
@@ -535,7 +537,7 @@ class Event(GoogleCalendarEntity):
         return ResponseStatus.UNKNOWN
 
     def __gt__(self, other: Event) -> bool:
-        """Compares two events by their start time, end time, or name."""
+        """Compare two events by their start time, end time, or name."""
 
         if not isinstance(other, Event):
             return NotImplemented
@@ -547,7 +549,7 @@ class Event(GoogleCalendarEntity):
         )
 
     def __lt__(self, other: Event) -> bool:
-        """Compares two events by their start time, end time, or name."""
+        """Compare two events by their start time, end time, or name."""
 
         if not isinstance(other, Event):
             return NotImplemented
@@ -559,7 +561,7 @@ class Event(GoogleCalendarEntity):
         )
 
     def __str__(self) -> str:
-        """Returns the event's summary and start/end datetimes."""
+        """Return the event's summary and start/end datetimes."""
         return (
             f"{self.summary} ("
             f"{self.start.datetime.isoformat()} - "
@@ -673,7 +675,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
     def delete_event_by_id(
         self, event_id: str, calendar: Calendar | None = None
     ) -> None:
-        """Deletes an event from a calendar.
+        """Delete an event from a calendar.
 
         Args:
             event_id (str): the ID of the event to delete

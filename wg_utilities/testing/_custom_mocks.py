@@ -53,7 +53,7 @@ class MockBoto3Client:
         self.boto3_calls: dict[str, list[dict[Any, Any]]] = {}
 
     def reset_boto3_calls(self) -> None:
-        """Resets the boto3 calls to an empty dict."""
+        """Reset the boto3 calls to an empty dict."""
         self.boto3_calls = {}
 
     def build_api_call(
@@ -62,7 +62,7 @@ class MockBoto3Client:
         lookup_overrides: dict[str, object | Callable[..., Any]] | None = None,
         reset_boto3_calls: bool = True,
     ) -> Callable[[BaseClient, str, dict[str, Any]], object]:
-        """Builds an API call for use in stubs.
+        """Build an API call for use in stubs.
 
         Wrapper function for the API call. Also resets the internal log of boto3
         calls as this is a new API call
