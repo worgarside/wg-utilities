@@ -346,7 +346,7 @@ class CurrentTrack:
         return f"{self.__class__.__name__}({self.__str__()!r})"
 
     def __str__(self) -> str:
-        """String representation of the current track."""
+        """Return a string representation of the current track."""
 
         if self.media_title is None and self.media_artist is None:
             return self.NULL_TRACK_STR
@@ -510,7 +510,7 @@ def _needs_device(
 
     @wraps(func)
     def create_device(yas_209: YamahaYas209) -> Any:
-        """Creates the device before executing the wrapped method.
+        """Create the device before executing the wrapped method.
 
         Args:
             yas_209 (YamahaYas209): the YamahaYas209 instance
@@ -669,9 +669,7 @@ class YamahaYas209:
     def on_event_wrapper(
         self, service: UpnpService, service_variables: Sequence[UpnpStateVariable[str]]
     ) -> None:
-        """Wrapper function for the `on_event` callback.
-
-        Allows us to can process the XML payload(s) first
+        """Wrap the `on_event` callback to process the XML payload(s) first.
 
         Args:
             service (UpnpService): the service which has sent an update
@@ -913,7 +911,7 @@ class YamahaYas209:
         self._call_service_action(Yas209Service.AVT, "Previous", InstanceID=0)
 
     def set_state(self, value: Yas209State, local_only: bool = False) -> None:
-        """Sets the state to the given value.
+        """Set the state to the given value.
 
         Args:
             value (Yas209State): the new state of the YAS-209
@@ -942,7 +940,7 @@ class YamahaYas209:
             self.on_state_update(self._state.value)
 
     def set_volume_level(self, value: float, local_only: bool = False) -> None:
-        """Sets the soundbar's volume level.
+        """Set the soundbar's volume level.
 
         Args:
             value (float): the new volume level, as a float between 0 and 1

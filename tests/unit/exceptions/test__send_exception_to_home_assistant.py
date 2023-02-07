@@ -69,7 +69,7 @@ def test_url_is_correct(
     raise_args: tuple[object, ...],
     mock_requests: Mocker,
 ) -> None:
-    """Tests the payload is sent to the correct URL.
+    """Test the payload is sent to the correct URL.
 
     This test is semi-redundant due to the `real_http` kwarg being set to `False`, but
     I've included it for completeness anyway.
@@ -123,7 +123,7 @@ def test_payload_is_correctly_formed(
     raise_args: tuple[object, ...],
     mock_requests: Mocker,
 ) -> None:
-    """Tests the payload has the correct content when it's sent to HA."""
+    """Test the payload has the correct content when it's sent to HA."""
 
     mock_requests.post(f"http://{HA_LOG_ENDPOINT}/log/error", status_code=200)
 

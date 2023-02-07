@@ -79,7 +79,7 @@ class DHT22Sensor:
             tick (int):    32 bit   The number of microseconds since boot
                                     WARNING: this wraps around from
                                     4294967295 to 0 roughly every 72 minutes
-        """
+        """  # noqa: D401
 
         diff = tickDiff(self.high_tick, tick)
 
