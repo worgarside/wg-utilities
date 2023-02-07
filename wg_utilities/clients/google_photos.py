@@ -94,7 +94,7 @@ class GooglePhotosEntity(GenericModelWithConfig):
         *,
         google_client: GooglePhotosClient,
     ) -> FJR:
-        """Creates an entity from a JSON response."""
+        """Create an entity from a JSON response."""
 
         value_data: dict[str, Any] = {
             "google_client": google_client,
@@ -132,7 +132,7 @@ class Album(GooglePhotosEntity):
 
     @validator("title")
     def _validate_title(cls, value: str) -> str:  # noqa: N805
-        """Validates the title of the album."""
+        """Validate the title of the album."""
 
         if not value:
             raise ValueError("Album title cannot be empty.")
@@ -142,7 +142,7 @@ class Album(GooglePhotosEntity):
     @property
     def media_items(self) -> list[MediaItem]:
         # noinspection GrazieInspection
-        """Lists all media items in the album.
+        """List all media items in the album.
 
         Returns:
             list: a list of MediaItem instances, representing the contents of the album
@@ -362,7 +362,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
         return album
 
     def get_album_by_name(self, album_name: str) -> Album:
-        """Gets an album definition from the Google API based on the album name.
+        """Get an album definition from the Google API based on the album name.
 
         Args:
             album_name (str): the name of the album to find
@@ -383,7 +383,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
 
     @property
     def albums(self) -> list[Album]:
-        """Lists all albums in the active Google account.
+        """List all albums in the active Google account.
 
         Returns:
             list: a list of Album instances

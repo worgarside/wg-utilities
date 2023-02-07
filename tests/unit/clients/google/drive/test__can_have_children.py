@@ -525,7 +525,6 @@ def test_children_property(
         "directories",
         [drive_comparison_entity_lookup["MacBook Clones"]],
     ):
-
         assert directory.children == [
             drive_comparison_entity_lookup["128GB SD Card - Old MacBook.zip"],
             drive_comparison_entity_lookup["Archive Log"],

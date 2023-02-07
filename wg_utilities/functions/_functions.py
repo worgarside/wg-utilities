@@ -45,7 +45,7 @@ def flatten_dict(
     _parent_key: str = "",
 ) -> dict[str, Any]:
     # pylint: disable=useless-type-doc,useless-param-doc
-    """Flattens a nested dictionary into a single level dictionary.
+    """Flatten a nested dictionary into a single level dictionary.
 
     This function recursively traverses a dictionary and flattens any nested JSON
     so the resultant dict has no values of type dict. This allows for easier processing
@@ -136,7 +136,7 @@ def flatten_dict(
 
 
 def try_float(v: Any, default: Any = 0.0) -> object:
-    """Tries to cast a value to a float, and returns a default if it fails.
+    """Try to cast a value to a float, and returns a default if it fails.
 
     Examples:
         >>> try_float("12.34")
