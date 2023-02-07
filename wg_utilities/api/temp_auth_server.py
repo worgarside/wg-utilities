@@ -1,4 +1,4 @@
-"""Provides a class for creating a temporary server during an authentication flow."""
+"""Provide a class for creating a temporary server during an authentication flow."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ class TempAuthServer:
     """
 
     class ServerThread(Thread):
-        """Runs a Flask app in a separate thread with shutdown control."""
+        """Run a Flask app in a separate thread with shutdown control."""
 
         def __init__(self, app: Flask, host: str = "0.0.0.0", port: int = 5001):
             super().__init__()
@@ -151,7 +151,7 @@ class TempAuthServer:
             self.server.start()
 
     def stop_server(self) -> None:
-        """Stops the local server by hitting its `/kill` endpoint.
+        """Stop the local server by hitting its `/kill` endpoint.
 
         See Also:
             self.create_endpoints: `/kill` endpoint

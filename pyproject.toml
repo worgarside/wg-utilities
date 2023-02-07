@@ -79,13 +79,14 @@ extend-select = [
     "W", # Pycodestyle warnings
 ]
 extend-ignore = [
-    "D107",  # PublicInit
-    "D202",  # NoBlankLineAfterFunction
-    "D203",  # OneBlankLineBeforeClass
-    "D213",  # MultiLineSummarySecondLine
-    "D400",  # FirstLineEndsWithPeriod
-    "D406",  # NewLineAfterSectionName
-    "D407",  # DashedUnderlineAfterSection
+    "D107",  # public-init
+    "D202",  # no-blank-line-after-function
+    "D203",  # one-blank-line-before-class
+    "D213",  # multi-line-summary-second-line
+    "D400",  # first-line-end-with-period
+    "D406",  # new-line-after-section-name
+    "D407",  # dashed-underline-after-section
+    "UP037"  # quoted-annotation
 ]
 
 [tool.ruff.mccabe]

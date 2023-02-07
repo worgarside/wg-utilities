@@ -1,4 +1,4 @@
-"""Functions for string manipulation."""
+"""Set of functions for string manipulation."""
 
 
 from __future__ import annotations

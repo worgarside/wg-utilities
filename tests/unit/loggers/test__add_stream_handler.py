@@ -62,7 +62,7 @@ def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
 def test_formatter_is_set_correctly(
     formatter: Formatter | None, logger: Logger
 ) -> None:
-    """Tests that the formatter is set correctly."""
+    """Test that the formatter is set correctly."""
 
     add_stream_handler(logger, formatter=formatter)
 

@@ -24,7 +24,7 @@ from wg_utilities.clients.spotify import (
 
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:
-    """Tests instantiation of User class."""
+    """Test instantiation of User class."""
 
     user = User.from_json_response(
         {  # type: ignore[arg-type]

@@ -337,7 +337,7 @@ def test_listen_reraises_exception_from_subscribe_worker(
 
         assert self == yamaha_yas_209
 
-        raise Exception("Test")
+        raise Exception("Test")  # pylint: disable=broad-exception-raised
 
     with patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.YamahaYas209._subscribe",
@@ -1331,7 +1331,7 @@ def test_needs_device_decorator(
 
     @_needs_device  # type: ignore[arg-type]
     def _worker(self: YamahaYas209) -> None:
-        """Dummy function to test the decorator."""
+        """Test the decorator with dummy function."""
         assert self == yamaha_yas_209
 
     _worker(yamaha_yas_209)
@@ -1493,7 +1493,7 @@ def test_subscribe_resubscribes_to_active_services(
     call_count = 0
 
     def _sleep_side_effect(_: int) -> None:
-        """Dummy function to skip sleep delays.
+        """Skip sleep delays.
 
         Will cause the loop to exit after 121 calls (i.e. after the first main
         subscription loop).
@@ -1548,7 +1548,7 @@ def test_subscribe_resubscribes_to_failed_services(
     call_count = 0
 
     def _sleep_side_effect(_: int) -> None:
-        """Dummy function to skip sleep delays.
+        """Skip sleep delays.
 
         Will cause the loop to exit after 121 calls (i.e. after the first main
         subscription loop).
@@ -1631,7 +1631,7 @@ def test_subscribe_keeps_retrying_failed_subscriptions(
     call_count = 0
 
     def _sleep_side_effect(_: int) -> None:
-        """Dummy function to skip sleep delays.
+        """Skip sleep delays.
 
         Will cause the loop to exit after 121 calls (i.e. after the first main
         subscription loop).
