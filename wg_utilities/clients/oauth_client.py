@@ -253,7 +253,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         json: Any | None = None,
         data: Any | None = None,
     ) -> Response:
-        """Wrapper for GET requests which covers authentication, URL parsing, etc. etc.
+        """Wrap all GET requests to cover authentication, URL parsing, etc. etc.
 
         Args:
             url (str): the URL path to the endpoint (not necessarily including the
@@ -300,7 +300,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         json: Any | None = None,
         data: Any | None = None,
     ) -> Response:
-        """Wrapper for POST requests which covers authentication, URL parsing, etc. etc.
+        """Wrap all POST requests to cover authentication, URL parsing, etc. etc.
 
         Args:
             url (str): the URL path to the endpoint (not necessarily including the
@@ -429,7 +429,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         json: Any | None = None,
         data: Any | None = None,
     ) -> GetJsonResponse:
-        """Gets a simple JSON object from a URL.
+        """Get a simple JSON object from a URL.
 
         Args:
             url (str): the API endpoint to GET
@@ -469,7 +469,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         json: Any | None = None,
         data: Any | None = None,
     ) -> GetJsonResponse:
-        """Gets a simple JSON object from a URL from a POST request.
+        """Get a simple JSON object from a URL from a POST request.
 
         Args:
             url (str): the API endpoint to GET
@@ -497,7 +497,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         )
 
     def refresh_access_token(self) -> None:
-        """Refreshes access token."""
+        """Refresh access token."""
 
         if not hasattr(self, "_credentials") and not self._load_local_credentials():
             # If we don't have any credentials, we can't refresh the access token -
@@ -530,7 +530,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         self.creds_cache_path.write_text(self.credentials.json(exclude_none=True))
 
     def run_first_time_login(self) -> None:
-        """Runs the first time login process.
+        """Run the first time login process.
 
         This is a blocking call which will not return until the user has
         authenticated with the OAuth provider.
@@ -601,7 +601,7 @@ class OAuthClient(Generic[GetJsonResponse]):
 
     @property
     def access_token_has_expired(self) -> bool:
-        """Decodes the JWT access token and evaluates the expiry time.
+        """Decode the JWT access token and evaluates the expiry time.
 
         Returns:
             bool: has the access token expired?
@@ -636,7 +636,7 @@ class OAuthClient(Generic[GetJsonResponse]):
 
     @property
     def credentials(self) -> OAuthCredentials:
-        """Gets creds as necessary (including first time setup) and authenticates them.
+        """Get creds as necessary (including first time setup) and authenticates them.
 
         Returns:
             OAuthCredentials: the credentials for the chosen bank
@@ -652,7 +652,7 @@ class OAuthClient(Generic[GetJsonResponse]):
 
     @credentials.setter
     def credentials(self, value: OAuthCredentials) -> None:
-        """Sets the client's credentials, and write to the local cache file."""
+        """Set the client's credentials, and write to the local cache file."""
 
         self._credentials = value
 
@@ -688,7 +688,7 @@ class OAuthClient(Generic[GetJsonResponse]):
 
     @property
     def request_headers(self) -> dict[str, str]:
-        """Headers to be used in requests to the API.
+        """Header to be used in requests to the API.
 
         Returns:
             dict: auth headers for HTTP requests
@@ -709,7 +709,7 @@ class OAuthClient(Generic[GetJsonResponse]):
 
     @property
     def temp_auth_server(self) -> TempAuthServer:
-        """Creates a temporary HTTP server for the auth flow.
+        """Create a temporary HTTP server for the auth flow.
 
         Returns:
             TempAuthServer: the temporary server
