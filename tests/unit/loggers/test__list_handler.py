@@ -39,7 +39,6 @@ def test_emit_calls_expire_records(
     """Test that `expire_records` is called on `emit`."""
 
     with patch("wg_utilities.loggers.ListHandler.expire_records") as mock_expire:
-
         list_handler.emit(sample_log_record)
 
         assert mock_expire.called
@@ -80,7 +79,6 @@ def test_expire_records_does_nothing_if_ttl_is_none(list_handler: ListHandler) -
     list_handler.ttl = None
 
     with patch("wg_utilities.loggers.datetime") as mock_datetime:
-
         list_handler.expire_records()
 
         assert not mock_datetime.now.called

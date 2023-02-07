@@ -238,7 +238,7 @@ class Account(BaseModelWithConfig):
     def from_json_response(
         cls, value: AccountJson, monzo_client: MonzoClient
     ) -> Account:
-        """Creates an account from a JSON response."""
+        """Create an account from a JSON response."""
 
         value_data: dict[str, Any] = {
             "monzo_client": monzo_client,
@@ -253,7 +253,7 @@ class Account(BaseModelWithConfig):
         to_datetime: datetime | None = None,
         limit: int = 100,
     ) -> list[Transaction]:
-        """Lists transactions for the account.
+        """List transactions for the account.
 
         Args:
             from_datetime (datetime, optional): the start of the time period to list
@@ -284,7 +284,7 @@ class Account(BaseModelWithConfig):
         ]
 
     def update_balance_variables(self) -> None:
-        """Updates the balance-related instance attributes.
+        """Update the balance-related instance attributes.
 
         Latest values from the API are used. This is called automatically when
         a balance property is accessed and the last update was more than
@@ -362,7 +362,7 @@ class Account(BaseModelWithConfig):
         return self.balance_variables.total_balance
 
     def __eq__(self, other: object) -> bool:
-        """Checks if two accounts are equal."""
+        """Check if two accounts are equal."""
         if not isinstance(other, Account):
             return NotImplemented
 
@@ -472,7 +472,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
     def list_accounts(
         self, *, include_closed: bool = False, account_type: str | None = None
     ) -> list[Account]:
-        """Gets a list of the user's accounts.
+        """Get a list of the user's accounts.
 
         Args:
             include_closed (bool): whether to include closed accounts in the response
@@ -494,7 +494,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         ]
 
     def list_pots(self, *, include_deleted: bool = False) -> list[Pot]:
-        """Gets a list of the user's pots.
+        """Get a list of the user's pots.
 
         Args:
             include_deleted (bool): whether to include deleted pots in the response
