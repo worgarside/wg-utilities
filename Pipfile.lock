@@ -1799,11 +1799,11 @@
     },
     "mypy-boto3-s3": {
       "hashes": [
-        "sha256:6d7079f8c739dc993cbedad0736299c413b297814b73795a3855a79169ecc938",
-        "sha256:7de2792ff0cc541b84cd46ff3a6aa2b6e5f267217f2203f27f6e4016bddc644d"
+        "sha256:43eb37eb7a0e8d88f7e99f4906ce3191bdfaa7baba72011b555105248ba98677",
+        "sha256:a817fff28fee6a56d896410ae0a6d848ffe435480ae37ac1c481940d960ecfe5"
       ],
       "index": "pypi",
-      "version": "==1.26.0.post1"
+      "version": "==1.26.62"
     },
     "mypy-extensions": {
       "hashes": [
