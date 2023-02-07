@@ -418,7 +418,7 @@ def test_get_items_from_url_limit_func(
 
 
 def test_get_items_from_url_different_list_key(spotify_client: SpotifyClient) -> None:
-    """Tests items under a different key are correctly extracted."""
+    """Test items under a different key are correctly extracted."""
 
     items = spotify_client.get_items("/me/player/devices")
 
@@ -430,7 +430,7 @@ def test_get_items_from_url_different_list_key(spotify_client: SpotifyClient) ->
 
 
 def test_get_items_from_url_with_top_level_key(spotify_client: SpotifyClient) -> None:
-    """Tests items under a top level key *and* and list key are correctly extracted."""
+    """Test items under a top level key *and* and list key are correctly extracted."""
 
     items = spotify_client.get_items(
         "/me/following",

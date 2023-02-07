@@ -175,7 +175,6 @@ try:
 
     TEST_MODE = False
 except (RuntimeError, ImportError):
-
     # pylint: disable=too-few-public-methods
     class FakeImplementation:
         """Class to cover functionality of implementations on non-supporting devices."""
