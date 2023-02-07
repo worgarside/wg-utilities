@@ -308,7 +308,6 @@ class _GoogleDriveEntity(GenericModelWithConfig):
         return "/" + current_path
 
     def __eq__(self, other: Any) -> bool:
-
         if not isinstance(other, type(self)):
             return NotImplemented
 
@@ -826,7 +825,6 @@ class File(_GoogleDriveEntity):
 
     @validator("mime_type")
     def _validate_mime_type(cls, mime_type: str) -> str:
-
         if mime_type == Directory.MIME_TYPE:
             raise ValueError("Use `Directory` class to create a directory.")
 
@@ -834,7 +832,6 @@ class File(_GoogleDriveEntity):
 
     @validator("parents")
     def _validate_parents(cls, parents: list[str]) -> list[str]:
-
         if len(parents) != 1:
             raise ValueError(f"A {cls.__name__} must have exactly one parent.")
 
@@ -976,7 +973,6 @@ class Directory(File, _CanHaveChildren):
 
 
 class _DriveCapabilities(BaseModelWithConfig):
-
     can_accept_ownership: bool | None = Field(alias="canAcceptOwnership")
     can_add_children: bool | None = Field(alias="canAddChildren")
     can_add_folder_from_another_drive: bool | None = Field(

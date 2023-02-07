@@ -26,7 +26,6 @@ __all__ = [
 ]
 
 try:
-
     __all__.append(
         "get_nsmap",
     )

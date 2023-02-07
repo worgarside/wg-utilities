@@ -84,7 +84,6 @@ class DHT22Sensor:
         diff = tickDiff(self.high_tick, tick)
 
         if level == 0:
-
             # Edge length determines if bit is 1 or 0.
             if diff >= 50:
                 val = 1
@@ -100,7 +99,6 @@ class DHT22Sensor:
                 self.checksum = (self.checksum << 1) + val
 
                 if self.bit == 39:
-
                     # 40th bit received.
 
                     self.pi.set_watchdog(self.gpio, 0)
@@ -112,7 +110,6 @@ class DHT22Sensor:
                     )
 
                     if (total & 255) == self.checksum:  # Is checksum ok?
-
                         self.humidity = ((self.hum_high << 8) + self.hum_low) * 0.1
 
                         if self.temp_high & 128:  # Negative temperature.
@@ -129,7 +126,6 @@ class DHT22Sensor:
                             self.pi.write(self.led, 0)
 
                     else:
-
                         self.bad_cs += 1
 
             elif self.bit >= 24:  # in temp low byte

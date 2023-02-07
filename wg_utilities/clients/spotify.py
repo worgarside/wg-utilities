@@ -669,7 +669,6 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
 
     @root_validator(pre=True)
     def _set_summary_json(cls, values: dict_[str, Any]) -> Any:
-
         values["summary_json"] = {
             k: v for k, v in values.items() if k in cls.sj_type.__annotations__
         }
@@ -1227,7 +1226,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         """
 
         if not day_limit:
-
             limit_func: Callable[
                 [SpotifyEntityJson | dict[str, Any]],
                 bool,

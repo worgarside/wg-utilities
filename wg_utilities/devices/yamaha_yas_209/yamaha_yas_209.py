@@ -595,7 +595,6 @@ class YamahaYas209:
         listen_port: int | None = None,
         source_port: int | None = None,
     ):
-
         self.ip = ip
         self.on_event = on_event
 
@@ -839,7 +838,6 @@ class YamahaYas209:
         callback: Callable[[Mapping[str, object]], None] | None = None,
         **call_kwargs: str | int,
     ) -> dict[str, Any] | None:
-
         if action not in service.actions:
             raise ValueError(
                 f"Unexpected action {action!r} for service {service.value!r}. "

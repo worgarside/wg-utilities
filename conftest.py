@@ -215,11 +215,15 @@ def read_json_file(rel_file_path: str) -> JSONObj:
 
 def read_json_file(
     rel_file_path: str, host_name: str | None = None
-) -> JSONObj | SpotifyEntityJson | dict[Literal["accounts"], list[AccountJson]] | dict[
-    Literal["pots"], list[PotJson]
-] | dict[
-    Literal["transactions"], list[TransactionJson]
-] | GoogleCalendarEntityJson | AlbumJson:
+) -> (
+    JSONObj
+    | SpotifyEntityJson
+    | dict[Literal["accounts"], list[AccountJson]]
+    | dict[Literal["pots"], list[PotJson]]
+    | dict[Literal["transactions"], list[TransactionJson]]
+    | GoogleCalendarEntityJson
+    | AlbumJson
+):
     """Read a JSON file from the flat files `json` subdirectory.
 
     Args:
@@ -286,9 +290,11 @@ def fix_colon_keys(json_obj: JSONObj | SpotifyEntityJson) -> JSONObj:
 
 def get_flat_file_from_url(
     request: _RequestObjectProxy = None, context: _Context = None
-) -> SpotifyEntityJson | dict[Literal["accounts"], list[AccountJson]] | dict[
-    Literal["pots"], list[PotJson]
-]:
+) -> (
+    SpotifyEntityJson
+    | dict[Literal["accounts"], list[AccountJson]]
+    | dict[Literal["pots"], list[PotJson]]
+):
     # pylint: disable=missing-raises-doc
     """Retrieves the content of a flat JSON file for a mocked request response.
 
@@ -904,7 +910,6 @@ def _mock_requests(
         elif fullmatch(
             r"^tests/unit/clients/spotify/test__[a-z_]+\.py$", request.node.parent.name
         ):
-
             for path_object in (
                 spotify_dir := FLAT_FILES_DIR / "json" / "spotify" / "v1"
             ).rglob("*"):
@@ -1133,7 +1138,6 @@ def _oauth_client(
 
 @fixture(scope="function", name="mock_open_browser")  # type: ignore[misc]
 def _mock_open_browser() -> YieldFixture[MagicMock]:
-
     with patch("wg_utilities.clients.oauth_client.open_browser") as mock_open_browser:
         yield mock_open_browser
 

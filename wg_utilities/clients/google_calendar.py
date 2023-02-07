@@ -324,7 +324,10 @@ class Calendar(GoogleCalendarEntity):
     foreground_color: str | None = Field(None, alias="foregroundColor")
     hidden: bool = False
     kind: Literal["calendar#calendar", "calendar#calendarListEntry"]
-    notification_settings: dict[Literal["notifications"], list[_Notification],] = Field(
+    notification_settings: dict[
+        Literal["notifications"],
+        list[_Notification],
+    ] = Field(
         alias="notificationSettings", default_factory=list  # type: ignore[assignment]
     )
     primary: bool = False
@@ -392,7 +395,6 @@ class Calendar(GoogleCalendarEntity):
             "singleEvents": str(not combine_recurring_events),
         }
         if from_datetime or to_datetime or day_limit:
-
             to_datetime = to_datetime or datetime_.utcnow()
             from_datetime = from_datetime or to_datetime - timedelta(
                 days=day_limit or 90
