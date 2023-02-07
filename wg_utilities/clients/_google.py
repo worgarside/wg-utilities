@@ -115,7 +115,7 @@ class GoogleClient(
         | None = None,
         method_override: Callable[..., Response] | None = None,
     ) -> list[GetJsonResponseGoogleClient]:
-        """Generic method for listing items on Google's API(s).
+        """List generic items on Google's API(s).
 
         Args:
             url (str): the API endpoint to send a request to

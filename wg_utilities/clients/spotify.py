@@ -561,7 +561,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
 
     @property
     def current_user(self) -> User:
-        """Gets the current user's info.
+        """Get the current user's info.
 
         Returns:
             User: an instance of the current Spotify user
@@ -669,7 +669,6 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
 
     @root_validator(pre=True)
     def _set_summary_json(cls, values: dict_[str, Any]) -> Any:
-
         values["summary_json"] = {
             k: v for k, v in values.items() if k in cls.sj_type.__annotations__
         }
@@ -788,7 +787,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
 
     @validator("release_date", pre=True)
     def validate_release_date(cls, value: str | date, values: AlbumFullJson) -> date:
-        """Converts the release date string to a date object."""
+        """Convert the release date string to a date object."""
 
         if isinstance(value, date):
             return value
@@ -818,13 +817,13 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
 
     @property
     def album_type(self) -> AlbumType:
-        """Converts the album type string to an enum value."""
+        """Convert the album type string to an enum value."""
 
         return AlbumType(self.album_type_str.lower())
 
     @property
     def artists(self) -> list[Artist]:
-        """Artists who contributed to the track.
+        """Return a list of artists who contributed to the track.
 
         Returns:
             list(Artist): a list of the artists who contributed to this track
@@ -907,7 +906,7 @@ class Artist(SpotifyEntity[ArtistSummaryJson]):
 
     @property
     def albums(self) -> list[Album]:
-        """Albums by this artist.
+        """Return a list of albums by this artist.
 
         Returns:
             list: A list of albums this artist has contributed to
@@ -981,7 +980,7 @@ class Track(SpotifyEntity[TrackFullJson]):
 
     @property
     def artists(self) -> list[Artist]:
-        """Artists who contributed to the track.
+        """Return a list of artists who contributed to the track.
 
         Returns:
             list(Artist): a list of the artists who contributed to this track
@@ -1020,11 +1019,11 @@ class Track(SpotifyEntity[TrackFullJson]):
                 if exc.response.status_code == HTTPStatus.NOT_FOUND:
                     return None
                 raise
-            else:
-                self._set_private_attr(
-                    "_audio_features",
-                    TrackAudioFeatures(**audio_features),
-                )
+
+            self._set_private_attr(
+                "_audio_features",
+                TrackAudioFeatures(**audio_features),
+            )
 
         return self._audio_features
 
@@ -1092,7 +1091,7 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
 
     @property
     def tracks(self) -> list[Track]:
-        """Tracks in the playlist.
+        """Return a list of tracks in the playlist.
 
         Returns:
             list: a list of tracks in this playlist
@@ -1187,7 +1186,7 @@ class User(SpotifyEntity[UserSummaryJson]):
     def get_playlists_by_name(
         self, name: str, return_all: bool = False
     ) -> list[Playlist] | Playlist | None:
-        """Gets Playlist instance(s) which have the given name.
+        """Get Playlist instance(s) which have the given name.
 
         Args:
             name (str): the name of the target playlist(s)
@@ -1216,7 +1215,7 @@ class User(SpotifyEntity[UserSummaryJson]):
     def get_recently_liked_tracks(
         self, track_limit: int = 100, *, day_limit: float = 0.0
     ) -> list[Track]:
-        """Gets a list of songs which were liked by the current user in the past N days.
+        """Get a list of songs which were liked by the current user in the past N days.
 
         Args:
             track_limit (int): the number of tracks to return
@@ -1227,7 +1226,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         """
 
         if not day_limit:
-
             limit_func: Callable[
                 [SpotifyEntityJson | dict[str, Any]],
                 bool,
@@ -1394,7 +1392,7 @@ class User(SpotifyEntity[UserSummaryJson]):
 
     @property
     def current_track(self) -> Track | None:
-        """Gets the currently playing track for the given user.
+        """Get the currently playing track for the given user.
 
         Returns:
             Track: the track currently being listened to
@@ -1412,7 +1410,7 @@ class User(SpotifyEntity[UserSummaryJson]):
 
     @property
     def current_playlist(self) -> Playlist | None:
-        """Gets the current playlist for the given user.
+        """Get the current playlist for the given user.
 
         Returns:
             Playlist: the playlist currently being listened to
@@ -1431,7 +1429,7 @@ class User(SpotifyEntity[UserSummaryJson]):
 
     @property
     def devices(self) -> list[Device]:
-        """Devices that the user currently has access to.
+        """Return a list of devices that the user currently has access to.
 
         Returns:
             list[Device]: a list of devices available to the user
@@ -1445,7 +1443,7 @@ class User(SpotifyEntity[UserSummaryJson]):
 
     @property
     def playlists(self) -> list[Playlist]:
-        """Playlists owned by the current user.
+        """Return a list of playlists owned by the current user.
 
         Returns:
             list: a list of playlists owned by the current user
@@ -1547,7 +1545,7 @@ class User(SpotifyEntity[UserSummaryJson]):
         ]
         | None = None,
     ) -> None:
-        """Resets all list properties."""
+        """Reset all list properties."""
 
         property_names = property_names or [
             "albums",

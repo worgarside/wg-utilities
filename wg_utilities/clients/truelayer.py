@@ -213,7 +213,7 @@ class TrueLayerEntity(GenericModelWithConfig):
     def from_json_response(
         cls: type[FJR], value: TrueLayerEntityJson, *, truelayer_client: TrueLayerClient
     ) -> FJR:
-        """Creates an account from a JSON response."""
+        """Create an account from a JSON response."""
 
         value_data: dict[str, Any] = {
             "truelayer_client": truelayer_client,
@@ -227,7 +227,7 @@ class TrueLayerEntity(GenericModelWithConfig):
         from_datetime: datetime | None = None,
         to_datetime: datetime | None = None,
     ) -> list[Transaction]:
-        """Gets transactions for this entity.
+        """Get transactions for this entity.
 
         Polls the TL API to get all transactions under the given entity. If
         only one datetime parameter is provided, then the other is given a default
@@ -264,7 +264,7 @@ class TrueLayerEntity(GenericModelWithConfig):
         ]
 
     def update_balance_values(self) -> None:
-        """Updates the balance-related instance attributes.
+        """Update the balance-related instance attributes.
 
         Uses the latest values from the API. This is called automatically when
         the balance-related attributes are accessed (if the attribute is None or
@@ -302,7 +302,7 @@ class TrueLayerEntity(GenericModelWithConfig):
             "payment_due_date",
         ],
     ) -> str | float | int | None:
-        """Gets a value for a balance-specific property.
+        """Get a value for a balance-specific property.
 
         Updates the values if necessary (i.e. if they don't already exist). This also
         has a check to see if property is relevant for the given entity type and if not
@@ -399,7 +399,7 @@ class TrueLayerEntity(GenericModelWithConfig):
         return self._get_balance_property("payment_due_date")
 
     def __str__(self) -> str:
-        """String representation of the entity."""
+        """Return a string representation of the entity."""
         return f"{self.display_name} | {self.provider.display_name}"
 
 
@@ -421,7 +421,7 @@ class Transaction(BaseModelWithConfig):
     transaction_type: str
 
     def __str__(self) -> str:
-        """String representation of the transaction."""
+        """Return a string representation of the transaction."""
         return f"{self.description} | {self.amount} | {self.merchant_name}"
 
 
@@ -521,7 +521,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         entity_id: str,
         entity_class: type[EntityByIdTypeVar],
     ) -> EntityByIdTypeVar | None:
-        """Gets entity info based on a given ID.
+        """Get entity info based on a given ID.
 
         Args:
             entity_id (str): the unique ID for the account/card
@@ -581,7 +581,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         return self._get_entity_by_id(card_id, Card)
 
     def list_accounts(self) -> list[Account]:
-        """Lists all accounts under the given bank account.
+        """List all accounts under the given bank account.
 
         Returns:
             list[Account]: Account instances, containing all related info
@@ -606,7 +606,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         ]
 
     def list_cards(self) -> list[Card]:
-        """Lists all accounts under the given bank account.
+        """List all accounts under the given bank account.
 
         Returns:
             list[Account]: Account instances, containing all related info

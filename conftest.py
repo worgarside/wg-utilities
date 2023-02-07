@@ -215,11 +215,15 @@ def read_json_file(rel_file_path: str) -> JSONObj:
 
 def read_json_file(
     rel_file_path: str, host_name: str | None = None
-) -> JSONObj | SpotifyEntityJson | dict[Literal["accounts"], list[AccountJson]] | dict[
-    Literal["pots"], list[PotJson]
-] | dict[
-    Literal["transactions"], list[TransactionJson]
-] | GoogleCalendarEntityJson | AlbumJson:
+) -> (
+    JSONObj
+    | SpotifyEntityJson
+    | dict[Literal["accounts"], list[AccountJson]]
+    | dict[Literal["pots"], list[PotJson]]
+    | dict[Literal["transactions"], list[TransactionJson]]
+    | GoogleCalendarEntityJson
+    | AlbumJson
+):
     """Read a JSON file from the flat files `json` subdirectory.
 
     Args:
@@ -286,11 +290,13 @@ def fix_colon_keys(json_obj: JSONObj | SpotifyEntityJson) -> JSONObj:
 
 def get_flat_file_from_url(
     request: _RequestObjectProxy = None, context: _Context = None
-) -> SpotifyEntityJson | dict[Literal["accounts"], list[AccountJson]] | dict[
-    Literal["pots"], list[PotJson]
-]:
+) -> (
+    SpotifyEntityJson
+    | dict[Literal["accounts"], list[AccountJson]]
+    | dict[Literal["pots"], list[PotJson]]
+):
     # pylint: disable=missing-raises-doc
-    """Retrieves the content of a flat JSON file for a mocked request response.
+    """Retrieve the content of a flat JSON file for a mocked request response.
 
     Args:
         request (_RequestObjectProxy): the request object from the `requests` session
@@ -363,7 +369,7 @@ def random_nested_json_with_arrays_and_stringified_json() -> JSONObj:
 def spotify_create_playlist_callback(
     request: _RequestObjectProxy, _: _Context
 ) -> JSONObj:
-    """Callback for mock requests to create a new playlist.
+    """Provide fake responses for mock requests to create a new playlist.
 
     Args:
         request (_RequestObjectProxy): the request object from the `requests` session
@@ -383,7 +389,7 @@ def spotify_create_playlist_callback(
 def yamaha_yas_209_get_media_info_responses(
     other_test_parameters: dict[str, CurrentTrack.Info]
 ) -> YieldFixture[tuple[JSONObj | SpotifyEntityJson, CurrentTrack.Info | None]]:
-    """Yields values for testing against GetMediaInfo responses.
+    """Yield values for testing against GetMediaInfo responses.
 
     Yields:
         list: a list of `getMediaInfo` responses
@@ -398,7 +404,7 @@ def yamaha_yas_209_get_media_info_responses(
 def yamaha_yas_209_last_change_av_transport_events(
     other_test_parameters: dict[str, CurrentTrack.Info] | None = None
 ) -> YieldFixture[tuple[JSONObj, CurrentTrack.Info | None] | JSONObj]:
-    """Yields values for testing against AVTransport payloads.
+    """Yield values for testing against AVTransport payloads.
 
     Args:
         other_test_parameters (dict[str, CurrentTrack.Info], optional): a dictionary
@@ -438,7 +444,7 @@ def yamaha_yas_209_last_change_av_transport_events(
 
 
 def yamaha_yas_209_last_change_rendering_control_events() -> YieldFixture[JSONObj]:
-    """Yields values for testing against RenderingControl payloads.
+    """Yield values for testing against RenderingControl payloads.
 
     Yields:
         dict: a `lastChange` event
@@ -470,7 +476,7 @@ def yamaha_yas_209_last_change_rendering_control_events() -> YieldFixture[JSONOb
 
 @fixture(scope="function", name="aws_credentials_env_vars")  # type: ignore[misc]
 def _aws_credentials_env_vars() -> YieldFixture[None]:
-    """Mocks environment variables.
+    """Mock environment variables.
 
     This is done here instead of in`pyproject.toml` because `pytest-aws-config` blocks
     consuming AWS credentials from all env vars.
@@ -565,7 +571,7 @@ def _drive(google_drive_client: GoogleDriveClient) -> Drive:
 def _drive_comparison_entity_lookup(
     drive: Drive, google_drive_client: GoogleDriveClient
 ) -> dict[str, Drive | File | Directory]:
-    """A lookup for Google Drive entities, makes assertions easier to write."""
+    """Lookup for Google Drive entities, makes assertions easier to write."""
 
     lookup: dict[str, Drive | File | Directory] = {}
 
@@ -904,7 +910,6 @@ def _mock_requests(
         elif fullmatch(
             r"^tests/unit/clients/spotify/test__[a-z_]+\.py$", request.node.parent.name
         ):
-
             for path_object in (
                 spotify_dir := FLAT_FILES_DIR / "json" / "spotify" / "v1"
             ).rglob("*"):
@@ -1133,7 +1138,6 @@ def _oauth_client(
 
 @fixture(scope="function", name="mock_open_browser")  # type: ignore[misc]
 def _mock_open_browser() -> YieldFixture[MagicMock]:
-
     with patch("wg_utilities.clients.oauth_client.open_browser") as mock_open_browser:
         yield mock_open_browser
 

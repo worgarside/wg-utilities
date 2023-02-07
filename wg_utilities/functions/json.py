@@ -54,7 +54,7 @@ class TargetProcessorFunc(Protocol):
         dict_key: str | None = None,
         list_index: int | None = None,
     ) -> JSONVal:
-        """The function to be called on each value in the JSON object."""
+        """The function to be called on each value in the JSON object."""  # noqa: D401
 
 
 def process_list(
@@ -66,7 +66,7 @@ def process_list(
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,
 ) -> None:
-    """Iterates through a list, applying `list_op_func` to any `target_type` instances.
+    """Iterate through a list, applying `list_op_func` to any `target_type` instances.
 
     This is used in close conjunction with `process_dict` to recursively process
     a JSON object and apply a given function to any values of a given type across the
