@@ -1056,11 +1056,11 @@
     },
     "boto3-stubs": {
       "hashes": [
-        "sha256:635d720d193a4e2282d03e47f25c623628e4b1465f602b71291a65a44c1b38d0",
-        "sha256:8b94d39f8349dc1476a4d731b37b08c2a4028e4f351b812dc4266b7c8b4aed06"
+        "sha256:c861d596dda030b7120acde5f27994c0d5834f0626c33875e18ceb4d342befb1",
+        "sha256:f66e56fa5b9d83b92dcc5ef9545d93e1e9cc813ab5bb8e5e8fe42623071e1707"
       ],
       "index": "pypi",
-      "version": "==1.26.55"
+      "version": "==1.26.66"
     },
     "botocore": {
       "hashes": [
