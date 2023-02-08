@@ -1075,7 +1075,7 @@
         "sha256:5b18615b27f2976762b3aba635b838c9aabedf4dbe5e3eb87c5c3f5227e19698",
         "sha256:66eb9182d3204d303c8704ec4c491cb78116249fa46cc0bc98efcbe065062490"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4'",
+      "markers": "python_version >= '3.7' and python_version < '4.0'",
       "version": "==1.29.66"
     },
     "certifi": {
@@ -2002,11 +2002,11 @@
     },
     "pre-commit": {
       "hashes": [
-        "sha256:31ef31af7e474a8d8995027fefdfcf509b5c913ff31f2015b4ec4beb26a6f658",
-        "sha256:e2f91727039fc39a92f58a588a25b87f936de6567eed4f0e673e0507edc75bad"
+        "sha256:9e3255edb0c9e7fe9b4f328cb3dc86069f8fdc38026f1bf521018a05eaf4d67b",
+        "sha256:bc4687478d55578c4ac37272fe96df66f73d9b5cf81be6f28627d4e712e752d5"
       ],
       "index": "pypi",
-      "version": "==2.21.0"
+      "version": "==3.0.4"
     },
     "pycln": {
       "hashes": [
@@ -2274,7 +2274,7 @@
         "sha256:6ab83403d9c41f09219d4b00bd7dca0fe6eb174999739a4fa71dbba1033fd9dc",
         "sha256:fa1a13f544e31d118c92b4e960528ac8b9bcf7ff36b5c402d07f0c423b618896"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4'",
+      "markers": "python_version >= '3.7' and python_version < '4.0'",
       "version": "==0.16.4"
     },
     "types-docutils": {
@@ -2304,7 +2304,7 @@
         "sha256:2cf1e07cf4d1a5a2a68d89c654f45d9c3b678d39f7fe03a6f36903b6dbd3bcbc",
         "sha256:cfcbee11c16d60af3feb3dbffea3a85b32129235b562912dece310a45ae83a2c"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4'",
+      "markers": "python_version >= '3.7' and python_version < '4.0'",
       "version": "==0.6.0.post5"
     },
     "types-setuptools": {
