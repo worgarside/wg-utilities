@@ -1609,7 +1609,7 @@
         "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504",
         "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"
       ],
-      "markers": "python_full_version >= '3.8.0'",
+      "markers": "python_version >= '3.8'",
       "version": "==5.12.0"
     },
     "jaraco.classes": {
@@ -2479,11 +2479,11 @@
     },
     "types-setuptools": {
       "hashes": [
-        "sha256:07648088bc2cbf0f2745107d394e619ba2a747f68a5904e6e4089c0cb8322065",
-        "sha256:f15b2924122dca5f99a9f6a96a872145721373fe1bb6d656cf269c2a8b73a74b"
+        "sha256:1a26d373036c720e566823b6edd664a2db4d138b6eeba856721ec1254203474f",
+        "sha256:a7e0f0816b5b449f5bcdc0efa43da91ff81dbe6941f293a6490d68a450e130a1"
       ],
       "index": "pypi",
-      "version": "==67.2.0.1"
+      "version": "==67.3.0.1"
     },
     "types-toml": {
       "hashes": [
