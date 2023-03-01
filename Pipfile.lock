@@ -1161,7 +1161,7 @@
         "sha256:4b2d6020aea659f92826d2ef778beb49179918989ff1383a186c6ef0f97afb5c",
         "sha256:f351120e07115d34692d63a28d47a8867f2e8f43e1736e9a345ad3abb2a15843"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4'",
+      "markers": "python_version >= '3.7' and python_version < '4.0'",
       "version": "==1.29.81"
     },
     "certifi": {
@@ -1951,11 +1951,11 @@
     },
     "mypy-boto3-lambda": {
       "hashes": [
-        "sha256:357e80e81c1e6674a1d5d879f6f1578103d3825bb87a7d2c897e8626a0f95fc0",
-        "sha256:3df0dc3e24ec0c79b0bdd024d40694aa41d2a5e355f9441863657eb632567312"
+        "sha256:1630671f5aaa739e24441095b878ccd92110414f9a4e8d474a36580b9621fc64",
+        "sha256:3f23ed50fa0e164a726df3d3c6542cb1e027590d84925b8110da4f7e8ef2ad2a"
       ],
       "index": "pypi",
-      "version": "==1.26.55"
+      "version": "==1.26.80"
     },
     "mypy-boto3-pinpoint": {
       "hashes": [
@@ -2444,7 +2444,7 @@
         "sha256:35e27f667e882ef7d02f1829499df30c0881d4c3ba12ff698c796b79e87ce09e",
         "sha256:8df494aff24bdce188381304d6e762b797e2e3e67f610dcb7c2a3725f08cbf67"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4'",
+      "markers": "python_version >= '3.7' and python_version < '4.0'",
       "version": "==0.16.10"
     },
     "types-docutils": {
@@ -2474,7 +2474,7 @@
         "sha256:2cf1e07cf4d1a5a2a68d89c654f45d9c3b678d39f7fe03a6f36903b6dbd3bcbc",
         "sha256:cfcbee11c16d60af3feb3dbffea3a85b32129235b562912dece310a45ae83a2c"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4'",
+      "markers": "python_version >= '3.7' and python_version < '4.0'",
       "version": "==0.6.0.post5"
     },
     "types-setuptools": {
