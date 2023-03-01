@@ -1134,11 +1134,11 @@
     },
     "boto3": {
       "hashes": [
-        "sha256:898fa38387e2f5a9136aec6cf9caa0a44ddbf78f1c4aaa33f7b1611ac44b4a4d",
-        "sha256:a631ce2d22662f326cdf121967b53c251338e4ae7cdfa166c11a31e94a8b6a60"
+        "sha256:f50c048b4f3223dd57afb6eee1189ef9a472bf0ed9b26ff9db65ec13275c4414",
+        "sha256:f618f2e8a4b9d5cb9f05d3a5628ca2afa4bcd3e8b4b8413d11dea0f4c4480b3c"
       ],
       "index": "pypi",
-      "version": "==1.26.81"
+      "version": "==1.26.82"
     },
     "boto3-stubs": {
       "hashes": [
@@ -1161,7 +1161,7 @@
         "sha256:c6d8b7a6a81ca8668534d6863f59b217b3cbc65892263c6bac6961e63ca3b3f1",
         "sha256:fbbc3a983efdf051517765f5f42d3bca1d8eccf80f01185c27cdd5edb0d9d493"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4.0'",
+      "markers": "python_version >= '3.7' and python_version < '4'",
       "version": "==1.29.82"
     },
     "certifi": {
@@ -1609,7 +1609,7 @@
         "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504",
         "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"
       ],
-      "markers": "python_full_version >= '3.8.0'",
+      "markers": "python_version >= '3.8'",
       "version": "==5.12.0"
     },
     "jaraco.classes": {
@@ -2444,7 +2444,7 @@
         "sha256:35e27f667e882ef7d02f1829499df30c0881d4c3ba12ff698c796b79e87ce09e",
         "sha256:8df494aff24bdce188381304d6e762b797e2e3e67f610dcb7c2a3725f08cbf67"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4.0'",
+      "markers": "python_version >= '3.7' and python_version < '4'",
       "version": "==0.16.10"
     },
     "types-pytz": {
@@ -2467,7 +2467,7 @@
         "sha256:2cf1e07cf4d1a5a2a68d89c654f45d9c3b678d39f7fe03a6f36903b6dbd3bcbc",
         "sha256:cfcbee11c16d60af3feb3dbffea3a85b32129235b562912dece310a45ae83a2c"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4.0'",
+      "markers": "python_version >= '3.7' and python_version < '4'",
       "version": "==0.6.0.post5"
     },
     "types-setuptools": {
