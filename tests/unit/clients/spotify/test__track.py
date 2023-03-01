@@ -15,7 +15,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
     # pylint: disable=line-too-long
     """Test instantiation of the Track class."""
     track = Track.from_json_response(
-        {  # type: ignore[arg-type,misc]
+        {
             "album": {
                 "album_type": "album",
                 "artists": [

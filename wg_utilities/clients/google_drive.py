@@ -208,7 +208,7 @@ class _GoogleDriveEntity(GenericModelWithConfig):
         exclude_none: bool = False,
     ) -> dict[str, Any]:
         # pylint: disable=useless-parent-delegation
-        """Overrides the standard `BaseModel.dict` method.
+        """Override the standard `BaseModel.dict` method.
 
         Allows us to consistently return the dict with the same field names it came in
         with, and exclude any null values that have been added when parsing.
@@ -246,7 +246,7 @@ class _GoogleDriveEntity(GenericModelWithConfig):
         **dumps_kwargs: Any,
     ) -> str:
         # pylint: disable=useless-parent-delegation
-        """Overrides the standard `BaseModel.json` method.
+        """Override the standard `BaseModel.json` method.
 
         Allows us to consistently return the dict with the same field names it came in
         with, and exclude any null values that have been added when parsing.
@@ -328,7 +328,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
     _directories_loaded: bool = Field(exclude=True, default=False)
 
     def _add_directory(self, directory: Directory) -> None:
-        """Adds a child directory to this directory's children record.
+        """Add a child directory to this directory's children record.
 
         Args:
             directory (Directory): the directory to add
@@ -354,7 +354,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
                 self._all_directories.append(directory)
 
     def _add_file(self, file: File) -> None:
-        """Adds a file to this directory's files record.
+        """Add a file to this directory's files record.
 
         Args:
             file (File): the file to add
@@ -384,7 +384,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
                 self._all_files.append(file)
 
     def add_child(self, child: File | Directory) -> None:
-        """Adds a child to this directory's children record."""
+        """Add a child to this directory's children record."""
 
         if isinstance(child, Directory):
             self._add_directory(child)
@@ -398,7 +398,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
 
     def navigate(self, path: str) -> _CanHaveChildren | File:
         # pylint: disable=too-many-return-statements
-        """Navigate to a directory within this directory
+        """Navigate to a directory within this directory.
 
         Args:
             path (str): The path to navigate to.
@@ -416,7 +416,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
         if path.startswith("..") and not isinstance(self, Directory):
             raise ValueError("Cannot navigate to parent of Drive.")
 
-        match path.split("/"):  # noqa: E999
+        match path.split("/"):
             case ["."] | [".", ""] | [""]:  # Empty string could've come from e.g. "./"
                 return self
             case [".."] | ["..", ""]:
@@ -502,7 +502,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
         self._set_private_attr("_files_loaded", False)
 
     def tree(self, local_only: bool = False, include_files: bool = False) -> str:
-        """A "simple" copy of the Linux `tree` command.
+        """Emulate the Linux `tree` command output.
 
         This builds a directory tree in text form for quick visualisation. Not really
         intended for use in production, but useful for debugging.
@@ -824,14 +824,14 @@ class File(_GoogleDriveEntity):
         return super().__getattribute__(name)
 
     @validator("mime_type")
-    def _validate_mime_type(cls, mime_type: str) -> str:
+    def _validate_mime_type(cls, mime_type: str) -> str:  # noqa: N805
         if mime_type == Directory.MIME_TYPE:
             raise ValueError("Use `Directory` class to create a directory.")
 
         return mime_type
 
     @validator("parents")
-    def _validate_parents(cls, parents: list[str]) -> list[str]:
+    def _validate_parents(cls, parents: list[str]) -> list[str]:  # noqa: N805
         if len(parents) != 1:
             raise ValueError(f"A {cls.__name__} must have exactly one parent.")
 
@@ -839,7 +839,7 @@ class File(_GoogleDriveEntity):
 
     @validator("parent_")
     def _validate_parent_instance(
-        cls, value: Directory | Drive | None, values: dict[str, Any]
+        cls, value: Directory | Drive | None, values: dict[str, Any]  # noqa: N805
     ) -> Directory | Drive | None:
         """Validate that the parent instance's ID matches the expected parent ID.
 
@@ -933,7 +933,7 @@ class File(_GoogleDriveEntity):
         return self.name.lower() < other.name.lower()
 
     def __repr__(self) -> str:
-        """str representation of the file."""
+        """Return a string representation of the file."""
         return f"File(id={self.id!r}, name={self.name!r})"
 
 
@@ -952,7 +952,7 @@ class Directory(File, _CanHaveChildren):
     host_drive_: Drive = Field(exclude=True)
 
     @validator("kind", always=True, pre=True)
-    def _validate_kind(cls, value: str | None) -> str:
+    def _validate_kind(cls, value: str | None) -> str:  # noqa: N805
         """Set the kind to "drive#folder"."""
 
         # Directories are just a subtype of files, so `"drive#file"` is okay too
@@ -962,13 +962,13 @@ class Directory(File, _CanHaveChildren):
         return "drive#folder"
 
     @validator("mime_type")
-    def _validate_mime_type(cls, mime_type: str) -> str:
+    def _validate_mime_type(cls, mime_type: str) -> str:  # noqa: N805
         """Just an override for the parent class's validator."""
 
         return mime_type
 
     def __repr__(self) -> str:
-        """str representation of the directory."""
+        """Return a string representation of the directory."""
         return f"Directory(id={self.id!r}, name={self.name!r})"
 
 
@@ -1112,7 +1112,7 @@ class Drive(_CanHaveChildren):
     _files_mapped: bool = Field(exclude=True, default=False)
 
     @validator("kind", always=True, pre=True)
-    def _validate_kind(cls, value: str | None) -> str:
+    def _validate_kind(cls, value: str | None) -> str:  # noqa: N805
         """Set the kind to "drive#drive"."""
 
         # Drives are just a subtype of files, so `"drive#file"` is okay too
@@ -1420,7 +1420,7 @@ class Drive(_CanHaveChildren):
         return self._all_files
 
     def __repr__(self) -> str:
-        """str representation of the directory."""
+        """Return a string representation of the directory."""
         return f"Drive(id={self.id!r}, name={self.name!r}"
 
 
