@@ -1951,11 +1951,11 @@
     },
     "mypy-boto3-lambda": {
       "hashes": [
-        "sha256:357e80e81c1e6674a1d5d879f6f1578103d3825bb87a7d2c897e8626a0f95fc0",
-        "sha256:3df0dc3e24ec0c79b0bdd024d40694aa41d2a5e355f9441863657eb632567312"
+        "sha256:1630671f5aaa739e24441095b878ccd92110414f9a4e8d474a36580b9621fc64",
+        "sha256:3f23ed50fa0e164a726df3d3c6542cb1e027590d84925b8110da4f7e8ef2ad2a"
       ],
       "index": "pypi",
-      "version": "==1.26.55"
+      "version": "==1.26.80"
     },
     "mypy-boto3-pinpoint": {
       "hashes": [
