@@ -2447,13 +2447,6 @@
       "markers": "python_version >= '3.7' and python_version < '4.0'",
       "version": "==0.16.10"
     },
-    "types-docutils": {
-      "hashes": [
-        "sha256:a334a703a8688910d0869464f1f6f8bd330d75843bdab4f893547bfb29417a01",
-        "sha256:b7e182f371cbe20828a8750ffb150219968452445946f66f33778b08e81c7d89"
-      ],
-      "version": "==0.19.1.6"
-    },
     "types-pytz": {
       "hashes": [
         "sha256:40ca448a928d566f7d44ddfde0066e384f7ffbd4da2778e42a4570eaca572446",
@@ -2479,11 +2472,11 @@
     },
     "types-setuptools": {
       "hashes": [
-        "sha256:1a26d373036c720e566823b6edd664a2db4d138b6eeba856721ec1254203474f",
-        "sha256:a7e0f0816b5b449f5bcdc0efa43da91ff81dbe6941f293a6490d68a450e130a1"
+        "sha256:19e958dfdbf1c5a628e54c2a7ee84935051afb7278d0c1cdb08ac194757ee3b1",
+        "sha256:3c83c3a6363dd3ddcdd054796705605f0fa8b8e5a39390e07a05e5f7af054978"
       ],
       "index": "pypi",
-      "version": "==67.3.0.1"
+      "version": "==67.4.0.3"
     },
     "types-toml": {
       "hashes": [
