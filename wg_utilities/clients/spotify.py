@@ -347,7 +347,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         if params:
             url += ("?" if "?" not in url else "&") + urlencode(params)
 
-        page: AnyPaginatedResponse = {  # type: ignore[assignment,misc]
+        page: AnyPaginatedResponse = {
             "href": "",
             "items": [],
             "limit": 0,
@@ -605,7 +605,9 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
         exclude_none: bool = False,
     ) -> dict[str, Any]:
         # pylint: disable=useless-parent-delegation
-        """Overrides the standard `BaseModel.dict` method, so we can always return the
+        """Create a dictionary representation of the model.
+
+        Overrides the standard `BaseModel.dict` method, so we can always return the
         dict with the same field names it came in with, and exclude any null values
         that have been added when parsing
 
@@ -642,7 +644,9 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
         **dumps_kwargs: Any,
     ) -> str:
         # pylint: disable=useless-parent-delegation
-        """Overrides the standard `BaseModel.json` method, so we can always return the
+        """Create a JSON string representation of the model.
+
+        Overrides the standard `BaseModel.json` method, so we can always return the
         dict with the same field names it came in with, and exclude any null values
         that have been added when parsing
 
@@ -668,7 +672,7 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
         )
 
     @root_validator(pre=True)
-    def _set_summary_json(cls, values: dict_[str, Any]) -> Any:
+    def _set_summary_json(cls, values: dict_[str, Any]) -> Any:  # noqa: N805
         values["summary_json"] = {
             k: v for k, v in values.items() if k in cls.sj_type.__annotations__
         }
@@ -732,27 +736,33 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
         )
 
     def __eq__(self, other: object) -> bool:
+        """Check if two entities are equal."""
         if not isinstance(other, SpotifyEntity):
             return NotImplemented
         return self.uri == other.uri
 
     def __gt__(self, other: object) -> bool:
+        """Check if this entity is greater than another."""
         if not isinstance(other, SpotifyEntity):
             return NotImplemented
         return (self.name or self.id).lower() > (other.name or other.id).lower()
 
     def __hash__(self) -> int:
+        """Get the hash of this entity."""
         return hash(repr(self))
 
     def __lt__(self, other: SpotifyEntity[SJ]) -> bool:
+        """Check if this entity is less than another."""
         if not isinstance(other, SpotifyEntity):
             return NotImplemented
         return (self.name or self.id).lower() < (other.name or other.id).lower()
 
     def __repr__(self) -> str:
+        """Get a string representation of this entity."""
         return f'{type(self).__name__}(id="{self.id}", name="{self.name}")'
 
     def __str__(self) -> str:
+        """Get the string representation of this entity."""
         return self.name or f"{type(self).__name__} ({self.id})"
 
 
@@ -786,7 +796,9 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
     sj_type: ClassVar[type_[SpotifyEntityJson]] = AlbumSummaryJson
 
     @validator("release_date", pre=True)
-    def validate_release_date(cls, value: str | date, values: AlbumFullJson) -> date:
+    def validate_release_date(
+        cls, value: str | date, values: AlbumFullJson  # noqa: N805
+    ) -> date:
         """Convert the release date string to a date object."""
 
         if isinstance(value, date):
@@ -799,7 +811,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
             f" and {rdp!r} respectively."
         )
 
-        match value.split("-"):  # noqa: E999
+        match value.split("-"):
             case y, m, d:
                 if rdp != "day":
                     raise exception
@@ -1115,9 +1127,11 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
         return self._tracks
 
     def __contains__(self, track: Track) -> bool:
+        """Check if a track is in the playlist."""
         return track in self.tracks
 
     def __gt__(self, other: object) -> bool:
+        """Compare two playlists by name and ID."""
         if not isinstance(other, Playlist):
             return NotImplemented
 
@@ -1130,9 +1144,11 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
         )
 
     def __iter__(self) -> Iterator[Track]:  # type: ignore[override]
+        """Iterate over the tracks in the playlist."""
         return iter(self.tracks)
 
     def __lt__(self, other: object) -> bool:
+        """Compare two playlists by name and ID."""
         if not isinstance(other, Playlist):
             return NotImplemented
 
@@ -1167,7 +1183,9 @@ class User(SpotifyEntity[UserSummaryJson]):
     sj_type: ClassVar[type_[SpotifyEntityJson]] = UserSummaryJson
 
     @validator("display_name", pre=True)
-    def set_user_name_value(cls, value: str, values: dict[str, Any]) -> str:
+    def set_user_name_value(
+        cls, value: str, values: dict[str, Any]  # noqa: N805
+    ) -> str:
         """Set the user's `name` field to the display name if it is not set.
 
         Args:
