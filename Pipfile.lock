@@ -1142,11 +1142,11 @@
     },
     "boto3-stubs": {
       "hashes": [
-        "sha256:2d7ee70832b6d1a4c9192dd5f22d78fe95d1c0ffe830032bd73700c636dba96b",
-        "sha256:e44fc3e4b326777b68ea27d6e3d7228331051d3a7b05bb4fd829d7b8069be4a5"
+        "sha256:88cee7953583e4043f60b8fd9ea88689ff611c82b1e7b7c753dedbf9abdab771",
+        "sha256:98b4ba3f3ba35b7e8f3cc95a67f85685aec1d02eb27d37659631c7b243ff6e7d"
       ],
       "index": "pypi",
-      "version": "==1.26.81"
+      "version": "==1.26.82"
     },
     "botocore": {
       "hashes": [
