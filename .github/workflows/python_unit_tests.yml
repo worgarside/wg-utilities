@@ -42,9 +42,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.local/share/virtualenvs
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/Pipfile.lock') }}
+          # yamllint disable-line rule:line-length
+          key: ${{ runner.os }}-python-${{ matrix.python-version }}-pip-${{ hashFiles('**/Pipfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-python-${{ matrix.python-version }}-pip-
 
       - name: Install Dependencies
         run: |
