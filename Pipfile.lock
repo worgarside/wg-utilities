@@ -1145,11 +1145,11 @@
     },
     "botocore-stubs": {
       "hashes": [
-        "sha256:0e1d0ae73a2631e13f953b1d61a30f004a934598b96e2b549d1307de25a36ae1",
-        "sha256:70da7019efa418aab580871ae6d3164ffb42abecd49345c7a0dd773d3e73d70d"
+        "sha256:3751d2e43b50864c61696b8cd0fd4f49ef8d212156220e3d110efa5315914f49",
+        "sha256:e468bc11210a180e6a347f4ecc1ba73bb6820eadcdc382db4ad96a064137afa2"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4.0'",
-      "version": "==1.29.84"
+      "markers": "python_version >= '3.7' and python_version < '4'",
+      "version": "==1.29.85"
     },
     "certifi": {
       "hashes": [
@@ -1583,7 +1583,7 @@
         "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504",
         "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"
       ],
-      "markers": "python_full_version >= '3.8.0'",
+      "markers": "python_version >= '3.8'",
       "version": "==5.12.0"
     },
     "jaraco.classes": {
@@ -2177,11 +2177,11 @@
     },
     "pylint": {
       "hashes": [
-        "sha256:13b2c805a404a9bf57d002cd5f054ca4d40b0b87542bdaba5e05321ae8262c84",
-        "sha256:ff22dde9c2128cd257c145cfd51adeff0be7df4d80d669055f24a962b351bbe4"
+        "sha256:4a770bb74fde0550fa0ab4248a2ad04e7887462f9f425baa0cd8d3c1d098eaee",
+        "sha256:8841f26a0dbc3503631b6a20ee368b3f5e0e5461a1d95cf15d103dab748a0db3"
       ],
       "index": "pypi",
-      "version": "==2.16.2"
+      "version": "==2.16.4"
     },
     "pylint-strict-informational": {
       "hashes": [
@@ -2418,7 +2418,7 @@
         "sha256:35e27f667e882ef7d02f1829499df30c0881d4c3ba12ff698c796b79e87ce09e",
         "sha256:8df494aff24bdce188381304d6e762b797e2e3e67f610dcb7c2a3725f08cbf67"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4.0'",
+      "markers": "python_version >= '3.7' and python_version < '4'",
       "version": "==0.16.10"
     },
     "types-pytz": {
@@ -2441,7 +2441,7 @@
         "sha256:2cf1e07cf4d1a5a2a68d89c654f45d9c3b678d39f7fe03a6f36903b6dbd3bcbc",
         "sha256:cfcbee11c16d60af3feb3dbffea3a85b32129235b562912dece310a45ae83a2c"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4.0'",
+      "markers": "python_version >= '3.7' and python_version < '4'",
       "version": "==0.6.0.post5"
     },
     "types-setuptools": {
