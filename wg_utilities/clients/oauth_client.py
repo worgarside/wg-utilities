@@ -127,7 +127,7 @@ class OAuthCredentials(BaseModelWithConfig):
         +---------------+--------+-------+---------+-----------+
 
         Args:
-            value:
+            value: the response from the API
 
         Returns:
             OAuthCredentials: an OAuthCredentials instance
@@ -257,8 +257,13 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         Args:
             url (str): the URL path to the endpoint (not necessarily including the
-             base URL)
+                base URL)
             params (dict): the parameters to be passed in the HTTP request
+            header_overrides (dict): any headers to override the default headers
+            timeout (float | tuple[float, float] | tuple[float, None] | None): the
+                timeout for the request
+            json (Any): the JSON to be passed in the HTTP request
+            data (Any): the data to be passed in the HTTP request
 
         Returns:
             Response: the response from the HTTP request
@@ -304,8 +309,14 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         Args:
             url (str): the URL path to the endpoint (not necessarily including the
-             base URL)
+                base URL)
             json (dict): the data to be passed in the HTTP request
+            params (dict): the parameters to be passed in the HTTP request
+            header_overrides (dict): any headers to override the default headers
+            timeout (float | tuple[float, float] | tuple[float, None] | None): the
+                timeout for the request
+            json (Any): the JSON to be passed in the HTTP request
+            data (Any): the data to be passed in the HTTP request
 
         Returns:
             Response: the response from the HTTP request
