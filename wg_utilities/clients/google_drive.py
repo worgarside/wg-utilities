@@ -180,7 +180,8 @@ class _GoogleDriveEntity(GenericModelWithConfig):
 
         instance = cls.parse_obj(value_data)
 
-        if isinstance(instance, (File, Directory)):
+        # pylint: disable=isinstance-second-argument-not-valid-type
+        if isinstance(instance, File | Directory):
             if parent is not None:
                 parent.add_child(instance)
             elif host_drive is not None and host_drive.id == instance.parents[0]:
@@ -287,7 +288,8 @@ class _GoogleDriveEntity(GenericModelWithConfig):
         if isinstance(self, Drive):
             return self
 
-        if isinstance(self, (File, Directory)):
+        # pylint: disable=isinstance-second-argument-not-valid-type
+        if isinstance(self, File | Directory):
             return self.host_drive_
 
         raise TypeError(f"Cannot get host drive of {self.__class__.__name__}.")
@@ -914,7 +916,8 @@ class File(_GoogleDriveEntity):
         Returns:
             Directory: the parent directory of this file
         """
-        if self.parent_ is None and isinstance(self, (File, Directory)):
+        # pylint: disable=isinstance-second-argument-not-valid-type
+        if self.parent_ is None and isinstance(self, File | Directory):
             if (parent_id := self.parents[0]) == self.host_drive.id:
                 self.parent_ = self.host_drive
             else:
