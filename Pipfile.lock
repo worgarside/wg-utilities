@@ -1121,11 +1121,11 @@
     },
     "boto3": {
       "hashes": [
-        "sha256:f50c048b4f3223dd57afb6eee1189ef9a472bf0ed9b26ff9db65ec13275c4414",
-        "sha256:f618f2e8a4b9d5cb9f05d3a5628ca2afa4bcd3e8b4b8413d11dea0f4c4480b3c"
+        "sha256:1d33abca60643d14f90a9e77d94085ebfd8f8bf8f157f582466f6b3a141bab8c",
+        "sha256:f1123076445f93fa85bf7ee956ae33041f2e077a6824e31929cc56ad31aeffc1"
       ],
       "index": "pypi",
-      "version": "==1.26.82"
+      "version": "==1.26.90"
     },
     "boto3-stubs": {
       "hashes": [
@@ -1583,7 +1583,7 @@
         "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504",
         "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"
       ],
-      "markers": "python_version >= '3.8'",
+      "markers": "python_full_version >= '3.8.0'",
       "version": "==5.12.0"
     },
     "jaraco.classes": {
