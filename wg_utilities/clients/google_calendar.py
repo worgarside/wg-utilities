@@ -2,13 +2,13 @@
 """Custom client for interacting with Google's Calendar API."""
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping, Set
 from datetime import date as date_
 from datetime import datetime as datetime_
 from datetime import timedelta, tzinfo
 from enum import Enum
 from pathlib import Path
-from typing import AbstractSet, Any, Literal, TypeAlias, TypedDict, TypeVar
+from typing import Any, Literal, TypeAlias, TypedDict, TypeVar
 
 from pydantic import Field, root_validator, validator
 from pytz import UTC, timezone
@@ -188,8 +188,8 @@ class GoogleCalendarEntity(GenericModelWithConfig):
     def dict(
         self,
         *,
-        include: AbstractSet[int | str] | Mapping[int | str, Any] | None = None,
-        exclude: AbstractSet[int | str] | Mapping[int | str, Any] | None = None,
+        include: Set[int | str] | Mapping[int | str, Any] | None = None,
+        exclude: Set[int | str] | Mapping[int | str, Any] | None = None,
         by_alias: bool = True,
         skip_defaults: bool | None = None,
         exclude_unset: bool = True,
@@ -242,8 +242,8 @@ class GoogleCalendarEntity(GenericModelWithConfig):
     def json(
         self,
         *,
-        include: AbstractSet[int | str] | Mapping[int | str, Any] | None = None,
-        exclude: AbstractSet[int | str] | Mapping[int | str, Any] | None = None,
+        include: Set[int | str] | Mapping[int | str, Any] | None = None,
+        exclude: Set[int | str] | Mapping[int | str, Any] | None = None,
         by_alias: bool = True,
         skip_defaults: bool | None = None,
         exclude_unset: bool = True,

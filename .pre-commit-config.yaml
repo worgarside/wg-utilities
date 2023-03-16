@@ -135,6 +135,8 @@ repos:
       - id: codespell
         additional_dependencies:
           - tomli
+        args:
+          - --exclude-file=Pipfile.lock
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.0.255
