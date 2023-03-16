@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from builtins import dict as dict_
 from builtins import type as type_
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence, Set
 from datetime import date, datetime, timedelta
 from enum import Enum
 from http import HTTPStatus
@@ -13,7 +13,6 @@ from logging import DEBUG, getLogger
 from pathlib import Path
 from re import sub
 from typing import (
-    AbstractSet,
     Any,
     ClassVar,
     Generic,
@@ -596,8 +595,8 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
     def dict(
         self,
         *,
-        include: AbstractSet[int | str] | Mapping[int | str, Any] | None = None,
-        exclude: AbstractSet[int | str] | Mapping[int | str, Any] | None = None,
+        include: Set[int | str] | Mapping[int | str, Any] | None = None,
+        exclude: Set[int | str] | Mapping[int | str, Any] | None = None,
         by_alias: bool = True,
         skip_defaults: bool | None = None,
         exclude_unset: bool = True,
@@ -632,8 +631,8 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
     def json(
         self,
         *,
-        include: AbstractSet[int | str] | Mapping[int | str, Any] | None = None,
-        exclude: AbstractSet[int | str] | Mapping[int | str, Any] | None = None,
+        include: Set[int | str] | Mapping[int | str, Any] | None = None,
+        exclude: Set[int | str] | Mapping[int | str, Any] | None = None,
         by_alias: bool = True,
         skip_defaults: bool | None = None,
         exclude_unset: bool = True,

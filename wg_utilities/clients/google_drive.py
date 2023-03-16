@@ -2,13 +2,13 @@
 """Custom client for interacting with Google's Drive API."""
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Set
 from copy import deepcopy
 from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
 from re import sub
-from typing import AbstractSet, Any, ClassVar, Literal, TypeVar
+from typing import Any, ClassVar, Literal, TypeVar
 
 from pydantic import Field, validator
 
@@ -200,8 +200,8 @@ class _GoogleDriveEntity(GenericModelWithConfig):
     def dict(
         self,
         *,
-        include: AbstractSet[int | str] | Mapping[int | str, Any] | None = None,
-        exclude: AbstractSet[int | str] | Mapping[int | str, Any] | None = None,
+        include: Set[int | str] | Mapping[int | str, Any] | None = None,
+        exclude: Set[int | str] | Mapping[int | str, Any] | None = None,
         by_alias: bool = True,
         skip_defaults: bool | None = None,
         exclude_unset: bool = True,
@@ -235,8 +235,8 @@ class _GoogleDriveEntity(GenericModelWithConfig):
     def json(
         self,
         *,
-        include: AbstractSet[int | str] | Mapping[int | str, Any] | None = None,
-        exclude: AbstractSet[int | str] | Mapping[int | str, Any] | None = None,
+        include: Set[int | str] | Mapping[int | str, Any] | None = None,
+        exclude: Set[int | str] | Mapping[int | str, Any] | None = None,
         by_alias: bool = True,
         skip_defaults: bool | None = None,
         exclude_unset: bool = True,
