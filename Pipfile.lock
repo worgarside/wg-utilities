@@ -1145,11 +1145,11 @@
     },
     "botocore-stubs": {
       "hashes": [
-        "sha256:595d1105bb46d2647e98218f4aa68c504b41c6fed2633f6071debe041e3eed4d",
-        "sha256:b0aeb3676ab6a5fbea23ff4cc0ba2033399dcef69eed762494372c00e2685882"
+        "sha256:a5c04cacc791643257cd136bbaa539a9791b3039d6559bf1ef75f4f85116970f",
+        "sha256:b8857881d225f201ef0b533e30949745cff3caff5804135538c8d896aea10410"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4.0'",
-      "version": "==1.29.93"
+      "markers": "python_version >= '3.7' and python_version < '4'",
+      "version": "==1.29.93.post1"
     },
     "certifi": {
       "hashes": [
@@ -1583,7 +1583,7 @@
         "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504",
         "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"
       ],
-      "markers": "python_version >= '3.8'",
+      "markers": "python_full_version >= '3.8.0'",
       "version": "==5.12.0"
     },
     "jaraco.classes": {
@@ -2410,7 +2410,7 @@
         "sha256:bcf306359098f89fa3bcba962c3efcde98c1fc24919d73fc727261174f5ef9aa",
         "sha256:fca34b9c30e39567838adc51cc186fae92d702741c7aaf835e19c3eb1bd4d8dc"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4.0'",
+      "markers": "python_version >= '3.7' and python_version < '4'",
       "version": "==0.16.12"
     },
     "types-pytz": {
@@ -2440,16 +2440,16 @@
         "sha256:03af77eef369a9901422cadf3ad270709876421d8eb445ddbd78a58ac802a464",
         "sha256:e05c6d86c2d5271a5170a21f8a0222ca5f2d5b91aad7e9d436cca24c8e1ae13c"
       ],
-      "markers": "python_version >= '3.7' and python_version < '4.0'",
+      "markers": "python_version >= '3.7' and python_version < '4'",
       "version": "==0.6.0.post6"
     },
     "types-setuptools": {
       "hashes": [
-        "sha256:f7f4bf4ab777e88631d3a387bbfdd4d480a2a4693ca896130f8ef738370377b8",
-        "sha256:fa6f231eeb27e86b1d6e8260f73de300e91f99c205b9a5e21debd49f3726a849"
+        "sha256:7bd05c0c13a81f55abb79a4ee037846aa80782c4aab37472a479037231dd4380",
+        "sha256:cbf982aee919e83914ddd9f045bd9f1cfa5d4790c722349838058cab964618ae"
       ],
       "index": "pypi",
-      "version": "==67.5.0.0"
+      "version": "==67.6.0.2"
     },
     "types-tzlocal": {
       "hashes": [
