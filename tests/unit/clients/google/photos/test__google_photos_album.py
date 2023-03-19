@@ -115,3 +115,4 @@ def test_media_items_property(
 
     assert len(media_items) == google_photos_album.media_items_count
     assert google_photos_album._media_items == media_items
+    assert all(item in google_photos_album for item in media_items)

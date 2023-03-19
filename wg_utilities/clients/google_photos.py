@@ -164,6 +164,11 @@ class Album(GooglePhotosEntity):
 
         return self._media_items
 
+    def __contains__(self, item: MediaItem) -> bool:
+        """Check if the album contains the given media item."""
+
+        return item.id in [media_item.id for media_item in self.media_items]
+
 
 class MediaItemJson(TypedDict):
     """JSON representation of a Media Item (photo or video)."""
