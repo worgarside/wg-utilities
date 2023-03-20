@@ -1678,6 +1678,12 @@ def test_subscribe_keeps_retrying_failed_subscriptions(
 
     assert call_count == 121
 
+    if yamaha_yas_209.is_listening:  # pragma: no cover
+        yamaha_yas_209.stop_listening()
+
+        while yamaha_yas_209.is_listening:
+            sleep(0.1)
+
 
 def test_stop_listening_stops_listener(
     yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses, caplog: LogCaptureFixture

@@ -20,7 +20,7 @@ profile = "black"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = ["-ra", "--strict-markers", "--strict-config", "-vv", "--cov-report=xml", "--cov=./"]
+addopts = ["-ra", "--strict-markers", "--strict-config", "-vv", "--cov-report=xml", "--cov=./", "-s", "-W", "ignore::DeprecationWarning"]
 xfail_strict = true
 log_cli_level = "warning"
 pythonpath = ["wg_utilities"]
