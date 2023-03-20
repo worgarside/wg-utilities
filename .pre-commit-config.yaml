@@ -139,6 +139,6 @@ repos:
           - --exclude-file=Pipfile.lock
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.255
+    rev: v0.0.257
     hooks:
       - id: ruff
