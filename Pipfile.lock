@@ -2403,11 +2403,11 @@
     },
     "types-tzlocal": {
       "hashes": [
-        "sha256:914cf6e6261af512a705d6d2dc68a4c0242ce8b24fc0ae38c7a474ed4185fe8e",
-        "sha256:fe178f213d979bae032385265e76c5893e0c28d9c2ea32c0328346795024729d"
+        "sha256:0111ba51fc541831d4509d62e8492a08c92b4db91f56d7589f67eb6c09589bf4",
+        "sha256:fe2120b32d9eaa7715e79f3d63b9ed45e6bd913575e068791602fc267110b17b"
       ],
       "index": "pypi",
-      "version": "==4.2.2.3"
+      "version": "==4.3.0.0"
     },
     "types-urllib3": {
       "hashes": [
