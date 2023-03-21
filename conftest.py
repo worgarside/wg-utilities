@@ -1468,6 +1468,8 @@ def _yamaha_yas_209() -> YieldFixture[YamahaYas209]:
 
     yield yas_209
 
+    yas_209._logging = False  # pylint: disable=protected-access
+
     if yas_209.is_listening:  # pragma: no cover
         yas_209.stop_listening()
 
