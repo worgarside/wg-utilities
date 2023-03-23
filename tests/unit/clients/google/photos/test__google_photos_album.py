@@ -19,8 +19,8 @@ def test_from_json_response_instantiation(
     album = Album.from_json_response(
         read_json_file(
             # pylint: disable=line-too-long
-            "v1/albums/aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json",
-            host_name="google/photos",
+            "aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json",
+            host_name="google/photos/v1/albums",
         ),
         google_client=google_photos_client,
     )
@@ -29,7 +29,7 @@ def test_from_json_response_instantiation(
     assert (
         album.cover_photo_base_url
         # pylint: disable=line-too-long
-        == "https://lh3.googleusercontent.com/lr/AVc_9_kRocc2n6UNB-1HOqXTZBDQ9ZW-HhbvOif5EUtOpc6cxdofFF8sqglAPtX4PBWc9zhQfebmWwA-mR85YryW-BDXc4w5tOCdJ7_nzJ9ArvcAkT7iRCKtaOajvOuoKupEgslFgxz0kvJMUPCsBeV6D7Qh2J14rsvbfjX27PhNRGKQhjdmPbmmjwU2zmgaWVmW5gl2F1WQ5fBugTgIHfjKfZGLfjOdDjVFH9J0poZlEz5iDQflILYdPBrAV4PV0YYJGbKWNSb48Ns6l9wyYS0Xfcol3p6jmHAY-7wcuvHHNw_dtZd0v4ABOdXME_2VlC0V1o0jKGYAV-2B-97oaBzSEq66_TbU88tYNzDzl42X2FONkvjYmpNtBj34Hoy3oZFBytkd-QwhsJEUdNX3Kv6BpmB-tnreVNArgQuP4o8WiotkrC1elfyjbT-bYdzK-z_vRljgN2_Ft8F3tPk9x_3bX2uxrWZXT88FC5p28fXMVcbbhQoYyioSnlteLp1EW1AGD48ptzOBRV0mzB3xdxXOH3q-sIfaTdcd2S3UVfR9zQuJAePGvT_d3MWSPE6LT-BpWHXS6gF9gKZyGgknw1B0NsBEuQaqK2Su3kRq2hzCu-VLReY1K7OY91QUfXikpTDBXDTnr2_hM8-INfRYKC5FS9O7oIlnwCHd2UXIV-kQrmkW7DtWcMQCPAOUAK1aRocTip8C9WHlCrbbZ-uYAyuIryb8ukqXypjymUiyWutoMJnjHZPjEhslghVrufyTS6jK4AIS6y0Fc6ZkW4CyGn1wHvqa7ovGsxoWJsPCKmzi_13DJLrXNUn9ROuZTaKo4YF7bzSm2eNZHbZvPykmD0XaU7yoZG6xHC-n_tRfg6Br-iZ1BLmR93GmUBYDbEAxG8Mwr6N6lgpQJaYt_zGFUGa5VPjG8ErnEl2XZssf6y29spThcpx_Jq_gnZRnIs4bPAsF0my5GFcUcax5NiG5BTVK_ksPDQ7wcTnU7SBRGQBA73gatWQ0q5cWdpKsSWku4ZokFFB4TOQlnyDfaFuMfDsaH0adfT3Pgi9OuNcZye1zB80kfH08NpvhgI402nwwGI"  # noqa: E501
+        == "https://lh3.googleusercontent.com/lr/RCCo5khGXpMEWzP4nn72QAVJxlUYiOBzJ1LikuRx1kwb8wSfUTnYjvAAdewR7fIyoh1h0tB7joBeifwKlbZmuooazBfyTqOdEms0raTswrYgDV27f3gi2aiBsdC933xCPuQDIbY1251NFgPd1HIZzADjHkMNlUYoGZgXjLKnYEFK2T-8uLjqOo3TmsNfzLZIVsaglu0FTRDK498vjSFSxwP5EXcciDfyD8KVUmuibBVYpGxNxV3F2Yc1dkqSrTq3kkTL3Yb9Zfd-M3MtuF4fxBADkYUK0Nr2i7bwdVCMPCJaCsFCzt5wgRxcNDJPcqK5T2sLQ3o3Fymc-aADt10Wc5omQ2zgHuIVoyyP25YC9DrzYqoUCQIvQ8KxDhV059pUkI2urVFJLbQYFPPHYZ5MGsyFVwgKoxbcuYceZncJ9GpPHw7pF2Y3gkw3I-_c0s8jILOvcvgCW-zczAIkXk1jqaK5af0gHJhsx4md35390JVOB9klZuogqE1NoDqsNlT0GdRaQRM-z8DGRjCX0GynjQF0dz3NBchorYRRYawHd1dOiNsZ9Clr30e7eOhCaFuHbR1Khjh9IGTPUxB74jdyUV7JBaHcJ3OBFQt53u6qTPjvPMilsLazJpLGS6p_BE3a6Dj7_2yYdkJJz7xVZKPbJP_gJ3ONx_YPUOgVV_VoTkrk6R-075Z4DhXEWhpr1zBg64IPiwg-i3EOut2OLChX0q_sgS2iPUIG1kfGNsyt7tpvAUBjDUv96rzgl9FwEJCauACTFemkfil3tlocUhW4cS-43BdOgApKFGCde4B1UHklAUNm78zfHrr_4tC9xQV7v9TmHFfDSf7EEp70PP2Wc03xH--tJELAqhhQWKkJbPMn518cYrnrsJx7MMjCfgraCXhJLRJPHAvwEUMDuPcZZvYARpTFnkhROBeTMOUIhHYyiLSHznoH0AGIHthp9h15kse9TiJGzZDcrd4AwVX-ccYhhRWN9-1m8YWDq9YZqq82-UBiusQMSjqIYQHMED5dnPkSeEqq"  # noqa: E501
     )
     assert (
         album.cover_photo_media_item_id
@@ -37,7 +37,7 @@ def test_from_json_response_instantiation(
         == "KEIr_NhmxOL1PmdmoHPxJiI5a54rR1y7TaS5Qqugk8YeEn01fOOdP6Bx7INDgwnUaCewI4hCfSHVgWtRt5ePYDL9XirPhtXp5g"
     )
     assert album.is_writeable is None
-    assert album.media_items_count == 68
+    assert album.media_items_count == 80
     assert album.share_info is None
     assert album.title == "Projects"
 
@@ -69,8 +69,8 @@ def test_album_title_validation(
 
     album_json = read_json_file(
         # pylint: disable=line-too-long
-        "v1/albums/aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json",
-        host_name="google/photos",
+        "aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json",
+        host_name="google/photos/v1/albums",
     )
 
     album_json["title"] = title

@@ -29,6 +29,7 @@ repos:
       - id: check-added-large-files
         args:
           - --maxkb=1000
+        exclude: ^tests/binary_files/.*
       - id: check-case-conflict
       - id: check-merge-conflict
       - id: debug-statements
@@ -43,6 +44,7 @@ repos:
           - --autofix
           - --indent
           - '2'
+        exclude: ^Pipfile\.lock$
       - id: requirements-txt-fixer
       - id: trailing-whitespace
 

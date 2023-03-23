@@ -62,7 +62,12 @@ from wg_utilities.clients.google_drive import (
 )
 from wg_utilities.clients.google_fit import DataSource, GoogleFitClient
 from wg_utilities.clients.google_photos import Album as GooglePhotosAlbum
-from wg_utilities.clients.google_photos import AlbumJson, GooglePhotosClient
+from wg_utilities.clients.google_photos import (
+    AlbumJson,
+    GooglePhotosClient,
+    MediaItem,
+    MediaItemJson,
+)
 from wg_utilities.clients.monzo import Account as MonzoAccount
 from wg_utilities.clients.monzo import (
     AccountJson,
@@ -170,8 +175,15 @@ def read_json_file(  # type: ignore[misc]
 
 @overload
 def read_json_file(  # type: ignore[misc]
-    rel_file_path: str, host_name: Literal["google/photos"]
+    rel_file_path: str, host_name: Literal["google/photos/v1/albums"]
 ) -> AlbumJson:
+    ...
+
+
+@overload
+def read_json_file(  # type: ignore[misc]
+    rel_file_path: str, host_name: Literal["google/photos/v1/mediaitems"]
+) -> dict[Literal["mediaItems"], list[MediaItemJson]]:
     ...
 
 
@@ -223,6 +235,7 @@ def read_json_file(
     | dict[Literal["transactions"], list[TransactionJson]]
     | GoogleCalendarEntityJson
     | AlbumJson
+    | dict[Literal["mediaItems"], list[MediaItemJson]]
 ):
     """Read a JSON file from the flat files `json` subdirectory.
 
@@ -241,9 +254,10 @@ def read_json_file(
     if host_name:
         file_path /= host_name.lower()
 
-    file_path /= rel_file_path.lstrip("/").lower()
-
-    print("reading", file_path)
+    if rel_file_path.startswith(":"):
+        file_path = file_path.parent / (file_path.name + rel_file_path)
+    else:
+        file_path /= rel_file_path.lstrip("/").lower()
 
     return cast(JSONObj, loads(file_path.read_text()))
 
@@ -668,9 +682,10 @@ def _google_calendar_client(
 ) -> GoogleCalendarClient:
     """Fixture for `GoogleCalendarClient` instance."""
 
-    (creds_cache_path := temp_dir / "google_calendar_credentials.json").write_text(
-        fake_oauth_credentials.json()
-    )
+    (
+        creds_cache_path := temp_dir
+        / "oauth_credentials/google_calendar_credentials.json"
+    ).write_text(fake_oauth_credentials.json())
 
     return GoogleCalendarClient(
         client_id="test-client-id.apps.googleusercontent.com",
@@ -687,9 +702,9 @@ def _google_drive_client(
 ) -> GoogleDriveClient:
     """Fixture for `GoogleDriveClient` instance."""
 
-    (creds_cache_path := temp_dir / "google_drive_credentials.json").write_text(
-        fake_oauth_credentials.json()
-    )
+    (
+        creds_cache_path := temp_dir / "oauth_credentials/google_drive_credentials.json"
+    ).write_text(fake_oauth_credentials.json())
 
     return GoogleDriveClient(
         client_id="test-client-id.apps.googleusercontent.com",
@@ -707,9 +722,9 @@ def _google_fit_client(
 ) -> GoogleFitClient:
     """Fixture for `GoogleFitClient` instance."""
 
-    (creds_cache_path := temp_dir / "google_fit_credentials.json").write_text(
-        fake_oauth_credentials.json()
-    )
+    (
+        creds_cache_path := temp_dir / "oauth_credentials/google_fit_credentials.json"
+    ).write_text(fake_oauth_credentials.json())
 
     return GoogleFitClient(
         client_id="test-client-id.apps.googleusercontent.com",
@@ -725,8 +740,8 @@ def _google_photos_album(google_photos_client: GooglePhotosClient) -> GooglePhot
     return GooglePhotosAlbum.from_json_response(
         read_json_file(
             # pylint: disable=line-too-long
-            "v1/albums/aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json",
-            host_name="google/photos",
+            "aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json",
+            host_name="google/photos/v1/albums",
         ),
         google_client=google_photos_client,
     )
@@ -740,9 +755,10 @@ def _google_photos_client(
 ) -> GooglePhotosClient:
     """Fixture for `GooglePhotosClient` instance."""
 
-    (creds_cache_path := temp_dir / "google_photos_credentials.json").write_text(
-        fake_oauth_credentials.json()
-    )
+    (
+        creds_cache_path := temp_dir
+        / "oauth_credentials/google_photos_credentials.json"
+    ).write_text(fake_oauth_credentials.json())
 
     return GooglePhotosClient(
         client_id="test-client-id.apps.googleusercontent.com",
@@ -836,6 +852,51 @@ def _mb3c(request: FixtureRequest) -> MockBoto3Client:
         mocked_operation_lookup = {}
 
     return MockBoto3Client(mocked_operation_lookup=mocked_operation_lookup)
+
+
+@fixture(scope="function", name="media_item_image")  # type: ignore[misc]
+def _media_item_image(google_photos_client: GooglePhotosClient) -> MediaItem:
+    """Fixture for a `MediaItem` instance with an image MIME type."""
+
+    image = MediaItem.from_json_response(
+        read_json_file(
+            (
+                # pylint: disable=line-too-long
+                json_path := ":search/pagesize=100&albumid=aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json"  # noqa: E501
+            ),
+            host_name="google/photos/v1/mediaitems",
+        )["mediaItems"][0],
+        google_client=google_photos_client,
+    )
+
+    assert image.mime_type == "image/jpeg", (
+        "Incorrect MIME type for image fixture. Has the file "
+        f"`tests/flat_files/json/google/photos/{json_path}` been edited recently?"
+    )
+
+    return image
+
+
+@fixture(scope="function", name="media_item_video")  # type: ignore[misc]
+def _media_item_video(google_photos_client: GooglePhotosClient) -> MediaItem:
+    """Fixture for a `MediaItem` instance with a video MIME type."""
+
+    video = MediaItem.from_json_response(
+        read_json_file(
+            (  # pylint: disable=line-too-long
+                json_path := ":search/pagesize=100&albumid=aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json"  # noqa: E501
+            ),
+            host_name="google/photos/v1/mediaitems",
+        )["mediaItems"][15],
+        google_client=google_photos_client,
+    )
+
+    assert video.mime_type == "video/mp4", (
+        "Incorrect MIME type for video fixture. Has the file "
+        f"`tests/flat_files/json/google/photos/{json_path}` been edited recently?"
+    )
+
+    return video
 
 
 @fixture(scope="function", name="mock_aiohttp")  # type: ignore[misc]
@@ -1051,6 +1112,28 @@ def _mock_requests(
                         json=get_flat_file_from_url,
                     )
 
+            image_bytes = (
+                Path(__file__).parent
+                / "tests/binary_files/2019/03/17/IMG_20190317_172652.jpg"
+            ).read_bytes()
+
+            mock_requests.get(
+                # pylint: disable=line-too-long
+                "https://lh3.googleusercontent.com/lr/OJIb5lbwSSP1sLh0smnNn4t6NxEFCmE2_XhYPH2bOFAYgwSsQYsoooNCmkpa230eyef3yLiRGS8swyaKaOIkSXy74GrCcYcnAezDRHR9mGDo6HDpYHEZkXudGIs2rQm0MXnxdeEGF_OWBD5RJL3BfIU8Z8b32iDLbxCmZBDl30TDWHYwuZawJFHsQ0jFeUAQpFxkIofpVJ-UdgwS9PHhRj6tYtkmFaPN29EASKvNZel4COGYvxUGppOKZ20U-zaOIE-ZikXmGxsSFPWvytTDNfuC2trKk3z8kRG2nmWpPZRdoYASXWTMqNVdoEW4PRFZzo7HTVoNQcZHieHWype2InDFM7kof4l6tEhV645VUgWLOx0nwbpLDO9hCS0-abhSNdEFToadpAGWnXHAG8y6q34DjGbQMogYVcO1AyL2ZZH3Qr-aq69VWnJ0L-hCOvrwPT7CnWvBPrd2Nkzs2ZINvUOuHWZGzLUMmH-MzvBtvZKu_dJkRtCF45ua1gRJH3Lan6eWUaEsGFW5OIsIHtR-r8mIKq0angbEX0Il5K7HIFjp0paXVuLUE9Q4BJcSqmndZhiSkkM2GosvWPpsEP3Vk-9tV4YNPN98Pqg4zOaWjPbsBDmwRFxsLMfZOZDqpKLqRccdod-ef4Dl1LNdt3MVQCyv75yvXlxShzy4ph6xa0vvuBco9C211f4EhuxPz2FB1YoAV55P5C1_dM3oifLgPG5RLxaRlu_siC4Id3dhD2nsjaso_rl1ML2wwjW7caMx_uDEopO6iZGRtGYqbq8TLyI5mvcC-pGx0jsIoWeeKaGJf4mSchhC9UHPYuKt7qO-Nh6N4zvNscBEsD7suWElJ5Vq1psvr_Fx92ElHWAoJFvdRMJC6dKXJdsUyI4MvLGGZbi-w4BoQ1krTn0ag-cmIPRvXXjHsN2Jr8cQvtMaiWf8QZ9BBFmaD7T8z6B0Iz3fMYxL9k-BU0rycXe9NfAmBfUg1qI_M2IUfwRYpk0FmQZOmSLLAUYpZ2J7WG7TAGW-rjL-moej=w4640-h2610",
+                content=image_bytes,
+            )
+
+            video_bytes = (
+                Path(__file__).parent
+                / "tests/binary_files/2019/04/04/VID_20190404_205947.mp4"
+            ).read_bytes()
+
+            mock_requests.get(
+                # pylint: disable=line-too-long
+                "https://lh3.googleusercontent.com/lr/CWNg8lw8ttG1XAmhCFwe8tVcdTBme9dyDDOE5pc33fqZU26yrmO1i3qcLE90xW5u-pOnL9C1ODZhhUg3kP9P1xZEIwjFGeik3OZD-X7sKMXwsjVxuQ4MtoOY-uRhgo3HIPDsuDwu2KDJnGVlDDS8Ygad3SPDGzMDO2J44_-RnU8UWP0u966PqGF9-ApgVKX2SOldCn9I5v7mp0V_r7E7n_kgpHqLW2trukMKUu33RlBj8BYhQ8E6ds8OTS8SF88MKSeWBvrYdrjRbKbFwA41O5lKYhgUmWw0gq6vVIoNNdCBeov2Ait0aDR4uWVdTOlK7LFeAQb-0MAMNPVmbTas5hbeJt2Zm6Hw4pfIJAbeccgAxLDwAq4QpWDzsULaaIEJsHSIZL9WvwWMfxSv6nEVKiw8ggMJrTQ6ylj3UnsG4R_dzbD4G_E1WdH79JRn_ObKoVlumFrrFXx513-VreXkIL86wyVawiGOK-YEzvrFWZxNcWDPTuI3Advbq_k3MxFD5XJGliWyNqEq0DuZ2E-hidb8iByv5W6RC3ffXqQJ_e_ghpUYP5Tk68g3UzN_CI57mtXxwQ9ZzHMJJGVBndRp-xG2cdYMb_R6M6JDxQhvDoPgma0Uzu_Ih3wdHi1aeHDBxDXFyTB2H0n8kK4bPTMEUZqGimrEE7vzu0CS_jops8RnOJJFS773ToILVtTzmTrNoelNkw1W9SiWPrYSnWV8sI1iS2Z_qI4anqjBz8z7VVn8OJWeLGgH52SSAFA3xHXhTdrn8L3OMMKYSpVomIV9_Es2HHmCvH3U-SPgtzCPDM13C9qcrKetDpDzCz-XoS0mGElaMPFSQGrjJMp58dMD5uloMbtAkOqWwucrEfT6zZVe1UX25aDcJqO-sH_5_hRbtaWbzm1yp1izRSM8T3QCKW8H4iI6K8rQfitBP51Ur_Uk1MmxHuUMHqw9lOGMdDZxZFE8XH3Et01DY8EoRe7kqmfw9JevMxA2RADNjncXKyY5jco0QzjvW1t6TcPq4zNxkqcSrw6M=dv",
+                content=video_bytes,
+            )
+
         mock_requests.get(
             compile_regex(
                 # pylint: disable=line-too-long
@@ -1087,9 +1170,9 @@ def _monzo_client(
 ) -> MonzoClient:
     """Fixture for creating a MonzoClient instance."""
 
-    (creds_cache_path := temp_dir / "monzo_credentials.json").write_text(
-        fake_oauth_credentials.json()
-    )
+    (
+        creds_cache_path := temp_dir / "oauth_credentials/monzo_credentials.json"
+    ).write_text(fake_oauth_credentials.json())
 
     return MonzoClient(
         client_id="test_client_id",
@@ -1266,9 +1349,9 @@ def _spotify_client(
 ) -> SpotifyClient:
     """Fixture for creating a `SpotifyClient` instance."""
 
-    (creds_cache_path := temp_dir / "oauth_credentials.json").write_text(
-        fake_oauth_credentials.json(exclude_none=True)
-    )
+    (
+        creds_cache_path := temp_dir / "oauth_credentials/oauth_credentials.json"
+    ).write_text(fake_oauth_credentials.json(exclude_none=True))
 
     return SpotifyClient(
         client_id="test_client_id",
@@ -1342,12 +1425,32 @@ def _temp_auth_server() -> YieldFixture[TempAuthServer]:
     temp_auth_server.stop_server()
 
 
-@fixture(scope="session", name="temp_dir")  # type: ignore[misc]
+@fixture(scope="function", name="temp_dir")  # type: ignore[misc]
 def _temp_dir() -> YieldFixture[Path]:
     """Fixture for creating a temporary directory."""
 
     with TemporaryDirectory() as temp_dir:
-        yield Path(temp_dir)
+        temp_dir_path = Path(temp_dir)
+
+        # Create directory for OAuth credentials cache
+        (temp_dir_path / "oauth_credentials").mkdir()
+
+        yield temp_dir_path
+
+
+@fixture(scope="function", name="temp_dir_cleanup")  # type: ignore[misc]
+def _temp_dir_cleanup(temp_dir: Path) -> YieldFixture[None]:
+    """Fixture for cleaning up the temporary directory.
+
+    Currently skips:
+    - **/oauth_credentials/**
+    """
+    yield
+
+    for item in temp_dir.rglob("*"):
+        if "oauth_credentials" in item.parts or not item.is_file():
+            continue
+        item.unlink()
 
 
 @fixture(scope="function", name="upnp_service_av_transport")  # type: ignore[misc]

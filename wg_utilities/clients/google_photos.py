@@ -5,25 +5,19 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum, auto
 from logging import DEBUG, getLogger
-from os import getenv
 from pathlib import Path
 from typing import Any, Literal, TypeAlias, TypedDict, TypeVar
 
 from pydantic import Field, validator
-from requests import get, post
+from requests import post
 
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.clients.oauth_client import (
     BaseModelWithConfig,
     GenericModelWithConfig,
 )
-from wg_utilities.functions import force_mkdir, user_data_dir
+from wg_utilities.functions import force_mkdir
 from wg_utilities.loggers import add_stream_handler
-
-LOCAL_MEDIA_DIRECTORY = Path(
-    getenv("LOCAL_MEDIA_DIRECTORY", user_data_dir(file_name="media_downloads"))
-)
-
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -71,8 +65,8 @@ class _MediaItemMetadata(BaseModelWithConfig):
 class MediaType(Enum):
     """Enum for all potential media types."""
 
-    IMAGE = auto()
-    VIDEO = auto()
+    IMAGE = "image"
+    VIDEO = "video"
     UNKNOWN = auto()
 
 
@@ -194,8 +188,13 @@ class MediaItem(GooglePhotosEntity):
     media_metadata: _MediaItemMetadata = Field(alias="mediaMetadata")
     mime_type: str = Field(alias="mimeType")
 
+    _local_path: Path
+
     def download(
         self,
+        target_directory: Path | str = "",
+        *,
+        file_name_override: str | None = None,
         width_override: int | None = None,
         height_override: int | None = None,
         force_download: bool = False,
@@ -206,15 +205,39 @@ class MediaItem(GooglePhotosEntity):
             The width/height overrides do not apply to videos.
 
         Args:
+            target_directory (Path or str): the directory to download the file to.
+                Defaults to the current working directory.
+            file_name_override (str): the file name to use when downloading the file
             width_override (int): the width override to use when downloading the file
             height_override (int): the height override to use when downloading the file
             force_download (bool): flag for forcing a download, even if it exists
-             locally already
+                locally already
 
         Returns:
              str: the path to the downloaded file (self.local_path)
         """
-        if not self.local_path.is_file() or force_download:
+
+        if isinstance(target_directory, str):
+            target_directory = (
+                Path.cwd() if target_directory == "" else Path(target_directory)
+            )
+
+        self._set_private_attr(
+            "_local_path",
+            (
+                target_directory
+                / self.creation_datetime.strftime("%Y/%m/%d")
+                / (file_name_override or self.filename)
+            ),
+        )
+
+        if self.local_path.is_file() and not force_download:
+            LOGGER.warning(
+                "File already exists at `%s` and `force_download` is `False`;"
+                " skipping download.",
+                self.local_path,
+            )
+        else:
             width = width_override or self.width
             height = height_override or self.height
 
@@ -224,7 +247,9 @@ class MediaItem(GooglePhotosEntity):
             }.get(self.media_type, "")
 
             force_mkdir(self.local_path, path_is_file=True).write_bytes(
-                get(f"{self.base_url}{param_str}").content
+                self.google_client._get(  # pylint: disable=protected-access
+                    f"{self.base_url}{param_str}", params={"pageSize": None}
+                ).content
             )
 
         return self.local_path
@@ -239,7 +264,7 @@ class MediaItem(GooglePhotosEntity):
         Returns:
             bytes: the binary content of the file
         """
-        if not self.local_path.is_file():
+        if not (self.local_path and self.local_path.is_file()):
             self.download()
 
         return self.local_path.read_bytes()
@@ -250,20 +275,6 @@ class MediaItem(GooglePhotosEntity):
         return self.media_metadata.creation_time
 
     @property
-    def local_path(self) -> Path:
-        """The path which the is/would be stored at locally.
-
-        Returns:
-            Path: where the file is/will be stored
-        """
-
-        return (
-            LOCAL_MEDIA_DIRECTORY
-            / self.creation_datetime.strftime("%Y/%m/%d")
-            / self.filename
-        )
-
-    @property
     def height(self) -> int:
         """MediaItem height.
 
@@ -271,6 +282,24 @@ class MediaItem(GooglePhotosEntity):
             int: the media item's height
         """
         return self.media_metadata.height
+
+    @property
+    def is_downloaded(self) -> bool:
+        """Whether the media item has been downloaded locally.
+
+        Returns:
+            bool: whether the media item has been downloaded locally
+        """
+        return bool(self.local_path and self.local_path.is_file())
+
+    @property
+    def local_path(self) -> Path:
+        """The path which the is/would be stored at locally.
+
+        Returns:
+            Path: where the file is/will be stored
+        """
+        return getattr(self, "_local_path", Path("undefined"))
 
     @property
     def width(self) -> int:
@@ -288,14 +317,10 @@ class MediaItem(GooglePhotosEntity):
         Returns:
             MediaType: the media type (image, video, etc.) for this item
         """
-
-        if "image" in self.mime_type:
-            return MediaType.IMAGE
-
-        if "video" in self.mime_type:
-            return MediaType.VIDEO
-
-        return MediaType.UNKNOWN
+        try:
+            return MediaType(self.mime_type.split("/")[0])
+        except ValueError:
+            return MediaType.UNKNOWN
 
 
 GooglePhotosEntityJson: TypeAlias = AlbumJson | MediaItemJson
