@@ -855,7 +855,9 @@ def _mb3c(request: FixtureRequest) -> MockBoto3Client:
 
 
 @fixture(scope="function", name="media_item_image")  # type: ignore[misc]
-def _media_item_image(google_photos_client: GooglePhotosClient) -> MediaItem:
+def _media_item_image(
+    google_photos_client: GooglePhotosClient,
+) -> YieldFixture[MediaItem]:
     """Fixture for a `MediaItem` instance with an image MIME type."""
 
     image = MediaItem.from_json_response(
@@ -874,7 +876,13 @@ def _media_item_image(google_photos_client: GooglePhotosClient) -> MediaItem:
         f"`tests/flat_files/json/google/photos/{json_path}` been edited recently?"
     )
 
-    return image
+    yield image
+
+    # The `bytes` property downloads the file to the default location; this just cleans
+    # it up
+    (Path.cwd() / image.creation_datetime.strftime("%Y/%m/%d") / image.filename).unlink(
+        missing_ok=True
+    )
 
 
 @fixture(scope="function", name="media_item_video")  # type: ignore[misc]
