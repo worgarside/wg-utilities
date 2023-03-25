@@ -355,7 +355,7 @@ def get_flat_file_from_url(
             return read_json_file(  # type: ignore[return-value]
                 file_path, host_name=host_name
             )
-        raise
+        raise  # pragma: no cover
 
 
 def random_nested_json() -> JSONObj:
