@@ -91,13 +91,14 @@ class TempAuthServer:
                         <style>
                             body {
                                 font-family: Verdana, sans-serif;
+                                height: 100vh;
                             }
                         </style>
                         <title>Authentication Complete</title>
                     </head>
-                    <body>
-                    <h1>Authentication complete!</h1>
-                    <span>You may now close this window.</span>
+                    <body onclick="self.close()">
+                        <h1>Authentication complete!</h1>
+                        <span>Click anywhere to close this window.</span>
                     </body>
                     </html>
                 """
