@@ -389,10 +389,10 @@ class PaginatedResponsePlaylists(_PaginatedResponseBase):
     items: list[PlaylistSummaryJson]
 
 
-class PaginatedResponseTracks(_PaginatedResponseBase):
+class PaginatedResponseTracks(_PaginatedResponseBase, total=False):
     """TypedDict for paginated responses containing tracks."""
 
-    items: list[TrackFullJson]
+    items: NotRequired[list[TrackFullJson]]
 
 
 class PaginatedResponseGeneral(_PaginatedResponseBase):

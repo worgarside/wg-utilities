@@ -111,6 +111,30 @@ def test_tracks_property(spotify_album: Album, spotify_client: SpotifyClient) ->
     assert hasattr(spotify_album, "_tracks")
 
 
+def test_tracks_property_no_json(
+    spotify_client: SpotifyClient, mock_requests: Mocker
+) -> None:
+    """Test the `tracks` property when there's no pre-existing data in the object."""
+
+    # This particular JSON file doesn't have the `tracks` key
+    spotify_album = Album.from_json_response(
+        read_json_file("v1/albums/7fvntarvgjuywnut0flun7.json", host_name="spotify"),
+        spotify_client=spotify_client,
+    )
+
+    assert not hasattr(spotify_album, "_tracks")
+    assert spotify_album.tracks_json == {}
+
+    assert len(spotify_album.tracks) == 10 == spotify_album.total_tracks
+    assert all(isinstance(track, Track) for track in spotify_album.tracks)
+
+    assert (
+        len(mock_requests.request_history) == 1
+        and mock_requests.last_request.url
+        == "https://api.spotify.com/v1/albums/7FvnTARvgjUyWnUT0flUN7/tracks?limit=50"
+    )
+
+
 def test_tracks_property_paginates(
     spotify_client: SpotifyClient, mock_requests: Mocker, live_jwt_token: str
 ) -> None:
