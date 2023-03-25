@@ -362,6 +362,8 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
         )
 
         self._albums: list[Album]
+        # Only really used to check if all album metadata has been fetched, not
+        # available to the user (would still require caching all albums).
         self._album_count: int
 
     def get_album_by_id(self, album_id: str) -> Album:
@@ -409,7 +411,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
             if album.title == album_name:
                 return album
 
-        raise FileNotFoundError(f"Unable to find album with name {album_name}")
+        raise FileNotFoundError(f"Unable to find album with name {album_name!r}.")
 
     @property
     def albums(self) -> list[Album]:
@@ -425,7 +427,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
                 for item in self.get_items(
                     f"{self.BASE_URL}/albums",
                     list_key="albums",
-                    params={"pageSize": 100},
+                    params={"pageSize": 50},
                 )
             ]
             self._album_count = len(self._albums)
@@ -437,7 +439,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
                     for item in self.get_items(
                         f"{self.BASE_URL}/albums",
                         list_key="albums",
-                        params={"pageSize": 100},
+                        params={"pageSize": 50},
                     )
                     if item["id"] not in album_ids
                 ]

@@ -1113,7 +1113,11 @@ def _mock_requests(
                 if path_object.is_dir() or (
                     path_object.is_file() and "=" not in path_object.name
                 ):
-                    mock_requests.post(
+                    (
+                        mock_requests.post
+                        if path_object.name.lower().startswith("mediaitems:")
+                        else mock_requests.get
+                    )(
                         GooglePhotosClient.BASE_URL
                         + "/"
                         + str(path_object.relative_to(google_dir)).replace(".json", ""),
