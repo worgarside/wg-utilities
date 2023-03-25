@@ -1,6 +1,7 @@
 """Unit Tests for `wg_utilities.clients.spotify.Track`."""
 from __future__ import annotations
 
+from datetime import date
 from http import HTTPStatus
 
 from pytest import raises
@@ -108,6 +109,14 @@ def test_album_property(spotify_track: Track) -> None:
     assert spotify_track.album.spotify_client == spotify_track.spotify_client
 
 
+def test_artist_property(spotify_track: Track) -> None:
+    """Test that the `artist` property instantiates an `Artist` correctly."""
+    assert isinstance(spotify_track.artist, Artist)
+    assert spotify_track.artist.name == "DJ Seinfeld"
+    assert spotify_track.artist.id == "37YzpfBeFju8QRZ3g0Ha1Q"
+    assert spotify_track.artist.spotify_client == spotify_track.spotify_client
+
+
 def test_artists_property(spotify_track: Track) -> None:
     """Test that the `artists` property instantiates an `Artist` correctly."""
     assert len(spotify_track.artists) == 1
@@ -200,6 +209,14 @@ def test_audio_features_not_found(
     )
 
     assert not track.audio_features
+
+
+def test_release_date_property(spotify_track: Track, spotify_album: Album) -> None:
+    """Test that the `release_date` property returns the correct value."""
+    assert spotify_track.release_date == date(2021, 9, 3)
+
+    for track in spotify_album.tracks:
+        assert track.release_date == spotify_album.release_date
 
 
 def test_tempo_property(spotify_track: Track) -> None:
