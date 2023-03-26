@@ -132,7 +132,7 @@ class MockBoto3Client:
 
             try:
                 return ORIG_API_CALL(client, operation_name, kwargs)
-            except KeyError as exc:
+            except KeyError as exc:  # pragma: no cover
                 if str(exc) == "'DEFAULT'":
                     raise NotImplementedError(
                         f"Operation `{operation_name}` not supported by moto yet"
