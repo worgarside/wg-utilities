@@ -153,84 +153,83 @@ def _spotify_user(spotify_client: SpotifyClient) -> User:
 
 
 @fixture(scope="function", name="mock_requests", autouse=True)  # type: ignore[misc]
-def _mock_requests() -> YieldFixture[Mocker]:
+def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 
-    with Mocker(real_http=False, case_sensitive=False) as mock_requests:
-        for path_object in (
-            spotify_dir := FLAT_FILES_DIR / "json" / "spotify" / "v1"
-        ).rglob("*"):
-            if path_object.is_dir():
-                mock_requests.get(
-                    SpotifyClient.BASE_URL
-                    + "/"
-                    + str(path_object.relative_to(spotify_dir)),
-                    json=get_flat_file_from_url,
-                )
-
-        for pattern in (
-            # Matches `https://api.spotify.com/v1/<entity_type>s/<entity_id>`
-            compile_regex(
-                # pylint: disable=line-too-long
-                r"^https:\/\/api\.spotify\.com\/v1\/(playlists|tracks|albums|artists|audio\-features|users)\/([a-z0-9]{4,22})$",
-                flags=IGNORECASE,
-            ),
-            # Matches `https://api.spotify.com/v1/artists/<entity_id>/albums`
-            compile_regex(
-                # pylint: disable=line-too-long
-                r"^https:\/\/api\.spotify\.com\/v1\/artists/([a-z0-9]{22})/albums(\?limit=50)?$",
-                flags=IGNORECASE,
-            ),
-        ):
-            mock_requests.get(
-                pattern,
+    for path_object in (
+        spotify_dir := FLAT_FILES_DIR / "json" / "spotify" / "v1"
+    ).rglob("*"):
+        if path_object.is_dir():
+            mock_requests_root.get(
+                SpotifyClient.BASE_URL
+                + "/"
+                + str(path_object.relative_to(spotify_dir)),
                 json=get_flat_file_from_url,
             )
 
-        # Special case because it goes to a single file, not a directory with
-        # querystring-files
-        mock_requests.get(
-            SpotifyClient.BASE_URL + "/me/player/currently-playing",
+    for pattern in (
+        # Matches `https://api.spotify.com/v1/<entity_type>s/<entity_id>`
+        compile_regex(
+            # pylint: disable=line-too-long
+            r"^https:\/\/api\.spotify\.com\/v1\/(playlists|tracks|albums|artists|audio\-features|users)\/([a-z0-9]{4,22})$",
+            flags=IGNORECASE,
+        ),
+        # Matches `https://api.spotify.com/v1/artists/<entity_id>/albums`
+        compile_regex(
+            # pylint: disable=line-too-long
+            r"^https:\/\/api\.spotify\.com\/v1\/artists/([a-z0-9]{22})/albums(\?limit=50)?$",
+            flags=IGNORECASE,
+        ),
+    ):
+        mock_requests_root.get(
+            pattern,
             json=get_flat_file_from_url,
         )
 
-        for method in ("put", "delete"):
-            for entity_type in ("albums", "following", "tracks"):
-                mock_requests.register_uri(
-                    method,
-                    SpotifyClient.BASE_URL + f"/me/{entity_type}",
-                    status_code=HTTPStatus.OK,
-                    reason=HTTPStatus.OK.phrase,
-                )
+    # Special case because it goes to a single file, not a directory with
+    # querystring-files
+    mock_requests_root.get(
+        SpotifyClient.BASE_URL + "/me/player/currently-playing",
+        json=get_flat_file_from_url,
+    )
 
-            mock_requests.register_uri(
+    for method in ("put", "delete"):
+        for entity_type in ("albums", "following", "tracks"):
+            mock_requests_root.register_uri(
                 method,
-                # Matches `/v1/playlists/<playlist id>/followers`
-                compile_regex(
-                    # pylint: disable=line-too-long
-                    r"^https:\/\/api\.spotify\.com\/v1\/playlists/([a-z0-9]{22})/followers",
-                    flags=IGNORECASE,
-                ),
+                SpotifyClient.BASE_URL + f"/me/{entity_type}",
                 status_code=HTTPStatus.OK,
                 reason=HTTPStatus.OK.phrase,
             )
 
-        mock_requests.post(
-            # Matches `/v1/playlists/<playlist id>/tracks`
+        mock_requests_root.register_uri(
+            method,
+            # Matches `/v1/playlists/<playlist id>/followers`
             compile_regex(
-                r"^https:\/\/api\.spotify\.com\/v1\/playlists/([a-z0-9]{22})/tracks",
+                # pylint: disable=line-too-long
+                r"^https:\/\/api\.spotify\.com\/v1\/playlists/([a-z0-9]{22})/followers",
                 flags=IGNORECASE,
             ),
             status_code=HTTPStatus.OK,
             reason=HTTPStatus.OK.phrase,
-            json={"snapshot_id": "MTAsZDVmZjMjJhZTVmZjcxOGNlMA=="},
         )
 
-        mock_requests.post(
-            "https://api.spotify.com/v1/users/worgarside/playlists",
-            status_code=HTTPStatus.OK,
-            reason=HTTPStatus.OK.phrase,
-            json=spotify_create_playlist_callback,
-        )
+    mock_requests_root.post(
+        # Matches `/v1/playlists/<playlist id>/tracks`
+        compile_regex(
+            r"^https:\/\/api\.spotify\.com\/v1\/playlists/([a-z0-9]{22})/tracks",
+            flags=IGNORECASE,
+        ),
+        status_code=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        json={"snapshot_id": "MTAsZDVmZjMjJhZTVmZjcxOGNlMA=="},
+    )
 
-        yield mock_requests
+    mock_requests_root.post(
+        "https://api.spotify.com/v1/users/worgarside/playlists",
+        status_code=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        json=spotify_create_playlist_callback,
+    )
+
+    yield mock_requests_root

@@ -1710,7 +1710,7 @@ def test_stop_listening_stops_listener(
         caplog.clear()
         stopper_thread = Thread(target=_worker)
         stopper_thread.start()
-        sleep(1)
+        sleep(0.1)
         yamaha_yas_209.stop_listening()
 
     # These are the only real meaningful assertion; just the fact that the tests gets

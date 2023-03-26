@@ -28,11 +28,14 @@ class TempAuthServer:
     class ServerThread(Thread):
         """Run a Flask app in a separate thread with shutdown control."""
 
-        def __init__(self, app: Flask, host: str = "0.0.0.0", port: int = 5001):
+        def __init__(self, app: Flask, host: str = "0.0.0.0", port: int = 0):
             super().__init__()
             self.server = make_server(host, port, app)
             self.ctx = app.app_context()
             self.ctx.push()
+
+            self.host = self.server.host
+            self.port = self.server.port
 
         def run(self) -> None:
             """Start the server."""
@@ -46,17 +49,18 @@ class TempAuthServer:
         self,
         name: str,
         host: str = "0.0.0.0",
-        port: int = 5001,
+        port: int = 0,
         debug: bool = False,
         auto_run: bool = True,
     ):
         self.host = host
-        self.port = port
+        self._user_port = port
+        self._actual_port: int
         self.debug = debug
 
         self.app = Flask(name)
 
-        self._server: TempAuthServer.ServerThread
+        self._server_thread: TempAuthServer.ServerThread
         self._request_args: dict[str, dict[str, object]] = {}
 
         self.create_endpoints()
@@ -149,7 +153,9 @@ class TempAuthServer:
     def start_server(self) -> None:
         """Run the local server."""
         if not self.is_running:
-            self.server.start()
+            self.server_thread.start()
+
+            self._actual_port = self.server_thread.port
 
     def stop_server(self) -> None:
         """Stop the local server by hitting its `/kill` endpoint.
@@ -158,32 +164,56 @@ class TempAuthServer:
             self.create_endpoints: `/kill` endpoint
         """
         # No point instantiating a new server if we're just going to kill it
-        if hasattr(self, "_server") and self.server.is_alive():
-            self.server.shutdown()
+        if hasattr(self, "_server_thread") and self.server_thread.is_alive():
+            self.server_thread.shutdown()
 
-            while self.server.is_alive():
+            while self.server_thread.is_alive():
                 pass
 
-            del self._server
+            del self._server_thread
+
+    @property
+    def get_auth_code_url(self) -> str:
+        """Get the URL for the auth code endpoint.
+
+        Returns:
+            str: the URL for the auth code endpoint
+        """
+        return f"http://{self.host}:{self._actual_port}/get_auth_code"
 
     @property
     def is_running(self) -> bool:
         """Return whether the server is is_running."""
-        if not hasattr(self, "_server"):
+        if not hasattr(self, "_server_thread"):
             return False
 
-        return self.server.is_alive()
+        return self.server_thread.is_alive()
 
     @property
-    def server(self) -> ServerThread:
+    def port(self) -> int:
+        """Port.
+
+        Returns:
+            int: the port of the server
+
+        Raises:
+            ValueError: if the server is not running
+        """
+        if not hasattr(self, "_actual_port"):
+            raise ValueError("Server is not running")
+
+        return self._actual_port
+
+    @property
+    def server_thread(self) -> ServerThread:
         """Server thread.
 
         Returns:
             ServerThread: the server thread
         """
-        if not hasattr(self, "_server"):
-            self._server = TempAuthServer.ServerThread(
-                self.app, host=self.host, port=self.port
+        if not hasattr(self, "_server_thread"):
+            self._server_thread = TempAuthServer.ServerThread(
+                self.app, host=self.host, port=self._user_port
             )
 
-        return self._server
+        return self._server_thread

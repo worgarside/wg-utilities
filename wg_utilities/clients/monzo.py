@@ -425,7 +425,6 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         *,
         client_id: str,
         client_secret: str,
-        redirect_uri: str = "http://0.0.0.0:5001/get_auth_code",
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
     ):
@@ -435,7 +434,6 @@ class MonzoClient(OAuthClient[MonzoGJR]):
             auth_link_base=self.AUTH_LINK_BASE,
             client_id=client_id,
             client_secret=client_secret,
-            redirect_uri=redirect_uri,
             log_requests=log_requests,
             creds_cache_path=creds_cache_path,
         )

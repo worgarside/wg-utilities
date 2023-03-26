@@ -70,7 +70,7 @@ def _server_thread(flask_app: Flask) -> YieldFixture[TempAuthServer.ServerThread
 def _temp_auth_server() -> YieldFixture[TempAuthServer]:
     """Fixture for creating a temporary auth server."""
 
-    temp_auth_server = TempAuthServer(__name__, auto_run=False, debug=True)
+    temp_auth_server = TempAuthServer(__name__, auto_run=False, debug=True, port=0)
 
     yield temp_auth_server
 

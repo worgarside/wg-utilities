@@ -1,3 +1,4 @@
+# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.api.temp_auth_server.TempAuthServer`."""
 
 from __future__ import annotations
@@ -13,8 +14,6 @@ from requests import get
 
 from wg_utilities.api import TempAuthServer
 
-GET_AUTH_URL = "http://0.0.0.0:5001/get_auth_code"
-
 
 def test_server_thread_instantiation(flask_app: Flask) -> None:
     """Test `ServerThread` instantiation."""
@@ -23,7 +22,8 @@ def test_server_thread_instantiation(flask_app: Flask) -> None:
     assert isinstance(st, TempAuthServer.ServerThread)
 
     assert st.server.host == "0.0.0.0"
-    assert st.server.port == 5001
+    assert isinstance(st.server.port, int)
+    assert st.server.port > 0
     assert st.ctx.app == flask_app
 
 
@@ -49,12 +49,12 @@ def test_server_thread_shutdown(server_thread: TempAuthServer.ServerThread) -> N
 
 def test_temp_auth_server_instantiation() -> None:
     """Test `TempAuthServer` instantiation."""
-    tas = TempAuthServer(__name__, auto_run=False, port=5001)
+    tas = TempAuthServer(__name__, auto_run=False, port=1234)
 
     assert isinstance(tas, TempAuthServer)
 
     assert tas.host == "0.0.0.0"
-    assert tas.port == 5001
+    assert tas._user_port == 1234
     assert tas.debug is False
 
     assert tas.app.name == __name__
@@ -64,10 +64,13 @@ def test_temp_auth_server_instantiation() -> None:
 def test_temp_auth_server_auto_run() -> None:
     """Test that the `auto_run` argument starts the server."""
 
-    tas = TempAuthServer(__name__, auto_run=True)
+    tas = TempAuthServer(__name__, auto_run=True, port=0)
 
     assert tas.is_running
-    assert tas.server.is_alive()
+    assert tas.server_thread.is_alive()
+
+    print(tas.server_thread.server.port)
+    print(tas.port)
 
     tas.stop_server()
 
@@ -86,7 +89,7 @@ def test_create_endpoints(temp_auth_server: TempAuthServer) -> None:
 def test_start_server_starts_thread(temp_auth_server: TempAuthServer) -> None:
     """Test that the `start_server` method starts a thread."""
     with patch(
-        "wg_utilities.api.temp_auth_server.TempAuthServer.server"
+        "wg_utilities.api.temp_auth_server.TempAuthServer.server_thread"
     ) as mock_server:
         temp_auth_server.start_server()
 
@@ -101,29 +104,47 @@ def test_start_server_starts_server(temp_auth_server: TempAuthServer) -> None:
     temp_auth_server.start_server()
 
     assert temp_auth_server.is_running
-    assert hasattr(temp_auth_server, "_server")
-    assert temp_auth_server.server.is_alive()
-    assert get(GET_AUTH_URL).status_code == HTTPStatus.OK
-    assert "Authentication Complete" in get(GET_AUTH_URL).text
+    assert hasattr(temp_auth_server, "_server_thread")
+    assert temp_auth_server.server_thread.is_alive()
+    assert (
+        get(temp_auth_server.get_auth_code_url, timeout=2.5).status_code
+        == HTTPStatus.OK
+    )
+    assert (
+        "Authentication Complete"
+        in get(temp_auth_server.get_auth_code_url, timeout=2.5).text
+    )
 
 
 def test_server_can_be_started_multiple_times(temp_auth_server: TempAuthServer) -> None:
     """Test that the `start_server` method can be called multiple times."""
 
     temp_auth_server.start_server()
-    assert get(GET_AUTH_URL).status_code == HTTPStatus.OK
-    assert "Authentication Complete" in get(GET_AUTH_URL).text
+    assert (
+        get(temp_auth_server.get_auth_code_url, timeout=2.5).status_code
+        == HTTPStatus.OK
+    )
+    assert (
+        "Authentication Complete"
+        in get(temp_auth_server.get_auth_code_url, timeout=2.5).text
+    )
     assert temp_auth_server.is_running
-    assert temp_auth_server.server.is_alive()
+    assert temp_auth_server.server_thread.is_alive()
 
     temp_auth_server.stop_server()
     assert not temp_auth_server.is_running
 
     temp_auth_server.start_server()
-    assert get(GET_AUTH_URL).status_code == HTTPStatus.OK
-    assert "Authentication Complete" in get(GET_AUTH_URL).text
+    assert (
+        get(temp_auth_server.get_auth_code_url, timeout=2.5).status_code
+        == HTTPStatus.OK
+    )
+    assert (
+        "Authentication Complete"
+        in get(temp_auth_server.get_auth_code_url, timeout=2.5).text
+    )
     assert temp_auth_server.is_running
-    assert temp_auth_server.server.is_alive()
+    assert temp_auth_server.server_thread.is_alive()
 
     temp_auth_server.stop_server()
     assert not temp_auth_server.is_running
@@ -146,7 +167,7 @@ def test_wait_for_request(temp_auth_server: TempAuthServer) -> None:
     t = Thread(target=_make_assertions)
     t.start()
 
-    get(GET_AUTH_URL + "?code=abcdefghijklmnopqrstuvwxyz")
+    get(temp_auth_server.get_auth_code_url + "?code=abcdefghijklmnopqrstuvwxyz")
 
     t.join()
 
@@ -187,7 +208,7 @@ def test_wait_for_request_kill_on_request(temp_auth_server: TempAuthServer) -> N
     t = Thread(target=_make_assertions)
     t.start()
 
-    get(GET_AUTH_URL + "?code=abcdefghijklmnopqrstuvwxyz")
+    get(temp_auth_server.get_auth_code_url + "?code=abcdefghijklmnopqrstuvwxyz")
 
     t.join()
 
@@ -215,9 +236,20 @@ def test_wait_for_request_starts_server(temp_auth_server: TempAuthServer) -> Non
 
     sleep(1)
 
-    get(GET_AUTH_URL + "?code=abcdefghijklmnopqrstuvwxyz")
+    get(
+        temp_auth_server.get_auth_code_url + "?code=abcdefghijklmnopqrstuvwxyz",
+        timeout=5,
+    )
 
     t.join()
 
     assert called
     assert temp_auth_server.is_running
+
+
+def test_get_auth_code_url_property(temp_auth_server: TempAuthServer) -> None:
+    """Test the `get_auth_code_url` property returns the correct URL."""
+
+    temp_auth_server.start_server()
+
+    assert temp_auth_server.get_auth_code_url == temp_auth_server.get_auth_code_url

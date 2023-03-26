@@ -485,7 +485,6 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         client_id: str,
         client_secret: str,
         bank: Bank,
-        redirect_uri: str = "http://localhost:5001/get_auth_code",
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
@@ -496,7 +495,6 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
             auth_link_base=self.AUTH_LINK_BASE,
             client_id=client_id,
             client_secret=client_secret,
-            redirect_uri=redirect_uri,
             log_requests=log_requests,
             # TrueLayer shares the same Client ID for all banks, so override the
             # default to separate by bank

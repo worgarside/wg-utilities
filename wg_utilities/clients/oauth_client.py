@@ -217,7 +217,6 @@ class OAuthClient(Generic[GetJsonResponse]):
         auth_link_base: str,
         client_id: str | None = None,
         client_secret: str | None = None,
-        redirect_uri: str = "http://0.0.0.0:5001/get_auth_code",
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
@@ -227,7 +226,6 @@ class OAuthClient(Generic[GetJsonResponse]):
         self.base_url = base_url
         self.access_token_endpoint = access_token_endpoint
         self.auth_link_base = auth_link_base
-        self.redirect_uri = redirect_uri
         self.log_requests = log_requests
         self._creds_cache_path = creds_cache_path
 
@@ -550,13 +548,17 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         state_token = "".join(choice(ascii_letters) for _ in range(32))
 
+        self.temp_auth_server.start_server()
+
+        redirect_uri = f"http://0.0.0.0:{self.temp_auth_server.port}/get_auth_code"
+
         auth_link = (
             self.auth_link_base
             + "?"
             + urlencode(
                 {
                     "client_id": self._client_id,
-                    "redirect_uri": self.redirect_uri,
+                    "redirect_uri": redirect_uri,
                     "response_type": "code",
                     "state": state_token,
                     "scope": " ".join(self.scopes),
@@ -583,7 +585,7 @@ class OAuthClient(Generic[GetJsonResponse]):
                 "grant_type": "authorization_code",
                 "client_id": self._client_id,
                 "client_secret": self._client_secret,
-                "redirect_uri": self.redirect_uri,
+                "redirect_uri": redirect_uri,
             },
             header_overrides={},
         )
@@ -726,6 +728,6 @@ class OAuthClient(Generic[GetJsonResponse]):
             TempAuthServer: the temporary server
         """
         if not hasattr(self, "_temp_auth_server"):
-            self._temp_auth_server = TempAuthServer(__name__)
+            self._temp_auth_server = TempAuthServer(__name__, auto_run=False)
 
         return self._temp_auth_server

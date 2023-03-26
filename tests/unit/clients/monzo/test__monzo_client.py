@@ -35,7 +35,6 @@ def test_instantiation() -> None:
     assert client.client_secret == "test_client_secret"
     assert client.base_url == "https://api.monzo.com"
     assert client.access_token_endpoint == "https://api.monzo.com/oauth2/token"
-    assert client.redirect_uri == "http://0.0.0.0:5001/get_auth_code"
     assert client.log_requests is False
     assert client.creds_cache_path == user_data_dir(
         file_name=f"oauth_credentials/MonzoClient/{client.client_id}.json"

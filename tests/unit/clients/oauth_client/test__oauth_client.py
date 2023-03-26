@@ -174,7 +174,6 @@ def test_instantiation(temp_dir: Path) -> None:
     assert client.client_secret == "test_client_secret"
     assert client.base_url == "https://api.example.com"
     assert client.access_token_endpoint == "https://api.example.com/oauth2/token"
-    assert client.redirect_uri == "http://0.0.0.0:5001/get_auth_code"
     assert client.ACCESS_TOKEN_EXPIRY_THRESHOLD == 150
     assert client.log_requests is True
     assert (
@@ -540,11 +539,7 @@ def test_run_first_time_login(
 ) -> None:
     """Test the `run_first_time_login` method runs the correct process."""
 
-    # Remove the credentials cache file so that the credentials are not loaded
-    mock_requests.get(
-        oauth_client.redirect_uri,
-        real_http=True,
-    )
+    oauth_client.temp_auth_server.start_server()
 
     called = False
 
@@ -552,7 +547,9 @@ def test_run_first_time_login(
         nonlocal called
         sleep(1)
         res = get(
-            "http://0.0.0.0:5001/get_auth_code?code=test_auth_code&state=" + "x" * 32
+            # pylint: disable=line-too-long
+            f"{oauth_client.temp_auth_server.get_auth_code_url}?code=test_auth_code&state={'x' * 32}",
+            timeout=5,
         )
 
         assert res.status_code == HTTPStatus.OK
@@ -575,8 +572,8 @@ def test_run_first_time_login(
         mock_requests.request_history,
         [
             {
-                "url": "http://0.0.0.0:5001/get_auth_code?code=test_auth_code&state="
-                + "x" * 32,
+                # pylint: disable=line-too-long
+                "url": f"{oauth_client.temp_auth_server.get_auth_code_url}?code=test_auth_code&state={'x' * 32}",
                 "method": "GET",
                 "headers": {},
             },
@@ -602,15 +599,9 @@ def test_run_first_time_login(
 @patch("wg_utilities.clients.oauth_client.ascii_letters", "x")
 def test_run_time_first_login_validates_state_token(
     oauth_client: OAuthClient[dict[str, Any]],
-    mock_requests: Mocker,
     mock_open_browser: MagicMock,
 ) -> None:
     """Test that an invalid state token throws a ValueError."""
-
-    mock_requests.get(
-        oauth_client.redirect_uri,
-        real_http=True,
-    )
 
     called = False
 
@@ -618,7 +609,9 @@ def test_run_time_first_login_validates_state_token(
         nonlocal called
         sleep(1)
         res = get(
-            "http://0.0.0.0:5001/get_auth_code?code=test_auth_code&state=invalid_value"
+            # pylint: disable=line-too-long
+            f"{oauth_client.temp_auth_server.get_auth_code_url}?code=test_auth_code&state=invalid_value",
+            timeout=5,
         )
 
         assert res.status_code == HTTPStatus.OK
@@ -832,7 +825,7 @@ def test_temp_auth_server_property(oauth_client: OAuthClient[dict[str, Any]]) ->
     assert not hasattr(oauth_client, "_temp_auth_server")
 
     assert isinstance(oauth_tas := oauth_client.temp_auth_server, TempAuthServer)
-    assert oauth_client.temp_auth_server.is_running is True
+    assert oauth_client.temp_auth_server.is_running is False
 
     assert hasattr(oauth_client, "_temp_auth_server")
 
