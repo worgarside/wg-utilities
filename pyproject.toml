@@ -27,6 +27,8 @@ addopts = [
     # "-vv",
     "--cov-report=xml",
     "--cov=./",
+    "-n",
+    "auto"
     ]
 xfail_strict = true
 log_cli_level = "warning"

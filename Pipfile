@@ -35,6 +35,7 @@ pytest-randomly = "*"
 pytest-aws-config = "*"
 exceptiongroup = "*"
 tomli = "*"
+pytest-xdist = "*"
 
 [packages]
 google-auth-oauthlib = ">=0.4.6"
