@@ -1798,11 +1798,11 @@
                 "pinpoint"
             ],
             "hashes": [
-                "sha256:363577f7a0cdf639852420f6ba5caa9aa3c90a688feae6315f8ee4bf324b8c27",
-                "sha256:63542b7b9f307b00fae460b42d15cf9346de3ad3b1287fba38fc68f3c05e4da4"
+                "sha256:cfe398a1f6e317d061c47c3d2dd8c6893f3eb49154984a7cbb8bcd4ba517d67d",
+                "sha256:fdcc2731212ca050a28b2bc83e87628294bcbd55cb4f4c4692f972023fb1e7e6"
             ],
             "index": "pypi",
-            "version": "==4.1.5"
+            "version": "==4.1.6"
         },
         "multidict": {
             "hashes": [
