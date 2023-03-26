@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from pytest import mark
 from requests import post
 
-from conftest import read_json_file
+from tests.conftest import read_json_file
 from wg_utilities.clients.google_photos import Album, GooglePhotosClient
 
 

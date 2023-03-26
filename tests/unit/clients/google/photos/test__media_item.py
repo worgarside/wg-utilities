@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pytest import LogCaptureFixture, mark
 
-from conftest import read_json_file
+from tests.conftest import read_json_file
 from wg_utilities.clients.google_photos import GooglePhotosClient, MediaItem, MediaType
 
 

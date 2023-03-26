@@ -11,7 +11,7 @@ from pytest import mark, param, raises
 from pytz import utc
 from requests_mock import Mocker
 
-from conftest import read_json_file
+from tests.conftest import read_json_file
 from wg_utilities.clients import GoogleDriveClient
 from wg_utilities.clients.google_drive import (
     Directory,

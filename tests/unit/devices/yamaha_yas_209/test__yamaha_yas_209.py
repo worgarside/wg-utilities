@@ -26,7 +26,7 @@ from pytest import LogCaptureFixture, mark, raises
 from xmltodict import parse as parse_xml
 from yarl import URL
 
-from conftest import FLAT_FILES_DIR
+from tests.conftest import FLAT_FILES_DIR
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
 from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import (
     CurrentTrack,

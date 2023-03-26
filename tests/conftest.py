@@ -129,7 +129,7 @@ EXCEPTION_GENERATORS: list[
     (ZeroDivisionError, lambda: 1 / 0, ()),
 ]
 
-FLAT_FILES_DIR = Path(__file__).parent / "tests" / "flat_files"
+FLAT_FILES_DIR = Path(__file__).parent / "flat_files"
 
 
 YAS_209_IP = "192.168.1.1"
@@ -1126,7 +1126,7 @@ def _mock_requests(
 
             image_bytes = (
                 Path(__file__).parent
-                / "tests/binary_files/2019/03/17/IMG_20190317_172652.jpg"
+                / "binary_files/2019/03/17/IMG_20190317_172652.jpg"
             ).read_bytes()
 
             mock_requests.get(
@@ -1137,7 +1137,7 @@ def _mock_requests(
 
             video_bytes = (
                 Path(__file__).parent
-                / "tests/binary_files/2019/04/04/VID_20190404_205947.mp4"
+                / "binary_files/2019/04/04/VID_20190404_205947.mp4"
             ).read_bytes()
 
             mock_requests.get(

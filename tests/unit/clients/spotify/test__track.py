@@ -8,7 +8,7 @@ from pytest import raises
 from requests import HTTPError
 from requests_mock import Mocker
 
-from conftest import assert_mock_requests_request_history
+from tests.conftest import assert_mock_requests_request_history
 from wg_utilities.clients.spotify import Album, Artist, SpotifyClient, Track
 
 

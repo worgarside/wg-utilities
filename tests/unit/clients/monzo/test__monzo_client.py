@@ -11,7 +11,7 @@ from pytest import mark, raises
 from requests.exceptions import HTTPError
 from requests_mock import Mocker
 
-from conftest import assert_mock_requests_request_history, read_json_file
+from tests.conftest import assert_mock_requests_request_history, read_json_file
 from wg_utilities.clients import MonzoClient
 from wg_utilities.clients.monzo import Account, AccountJson, Pot, PotJson, Transaction
 from wg_utilities.clients.monzo import TransactionCategory as TxCategory

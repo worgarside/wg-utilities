@@ -10,7 +10,7 @@ from pydantic.fields import FieldInfo
 from pytest import mark, raises
 from requests_mock import Mocker
 
-from conftest import FLAT_FILES_DIR, assert_mock_requests_request_history
+from tests.conftest import FLAT_FILES_DIR, assert_mock_requests_request_history
 from wg_utilities.clients.google_drive import (
     Directory,
     Drive,

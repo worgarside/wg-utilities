@@ -10,7 +10,7 @@ from unittest.mock import Mock, call, patch
 
 from pytest import mark, param, raises
 
-from conftest import read_json_file
+from tests.conftest import read_json_file
 from wg_utilities.clients import GoogleDriveClient
 from wg_utilities.clients.google_drive import (
     Directory,

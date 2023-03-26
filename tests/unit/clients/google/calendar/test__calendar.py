@@ -9,7 +9,7 @@ from freezegun import freeze_time
 from pytest import mark
 from pytz import timezone
 
-from conftest import read_json_file
+from tests.conftest import read_json_file
 from wg_utilities.clients.google_calendar import Calendar, Event, GoogleCalendarClient
 
 

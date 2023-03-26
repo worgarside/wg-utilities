@@ -4,7 +4,7 @@ from __future__ import annotations
 from pydantic import ValidationError
 from pytest import raises
 
-from conftest import read_json_file
+from tests.conftest import read_json_file
 from wg_utilities.clients import GoogleDriveClient
 from wg_utilities.clients.google_drive import Directory, Drive, EntityKind
 

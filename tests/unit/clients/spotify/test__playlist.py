@@ -7,7 +7,7 @@ from os import listdir
 from pytest import mark, raises
 from requests_mock import Mocker
 
-from conftest import (
+from tests.conftest import (
     FLAT_FILES_DIR,
     assert_mock_requests_request_history,
     read_json_file,

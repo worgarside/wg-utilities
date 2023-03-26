@@ -9,7 +9,7 @@ from unittest.mock import patch
 from pytest import LogCaptureFixture, mark, raises
 from requests_mock import Mocker
 
-from conftest import EXCEPTION_GENERATORS
+from tests.conftest import EXCEPTION_GENERATORS
 from wg_utilities.exceptions import HA_LOG_ENDPOINT, on_exception
 
 

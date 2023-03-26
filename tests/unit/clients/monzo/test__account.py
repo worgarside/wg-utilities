@@ -11,7 +11,7 @@ from pytest import LogCaptureFixture
 from pytz import utc
 from requests_mock import Mocker
 
-from conftest import assert_mock_requests_request_history, read_json_file
+from tests.conftest import assert_mock_requests_request_history, read_json_file
 from wg_utilities.clients.monzo import Account, MonzoClient
 
 

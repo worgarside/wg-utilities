@@ -5,7 +5,7 @@ from typing import Literal
 
 from pytest import mark
 
-from conftest import (
+from tests.conftest import (
     yamaha_yas_209_get_media_info_responses,
     yamaha_yas_209_last_change_av_transport_events,
 )
