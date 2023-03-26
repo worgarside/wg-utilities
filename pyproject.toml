@@ -20,7 +20,14 @@ profile = "black"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = ["-ra", "--strict-markers", "--strict-config", "-vv", "--cov-report=xml", "--cov=./", "-W", "ignore::DeprecationWarning"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    # "-vv",
+    "--cov-report=xml",
+    "--cov=./",
+    ]
 xfail_strict = true
 log_cli_level = "warning"
 pythonpath = ["wg_utilities"]
@@ -29,6 +36,7 @@ env = [
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:boto.*:",
+    "ignore::DeprecationWarning:pkg_resources.*:",
 ]
 markers = [
     "mocked_operation_lookup: allows setting the mocks in the `mb3c` fixture",

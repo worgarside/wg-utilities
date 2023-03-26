@@ -20,7 +20,8 @@ from pytest import LogCaptureFixture, mark, raises
 from requests import HTTPError, get, post
 from requests_mock import Mocker
 
-from tests.conftest import assert_mock_requests_request_history, get_jwt_expiry
+from tests.conftest import assert_mock_requests_request_history
+from tests.unit.clients.oauth_client.conftest import get_jwt_expiry
 from wg_utilities.api import TempAuthServer
 from wg_utilities.clients.oauth_client import (
     BaseModelWithConfig,

@@ -6,7 +6,7 @@ from re import sub
 
 from pytest import mark
 
-from tests.conftest import random_nested_json
+from tests.unit.functions import random_nested_json
 from wg_utilities.functions import cleanse_string
 
 

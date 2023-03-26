@@ -4,10 +4,25 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pytest import LogCaptureFixture, mark
+from pytest import LogCaptureFixture, fixture, mark
 
-from tests.conftest import read_json_file
+from tests.conftest import YieldFixture, read_json_file
 from wg_utilities.clients.google_photos import GooglePhotosClient, MediaItem, MediaType
+
+
+@fixture(scope="function", name="temp_dir_cleanup")  # type: ignore[misc]
+def _temp_dir_cleanup(temp_dir: Path) -> YieldFixture[None]:
+    """Fixture for cleaning up the temporary directory.
+
+    Currently skips:
+    - **/oauth_credentials/**
+    """
+    yield
+
+    for item in temp_dir.rglob("*"):
+        if "oauth_credentials" in item.parts or not item.is_file():
+            continue
+        item.unlink()
 
 
 def test_download_method_image(

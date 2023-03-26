@@ -7,7 +7,7 @@ from typing import Literal
 from pydantic import ValidationError
 from pytest import mark, raises
 
-from tests.conftest import (
+from tests.unit.devices.yamaha_yas_209.conftest import (
     fix_colon_keys,
     yamaha_yas_209_last_change_av_transport_events,
     yamaha_yas_209_last_change_rendering_control_events,

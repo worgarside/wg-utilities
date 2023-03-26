@@ -8,7 +8,7 @@ from unittest.mock import ANY
 
 from pytest import LogCaptureFixture, mark, raises
 
-from tests.conftest import (
+from tests.unit.functions import (
     random_nested_json,
     random_nested_json_with_arrays,
     random_nested_json_with_arrays_and_stringified_json,

@@ -2,16 +2,63 @@
 from __future__ import annotations
 
 from datetime import datetime
+from os import environ
 from unittest.mock import patch
 
+from boto3 import client
 from dateutil.tz import tzutc
 from freezegun import freeze_time
 from moto import mock_s3
 from mypy_boto3_lambda import LambdaClient
 from mypy_boto3_s3 import S3Client
-from pytest import mark
+from pytest import FixtureRequest, fixture, mark
 
+from tests.conftest import YieldFixture
 from wg_utilities.testing import MockBoto3Client
+
+
+@fixture(scope="module", autouse=True)  # type: ignore[misc]
+def _aws_credentials_env_vars() -> YieldFixture[None]:
+    """Mock environment variables.
+
+    This is done here instead of in`pyproject.toml` because `pytest-aws-config` blocks
+    consuming AWS credentials from all env vars.
+    """
+    with patch.dict(
+        environ,
+        {
+            "AWS_ACCESS_KEY_ID": "AKIATESTTESTTESTTEST",
+            "AWS_SECRET_ACCESS_KEY": "T3ST/S3CuR17Y*K3Y[S7R1NG!?L00K5.L1K3.17!",
+            "AWS_SECURITY_TOKEN": "ANYVALUEWEWANTINHERE",
+            "AWS_SESSION_TOKEN": "ASLONGASITISNOTREAL",
+            "AWS_DEFAULT_REGION": "eu-west-1",
+        },
+    ):
+        yield
+
+
+@fixture(scope="function", name="lambda_client")  # type: ignore[misc]
+def _lambda_client() -> LambdaClient:
+    """Fixture for creating a boto3 client instance for Lambda Functions."""
+    return client("lambda")
+
+
+@fixture(scope="function", name="mb3c")  # type: ignore[misc]
+def _mb3c(request: FixtureRequest) -> MockBoto3Client:
+    """Fixture for creating a MockBoto3Client instance."""
+
+    if name_marker := request.node.get_closest_marker("mocked_operation_lookup"):
+        mocked_operation_lookup = name_marker.args[0]
+    else:
+        mocked_operation_lookup = {}
+
+    return MockBoto3Client(mocked_operation_lookup=mocked_operation_lookup)
+
+
+@fixture(scope="function", name="s3_client")  # type: ignore[misc]
+def _s3_client() -> S3Client:
+    """Fixture for creating a boto3 client instance for S3."""
+    return client("s3")
 
 
 def test_instantiation() -> None:

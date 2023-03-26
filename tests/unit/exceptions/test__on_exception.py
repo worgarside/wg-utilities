@@ -49,10 +49,10 @@ def test_decorated_functions_value_is_returned() -> None:
     assert worker(1, 2, 3, 4) == 10
 
 
-def test_exception_is_sent_to_ha_by_default(mock_requests: Mocker) -> None:
+def test_exception_is_sent_to_ha_by_default(mock_requests_root: Mocker) -> None:
     """Test that the exception is sent to Home Assistant by default."""
 
-    mock_requests.post(f"http://{HA_LOG_ENDPOINT}/log/error", status_code=200)
+    mock_requests_root.post(f"http://{HA_LOG_ENDPOINT}/log/error", status_code=200)
 
     @on_exception(raise_after_callback=False)
     def worker() -> None:
@@ -60,7 +60,10 @@ def test_exception_is_sent_to_ha_by_default(mock_requests: Mocker) -> None:
 
     worker()
 
-    assert mock_requests.request_history[0].url == f"http://{HA_LOG_ENDPOINT}/log/error"
+    assert (
+        mock_requests_root.request_history[0].url
+        == f"http://{HA_LOG_ENDPOINT}/log/error"
+    )
 
 
 @mark.parametrize(  # type: ignore[misc]
