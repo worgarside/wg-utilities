@@ -179,7 +179,7 @@ class TempAuthServer:
         Returns:
             str: the URL for the auth code endpoint
         """
-        return f"http://{self.host}:{self._actual_port}/get_auth_code"
+        return f"http://{self.host}:{self.port}/get_auth_code"
 
     @property
     def is_running(self) -> bool:

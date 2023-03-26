@@ -250,6 +250,11 @@ def test_wait_for_request_starts_server(temp_auth_server: TempAuthServer) -> Non
 def test_get_auth_code_url_property(temp_auth_server: TempAuthServer) -> None:
     """Test the `get_auth_code_url` property returns the correct URL."""
 
+    with raises(ValueError) as exc_info:
+        _ = temp_auth_server.get_auth_code_url
+
+    assert str(exc_info.value) == "Server is not running"
+
     temp_auth_server.start_server()
 
     assert temp_auth_server.get_auth_code_url == temp_auth_server.get_auth_code_url
