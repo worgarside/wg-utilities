@@ -30,7 +30,19 @@ class TempAuthServer:
 
         def __init__(self, app: Flask, host: str = "0.0.0.0", port: int = 0):
             super().__init__()
-            self.server = make_server(host, port, app)
+
+            if port == 0:
+                for i in range(5000, 5021):
+                    try:
+                        self.server = make_server(host, i, app)
+                        break
+                    except (SystemExit, OSError):
+                        continue
+                else:
+                    raise OSError("No available ports in range 5000-5020")
+            else:
+                self.server = make_server(host, port, app)
+
             self.ctx = app.app_context()
             self.ctx.push()
 
