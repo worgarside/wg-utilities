@@ -41,7 +41,9 @@ jobs:
       - name: Dependency Cache
         uses: actions/cache@v3
         with:
-          path: ~/.local/share/virtualenvs
+          path: |
+            ~/.cache/pip
+            ~/.local/share/virtualenvs
           # yamllint disable-line rule:line-length
           key: ${{ runner.os }}-python-${{ matrix.python-version }}-pip-${{ hashFiles('**/Pipfile.lock') }}
           restore-keys: |
