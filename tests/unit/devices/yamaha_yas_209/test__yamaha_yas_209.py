@@ -181,7 +181,7 @@ def assert_only_post_request_is(
             },
         )
     ]
-    assert all(key[0] == "GET" for key in requests.keys())
+    assert all(key[0] == "GET" for key in requests.keys()), str(requests)
 
 
 def mock_get_info_response(
