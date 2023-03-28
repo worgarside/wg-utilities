@@ -245,7 +245,11 @@ class Account(BaseModelWithConfig):
             **value,
         }
 
-        return cls(**value_data)
+        instance = cls.parse_obj(value_data)
+
+        instance._validate()  # pylint: disable=protected-access
+
+        return instance
 
     def list_transactions(
         self,

@@ -17,7 +17,7 @@ from urllib.parse import urlencode
 from webbrowser import open as open_browser
 
 from jwt import DecodeError, decode
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, Extra, validate_model
 from pydantic.generics import GenericModel
 from requests import Response, get, post
 
@@ -56,6 +56,31 @@ class BaseModelWithConfig(BaseModel):
 
         object.__setattr__(self, attr_name, attr_value)
 
+        self._validate()
+
+    def _validate(self) -> None:
+        """Validate the model.
+
+        Any fields which have been renamed via `alias` will be renamed in the
+        validation dict before being passed to `validate_model`. Private attributes,
+        functions, and excluded fields are also ignored.
+
+        Raises:
+            ValidationError: if the model is invalid
+        """
+
+        model_dict = {
+            self.__fields__[k].alias if k in self.__fields__ else k: v
+            for k, v in self.__dict__.items()
+            if not k.startswith("_") and not callable(v)
+        }
+        *_, validation_error = validate_model(
+            self.__class__, model_dict, self.__class__
+        )
+        if validation_error:
+            LOGGER.error(repr(validation_error))
+            raise validation_error
+
 
 class GenericModelWithConfig(GenericModel):
     """Reusable `GenericModel` with Config to apply to all subclasses."""
@@ -82,6 +107,31 @@ class GenericModelWithConfig(GenericModel):
             raise ValueError("Only private attributes can be set via this method.")
 
         object.__setattr__(self, attr_name, attr_value)
+
+        self._validate()
+
+    def _validate(self) -> None:
+        """Validate the model.
+
+        Any fields which have been renamed via `alias` will be renamed in the
+        validation dict before being passed to `validate_model`. Private attributes,
+        functions, and excluded fields are also ignored.
+
+        Raises:
+            ValidationError: if the model is invalid
+        """
+
+        model_dict = {
+            self.__fields__[k].alias if k in self.__fields__ else k: v
+            for k, v in self.__dict__.items()
+            if not k.startswith("_") and not callable(v)
+        }
+        *_, validation_error = validate_model(
+            self.__class__, model_dict, self.__class__
+        )
+        if validation_error:
+            LOGGER.error(repr(validation_error))
+            raise validation_error
 
 
 class OAuthCredentials(BaseModelWithConfig):
@@ -562,6 +612,8 @@ class OAuthClient(Generic[GetJsonResponse]):
                     "response_type": "code",
                     "state": state_token,
                     "scope": " ".join(self.scopes),
+                    "access_type": "offline",
+                    "prompt": "consent",
                 }
             )
         )
@@ -578,17 +630,33 @@ class OAuthClient(Generic[GetJsonResponse]):
                 f"`{request_args.get('state')}` != `{state_token}`"
             )
 
-        res = self._post(
-            self.access_token_endpoint,
-            json={
-                "code": request_args["code"],
-                "grant_type": "authorization_code",
-                "client_id": self._client_id,
-                "client_secret": self._client_secret,
-                "redirect_uri": redirect_uri,
-            },
-            header_overrides={},
-        )
+        if self.__class__.__name__ == "SpotifyClient":
+            res = self._post(
+                self.access_token_endpoint,
+                data={
+                    "code": request_args["code"],
+                    "grant_type": "authorization_code",
+                    "client_id": self._client_id,
+                    "client_secret": self._client_secret,
+                    "redirect_uri": redirect_uri,
+                },
+                header_overrides={
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            )
+        else:
+            res = self._post(
+                self.access_token_endpoint,
+                json={
+                    "code": request_args["code"],
+                    "grant_type": "authorization_code",
+                    "client_id": self._client_id,
+                    "client_secret": self._client_secret,
+                    "redirect_uri": redirect_uri,
+                },
+                # Stops recursive call to `self.request_headers`
+                header_overrides={},
+            )
 
         credentials = res.json()
 

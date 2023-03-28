@@ -569,7 +569,7 @@ def test_all_files(drive: Drive) -> None:
     object.__setattr__(drive, "map", mock_map)
 
     assert all(isinstance(f, File) for f in drive.all_files)
-    assert isinstance(drive._all_files, list)
+    assert isinstance(drive.all_files, list)
     assert drive._files_mapped is True
 
     mock_map.assert_called_once_with()

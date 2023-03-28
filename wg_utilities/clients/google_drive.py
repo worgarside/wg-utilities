@@ -180,6 +180,8 @@ class _GoogleDriveEntity(GenericModelWithConfig):
 
         instance = cls.parse_obj(value_data)
 
+        instance._validate()  # pylint: disable=protected-access
+
         # pylint: disable=isinstance-second-argument-not-valid-type
         if isinstance(instance, File | Directory):
             if parent is not None:

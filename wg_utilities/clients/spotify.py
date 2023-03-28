@@ -129,7 +129,6 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
     Args:
         client_id (str): the application's client ID
         client_secret (str): the application's client secret
-        redirect_uri (str): the redirect URI for the applications
         log_requests (bool): flag for choosing if to log all requests made
         creds_cache_path (str): path at which to save cached credentials
     """
@@ -718,7 +717,11 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
         if metadata:
             value_data["metadata"] = metadata
 
-        return cls.parse_obj(value_data)
+        instance = cls.parse_obj(value_data)
+
+        instance._validate()  # pylint: disable=protected-access
+
+        return instance
 
     @property
     def url(self) -> str:

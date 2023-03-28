@@ -206,7 +206,6 @@ def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
             method,
             # Matches `/v1/playlists/<playlist id>/followers`
             compile_regex(
-                # pylint: disable=line-too-long
                 r"^https:\/\/api\.spotify\.com\/v1\/playlists/([a-z0-9]{22})/followers",
                 flags=IGNORECASE,
             ),

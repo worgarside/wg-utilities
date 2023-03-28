@@ -13,17 +13,16 @@ from tests.conftest import (
     get_flat_file_from_url,
     read_json_file,
 )
-from wg_utilities.clients.monzo import Account as MonzoAccount
-from wg_utilities.clients.monzo import MonzoClient, Pot
+from wg_utilities.clients.monzo import Account, MonzoClient, Pot
 from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
 @fixture(scope="function", name="monzo_account")  # type: ignore[misc]
-def _monzo_account(monzo_client: MonzoClient) -> MonzoAccount:
-    """Fixture for creating a MonzoAccount instance."""
+def _monzo_account(monzo_client: MonzoClient) -> Account:
+    """Fixture for creating a Account instance."""
 
-    return MonzoAccount.from_json_response(
-        read_json_file("account_Type=uk_retail.json", host_name="monzo/accounts")[
+    return Account.from_json_response(
+        read_json_file("account_type=uk_retail.json", host_name="monzo/accounts")[
             "accounts"
         ][0],
         monzo_client=monzo_client,

@@ -24,8 +24,7 @@ from wg_utilities.clients.google_drive import (
     ItemMetadataRetrieval,
 )
 from wg_utilities.clients.google_fit import DataSource, GoogleFitClient
-from wg_utilities.clients.google_photos import Album as GooglePhotosAlbum
-from wg_utilities.clients.google_photos import GooglePhotosClient, MediaItem
+from wg_utilities.clients.google_photos import Album, GooglePhotosClient, MediaItem
 from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
@@ -215,10 +214,10 @@ def _google_fit_client(
 
 
 @fixture(scope="function", name="google_photos_album")  # type: ignore[misc]
-def _google_photos_album(google_photos_client: GooglePhotosClient) -> GooglePhotosAlbum:
+def _google_photos_album(google_photos_client: GooglePhotosClient) -> Album:
     """Fixture for a Google Photos Album."""
 
-    return GooglePhotosAlbum.from_json_response(
+    return Album.from_json_response(
         read_json_file(
             # pylint: disable=line-too-long
             "aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json",

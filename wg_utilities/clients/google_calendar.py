@@ -183,7 +183,11 @@ class GoogleCalendarEntity(GenericModelWithConfig):
         if cls == Event:
             value_data["calendar"] = calendar
 
-        return cls.parse_obj(value_data)
+        instance = cls.parse_obj(value_data)
+
+        instance._validate()  # pylint: disable=protected-access
+
+        return instance
 
     def dict(
         self,
@@ -343,6 +347,8 @@ class Calendar(GoogleCalendarEntity):
         cls, value: str  # noqa: N805
     ) -> tzinfo:
         """Convert the timezone string into a tzinfo object."""
+        if isinstance(value, tzinfo):
+            return value
         return timezone(value)
 
     def get_event_by_id(self, event_id: str) -> Event:
