@@ -694,6 +694,7 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
         spotify_client: SpotifyClient,
         additional_fields: dict_[str, Any] | None = None,
         metadata: dict_[str, object] | None = None,
+        _waive_validation: bool = False,
     ) -> FJR:
         """Parse a JSON response from the API into the given entity type model.
 
@@ -719,7 +720,8 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
 
         instance = cls.parse_obj(value_data)
 
-        instance._validate()  # pylint: disable=protected-access
+        if not _waive_validation:
+            instance._validate()  # pylint: disable=protected-access
 
         return instance
 

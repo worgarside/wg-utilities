@@ -236,7 +236,10 @@ class Account(BaseModelWithConfig):
 
     @classmethod
     def from_json_response(
-        cls, value: AccountJson, monzo_client: MonzoClient
+        cls,
+        value: AccountJson,
+        monzo_client: MonzoClient,
+        _waive_validation: bool = False,
     ) -> Account:
         """Create an account from a JSON response."""
 
@@ -247,7 +250,8 @@ class Account(BaseModelWithConfig):
 
         instance = cls.parse_obj(value_data)
 
-        instance._validate()  # pylint: disable=protected-access
+        if not _waive_validation:
+            instance._validate()  # pylint: disable=protected-access
 
         return instance
 

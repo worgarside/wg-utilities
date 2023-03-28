@@ -172,6 +172,7 @@ class GoogleCalendarEntity(GenericModelWithConfig):
         value: GoogleCalendarEntityJson,
         google_client: GoogleCalendarClient,
         calendar: Calendar | None = None,
+        _waive_validation: bool = False,
     ) -> FJR:
         """Create a Calendar/Event from a JSON response."""
 
@@ -185,7 +186,8 @@ class GoogleCalendarEntity(GenericModelWithConfig):
 
         instance = cls.parse_obj(value_data)
 
-        instance._validate()  # pylint: disable=protected-access
+        if not _waive_validation:
+            instance._validate()  # pylint: disable=protected-access
 
         return instance
 

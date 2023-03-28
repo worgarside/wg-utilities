@@ -87,6 +87,7 @@ class GooglePhotosEntity(GenericModelWithConfig):
         value: GooglePhotosEntityJson,
         *,
         google_client: GooglePhotosClient,
+        _waive_validation: bool = False,
     ) -> FJR:
         """Create an entity from a JSON response."""
 
@@ -97,7 +98,8 @@ class GooglePhotosEntity(GenericModelWithConfig):
 
         instance = cls.parse_obj(value_data)
 
-        instance._validate()  # pylint: disable=protected-access
+        if not _waive_validation:
+            instance._validate()  # pylint: disable=protected-access
 
         return instance
 

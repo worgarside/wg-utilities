@@ -158,6 +158,7 @@ class _GoogleDriveEntity(GenericModelWithConfig):
         host_drive: Drive | None = None,
         parent: _CanHaveChildren | Drive | Directory | None = None,
         _block_describe_call: bool = False,
+        _waive_validation: bool = False,
     ) -> FJR:
         """Create a new instance from a JSON response.
 
@@ -180,7 +181,8 @@ class _GoogleDriveEntity(GenericModelWithConfig):
 
         instance = cls.parse_obj(value_data)
 
-        instance._validate()  # pylint: disable=protected-access
+        if not _waive_validation:
+            instance._validate()  # pylint: disable=protected-access
 
         # pylint: disable=isinstance-second-argument-not-valid-type
         if isinstance(instance, File | Directory):
