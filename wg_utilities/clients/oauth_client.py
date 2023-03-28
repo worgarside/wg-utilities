@@ -30,7 +30,57 @@ LOGGER.setLevel(DEBUG)
 add_stream_handler(LOGGER)
 
 
-class BaseModelWithConfig(BaseModel):
+class _ModelBase:
+    """Base class for `BaseModelWithConfig` and `GenericModelWithConfig`.
+
+    This is just to prevent duplicating the methods in both classes.
+    """
+
+    __fields__: dict[str, Any]
+
+    def _set_private_attr(self, attr_name: str, attr_value: Any) -> None:
+        """Set private attribute on the instance.
+
+        Args:
+            attr_name (str): the name of the attribute to set
+            attr_value (Any): the value to set the attribute to
+
+        Raises:
+            ValueError: if the attribute isn't private (i.e. the name doesn't start
+                with an underscore)
+        """
+        if not attr_name.startswith("_"):
+            raise ValueError("Only private attributes can be set via this method.")
+
+        object.__setattr__(self, attr_name, attr_value)
+
+    def _validate(self) -> None:
+        """Validate the model.
+
+        Any fields which have been renamed via `alias` will be renamed in the
+        validation dict before being passed to `validate_model`. Private attributes,
+        functions, and excluded fields are also ignored.
+
+        Raises:
+            ValidationError: if the model is invalid
+        """
+
+        model_dict = {
+            self.__fields__[k].alias if k in self.__fields__ else k: v
+            for k, v in self.__dict__.items()
+            if not k.startswith("_") and not callable(v)
+        }
+
+        *_, validation_error = validate_model(
+            self.__class__, model_dict, self.__class__  # type: ignore[arg-type]
+        )
+
+        if validation_error:
+            LOGGER.error(repr(validation_error))
+            raise validation_error
+
+
+class BaseModelWithConfig(_ModelBase, BaseModel):
     """Reusable `BaseModel` with Config to apply to all subclasses."""
 
     class Config:
@@ -40,49 +90,8 @@ class BaseModelWithConfig(BaseModel):
         extra = Extra.forbid
         validate_assignment = True
 
-    def _set_private_attr(self, attr_name: str, attr_value: Any) -> None:
-        """Set private attribute on the instance.
 
-        Args:
-            attr_name (str): the name of the attribute to set
-            attr_value (Any): the value to set the attribute to
-
-        Raises:
-            ValueError: if the attribute isn't private (i.e. the name doesn't start
-                with an underscore)
-        """
-        if not attr_name.startswith("_"):
-            raise ValueError("Only private attributes can be set via this method.")
-
-        object.__setattr__(self, attr_name, attr_value)
-
-        self._validate()
-
-    def _validate(self) -> None:
-        """Validate the model.
-
-        Any fields which have been renamed via `alias` will be renamed in the
-        validation dict before being passed to `validate_model`. Private attributes,
-        functions, and excluded fields are also ignored.
-
-        Raises:
-            ValidationError: if the model is invalid
-        """
-
-        model_dict = {
-            self.__fields__[k].alias if k in self.__fields__ else k: v
-            for k, v in self.__dict__.items()
-            if not k.startswith("_") and not callable(v)
-        }
-        *_, validation_error = validate_model(
-            self.__class__, model_dict, self.__class__
-        )
-        if validation_error:
-            LOGGER.error(repr(validation_error))
-            raise validation_error
-
-
-class GenericModelWithConfig(GenericModel):
+class GenericModelWithConfig(_ModelBase, GenericModel):
     """Reusable `GenericModel` with Config to apply to all subclasses."""
 
     class Config:
@@ -91,47 +100,6 @@ class GenericModelWithConfig(GenericModel):
         arbitrary_types_allowed = True
         extra = Extra.forbid
         validate_assignment = True
-
-    def _set_private_attr(self, attr_name: str, attr_value: Any) -> None:
-        """Set private attribute on the instance.
-
-        Args:
-            attr_name (str): the name of the attribute to set
-            attr_value (Any): the value to set the attribute to
-
-        Raises:
-            ValueError: if the attribute isn't private (i.e. the name doesn't start
-                with an underscore)
-        """
-        if not attr_name.startswith("_"):
-            raise ValueError("Only private attributes can be set via this method.")
-
-        object.__setattr__(self, attr_name, attr_value)
-
-        self._validate()
-
-    def _validate(self) -> None:
-        """Validate the model.
-
-        Any fields which have been renamed via `alias` will be renamed in the
-        validation dict before being passed to `validate_model`. Private attributes,
-        functions, and excluded fields are also ignored.
-
-        Raises:
-            ValidationError: if the model is invalid
-        """
-
-        model_dict = {
-            self.__fields__[k].alias if k in self.__fields__ else k: v
-            for k, v in self.__dict__.items()
-            if not k.startswith("_") and not callable(v)
-        }
-        *_, validation_error = validate_model(
-            self.__class__, model_dict, self.__class__
-        )
-        if validation_error:
-            LOGGER.error(repr(validation_error))
-            raise validation_error
 
 
 class OAuthCredentials(BaseModelWithConfig):
