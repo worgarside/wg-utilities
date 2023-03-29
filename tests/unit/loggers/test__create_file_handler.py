@@ -79,7 +79,8 @@ def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
     assert log_path.read_text().strip() == "\t".join(
         [
             frozen_time.replace(tzinfo=utc).strftime("%Y-%m-%d %H:%M:%S%Z"),
-            f"test_log_level_is_set_correctly[{level}]" f"[{getLevelName(level)}]",
+            f"test_log_level_is_set_correctly[{level}]",
+            f"[{getLevelName(level)}]",
             "Test",
         ]
     )

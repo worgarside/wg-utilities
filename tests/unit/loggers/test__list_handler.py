@@ -78,10 +78,10 @@ def test_expire_records_does_nothing_if_ttl_is_none(list_handler: ListHandler) -
 
     list_handler.ttl = None
 
-    with patch("wg_utilities.loggers.datetime") as mock_datetime:
+    with patch("wg_utilities.loggers.utcnow") as mock_utcnow:
         list_handler.expire_records()
 
-        assert not mock_datetime.now.called
+        assert not mock_utcnow.called
 
     assert list_handler._records_list == []
 
