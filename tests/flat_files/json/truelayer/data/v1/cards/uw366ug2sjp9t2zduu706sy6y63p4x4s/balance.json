@@ -1,0 +1,15 @@
+{
+  "results": [
+    {
+      "available": 3279.0,
+      "credit_limit": 1464,
+      "currency": "GBP",
+      "current": 20.0,
+      "last_statement_balance": 319,
+      "payment_due": 5.0,
+      "payment_due_date": "2023-03-30T00:00:00Z",
+      "update_timestamp": "2023-03-27T20:35:38.609Z"
+    }
+  ],
+  "status": "Succeeded"
+}

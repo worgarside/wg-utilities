@@ -27,8 +27,11 @@ from xdist.scheduler.loadscope import LoadScopeScheduling
 from wg_utilities.clients._spotify_types import SpotifyEntityJson
 from wg_utilities.clients.google_calendar import CalendarJson, GoogleCalendarEntityJson
 from wg_utilities.clients.google_photos import AlbumJson, MediaItemJson
-from wg_utilities.clients.monzo import AccountJson, PotJson, TransactionJson
+from wg_utilities.clients.monzo import AccountJson as MonzoAccountJson
+from wg_utilities.clients.monzo import PotJson, TransactionJson
 from wg_utilities.clients.oauth_client import OAuthCredentials
+from wg_utilities.clients.truelayer import AccountJson as TrueLayerAccountJson
+from wg_utilities.clients.truelayer import CardJson
 from wg_utilities.functions.json import JSONObj
 
 T = TypeVar("T")
@@ -133,7 +136,7 @@ def read_json_file(  # type: ignore[misc]
 @overload
 def read_json_file(  # type: ignore[misc]
     rel_file_path: str, host_name: Literal["monzo", "monzo/accounts"]
-) -> dict[Literal["accounts"], list[AccountJson]]:
+) -> dict[Literal["accounts"], list[MonzoAccountJson]]:
     ...
 
 
@@ -159,6 +162,13 @@ def read_json_file(  # type: ignore[misc]
 
 
 @overload
+def read_json_file(  # type: ignore[misc]
+    rel_file_path: str, host_name: Literal["truelayer"]
+) -> dict[Literal["results"], list[TrueLayerAccountJson | CardJson]]:
+    ...
+
+
+@overload
 def read_json_file(rel_file_path: str, host_name: str | None) -> JSONObj:
     ...
 
@@ -173,12 +183,13 @@ def read_json_file(
 ) -> (
     JSONObj
     | SpotifyEntityJson
-    | dict[Literal["accounts"], list[AccountJson]]
+    | dict[Literal["accounts"], list[MonzoAccountJson]]
     | dict[Literal["pots"], list[PotJson]]
     | dict[Literal["transactions"], list[TransactionJson]]
     | GoogleCalendarEntityJson
     | AlbumJson
     | dict[Literal["mediaItems"], list[MediaItemJson]]
+    | dict[Literal["results"], list[TrueLayerAccountJson | CardJson]]
 ):
     """Read a JSON file from the flat files `json` subdirectory.
 
@@ -208,9 +219,15 @@ def read_json_file(
 def get_flat_file_from_url(
     request: _RequestObjectProxy = None, context: _Context = None
 ) -> (
-    SpotifyEntityJson
-    | dict[Literal["accounts"], list[AccountJson]]
+    JSONObj
+    | SpotifyEntityJson
+    | dict[Literal["accounts"], list[MonzoAccountJson]]
     | dict[Literal["pots"], list[PotJson]]
+    | dict[Literal["transactions"], list[TransactionJson]]
+    | GoogleCalendarEntityJson
+    | AlbumJson
+    | dict[Literal["mediaItems"], list[MediaItemJson]]
+    | dict[Literal["results"], list[TrueLayerAccountJson | CardJson]]
 ):
     # pylint: disable=missing-raises-doc
     """Retrieve the content of a flat JSON file for a mocked request response.
@@ -235,10 +252,11 @@ def get_flat_file_from_url(
         "api.monzo.com": "monzo",
         "www.googleapis.com": "google",
         "photoslibrary.googleapis.com": "google/photos",
+        "api.truelayer.com": "truelayer",
     }[request.hostname]
 
     try:
-        return read_json_file(  # type: ignore[return-value]
+        return read_json_file(
             file_path,
             host_name=host_name,
         )
@@ -253,9 +271,7 @@ def get_flat_file_from_url(
                 quote(request.qs["pagetoken"][0]).lower(),
                 md5(request.qs["pagetoken"][0].encode()).hexdigest(),
             )
-            return read_json_file(  # type: ignore[return-value]
-                file_path, host_name=host_name
-            )
+            return read_json_file(file_path, host_name=host_name)
         raise  # pragma: no cover
 
 

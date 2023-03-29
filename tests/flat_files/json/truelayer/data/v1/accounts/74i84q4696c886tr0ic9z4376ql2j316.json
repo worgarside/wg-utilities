@@ -1,0 +1,23 @@
+{
+  "results": [
+    {
+      "account_id": "74i84q4696c886tr0ic9z4376ql2j316",
+      "account_number": {
+        "iban": "QI13SXQR40339714618984",
+        "number": "14758737",
+        "sort_code": "10-00-98",
+        "swift_bic": "TFOTPK7Q"
+      },
+      "account_type": "TRANSACTION",
+      "currency": "GBP",
+      "display_name": "Oyrsomk Klheub Aowesue Dezjofc",
+      "provider": {
+        "display_name": "account_provider",
+        "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/zb-qagpx-ttus.yel",
+        "provider_id": "py-vhynd"
+      },
+      "update_timestamp": "2023-03-26T19:49:58.528Z"
+    }
+  ],
+  "status": "Succeeded"
+}

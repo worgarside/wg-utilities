@@ -1,0 +1,179 @@
+{
+  "results": [
+    {
+      "amount": -12.0,
+      "currency": "GBP",
+      "description": "Zrpse Mtyua Fwegt",
+      "merchant_name": "Zrpse Czgehosx Ezzcxko",
+      "meta": {
+        "provider_category": "mastercard",
+        "provider_id": "lz_0068SUK57XLQBEhbtNepIW",
+        "transaction_type": "Debit"
+      },
+      "normalised_provider_transaction_id": "hyb-o9mv25068307511oz",
+      "provider_transaction_id": "lz_0068SUK57XLQBEhbtNepIW",
+      "timestamp": "2023-02-03T15:38:17.031Z",
+      "transaction_category": "PURCHASE",
+      "transaction_classification": [
+        "Bills and Utilities",
+        "Shxpnc Mtyua"
+      ],
+      "transaction_id": "02la1002gu664va0o762ig38643m109c",
+      "transaction_type": "DEBIT"
+    },
+    {
+      "amount": -54.71,
+      "currency": "GBP",
+      "description": "Rtaw",
+      "merchant_name": "Rtaw",
+      "meta": {
+        "counter_party_preferred_name": "Rtaw",
+        "provider_category": "bacs",
+        "provider_id": "wv_8277RNNpG6PYrFW6u8eqn0",
+        "transaction_type": "Debit"
+      },
+      "normalised_provider_transaction_id": "lmc-16l005d6p0008904v",
+      "provider_transaction_id": "wv_8277RNNpG6PYrFW6u8eqn0",
+      "timestamp": "2023-02-02T03:06:55.258Z",
+      "transaction_category": "DIRECT_DEBIT",
+      "transaction_classification": [
+        "Jgorzsic Igzfdtrb",
+        "Xsadouuvo Igzfdtrb"
+      ],
+      "transaction_id": "6vp0554o6agt28zv4p5t286rs490e117",
+      "transaction_type": "DEBIT"
+    },
+    {
+      "amount": -850.0,
+      "currency": "GBP",
+      "description": "\ud83d\udd52 Gjaajfhbd Xzdjlrlc",
+      "meta": {
+        "provider_category": "uk_retail_pot",
+        "provider_id": "my_9248BIQPyKe6TQ1jZgdOo7",
+        "transaction_type": "Debit"
+      },
+      "normalised_provider_transaction_id": "qgb-k58m978e2a253684k",
+      "provider_transaction_id": "my_9248BIQPyKe6TQ1jZgdOo7",
+      "timestamp": "2023-02-01T10:45:17.055Z",
+      "transaction_category": "TRANSFER",
+      "transaction_classification": [],
+      "transaction_id": "sa312r74686183f9r3m519v1r1h9p692",
+      "transaction_type": "DEBIT"
+    },
+    {
+      "amount": 850.0,
+      "currency": "GBP",
+      "description": "Mexd",
+      "merchant_name": "P&U",
+      "meta": {
+        "counter_party_preferred_name": "Uwiiem Firqe",
+        "debtor_account_name": "Uwiiem Firqe",
+        "provider_category": "payport_faster_payments",
+        "provider_id": "uj_0343AVNDhUDNGlaT41QTRN",
+        "transaction_type": "Credit"
+      },
+      "normalised_provider_transaction_id": "gxl-676ez327n2q86p790",
+      "provider_transaction_id": "uj_0343AVNDhUDNGlaT41QTRN",
+      "timestamp": "2023-02-01T10:44:56.998Z",
+      "transaction_category": "TRANSFER",
+      "transaction_classification": [
+        "Ccxvsuslkfvmn"
+      ],
+      "transaction_id": "624136297296351a28b2323b043b86n1",
+      "transaction_type": "CREDIT"
+    },
+    {
+      "amount": -75.0,
+      "currency": "GBP",
+      "description": "Wkvnjl Qkmzi",
+      "merchant_name": "Wkvnjl Qkmzi",
+      "meta": {
+        "counter_party_preferred_name": "Wkvnjl Qkmzi",
+        "provider_category": "bacs",
+        "provider_id": "ql_3800CADhxzXmONxwpjNQGx",
+        "transaction_type": "Debit"
+      },
+      "normalised_provider_transaction_id": "gmu-74972i29e286i507c",
+      "provider_transaction_id": "ql_3800CADhxzXmONxwpjNQGx",
+      "timestamp": "2023-02-01T03:17:31.23Z",
+      "transaction_category": "DIRECT_DEBIT",
+      "transaction_classification": [
+        "Bills and Utilities",
+        "Aqogoiwek"
+      ],
+      "transaction_id": "o8vx7t121e273c64f0v55p772r185zx5",
+      "transaction_type": "DEBIT"
+    },
+    {
+      "amount": -2700.01,
+      "currency": "GBP",
+      "description": "Czgeom Lcoida Fiu",
+      "meta": {
+        "counter_party_preferred_name": "Czgeom Lcoida Fiu",
+        "provider_category": "bacs",
+        "provider_id": "ml_2464EBDseThZNwk0Syaxot",
+        "transaction_type": "Debit"
+      },
+      "normalised_provider_transaction_id": "fvn-f83odglh6irt5duzd",
+      "provider_transaction_id": "ml_2464EBDseThZNwk0Syaxot",
+      "timestamp": "2023-02-01T03:14:21.244Z",
+      "transaction_category": "DIRECT_DEBIT",
+      "transaction_classification": [],
+      "transaction_id": "ffbkujvl21g7l356441j08p57edmr258",
+      "transaction_type": "DEBIT"
+    },
+    {
+      "amount": 2208.58,
+      "currency": "GBP",
+      "description": "\ud83d\udd52 Gjaajfhbd Xzdjlrlc",
+      "meta": {
+        "provider_category": "uk_retail_pot",
+        "provider_id": "gb_7598IIGcqQOWKFHjwekuSz",
+        "transaction_type": "Credit"
+      },
+      "normalised_provider_transaction_id": "isy-08d59g60y0p75o7c5",
+      "provider_transaction_id": "gb_7598IIGcqQOWKFHjwekuSz",
+      "timestamp": "2023-02-01T03:14:21.133Z",
+      "transaction_category": "TRANSFER",
+      "transaction_classification": [],
+      "transaction_id": "55fax5ls0571e54m19r3sy360wq6qm58",
+      "transaction_type": "CREDIT"
+    },
+    {
+      "amount": -150.69,
+      "currency": "GBP",
+      "description": "Ngli Jqdht Ceki",
+      "meta": {
+        "counter_party_preferred_name": "Ngli Jqdht Ceki",
+        "provider_category": "bacs",
+        "provider_id": "jq_6970MGPeN2SW0oFdmfLvuO",
+        "transaction_type": "Debit"
+      },
+      "normalised_provider_transaction_id": "rkv-u293708215o921437",
+      "provider_transaction_id": "jq_6970MGPeN2SW0oFdmfLvuO",
+      "timestamp": "2023-02-01T03:09:59.242Z",
+      "transaction_category": "DIRECT_DEBIT",
+      "transaction_classification": [],
+      "transaction_id": "c07hk346r4881fec44b80595239539k7",
+      "transaction_type": "DEBIT"
+    },
+    {
+      "amount": 150.69,
+      "currency": "GBP",
+      "description": "\ud83d\udd52 Gjaajfhbd Xzdjlrlc",
+      "meta": {
+        "provider_category": "uk_retail_pot",
+        "provider_id": "hz_5775VPBqT5fBEisQCErYI9",
+        "transaction_type": "Credit"
+      },
+      "normalised_provider_transaction_id": "lyf-6vq1v9qw0wse10f0p",
+      "provider_transaction_id": "hz_5775VPBqT5fBEisQCErYI9",
+      "timestamp": "2023-02-01T03:09:59.133Z",
+      "transaction_category": "TRANSFER",
+      "transaction_classification": [],
+      "transaction_id": "e6nlx3i678a6ieq2135452408w3u3m6m",
+      "transaction_type": "CREDIT"
+    }
+  ],
+  "status": "Succeeded"
+}

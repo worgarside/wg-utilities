@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "account_id": "uw366ug2sjp9t2zduu706sy6y63p4x4s",
+      "card_network": "ZLAZZLRJQU",
+      "card_type": "CREDIT",
+      "currency": "GBP",
+      "display_name": "Sf Oyrsomk Dezjofc",
+      "name_on_card": "Sf Oyrsomk Dezjofc",
+      "partial_card_number": "0970",
+      "provider": {
+        "display_name": "cc_provider",
+        "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/ig-vmll-vver.zzo",
+        "provider_id": "xd-idmu"
+      },
+      "update_timestamp": "2023-03-27T20:32:28.503Z"
+    }
+  ],
+  "status": "Succeeded"
+}

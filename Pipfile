@@ -53,6 +53,7 @@ async-upnp-client = "*"
 pydantic = "*"
 python-dotenv = "*"
 pigpio = "*"
+strenum = {version="*", python_version = "< '3.11'"}
 
 [scripts]
 major-release = "python utilities/version_bumper/main.py --bump major"

@@ -24,7 +24,6 @@ addopts = [
     "-ra",
     "--strict-markers",
     "--strict-config",
-    # "-vv",
     "--cov-report=xml",
     "--cov=./",
     "-n",
@@ -34,8 +33,7 @@ xfail_strict = true
 log_cli_level = "warning"
 pythonpath = ["wg_utilities"]
 testpaths = ["tests"]
-env = [
-]
+env = []
 filterwarnings = [
     "ignore::DeprecationWarning:boto.*:",
     "ignore::DeprecationWarning:pkg_resources.*:",

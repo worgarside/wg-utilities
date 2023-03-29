@@ -8,9 +8,10 @@ from enum import Enum, auto
 from logging import DEBUG, getLogger
 from os.path import sep
 from pathlib import Path
+from sys import version_info
 from typing import Any, ClassVar, Literal, TypeAlias, TypedDict, TypeVar
 
-from pydantic import Field
+from pydantic import Field, validator
 from requests import HTTPError
 
 from wg_utilities.clients.oauth_client import (
@@ -21,11 +22,17 @@ from wg_utilities.clients.oauth_client import (
 )
 from wg_utilities.functions import user_data_dir
 
+# pylint: disable=no-name-in-module,ungrouped-imports
+if version_info.minor <= 11:  # pragma: no cover
+    from strenum import StrEnum
+else:  # pragma: no cover
+    from enum import StrEnum  # type: ignore[attr-defined]
+
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
 
-class AccountType(str, Enum):
+class AccountType(StrEnum):  # type: ignore[misc]
     """Possible TrueLayer account types."""
 
     TRANSACTION = auto()
@@ -66,6 +73,7 @@ class Bank(Enum):
     ROYAL_BANK_OF_SCOTLAND_BUSINESS = "Royal Bank of Scotland Business"
     SANTANDER = "Santander"
     STARLING = "Starling"
+    STARLING_JOINT = "Starling Joint"
     TESCO_BANK = "Tesco Bank"
     TIDE = "Tide"
     TSB = "TSB"
@@ -128,9 +136,9 @@ class TransactionCategory(Enum):
 
 
 class _AccountNumber(BaseModelWithConfig):
-    iban: str
-    number: str
-    sort_code: str
+    iban: str | None
+    number: str | None
+    sort_code: str | None
     swift_bic: str
 
 
@@ -195,17 +203,17 @@ class TrueLayerEntity(GenericModelWithConfig):
     provider: _TrueLayerEntityProvider
     update_timestamp: str
 
-    _available_balance: int
-    _current_balance: int
-    _overdraft: int
-    _credit_limit: int
-    _last_statement_balance: int
+    _available_balance: float
+    _current_balance: float
+    _overdraft: float
+    _credit_limit: float
+    _last_statement_balance: float
     _last_statement_date: date
-    _payment_due: int
+    _payment_due: float
     _payment_due_date: date
 
     truelayer_client: TrueLayerClient = Field(exclude=True)
-    balance_update_threshold: int = Field(15, exclude=True)
+    balance_update_threshold: timedelta = Field(timedelta(minutes=15), exclude=True)
     last_balance_update: datetime = Field(datetime(1970, 1, 1), exclude=True)
     _balance_variables: BalanceVariables
 
@@ -220,7 +228,11 @@ class TrueLayerEntity(GenericModelWithConfig):
             **value,
         }
 
-        return cls.parse_obj(value_data)
+        instance = cls.parse_obj(value_data)
+
+        instance._validate()  # pylint: disable=protected-access
+
+        return instance
 
     def get_transactions(
         self,
@@ -269,7 +281,7 @@ class TrueLayerEntity(GenericModelWithConfig):
         Uses the latest values from the API. This is called automatically when
         the balance-related attributes are accessed (if the attribute is None or
         was updated more than `self.balance_update_threshold`minutes ago), but
-        can be called manually.
+        can also be called manually.
         """
 
         results = self.truelayer_client.get_json_response(
@@ -285,7 +297,24 @@ class TrueLayerEntity(GenericModelWithConfig):
         balance_result = results[0]
 
         for k, v in balance_result.items():
-            self._set_private_attr(f"_{k}", v)
+            if k in (
+                "available",
+                "current",
+            ):
+                attr_name = f"_{k}_balance"
+            elif k.endswith("_date"):
+                attr_name = f"_{k}"
+                if isinstance(v, str):
+                    v = datetime.strptime(v, "%Y-%m-%dT%H:%M:%SZ").date()
+            else:
+                attr_name = f"_{k}"
+
+            if attr_name.lstrip("_") not in self.BALANCE_FIELDS:
+                LOGGER.info("Skipping %s as it's not relevant for this entity type", k)
+                continue
+
+            LOGGER.info("Updating %s with value %s", attr_name, v)
+            self._set_private_attr(attr_name, v)
 
         self.last_balance_update = datetime.utcnow()
 
@@ -318,12 +347,15 @@ class TrueLayerEntity(GenericModelWithConfig):
         if prop_name not in self.BALANCE_FIELDS:
             return None
 
-        if getattr(self, f"_{prop_name}") is None or self.last_balance_update <= (
-            datetime.utcnow() - timedelta(minutes=self.balance_update_threshold)
+        if (
+            not hasattr(self, f"_{prop_name}")
+            or getattr(self, f"_{prop_name}") is None
+            or self.last_balance_update
+            <= (datetime.utcnow() - self.balance_update_threshold)
         ):
             self.update_balance_values()
 
-        return getattr(self, f"_{prop_name}")  # type: ignore[no-any-return]
+        return getattr(self, f"_{prop_name}", None)
 
     @property
     def available_balance(self) -> str | float | int | None:
@@ -419,6 +451,23 @@ class Transaction(BaseModelWithConfig):
     transaction_category: TransactionCategory
     transaction_classification: list[str]
     transaction_type: str
+
+    @validator("transaction_category", pre=True)
+    def validate_transaction_category(  # pylint: disable=no-self-argument
+        cls, v: str  # noqa: N805
+    ) -> TransactionCategory:
+        """Validate the transaction category.
+
+        The default Enum assignment doesn't work for some reason, so we have to do it
+        here.
+
+        This also helps to provide a meaningful error message if the category is
+        invalid; Pydantic's doesn't include the invalid value unfortunately.
+        """
+        if v not in TransactionCategory.__members__:  # pragma: no cover
+            raise ValueError(f"Invalid transaction category: {v}")
+
+        return TransactionCategory[v]
 
     def __str__(self) -> str:
         """Return a string representation of the transaction."""
@@ -631,3 +680,4 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
 
 Account.update_forward_refs()
 Card.update_forward_refs()
+TrueLayerEntity.update_forward_refs()
