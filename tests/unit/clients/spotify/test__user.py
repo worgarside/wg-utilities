@@ -173,11 +173,11 @@ def test_get_recently_liked_tracks_day_limit(
     assert all(isinstance(track, Track) for track in result)
     assert all(track.spotify_client == spotify_client for track in result)
     assert all(
-        track.metadata["saved_at"] > datetime.now() - timedelta(days=7)
+        track.metadata["saved_at"] > datetime.utcnow() - timedelta(days=7)
         for track in result
     )
     assert not any(
-        track.metadata["saved_at"] <= datetime.now() - timedelta(days=7)
+        track.metadata["saved_at"] <= datetime.utcnow() - timedelta(days=7)
         for track in result
     )
 

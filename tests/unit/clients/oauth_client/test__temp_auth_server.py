@@ -69,9 +69,6 @@ def test_temp_auth_server_auto_run() -> None:
     assert tas.is_running
     assert tas.server_thread.is_alive()
 
-    print(tas.server_thread.server.port)
-    print(tas.port)
-
     tas.stop_server()
 
 

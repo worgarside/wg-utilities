@@ -146,9 +146,9 @@ class TempAuthServer:
         if not self.is_running:
             self.start_server()
 
-        start_time = datetime.now()
+        start_time = datetime.utcnow()
         while (
-            time_elapsed := (datetime.now() - start_time).seconds
+            time_elapsed := (datetime.utcnow() - start_time).seconds
         ) <= max_wait and not self._request_args.get(endpoint):
             sleep(0.5)
 

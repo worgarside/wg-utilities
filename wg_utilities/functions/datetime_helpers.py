@@ -5,6 +5,8 @@ from datetime import datetime
 from enum import Enum
 from typing import overload
 
+from pytz import utc
+
 
 class DatetimeFixedUnit(Enum):
     """Enum for fixed units of time (i.e. not a month or a year).
@@ -49,9 +51,9 @@ def utcnow(unit: DatetimeFixedUnit | None = None) -> datetime | int:
     """
 
     if not unit:
-        return datetime.utcnow()
+        return datetime.utcnow().replace(tzinfo=utc)
 
-    return int(datetime.utcnow().timestamp() / unit.value)
+    return int(datetime.utcnow().replace(tzinfo=utc).timestamp() / unit.value)
 
 
 __all__ = [

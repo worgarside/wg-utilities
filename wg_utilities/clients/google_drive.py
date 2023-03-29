@@ -1170,7 +1170,6 @@ class Drive(_CanHaveChildren):
             ResourceNotFoundError: if a directory with the given ID does not exist
         """
         if isinstance(self._all_directories, list):
-            print(directory_id in [d.id for d in self._all_directories])
             for directory in self._all_directories:
                 if directory.id == directory_id:
                     return directory

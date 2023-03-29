@@ -104,7 +104,7 @@ def test_oauth_credentials_parse_first_time_login_attributes(
     assert creds.client_id == "test_client_id"
     assert creds.is_expired is False
 
-    with freeze_time(datetime.now() + timedelta(seconds=3600)):
+    with freeze_time(datetime.utcnow() + timedelta(seconds=3600)):
         assert creds.is_expired is True
 
 
@@ -117,7 +117,7 @@ def test_oauth_credentials_parse_first_time_login_expiry_mismatch() -> None:
                 "access_token": "test_access_token",
                 "refresh_token": "test_refresh_token",
                 # This is after the JWT token expiry
-                "expiry": ((datetime.now() + timedelta(seconds=3700)).isoformat()),
+                "expiry": ((datetime.utcnow() + timedelta(seconds=3700)).isoformat()),
                 "expires_in": 3600,
                 "scope": "test_scope",
                 "token_type": "Bearer",
@@ -153,7 +153,7 @@ def test_oauth_credentials_is_expired_property(
     """Test the `is_expired` property."""
     assert fake_oauth_credentials.is_expired is False
 
-    with freeze_time(datetime.now() + timedelta(seconds=3600)):
+    with freeze_time(datetime.utcnow() + timedelta(seconds=3600)):
         assert fake_oauth_credentials.is_expired is True
 
 

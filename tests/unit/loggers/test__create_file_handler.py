@@ -1,12 +1,16 @@
 """Unit Tests for the `create_file_handler` function."""
 from __future__ import annotations
 
-from logging import CRITICAL, DEBUG, ERROR, FATAL, INFO, NOTSET, WARN, WARNING
+from datetime import datetime
+from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, getLevelName
 from os.path import isdir, isfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from uuid import uuid4
 
+from freezegun import freeze_time
 from pytest import mark, raises
+from pytz import utc
 
 from wg_utilities.loggers import create_file_handler
 
@@ -50,25 +54,34 @@ def test_target_directory_is_not_created() -> None:
     "level",
     [
         CRITICAL,
-        FATAL,
         ERROR,
         WARNING,
-        WARN,
         INFO,
         DEBUG,
-        NOTSET,
     ],
 )
-def test_log_level_is_set_correctly(level: int) -> None:
+def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
     """Test that the log level is set correctly."""
 
-    log_path = Path(__file__).parent / "foo.log"
+    log_path = Path(__file__).parent / f"{uuid4()}.log"
 
     f_handler = create_file_handler(log_path, level=level, create_directory=False)
+
+    logger.addHandler(f_handler)
+    with freeze_time(frozen_time := datetime.utcnow()):
+        logger.log(level, "Test")
 
     assert isfile(log_path)
     assert f_handler.baseFilename == str(log_path)
     assert f_handler.level == level
     assert f_handler.mode == "a"
+
+    assert log_path.read_text().strip() == "\t".join(
+        [
+            frozen_time.replace(tzinfo=utc).strftime("%Y-%m-%d %H:%M:%S%Z"),
+            f"test_log_level_is_set_correctly[{level}]" f"[{getLevelName(level)}]",
+            "Test",
+        ]
+    )
 
     log_path.unlink()

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, LogRecord, getLogger
 
-from pytest import fixture
+from pytest import FixtureRequest, fixture
 
 from tests.conftest import YieldFixture
 from wg_utilities.loggers import ListHandler
@@ -24,6 +24,7 @@ def _list_handler_prepopulated(
     sample_log_record_messages_with_level: list[tuple[int, str]],
 ) -> ListHandler:
     """Fixture for creating a ListHandler instance with a pre-populated list."""
+    logger.handlers.clear()
     logger.addHandler(list_handler)
 
     for level, message in sample_log_record_messages_with_level:
@@ -33,11 +34,12 @@ def _list_handler_prepopulated(
 
 
 @fixture(scope="function", name="logger")  # type: ignore[misc]
-def _logger() -> YieldFixture[Logger]:
+def _logger(request: FixtureRequest) -> YieldFixture[Logger]:
     """Fixture for creating a logger."""
 
-    _logger = getLogger("test_logger")
+    _logger = getLogger(request.node.name)
     _logger.setLevel(DEBUG)
+    _logger.handlers.clear()
 
     yield _logger
 

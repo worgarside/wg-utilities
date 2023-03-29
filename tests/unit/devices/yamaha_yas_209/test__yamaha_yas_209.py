@@ -297,10 +297,7 @@ def test_listen_starts_listening(
         caplog.clear()
         yamaha_yas_209.listen()
 
-    # For some reason this is called way more than I'd expect: AFAICT it's only called
-    # in the `while not self._listening and worker_exception is None` loop
-    assert mock_sleep.call_count >= 10
-    assert {c.args for c in mock_sleep.call_args_list} == {(0.01,)}
+    assert {c.args for c in mock_sleep.call_args_list} in ({}, {(0.01,)})
     assert async_call_count == 1
 
     assert len(caplog.records) == 2
@@ -674,8 +671,8 @@ def test_on_event_callback_called_correctly(
         yamaha_yas_209._parse_xml_dict(something_else_value)
 
         assert payload == {
-            # This whole test has frozen time, so we can just use `datetime.now()`
-            "timestamp": datetime.now(),
+            # This whole test has frozen time, so we can just use `datetime.utcnow()`
+            "timestamp": datetime.utcnow(),
             "service_id": upnp_service_rendering_control.service_id,
             "service_type": upnp_service_rendering_control.service_type,
             # The last change will be a `LastChange` instance

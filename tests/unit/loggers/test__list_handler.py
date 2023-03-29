@@ -97,7 +97,7 @@ def test_expire_records_remove_records_correctly(
 
     for i in range(-1, 25):
         with freeze_time(BASE_TIME + timedelta(seconds=i * 5)):
-            message = f"Created at {datetime.now()}. Valid: {i >= 12}"
+            message = f"Created at {datetime.utcnow()}. Valid: {i >= 12}"
             logger.info(message)
 
     with freeze_time(BASE_TIME):

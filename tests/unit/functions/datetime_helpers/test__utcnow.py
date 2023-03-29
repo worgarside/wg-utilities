@@ -5,6 +5,7 @@ from datetime import datetime
 
 from freezegun import freeze_time
 from pytest import mark
+from pytz import utc
 
 from wg_utilities.functions import DTU, utcnow
 
@@ -14,7 +15,7 @@ def test_utcnow_no_unit() -> None:
     assert isinstance(utcnow(), datetime)
 
     with freeze_time("2021-01-01 00:00:00"):
-        assert utcnow() == datetime(2021, 1, 1, 0, 0, 0)
+        assert utcnow() == datetime(2021, 1, 1, 0, 0, 0, tzinfo=utc)
 
 
 @mark.parametrize(  # type: ignore[misc]

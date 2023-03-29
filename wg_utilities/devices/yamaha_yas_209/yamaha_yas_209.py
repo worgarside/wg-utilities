@@ -688,7 +688,7 @@ class YamahaYas209:
         )
 
         event_payload: YamahaYas209.EventPayloadInfo = {
-            "timestamp": datetime.now(),
+            "timestamp": datetime.utcnow(),
             "service_id": service.service_id,
             "service_type": service.service_type,
             "last_change": last_change,

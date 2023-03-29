@@ -162,7 +162,7 @@ def test_update_balance_variables(
     with freeze_time():
         monzo_account.update_balance_variables()
 
-        assert monzo_account.last_balance_update == datetime.now()
+        assert monzo_account.last_balance_update == datetime.utcnow()
 
     assert monzo_account.balance_variables.dict() == {
         "balance": 177009,

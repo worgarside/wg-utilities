@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from datetime import datetime
 from logging import (
     CRITICAL,
     DEBUG,
@@ -18,14 +17,17 @@ from logging import (
 )
 from pathlib import Path
 from sys import stdout
+from time import gmtime
 from typing import Any
 
 from wg_utilities.functions import force_mkdir
+from wg_utilities.functions.datetime_helpers import utcnow
 
 FORMATTER = Formatter(
     fmt="%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
+    datefmt="%Y-%m-%d %H:%M:%S%Z",
 )
+FORMATTER.converter = gmtime
 
 
 class ListHandler(Handler):
@@ -73,7 +75,7 @@ class ListHandler(Handler):
         if self.ttl is None:
             return
 
-        now = datetime.now().timestamp()
+        now = utcnow().timestamp()
 
         while self._records_list:
             record = self._records_list.pop(0)
