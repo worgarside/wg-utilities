@@ -22,6 +22,7 @@ from requests.exceptions import MissingSchema
 from requests_mock import Mocker
 from requests_mock.request import _RequestObjectProxy
 from requests_mock.response import _Context
+from xdist.scheduler.loadscope import LoadScopeScheduling
 
 from wg_utilities.clients._spotify_types import SpotifyEntityJson
 from wg_utilities.clients.google_calendar import CalendarJson, GoogleCalendarEntityJson
@@ -68,6 +69,22 @@ FLAT_FILES_DIR = Path(__file__).parent / "flat_files"
 
 # </editor-fold>
 # <editor-fold desc="Functions">
+
+
+class _XdistScheduler(LoadScopeScheduling):  # type: ignore[misc]
+    # pylint: disable=too-few-public-methods
+    """Custom scheduler to split tests into multiple scopes."""
+
+    def _split_scope(self, nodeid: str) -> str:
+        if "devices/yamaha_yas_209" in nodeid:
+            return "yamaha_yas_209-tests"
+        return nodeid
+
+
+def pytest_xdist_make_scheduler(config, log):  # type: ignore[no-untyped-def]
+    """Create a custom scheduler to split tests into multiple scopes."""
+
+    return _XdistScheduler(config, log)
 
 
 def assert_mock_requests_request_history(
