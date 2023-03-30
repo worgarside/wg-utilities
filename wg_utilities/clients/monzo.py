@@ -26,7 +26,7 @@ DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 @final
 class AccountJson(TypedDict):
-    """JSON representation of an account."""
+    """JSON representation of a Monzo account."""
 
     account_number: str | None
     balance: float

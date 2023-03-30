@@ -145,7 +145,7 @@ class _TrueLayerBaseEntityJson(TypedDict):
 
 
 class AccountJson(_TrueLayerBaseEntityJson):
-    """JSON representation of an Account."""
+    """JSON representation of a TrueLayer Account."""
 
     account_number: _AccountNumber
     account_type: AccountType
