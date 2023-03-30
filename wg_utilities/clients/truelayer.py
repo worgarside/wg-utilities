@@ -26,7 +26,7 @@ from wg_utilities.functions import user_data_dir
 if version_info.minor < 11:  # pragma: no cover
     from strenum import StrEnum
 else:  # pragma: no cover
-    from enum import StrEnum  # type: ignore[attr-defined]
+    from enum import StrEnum
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -492,11 +492,11 @@ class Account(TrueLayerEntity):
         """Validate that `account_type` is a valid Enum value."""
         if isinstance(value, AccountType):
             return value
-        
+
         if value not in AccountType.__members__:  # pragma: no cover
             raise ValueError(f"Invalid account type: `{value}`")
-        
-        return AccountType[value]
+
+        return AccountType(value.lower())
 
 
 class Card(TrueLayerEntity):

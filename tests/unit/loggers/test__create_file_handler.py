@@ -1,7 +1,6 @@
 """Unit Tests for the `create_file_handler` function."""
 from __future__ import annotations
 
-from datetime import datetime
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, getLevelName
 from os.path import isdir, isfile
 from pathlib import Path
@@ -10,9 +9,8 @@ from uuid import uuid4
 
 from freezegun import freeze_time
 from pytest import mark, raises
-from pytz import utc
-from wg_utilities.functions.datetime_helpers import utcnow
 
+from wg_utilities.functions.datetime_helpers import utcnow
 from wg_utilities.loggers import create_file_handler
 
 
