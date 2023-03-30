@@ -23,7 +23,7 @@ from wg_utilities.clients.oauth_client import (
 from wg_utilities.functions import user_data_dir
 
 # pylint: disable=no-name-in-module,ungrouped-imports
-if version_info.minor <= 11:  # pragma: no cover
+if version_info.minor < 11:  # pragma: no cover
     from strenum import StrEnum
 else:  # pragma: no cover
     from enum import StrEnum  # type: ignore[attr-defined]
@@ -484,6 +484,19 @@ class Account(TrueLayerEntity):
     )
     account_number: _AccountNumber
     account_type: AccountType
+
+    @validator("account_type", pre=True)
+    def validate_account_type(  # pylint: disable=no-self-argument
+        cls, value: str  # noqa: N805
+    ) -> AccountType:
+        """Validate that `account_type` is a valid Enum value."""
+        if isinstance(value, AccountType):
+            return value
+        
+        if value not in AccountType.__members__:  # pragma: no cover
+            raise ValueError(f"Invalid account type: `{value}`")
+        
+        return AccountType[value]
 
 
 class Card(TrueLayerEntity):
