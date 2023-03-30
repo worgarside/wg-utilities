@@ -5,14 +5,15 @@ from unittest.mock import patch
 
 from wg_utilities.clients import GoogleFitClient
 from wg_utilities.clients.google_fit import DataSource
+from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
-def test_instantiation() -> None:
+def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     """Test that the `GoogleFitClient` class can be instantiated."""
 
     client = GoogleFitClient(
-        client_id="test-client-id.apps.googleusercontent.com",
-        client_secret="test-client-secret",
+        client_id=fake_oauth_credentials.client_id,
+        client_secret=fake_oauth_credentials.client_secret,
     )
 
     assert isinstance(client, GoogleFitClient)

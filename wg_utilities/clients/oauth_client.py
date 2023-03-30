@@ -111,9 +111,7 @@ class OAuthCredentials(BaseModelWithConfig):
     refresh_token: str
     scope: str
     token_type: Literal["Bearer"]
-
-    # Spotify & Google
-    client_secret: str | None
+    client_secret: str
 
     # Monzo
     user_id: str | None

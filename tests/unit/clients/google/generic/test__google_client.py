@@ -8,14 +8,18 @@ from unittest.mock import call, patch
 from requests import Response, post
 
 from wg_utilities.clients._google import GoogleClient
-from wg_utilities.clients.oauth_client import OAuthClient, StrBytIntFlt
+from wg_utilities.clients.oauth_client import (
+    OAuthClient,
+    OAuthCredentials,
+    StrBytIntFlt,
+)
 
 
-def test_instantiation() -> None:
+def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     """Test the instantiation of the Google client."""
     client: GoogleClient[dict[str, Any]] = GoogleClient(
-        client_id="test-client-id.apps.googleusercontent.com",
-        client_secret="test-client-secret",
+        client_id=fake_oauth_credentials.client_id,
+        client_secret=fake_oauth_credentials.client_secret,
         base_url="https://www.example.com",
         scopes=[],
     )
@@ -23,11 +27,11 @@ def test_instantiation() -> None:
     assert isinstance(client, OAuthClient)
 
 
-def test_get_items_method() -> None:
+def test_get_items_method(fake_oauth_credentials: OAuthCredentials) -> None:
     """Test the `get_items` method."""
     client: GoogleClient[dict[str, Any]] = GoogleClient(
-        client_id="test-client-id.apps.googleusercontent.com",
-        client_secret="test-client-secret",
+        client_id=fake_oauth_credentials.client_id,
+        client_secret=fake_oauth_credentials.client_secret,
         base_url="https://www.example.com",
         scopes=[],
     )

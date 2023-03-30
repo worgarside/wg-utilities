@@ -14,14 +14,15 @@ from requests_mock import Mocker
 
 from wg_utilities.clients import GoogleCalendarClient
 from wg_utilities.clients.google_calendar import Calendar, Event, _StartEndDatetime
+from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
-def test_instantiation() -> None:
+def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     """Test that the `GoogleCalendarClient` class can be instantiated."""
 
     client = GoogleCalendarClient(
-        client_id="test-client-id.apps.googleusercontent.com",
-        client_secret="test-client-secret",
+        client_id=fake_oauth_credentials.client_id,
+        client_secret=fake_oauth_credentials.client_secret,
         scopes=[
             "https://www.googleapis.com/auth/calendar",
             "https://www.googleapis.com/auth/calendar.events",

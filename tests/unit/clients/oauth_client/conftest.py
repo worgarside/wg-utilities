@@ -36,8 +36,8 @@ def _oauth_client(
     ).write_text(fake_oauth_credentials.json(exclude_none=True))
 
     return OAuthClient(
-        client_id="test_client_id",
-        client_secret="test_client_secret",
+        client_id=fake_oauth_credentials.client_id,
+        client_secret=fake_oauth_credentials.client_secret,
         base_url="https://api.example.com",
         access_token_endpoint="https://api.example.com/oauth2/token",
         log_requests=True,

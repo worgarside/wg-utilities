@@ -60,8 +60,8 @@ def _truelayer_client(
     ).write_text(fake_oauth_credentials.json())
 
     return TrueLayerClient(
-        client_id="truelayer-client-id",
-        client_secret="truelayer-client-secret",
+        client_id=fake_oauth_credentials.client_id,
+        client_secret=fake_oauth_credentials.client_secret,
         bank=Bank.ALLIED_IRISH_BANK_CORPORATE,
         creds_cache_path=creds_cache_path,
         log_requests=True,

@@ -20,6 +20,7 @@ from tests.conftest import (
 )
 from wg_utilities.clients import SpotifyClient
 from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson
+from wg_utilities.clients.oauth_client import OAuthCredentials
 from wg_utilities.clients.spotify import (
     Album,
     Artist,
@@ -31,11 +32,11 @@ from wg_utilities.clients.spotify import (
 )
 
 
-def test_instantiation() -> None:
+def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     """Test instantiation of the Spotify client."""
     client = SpotifyClient(
-        client_id="test_client_id",
-        client_secret="test_client_secret",
+        client_id=fake_oauth_credentials.client_id,
+        client_secret=fake_oauth_credentials.client_secret,
         log_requests=True,
     )
     assert client.log_requests is True

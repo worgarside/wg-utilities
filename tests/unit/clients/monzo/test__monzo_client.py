@@ -16,23 +16,23 @@ from wg_utilities.clients import MonzoClient
 from wg_utilities.clients.monzo import Account, AccountJson, Pot, PotJson, Transaction
 from wg_utilities.clients.monzo import TransactionCategory as TxCategory
 from wg_utilities.clients.monzo import TransactionJson
-from wg_utilities.clients.oauth_client import OAuthClient
+from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
 from wg_utilities.functions import user_data_dir
 
 
-def test_instantiation() -> None:
+def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     """Test instantiating a `MonzoClient`."""
 
     client = MonzoClient(
-        client_id="test_client_id",
-        client_secret="test_client_secret",
+        client_id=fake_oauth_credentials.client_id,
+        client_secret=fake_oauth_credentials.client_secret,
     )
 
     assert isinstance(client, MonzoClient)
     assert isinstance(client, OAuthClient)
 
-    assert client.client_id == "test_client_id"
-    assert client.client_secret == "test_client_secret"
+    assert client.client_id == fake_oauth_credentials.client_id
+    assert client.client_secret == fake_oauth_credentials.client_secret
     assert client.base_url == "https://api.monzo.com"
     assert client.access_token_endpoint == "https://api.monzo.com/oauth2/token"
     assert client.log_requests is False

@@ -92,8 +92,8 @@ def _spotify_client(
     ).write_text(fake_oauth_credentials.json(exclude_none=True))
 
     return SpotifyClient(
-        client_id="test_client_id",
-        client_secret="test_client_secret",
+        client_id=fake_oauth_credentials.client_id,
+        client_secret=fake_oauth_credentials.client_secret,
         log_requests=True,
         creds_cache_path=Path(creds_cache_path),
     )

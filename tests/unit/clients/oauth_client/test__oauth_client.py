@@ -157,11 +157,13 @@ def test_oauth_credentials_is_expired_property(
         assert fake_oauth_credentials.is_expired is True
 
 
-def test_instantiation(temp_dir: Path) -> None:
+def test_instantiation(
+    temp_dir: Path, fake_oauth_credentials: OAuthCredentials
+) -> None:
     """Test instantiation."""
     client = OAuthClient[dict[str, Any]](
-        client_id="test_client_id",
-        client_secret="test_client_secret",
+        client_id=fake_oauth_credentials.client_id,
+        client_secret=fake_oauth_credentials.client_secret,
         base_url="https://api.example.com",
         access_token_endpoint="https://api.example.com/oauth2/token",
         log_requests=True,
