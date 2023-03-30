@@ -88,6 +88,7 @@ def test_oauth_credentials_parse_first_time_login_attributes(
     creds = OAuthCredentials.parse_first_time_login(
         {
             "client_id": "test_client_id",
+            "client_secret": "test_client_secret",
             "access_token": live_jwt_token,
             "refresh_token": "test_refresh_token",
             "expires_in": 3600,
@@ -102,6 +103,7 @@ def test_oauth_credentials_parse_first_time_login_attributes(
     assert creds.scope == "test_scope"
     assert creds.token_type == "Bearer"
     assert creds.client_id == "test_client_id"
+    assert creds.client_secret == "test_client_secret"
     assert creds.is_expired is False
 
     with freeze_time(datetime.utcnow() + timedelta(seconds=3600)):

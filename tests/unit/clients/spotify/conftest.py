@@ -197,7 +197,7 @@ def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
         for entity_type in ("albums", "following", "tracks"):
             mock_requests_root.register_uri(
                 method,
-                SpotifyClient.BASE_URL + f"/me/{entity_type}",
+                f"{SpotifyClient.BASE_URL}/me/{entity_type}",
                 status_code=HTTPStatus.OK,
                 reason=HTTPStatus.OK.phrase,
             )

@@ -514,7 +514,7 @@ class Card(TrueLayerEntity):
     valid_to: date | None
 
 
-EntityByIdTypeVar = TypeVar("EntityByIdTypeVar", Account, Card)
+AccountOrCard = TypeVar("AccountOrCard", Account, Card)
 
 
 class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJson]]]):
@@ -573,8 +573,8 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
     def _get_entity_by_id(
         self,
         entity_id: str,
-        entity_class: type[EntityByIdTypeVar],
-    ) -> EntityByIdTypeVar | None:
+        entity_class: type[AccountOrCard],
+    ) -> AccountOrCard | None:
         """Get entity info based on a given ID.
 
         Args:
@@ -605,6 +605,36 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
             )
 
         return entity_class.from_json_response(results[0], truelayer_client=self)
+
+    def _list_entities(self, entity_class: type[AccountOrCard]) -> list[AccountOrCard]:
+        """List all accounts/cards under the given bank account.
+
+        Args:
+            entity_class (type): the class to instantiate with the returned info
+
+        Returns:
+            list[Union([Account, Card])]: a list of Account/Card instances with
+             associated info
+
+        Raises:
+            HTTPError: if a HTTPError is raised by the `_get` method, but it's not a 501
+        """
+        try:
+            res = self.get_json_response(f"/data/v1/{entity_class.__name__.lower()}s")
+        except HTTPError as exc:
+            if exc.response.json().get("error") == "endpoint_not_supported":
+                LOGGER.warning(
+                    "{entity_class.__name__}s endpoint not supported by %s",
+                    self.bank.value,
+                )
+                res = {}
+            else:
+                raise
+
+        return [
+            entity_class.from_json_response(result, truelayer_client=self)
+            for result in res.get("results", [])
+        ]
 
     def get_account_by_id(
         self,
@@ -639,50 +669,16 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
 
         Returns:
             list[Account]: Account instances, containing all related info
-
-        Raises:
-            HTTPError: if a HTTPError is raised by the _get method, but it's not a 501
         """
-        try:
-            res = self.get_json_response(
-                "/data/v1/accounts",
-            )
-        except HTTPError as exc:
-            if exc.response.json().get("error") == "endpoint_not_supported":
-                LOGGER.warning("Accounts endpoint not supported by %s", self.bank.value)
-                res = {}
-            else:
-                raise
-
-        return [
-            Account.from_json_response(result, truelayer_client=self)
-            for result in res.get("results", [])
-        ]
+        return self._list_entities(Account)
 
     def list_cards(self) -> list[Card]:
         """List all accounts under the given bank account.
 
         Returns:
             list[Account]: Account instances, containing all related info
-
-        Raises:
-            HTTPError: if a HTTPError is raised by the _get method, but it's not a 501
         """
-        try:
-            res = self.get_json_response(
-                "/data/v1/cards",
-            )
-        except HTTPError as exc:
-            if exc.response.json().get("error") == "endpoint_not_supported":
-                LOGGER.warning("Cards endpoint not supported by %s", self.bank.value)
-                res = {}
-            else:
-                raise
-
-        return [
-            Card.from_json_response(result, truelayer_client=self)
-            for result in res.get("results", [])
-        ]
+        return self._list_entities(Card)
 
 
 Account.update_forward_refs()
