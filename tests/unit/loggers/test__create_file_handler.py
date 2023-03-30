@@ -11,6 +11,7 @@ from uuid import uuid4
 from freezegun import freeze_time
 from pytest import mark, raises
 from pytz import utc
+from wg_utilities.functions.datetime_helpers import utcnow
 
 from wg_utilities.loggers import create_file_handler
 
@@ -68,7 +69,7 @@ def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
     f_handler = create_file_handler(log_path, level=level, create_directory=False)
 
     logger.addHandler(f_handler)
-    with freeze_time(frozen_time := datetime.utcnow()):
+    with freeze_time(frozen_time := utcnow()):
         logger.log(level, "Test")
 
     assert isfile(log_path)
@@ -78,7 +79,7 @@ def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
 
     assert log_path.read_text().strip() == "\t".join(
         [
-            frozen_time.replace(tzinfo=utc).strftime("%Y-%m-%d %H:%M:%S%Z"),
+            frozen_time.strftime("%Y-%m-%d %H:%M:%S%z"),
             f"test_log_level_is_set_correctly[{level}]",
             f"[{getLevelName(level)}]",
             "Test",

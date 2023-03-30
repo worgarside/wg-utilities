@@ -25,7 +25,7 @@ from wg_utilities.functions.datetime_helpers import utcnow
 
 FORMATTER = Formatter(
     fmt="%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S%Z",
+    datefmt="%Y-%m-%d %H:%M:%S%z",
 )
 FORMATTER.converter = gmtime
 
