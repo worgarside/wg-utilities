@@ -53,7 +53,8 @@ async-upnp-client = "*"
 pydantic = "*"
 python-dotenv = "*"
 pigpio = "*"
-strenum = {version="*", python_version = "< '3.11'"}
+# TODO: Remove this when Python 3.10 isn't supported
+strenum = "*"
 
 [scripts]
 major-release = "python utilities/version_bumper/main.py --bump major"

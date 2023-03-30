@@ -8,11 +8,11 @@ from enum import Enum, auto
 from logging import DEBUG, getLogger
 from os.path import sep
 from pathlib import Path
-from sys import version_info
 from typing import Any, ClassVar, Literal, TypeAlias, TypedDict, TypeVar
 
 from pydantic import Field, validator
 from requests import HTTPError
+from strenum import StrEnum
 
 from wg_utilities.clients.oauth_client import (
     BaseModelWithConfig,
@@ -21,12 +21,6 @@ from wg_utilities.clients.oauth_client import (
     StrBytIntFlt,
 )
 from wg_utilities.functions import user_data_dir
-
-# pylint: disable=no-name-in-module,ungrouped-imports
-if version_info.minor < 11:  # pragma: no cover
-    from strenum import StrEnum
-else:  # pragma: no cover
-    from enum import StrEnum
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -489,14 +483,14 @@ class Account(TrueLayerEntity):
     def validate_account_type(  # pylint: disable=no-self-argument
         cls, value: str  # noqa: N805
     ) -> AccountType:
-        """Validate that `account_type` is a valid Enum value."""
+        """Validate `account_type` and parse it into an `AccountType` instance."""
         if isinstance(value, AccountType):
             return value
 
         if value not in AccountType.__members__:  # pragma: no cover
             raise ValueError(f"Invalid account type: `{value}`")
 
-        return AccountType(value.lower())
+        return AccountType[value.upper()]  # type: ignore[no-any-return,misc]
 
 
 class Card(TrueLayerEntity):
