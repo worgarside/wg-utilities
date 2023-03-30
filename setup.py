@@ -35,11 +35,10 @@ if __name__ == "__main__":
                 "flask>=2.0.2",
                 "pyjwt>=2.1.0",
                 "requests>=2.26.0",
-                "google-auth-oauthlib>=0.4.6",
                 "pytz~=2022.1",
                 "tzlocal~=4.2",
                 "python-dotenv",
-                "spotipy>=2.19.0",
+                "strenum",
             ],
             "devices.epd": [
                 "spidev>=3.5; sys_platform == 'linux'",

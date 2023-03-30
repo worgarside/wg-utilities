@@ -38,7 +38,6 @@ tomli = "*"
 pytest-xdist = "*"
 
 [packages]
-google-auth-oauthlib = ">=0.4.6"
 requests = ">=2.26.0"
 spidev = { version = "*", sys_platform = "== 'linux'" }
 "rpi.gpio" = { version = "*", sys_platform = "== 'linux'" }
