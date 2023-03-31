@@ -596,33 +596,20 @@ class OAuthClient(Generic[GetJsonResponse]):
                 f"`{request_args.get('state')}` != `{state_token}`"
             )
 
-        if self.__class__.__name__ == "SpotifyClient":
-            res = self._post(
-                self.access_token_endpoint,
-                data={
-                    "code": request_args["code"],
-                    "grant_type": "authorization_code",
-                    "client_id": self._client_id,
-                    "client_secret": self._client_secret,
-                    "redirect_uri": redirect_uri,
-                },
-                header_overrides={
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-            )
-        else:
-            res = self._post(
-                self.access_token_endpoint,
-                json={
-                    "code": request_args["code"],
-                    "grant_type": "authorization_code",
-                    "client_id": self._client_id,
-                    "client_secret": self._client_secret,
-                    "redirect_uri": redirect_uri,
-                },
-                # Stops recursive call to `self.request_headers`
-                header_overrides={},
-            )
+        res = self._post(
+            self.access_token_endpoint,
+            json={
+                "code": request_args["code"],
+                "grant_type": "authorization_code",
+                "client_id": self._client_id,
+                "client_secret": self._client_secret,
+                "redirect_uri": redirect_uri,
+            },
+            # Stops recursive call to `self.request_headers`
+            header_overrides={"Content-Type": "application/x-www-form-urlencoded"}
+            if self.__class__.__name__ == "SpotifyClient"
+            else {},
+        )
 
         credentials = res.json()
 
