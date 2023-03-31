@@ -216,6 +216,21 @@ class TempAuthServer:
 
         return self._actual_port
 
+    @port.setter
+    def port(self, port: int) -> None:
+        """Port setter.
+
+        Args:
+            port (int): the port to set
+
+        Raises:
+            ValueError: if the server is already running
+        """
+        if self.is_running:
+            raise ValueError("Cannot set port while server is running")
+
+        self._user_port = port
+
     @property
     def server_thread(self) -> ServerThread:
         """Server thread.

@@ -11,6 +11,7 @@ from unittest.mock import patch
 from flask import Flask
 from pytest import raises
 from requests import get
+from werkzeug.serving import BaseWSGIServer, make_server
 
 from wg_utilities.api import TempAuthServer
 
@@ -255,3 +256,82 @@ def test_get_auth_code_url_property(temp_auth_server: TempAuthServer) -> None:
     temp_auth_server.start_server()
 
     assert temp_auth_server.get_auth_code_url == temp_auth_server.get_auth_code_url
+
+
+def test_port_allocation(temp_auth_server: TempAuthServer) -> None:
+    """Test that the `start_server` method allocates a port."""
+
+    assert not temp_auth_server.is_running
+
+    def make_server_side_effect(host: str, port: int, app: Flask) -> BaseWSGIServer:
+        if port < 5015:
+            raise OSError("Address already in use")
+
+        return make_server(host, port, app)  # type: ignore[no-any-return]
+
+    with patch(
+        "wg_utilities.api.temp_auth_server.make_server",
+        side_effect=make_server_side_effect,
+    ):
+        temp_auth_server.start_server()
+
+    assert temp_auth_server.is_running
+    assert temp_auth_server.port == 5015
+
+    temp_auth_server.stop_server()
+    assert not temp_auth_server.is_running
+
+
+def test_port_allocation_fails(temp_auth_server: TempAuthServer) -> None:
+    """Test that `start_server` raises an exception if it cannot allocate a port."""
+
+    assert not temp_auth_server.is_running
+
+    with patch(
+        "wg_utilities.api.temp_auth_server.make_server",
+        side_effect=OSError("Address already in use"),
+    ), raises(OSError) as exc_info:
+        temp_auth_server.start_server()
+
+    assert str(exc_info.value) == "No available ports in range 5000-5020"
+    assert not temp_auth_server.is_running
+
+
+def test_hard_port_allocation(temp_auth_server: TempAuthServer) -> None:
+    """Test that the `start_server` only tries one port if it is set by the user."""
+
+    assert not temp_auth_server.is_running
+
+    temp_auth_server.port = 5015
+
+    def make_server_side_effect(host: str, port: int, app: Flask) -> BaseWSGIServer:
+        if port == 5015:
+            raise OSError("Address already in use")
+
+        return make_server(host, port, app)  # type: ignore[no-any-return]
+
+    with patch(
+        "wg_utilities.api.temp_auth_server.make_server",
+        side_effect=make_server_side_effect,
+    ), raises(OSError) as exc_info:
+        temp_auth_server.start_server()
+
+    assert str(exc_info.value) == "Address already in use"
+
+
+def test_port_setter_raises_exception(temp_auth_server: TempAuthServer) -> None:
+    """Test that the `port` setter raises an exception if the server is running."""
+
+    assert not temp_auth_server.is_running
+
+    temp_auth_server.start_server()
+
+    assert temp_auth_server.is_running
+
+    with raises(ValueError) as exc_info:
+        temp_auth_server.port = 5015
+
+    assert str(exc_info.value) == "Cannot set port while server is running"
+
+    temp_auth_server.stop_server()
+    assert not temp_auth_server.is_running
