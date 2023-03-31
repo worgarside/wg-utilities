@@ -297,7 +297,7 @@ def test_listen_starts_listening(
         caplog.clear()
         yamaha_yas_209.listen()
 
-    assert {c.args for c in mock_sleep.call_args_list} in ({}, {(0.01,)})
+    assert {c.args for c in mock_sleep.call_args_list} in (set(), {(0.01,)})
     assert async_call_count == 1
 
     assert len(caplog.records) == 2
