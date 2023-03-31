@@ -29,6 +29,6 @@ try:
     __all__.append(
         "get_nsmap",
     )
-except ImportError as _exc:
+except ImportError as _exc:  # pragma: no cover
     if str(_exc) == "No module named 'lxml'":
         pass

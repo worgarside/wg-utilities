@@ -43,6 +43,6 @@ def run_cmd(
             if exit_on_error:
                 raise RuntimeError(error_str)
 
-            LOGGER.error(error_str)
+            LOGGER.error(error_str)  # pragma: no cover
 
     return output.decode("utf-8").strip(), error_str
