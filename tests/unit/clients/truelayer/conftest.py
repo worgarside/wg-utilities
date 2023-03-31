@@ -13,13 +13,7 @@ from tests.conftest import (
     read_json_file,
 )
 from wg_utilities.clients.oauth_client import OAuthCredentials
-from wg_utilities.clients.truelayer import (
-    Account,
-    Bank,
-    Card,
-    TrueLayerClient,
-    TrueLayerEntity,
-)
+from wg_utilities.clients.truelayer import Account, Bank, Card, TrueLayerClient
 
 
 @fixture(scope="function", name="account")  # type: ignore[misc]
@@ -65,29 +59,6 @@ def _truelayer_client(
         bank=Bank.ALLIED_IRISH_BANK_CORPORATE,
         creds_cache_path=creds_cache_path,
         log_requests=True,
-    )
-
-
-@fixture(scope="function", name="truelayer_entity")  # type: ignore[misc]
-def _truelayer_entity(
-    truelayer_client: TrueLayerClient,
-) -> TrueLayerEntity:
-    """Fixture for creating a `TruelayerEntity` instance."""
-
-    return TrueLayerEntity.from_json_response(
-        {  # type: ignore[arg-type]
-            "account_id": "74i84q4696c886tr0ic9z4376ql2j316",
-            "currency": "GBP",
-            "display_name": "Xuccyyxl",
-            "provider": {
-                "display_name": "account_provider",
-                # pylint: disable=line-too-long
-                "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/ft-ajxyecqs-icon.svg",  # noqa: E501
-                "provider_id": "ft-ajxyecqs",
-            },
-            "update_timestamp": "2023-03-25T18:16:20.256Z",
-        },
-        truelayer_client=truelayer_client,
     )
 
 
