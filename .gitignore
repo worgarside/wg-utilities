@@ -278,4 +278,6 @@ fabric.properties
 
 /config/secrets.yaml
 
-.vscode
+!.vscode/settings.json
+!.vscode/launch.json
+.vscode/*.code-workspace
