@@ -37,6 +37,7 @@ if __name__ == "__main__":
                 "requests>=2.26.0",
                 "pytz~=2022.1",
                 "tzlocal~=4.2",
+                "pydantic",
                 "python-dotenv",
                 "strenum",
             ],
