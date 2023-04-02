@@ -1,3 +1,96 @@
+[tool.poetry]
+name = "wg-utilities"
+version = "2.33.0"
+description = "Loads of useful stuff for the things I do :)"
+
+authors = ["Will Garside <worgarside@gmail.com>"]
+include = ["wg_utilities/py.typed"]
+license = "MIT"
+maintainers = ["Will Garside <worgarside@gmail.com>"]
+packages = [{ include = "wg_utilities" }]
+readme = "README.md"
+repository = "https://github.com/worgarside/wg-utilities"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
+# Dependencies
+
+[tool.poetry.dependencies]
+python = "^3.10"
+async-upnp-client = { version = "*", optional = true }
+botocore = { version = "*", optional = true }
+flask = { version = ">=2.0.2", optional = true }
+"jetson.gpio" = { version = "*", markers = "sys_platform == 'linux'" }
+lxml = { version = "==4.9.2", optional = true }
+pigpio = { version = "*", optional = true }
+pillow = { version = "*", optional = true }
+pydantic = { version = "*", optional = true }
+pyjwt = { version = "~=2.6.0", optional = true }
+python-dotenv = { version = "*", optional = true }
+pytz = { version = ">=2022.1", optional = true }
+requests = { version = ">=2.26.0", optional = true }
+"rpi.gpio" = { version = "*", markers = "sys_platform == 'linux'" }
+spidev = { version = "*", markers = "sys_platform == 'linux'" }
+strenum = { version = "*", optional = true }
+tzlocal = { version = "*", optional = true }
+xmltodict = { version = "*", optional = true }
+
+[tool.poetry.group.dev.dependencies]
+black = "*"
+pylint = "*"
+pre-commit = "*"
+twine = "==4.0.2"
+mypy = "*"
+types-requests = "*"
+types-tzlocal = "*"
+boto3-stubs = "*"
+lxml-stubs = "*"
+types-setuptools = "*"
+pycln = "*"
+pylint-strict-informational = "*"
+pillow = "*"
+pytest = "*"
+pytest-env = "*"
+requests-mock = "*"
+coverage = "*"
+freezegun = "*"
+boto3 = "*"
+mypy-boto3-s3 = "*"
+mypy-boto3-lambda = "*"
+mypy-boto3-pinpoint = "*"
+moto = { extras = ["pinpoint"], version = "*" }
+deepdiff = "*"
+aioresponses = "*"
+pytest-cov = "*"
+pytest-randomly = "*"
+pytest-aws-config = "*"
+exceptiongroup = "*"
+tomli = "*"
+pytest-xdist = "*"
+
+
+[tool.poetry.extras]
+clients = [
+    "flask",
+    "pyjwt",
+    "requests",
+    "pytz",
+    "tzlocal",
+    "pydantic",
+    "python-dotenv",
+    "strenum",
+]
+"devices.epd" = ["spidev", "rpi.gpio", "Pillow"]
+"devices.dht22" = ["pigpio"]
+"devices.yamaha_yas_209" = ["async-upnp-client", "pydantic", "xmltodict"]
+"exceptions" = ["python-dotenv", "requests"]
+"functions" = ["lxml"]
+
+
+# Tool Configs
+
 [tool.black]
 include = '\.pyi?$'
 exclude = '''
@@ -11,7 +104,6 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | Pipfile\.lock
 )/
 '''
 
@@ -27,8 +119,8 @@ addopts = [
     "--cov-report=xml",
     "--cov=./",
     "-n",
-    "auto"
-    ]
+    "auto",
+]
 xfail_strict = true
 log_cli_level = "warning"
 pythonpath = ["wg_utilities"]
@@ -44,12 +136,7 @@ markers = [
 ]
 
 [tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "def __str__",
-    "@overload"
-]
+exclude_lines = ["pragma: no cover", "def __repr__", "def __str__", "@overload"]
 
 [tool.mypy]
 ignore_missing_imports = true
@@ -65,7 +152,7 @@ no_implicit_reexport = true
 disallow_untyped_defs = true
 
 [tool.codespell]
-skip = '*.json,*.csv,*.xml,*google_drive_tree.txt'
+skip = '*.json,*.csv,*.xml,*google_drive_tree.txt,*.lock'
 
 [tool.pycln]
 path = "*"
@@ -83,18 +170,20 @@ warn_untyped_fields = true
 # Longer line length to avoid throwing errors in case where black doesn't
 # wrap the lines (e.g. a long URL).
 line-length = 120
-extend-select = [
+select = [
     # https://github.com/charliermarsh/ruff#supported-rules
-    "B", # Flake8 bugbear
-    "C", # Flake8 comprehensions
-    "D", # pydocstyle
+    "B",   # Flake8 bugbear
+    "C4",  # Flake8 comprehensions
+    "D",   # pydocstyle
+    "E",   # Pycodestyle errors
     "ERA", # Eradicate commented out code
-    "N", # PEP8 Naming
+    "F",   # Pyflakes
+    "N",   # PEP8 Naming
     "RUF", # Ruff-specific rules
-    "UP", # PyUpgrade
-    "W", # Pycodestyle warnings
+    "UP",  # PyUpgrade
+    "W",   # Pycodestyle warnings
 ]
-extend-ignore = [
+ignore = [
     "D107",  # public-init
     "D202",  # no-blank-line-after-function
     "D203",  # one-blank-line-before-class
@@ -102,7 +191,7 @@ extend-ignore = [
     "D400",  # first-line-end-with-period
     "D406",  # new-line-after-section-name
     "D407",  # dashed-underline-after-section
-    "UP037"  # quoted-annotation
+    "UP037", # quoted-annotation
 ]
 
 [tool.ruff.mccabe]
