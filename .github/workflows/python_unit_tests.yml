@@ -33,30 +33,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Install poetry
+        run: pipx install poetry
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Dependency Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.local/share/virtualenvs
-          # yamllint disable-line rule:line-length
-          key: ${{ runner.os }}-python-${{ matrix.python-version }}-pip-${{ hashFiles('**/Pipfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-python-${{ matrix.python-version }}-pip-
+          cache: 'poetry'
 
       - name: Install Dependencies
-        run: |
-          python3 -m pip install pip setuptools wheel pipenv coverage
-          pipenv sync --dev
+        run: poetry install --all-extras --sync
 
       - name: Run Tests
         id: unit_tests
-        run: pipenv run pytest --cov=./ --cov-report=xml
+        run: poetry run pytest --cov=./ --cov-report=xml
         continue-on-error: true
 
       - name: Upload coverage to Codecov

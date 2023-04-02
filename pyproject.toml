@@ -104,7 +104,6 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | Pipfile\.lock
 )/
 '''
 
