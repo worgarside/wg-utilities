@@ -18,7 +18,7 @@ on:
         type: string
 
 env:
-  BUILD_PYTHON_VERSION: 3.10
+  BUILD_PYTHON_VERSION: '3.10'
 
 jobs:
   build:
@@ -49,10 +49,11 @@ jobs:
           path: dist/
 
   add_artifacts_to_release_notes:
-    if: ${{ inputs.release_tag }}
+    if: ${{ inputs.release_tag && success() }}
     name: Add Artifacts to Release Notes
     runs-on: ubuntu-latest
-    needs: build
+    needs:
+      - build
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v3
@@ -71,6 +72,8 @@ jobs:
   publish_to_pypi:
     name: Publish to PyPI
     environment: ${{ inputs.environment }}
+    needs:
+      - add_artifacts_to_release_notes
     runs-on: ubuntu-latest
     permissions:
       id-token: write
