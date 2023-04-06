@@ -15,6 +15,7 @@ on:
         type: string
         description: Branch to run tests on
         required: true
+  pull_request:
 
 concurrency:
   group: ${{ github.ref }}
@@ -39,7 +40,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ inputs.branch || github.ref }}
 
       - name: Install poetry
         run: pipx install poetry
