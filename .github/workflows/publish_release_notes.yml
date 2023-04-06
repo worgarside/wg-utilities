@@ -60,6 +60,8 @@ jobs:
       build_branch: ${{ github.base_ref }}
       environment: 'production'
       release_tag: $RELEASE_TAG
+    secrets:
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
 
   publish_release_notes:
     name: Publish Release Notes
