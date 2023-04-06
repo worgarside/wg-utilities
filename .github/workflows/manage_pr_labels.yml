@@ -61,7 +61,7 @@ jobs:
         id: derive-label
         # yamllint disable rule:line-length
         run: |
-          new_release_number=$(echo $GITHUB_HEAD_REF | cut -d'/' -f2)
+          new_release_number=$(echo $GITHUB_HEAD_REF | cut -d '/' -f2)
           latest_release=${{ steps.get-previous-tag.outputs.tag }}
 
           if ! [[ $new_release_number =~ ^[0-9]{1,2}\.[0-9]{1,4}\.[0-9]{1,4}$ ]]
