@@ -4,6 +4,7 @@ tag-template: '$RESOLVED_VERSION'
 exclude-labels:
   - release
   - skip-changelog
+  - sync
 categories:
   - title: '🚀 Features'
     labels:
@@ -15,7 +16,13 @@ categories:
       - 'bugfix'
       - 'bug'
   - title: '🧰 Maintenance'
-    label: 'chore'
+    labels:
+      - chore
+      - 'dependencies'
+      - 'github-actions'
+      - maintenance
+      - tools
+    collapse-after: 5
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&'
 template: |
@@ -36,7 +43,9 @@ version-resolver:
   default: major
 
 exclude-contributors:
+  - '@dependabot'
   - 'dependabot'
   - 'dependabot[bot]'
+  - '@pre-commit-ci'
   - 'pre-commit-ci'
   - 'pre-commit-ci[bot]'
