@@ -5,7 +5,7 @@ appendOnly: true
 
 labels:
   - label: bug
-    branch: /bugfix\/.+/
+    branch: ^bugfix\/
 
   - label: dependencies
     files:
