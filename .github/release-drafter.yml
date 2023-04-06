@@ -21,6 +21,7 @@ categories:
       - 'dependencies'
       - 'github-actions'
       - maintenance
+      - tools
     collapse-after: 5
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&'
