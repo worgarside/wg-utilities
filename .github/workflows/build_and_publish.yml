@@ -16,6 +16,10 @@ on:
         description: 'The tag of the release to add the artifacts to'
         required: false
         type: string
+    secrets:
+      PYPI_API_TOKEN:
+        description: 'The PyPi API token'
+        required: true
 
 env:
   BUILD_PYTHON_VERSION: '3.10'
@@ -58,8 +62,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifact
+          path: dist/
 
-      - name: Upload Release Artifacts
+      - name: Upload Artifacts
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -74,8 +79,6 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v3
@@ -86,5 +89,6 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
+          # yamllint disable-line rule:line-length
           password: "${{ secrets.PYPI_API_TOKEN }}"
           repository-url: "${{ vars.REPOSITORY_URL }}"
