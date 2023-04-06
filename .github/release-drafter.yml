@@ -16,7 +16,12 @@ categories:
       - 'bugfix'
       - 'bug'
   - title: '🧰 Maintenance'
-    label: 'chore'
+    labels:
+      - chore
+      - 'dependencies'
+      - 'github-actions'
+      - maintenance
+    collapse-after: 5
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&'
 template: |
