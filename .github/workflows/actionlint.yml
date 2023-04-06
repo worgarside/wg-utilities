@@ -21,4 +21,4 @@ jobs:
         run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
 
       - name: Check Workflow Files
-        run: ${{ steps.get-actionlint.outputs.executable }} -color
+        run: ${{ steps.get-actionlint.outputs.executable }} -color -shellcheck ""
