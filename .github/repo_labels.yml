@@ -22,11 +22,11 @@
     color: "D73A4A"
 
   - name: major
-    description: "A major release"
+    description: "A major-level change or release"
     color: "FF0000"
 
   - name: minor
-    description: "A minor release"
+    description: "A minor-level change or release"
     color: "FFA500"
 
   - name: non-functional
@@ -34,7 +34,7 @@
     color: "FFFFFF"
 
   - name: patch
-    description: "A patch release"
+    description: "A patch-level change or release"
     color: "FFFF00"
 
   - name: python
