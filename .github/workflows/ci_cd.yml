@@ -34,13 +34,20 @@ jobs:
         id: get-release-metadata
         run: |
           release_tag=$(echo $GITHUB_HEAD_REF | cut -d '/' -f2)
-          echo "release-id=$(gh release view $release_tag \
-           --json apiUrl \
-           --repo ${{ github.repository }} \
-           --jq '.apiUrl' | \
-           cut -d '/' -f8 \
-          )" >> $GITHUB_OUTPUT
-          echo "release-tag=$release_tag" >> $GITHUB_OUTPUT
+
+          if ! [[ $release_tag =~ ^[0-9]{1,2}\.[0-9]{1,4}\.[0-9]{1,4}$ ]]
+          then
+              echo "Release tag is invalid: \`$release_tag\`" >> $GITHUB_STEP_SUMMARY
+              exit 1
+          else
+            echo "release-id=$(gh release view $release_tag \
+            --json apiUrl \
+            --repo ${{ github.repository }} \
+            --jq '.apiUrl' | \
+            cut -d '/' -f8 \
+            )" >> $GITHUB_OUTPUT
+            echo "release-tag=$release_tag" >> $GITHUB_OUTPUT
+          fi
 
       - name: Log GitHub context
         env:
