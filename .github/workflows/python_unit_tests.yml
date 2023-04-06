@@ -3,12 +3,18 @@ name: Python Unit Tests
 
 # yamllint disable-line rule:truthy
 on:
-  push:
-    branches:
-      - develop
-      - main
-  pull_request:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to run tests on
+        required: true
+        default: main
+  workflow_call:
+    inputs:
+      branch:
+        type: string
+        description: Branch to run tests on
+        required: true
 
 concurrency:
   group: ${{ github.ref }}
@@ -32,6 +38,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
 
       - name: Install poetry
         run: pipx install poetry
@@ -39,8 +47,8 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
+          cache: poetry
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
 
       - name: Install Dependencies
         run: poetry install --all-extras --sync

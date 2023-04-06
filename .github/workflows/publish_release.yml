@@ -1,0 +1,28 @@
+---
+name: Publish Release
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'The environment to deploy to'
+        required: true
+        type: string
+      artifact:
+        description: 'The artifact to deploy'
+        required: true
+        type: string
+
+jobs:
+  publish_to_pypi:
+    name: Publish to PyPI
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          repository-url: ${{ vars.REPOSITORY_URL }}
