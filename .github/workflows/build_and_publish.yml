@@ -33,7 +33,6 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          cache: poetry
           python-version: ${{ env.BUILD_PYTHON_VERSION }}
 
       - name: Install Poetry
