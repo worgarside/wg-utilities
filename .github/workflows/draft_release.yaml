@@ -25,4 +25,4 @@ jobs:
     uses: ./.github/workflows/build_and_publish.yml
     with:
       build_branch: ${{ github.base_ref }}
-      environment: $ENVIRONMENT
+      environment: 'development'
