@@ -10,7 +10,6 @@ on:
       - master
 
 env:
-  BUILD_PYTHON_VERSION: 3.10
   ENVIRONMENT: startsWith(github.ref, 'refs/tags') && 'production' || 'development'
 
 jobs:
@@ -24,53 +23,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  test:
-    name: Unit Tests
-    uses: ./.github/workflows/python_unit_tests.yml
-    with:
-      branch: ${{ github.base_ref }}
-
-  build:
-    name: Build
+  get-release-metadata:
+    name: Get Release Metadata
     runs-on: ubuntu-latest
-    needs:
-      - test
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.base_ref }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          cache: poetry
-          python-version: ${{ env.BUILD_PYTHON_VERSION }}
-
-      - name: Install Poetry
-        run: pipx install poetry
-
-      - name: Build
-        run: poetry build
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifact
-          path: dist
-
-  publish_release_notes:
-    name: Publish Release Notes
-    runs-on: ubuntu-latest
-    needs:
-      - build
-      - test
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    permissions:
-      contents: write
-      deployments: write
-      pages: write
+    outputs:
+      release-id: ${{ steps.get-release-metadata.outputs.release-id }}
+      release-tag: ${{ steps.get-release-metadata.outputs.release-tag }}
     steps:
       - name: Get Release Metadata
         id: get-release-metadata
@@ -89,30 +47,36 @@ jobs:
             cut -d '/' -f8 \
             )" >> $GITHUB_OUTPUT
             echo "release-tag=$release_tag" >> $GITHUB_OUTPUT
+            echo "RELEASE_TAG=$release_tag" >> $GITHUB_ENV
           fi
 
-      - name: Log GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: |
-          echo -e "Release ID: \`${{ steps.get-release-metadata.outputs.release-id }}\`"
-          echo -e "Tag: \`${{ steps.get-release-metadata.outputs.release-tag }}\`"
-          echo -e "\`\`\`json\n$GITHUB_CONTEXT\n\`\`\`" >> $GITHUB_STEP_SUMMARY
+  test:
+    name: Unit Tests
+    uses: ./.github/workflows/python_unit_tests.yml
+    with:
+      branch: ${{ github.base_ref }}
 
-      - name: Download Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifact
+  build-and-publish:
+    name: Build & Publish
+    uses: ./.github/workflows/build_and_publish.yml
+    with:
+      build_branch: ${{ github.base_ref }}
+      environment: $ENVIRONMENT
+      release_tag: $RELEASE_TAG
 
-      - name: Upload Release Artifacts
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/*
-          tag: ${{ steps.get-release-metadata.outputs.release-tag }}
-          overwrite: true
-          file_glob: true
-
+  publish_release_notes:
+    name: Publish Release Notes
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-publish
+      - test
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: write
+      deployments: write
+      pages: write
+    steps:
       - name: Point Release at `${{ github.base_ref }}`
         run: |
           gh release edit ${{ steps.get-release-metadata.outputs.release-tag }} \
@@ -132,14 +96,3 @@ jobs:
 
       - name: Delete Release Branch
         run: 'git push origin --delete $GITHUB_HEAD_REF || :'
-
-  publish_to_pypi:
-    name: Publish to PyPI
-    needs:
-      - build
-      - publish_release_notes
-      - test
-    uses: ./.github/workflows/publish_release.yml
-    with:
-      environment: $ENVIRONMENT
-      artifact: build-artifact
