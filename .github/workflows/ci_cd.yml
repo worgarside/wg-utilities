@@ -68,4 +68,4 @@ jobs:
           fetch-depth: 0
 
       - name: Delete Release Branch
-        run: git push origin --delete $GITHUB_HEAD_REF
+        run: "git push origin --delete $GITHUB_HEAD_REF || :"
