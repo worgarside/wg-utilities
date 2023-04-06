@@ -69,6 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-and-publish
+      - get-release-metadata
       - test
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -79,14 +80,14 @@ jobs:
     steps:
       - name: Point Release at `${{ github.base_ref }}`
         run: |
-          gh release edit ${{ steps.get-release-metadata.outputs.release-tag }} \
+          gh release edit ${{ needs.get-release-metadata.outputs.release-tag }} \
            --target ${{ github.base_ref }} \
            --repo ${{ github.repository }}
 
       - name: Publish Release Notes
         uses: eregon/publish-release@v1
         with:
-          release_id: ${{ steps.get-release-metadata.outputs.release-id }}
+          release_id: ${{ needs.get-release-metadata.outputs.release-id }}
 
       - name: Clone Repository
         uses: actions/checkout@v3
