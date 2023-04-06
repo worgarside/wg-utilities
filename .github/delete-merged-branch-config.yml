@@ -1,0 +1,8 @@
+---
+delete_closed_pr: false
+
+exclude:
+  - develop
+  - hotfix/*
+  - main
+  - release/*
