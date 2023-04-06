@@ -18,9 +18,8 @@ jobs:
     outputs:
       release-tag: ${{ steps.get-release-tag.outputs.new-release-number }}
     steps:
-      - uses: release-drafter/release-drafter@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clone Repo
+        uses: actions/checkout@v3
 
       - name: Get Release Tag
         id: get-release-tag
@@ -35,6 +34,22 @@ jobs:
             echo "new-release-number=$new_release_number" >> $GITHUB_OUTPUT
           fi
         # yamllint enable rule:line-length
+
+      - name: Validate `pyproject.toml` version
+        # yamllint disable rule:line-length
+        run: |
+          expected_line="version = \"${{ steps.get-release-tag.outputs.new-release-number }}\""
+          actual_line=$(grep -E "^version = \"" pyproject.toml)
+          if [ "$expected_line" != "$actual_line" ]
+          then
+              echo "`pyproject.toml` version is invalid: \`$actual_line\`" >> $GITHUB_STEP_SUMMARY
+              exit 1
+          fi
+        # yamllint enable rule:line-length
+
+      - uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-add-to-notes:
     name: Build and Add to Release Notes
