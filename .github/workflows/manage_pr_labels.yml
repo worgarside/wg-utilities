@@ -146,15 +146,15 @@ jobs:
       - name: Clone Repo
         uses: actions/checkout@v3
 
-      - name: Add label
+      - name: |
+          ${{
+            github.event.action == 'auto_merge_enabled' && 'Add' ||
+            'Remove'
+          }} label
         run: |
           gh pr edit ${{ github.event.pull_request.number }} \
             --${{
               github.event.action == 'auto_merge_enabled' && 'add' || 'remove'
-            }}-label "keep-updated"
+            }}-label "keep-updated" || :
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Summarise
-        run: |
-          echo "# :label: Added \`keep-updated\` label" >> $GITHUB_STEP_SUMMARY
