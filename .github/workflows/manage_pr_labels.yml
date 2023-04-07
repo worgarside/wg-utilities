@@ -119,8 +119,7 @@ jobs:
       (
         github.base_ref != 'main' ||
         !startsWith(github.head_ref, 'release/')
-      ) &&
-      !startsWith(github.event.action, 'auto_merge_')
+      )
     steps:
       - name: Log GitHub context
         env:
