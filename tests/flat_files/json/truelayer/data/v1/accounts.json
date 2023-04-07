@@ -1,0 +1,113 @@
+{
+  "results": [
+    {
+      "account_id": "74i84q4696c886tr0ic9z4376ql2j316",
+      "account_number": {
+        "iban": "QI13SXQR40339714618984",
+        "number": "14758737",
+        "sort_code": "10-00-98",
+        "swift_bic": "TFOTPK7Q"
+      },
+      "account_type": "TRANSACTION",
+      "currency": "GBP",
+      "display_name": "Oyrsomk Klheub Aowesue Dezjofc",
+      "provider": {
+        "display_name": "account_provider",
+        "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/zb-qagpx-ttus.yel",
+        "provider_id": "py-vhynd"
+      },
+      "update_timestamp": "2023-03-30T23:14:07.164Z"
+    },
+    {
+      "account_id": "796e2p176s3g1634ig8r2737s1lz0yx9",
+      "account_number": {
+        "swift_bic": "TFOTPK7Q"
+      },
+      "account_type": "SAVINGS",
+      "currency": "GBP",
+      "display_name": "\ud83d\udcb3 Monzut Udgft",
+      "provider": {
+        "display_name": "account_provider",
+        "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/zb-qagpx-ttus.yel",
+        "provider_id": "py-vhynd"
+      },
+      "update_timestamp": "2023-03-30T23:14:07.164Z"
+    },
+    {
+      "account_id": "589r2g5z9i6y7nh7fa4ec2yg176mo7z4",
+      "account_number": {
+        "swift_bic": "TFOTPK7Q"
+      },
+      "account_type": "SAVINGS",
+      "currency": "GBP",
+      "display_name": "\ud83c\udf34 Pjl Zyns",
+      "provider": {
+        "display_name": "account_provider",
+        "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/zb-qagpx-ttus.yel",
+        "provider_id": "py-vhynd"
+      },
+      "update_timestamp": "2023-03-30T23:14:07.164Z"
+    },
+    {
+      "account_id": "u672euv4776d1t9262392w3c89k70fn3",
+      "account_number": {
+        "swift_bic": "TFOTPK7Q"
+      },
+      "account_type": "SAVINGS",
+      "currency": "GBP",
+      "display_name": "\ud83e\udd19 Bvglj Gje",
+      "provider": {
+        "display_name": "account_provider",
+        "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/zb-qagpx-ttus.yel",
+        "provider_id": "py-vhynd"
+      },
+      "update_timestamp": "2023-03-30T23:14:07.164Z"
+    },
+    {
+      "account_id": "24158uw7l20n6z014zsoq4511r3p2y2k",
+      "account_number": {
+        "swift_bic": "TFOTPK7Q"
+      },
+      "account_type": "SAVINGS",
+      "currency": "GBP",
+      "display_name": "\ud83d\udcb0 Hshvbnq",
+      "provider": {
+        "display_name": "account_provider",
+        "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/zb-qagpx-ttus.yel",
+        "provider_id": "py-vhynd"
+      },
+      "update_timestamp": "2023-03-30T23:14:07.164Z"
+    },
+    {
+      "account_id": "7r69a8v525143u58kna20360y4063230",
+      "account_number": {
+        "swift_bic": "TFOTPK7Q"
+      },
+      "account_type": "SAVINGS",
+      "currency": "GBP",
+      "display_name": "\u26fd Jqsb",
+      "provider": {
+        "display_name": "account_provider",
+        "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/zb-qagpx-ttus.yel",
+        "provider_id": "py-vhynd"
+      },
+      "update_timestamp": "2023-03-30T23:14:07.164Z"
+    },
+    {
+      "account_id": "379sr7841lg37n9582c4d8cev1718bi8",
+      "account_number": {
+        "swift_bic": "TFOTPK7Q"
+      },
+      "account_type": "SAVINGS",
+      "currency": "GBP",
+      "display_name": "\ud83d\udd52 Gjaajfhbd Xzdjlrlc",
+      "provider": {
+        "display_name": "account_provider",
+        "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/zb-qagpx-ttus.yel",
+        "provider_id": "py-vhynd"
+      },
+      "update_timestamp": "2023-03-30T23:14:07.164Z"
+    }
+  ],
+  "status": "Succeeded"
+}

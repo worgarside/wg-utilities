@@ -1,5 +1,6 @@
-# type: ignore
-"""Drivers obtained from https://github.com/waveshare/e-Paper"""
+"""Drivers obtained from https://github.com/waveshare/e-Paper/."""
+from __future__ import annotations
+
 from logging import DEBUG, Formatter, StreamHandler, getLogger
 from sys import stdout
 
@@ -28,9 +29,8 @@ else:
     FRAME_DELAY = 0
 
     # pylint: disable=too-few-public-methods
-    class EPD:
-        """Dynamically built class to mirror the functionality of the EPD on devices
-        which don't support it"""
+    class EPD:  # type: ignore[no-redef]
+        """Mirror the functionality of the EPD on devices which don't support it."""
 
     for method in dir(EPD_ORIG):
         if not method.startswith("_"):

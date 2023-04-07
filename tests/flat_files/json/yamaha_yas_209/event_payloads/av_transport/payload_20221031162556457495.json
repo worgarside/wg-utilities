@@ -1,0 +1,91 @@
+{
+  "timestamp": "2022-10-31 16:25:56.457495",
+  "service_id": "urn:upnp-org:serviceId:AVTransport",
+  "service_type": "urn:schemas-upnp-org:service:AVTransport:1",
+  "last_change": {
+    "Event": {
+      "xmlns": "urn:schemas-upnp-org:metadata-1-0/AVT/",
+      "InstanceID": {
+        "val": "0",
+        "TransportState": "PLAYING",
+        "TransportStatus": null,
+        "NumberOfTracks": "0",
+        "CurrentTrack": "0",
+        "CurrentTrackDuration": null,
+        "CurrentMediaDuration": null,
+        "CurrentTrackURI": "spotify:track:5S7Y5HgQ2HPqiCVkKylT2r",
+        "AVTransportURI": "spotify:track:5S7Y5HgQ2HPqiCVkKylT2r",
+        "TrackSource": "spotify:playlist:5BcLR2Dl4Q9uBX0vcRLs7Z",
+        "CurrentTrackMetaData": {
+          "xmlns_dc": "http://purl.org/dc/elements/1.1/",
+          "xmlns_upnp": "urn:schemas-upnp-org:metadata-1-0/upnp/",
+          "xmlns_song": "www.wiimu.com/song/",
+          "xmlns": "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/",
+          "upnp_class": "object.item.audioItem.musicTrack",
+          "item": {
+            "id": "0",
+            "song_subid": "October '22",
+            "song_description": null,
+            "song_skiplimit": "0",
+            "song_id": "5S7Y5HgQ2HPqiCVkKylT2r",
+            "song_like": "0",
+            "song_singerid": "0",
+            "song_albumid": "0",
+            "res": {
+              "protocolInfo": "http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;",
+              "duration": "00:06:40.000",
+              "text": "spotify:track:5S7Y5HgQ2HPqiCVkKylT2r"
+            },
+            "dc_title": "What They Say",
+            "dc_creator": "Maya Jane Coles",
+            "upnp_artist": "Maya Jane Coles",
+            "upnp_album": "What They Say EP",
+            "upnp_albumArtURI": "https://i.scdn.co/image/ab67616d0000b2735fc235dac602275bcfb0c869"
+          }
+        },
+        "AVTransportURIMetaData": {
+          "xmlns_dc": "http://purl.org/dc/elements/1.1/",
+          "xmlns_upnp": "urn:schemas-upnp-org:metadata-1-0/upnp/",
+          "xmlns_song": "www.wiimu.com/song/",
+          "xmlns": "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/",
+          "upnp_class": "object.item.audioItem.musicTrack",
+          "item": {
+            "id": "0",
+            "song_subid": "October '22",
+            "song_description": null,
+            "song_skiplimit": "0",
+            "song_id": "5S7Y5HgQ2HPqiCVkKylT2r",
+            "song_like": "0",
+            "song_singerid": "0",
+            "song_albumid": "0",
+            "res": {
+              "protocolInfo": "http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;",
+              "duration": "00:06:40.000",
+              "text": "spotify:track:5S7Y5HgQ2HPqiCVkKylT2r"
+            },
+            "dc_title": "What They Say",
+            "dc_creator": "Maya Jane Coles",
+            "upnp_artist": "Maya Jane Coles",
+            "upnp_album": "What They Say EP",
+            "upnp_albumArtURI": "https://i.scdn.co/image/ab67616d0000b2735fc235dac602275bcfb0c869"
+          }
+        },
+        "PlaybackStorageMedium": "SPOTIFY",
+        "PossiblePlaybackStorageMedia": null,
+        "PossibleRecordStorageMedia": null,
+        "RecordStorageMedium": null,
+        "CurrentPlayMode": null,
+        "TransportPlaySpeed": null,
+        "RecordMediumWriteStatus": null,
+        "CurrentRecordQualityMode": null,
+        "PossibleRecordQualityModes": null,
+        "RelativeTimePosition": null,
+        "AbsoluteTimePosition": null,
+        "RelativeCounterPosition": null,
+        "AbsoluteCounterPosition": null,
+        "CurrentTransportActions": null
+      }
+    }
+  },
+  "other_xml_payloads": {}
+}

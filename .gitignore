@@ -29,6 +29,8 @@ __pycache__
 *.pkl
 logs
 .cache
+_local_sandbox
+!**/flat_files/**
 
 *.tmp
 
@@ -275,3 +277,7 @@ fabric.properties
 !cdk.json
 
 /config/secrets.yaml
+
+!.vscode/settings.json
+!.vscode/launch.json
+.vscode/*.code-workspace

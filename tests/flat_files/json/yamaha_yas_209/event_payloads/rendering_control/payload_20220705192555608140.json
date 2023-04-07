@@ -1,0 +1,27 @@
+{
+  "timestamp": "2022-07-05 19:25:55.608140",
+  "service_id": "urn:upnp-org:serviceId:RenderingControl",
+  "service_type": "urn:schemas-upnp-org:service:RenderingControl:1",
+  "last_change": {
+    "Event": {
+      "xmlns": "urn:schemas-upnp-org:metadata-1-0/RCS/",
+      "InstanceID": {
+        "val": "0",
+        "Mute": {
+          "channel": "Master",
+          "val": "1"
+        },
+        "Channel": null,
+        "Equalizer": null,
+        "Equaluzer": null,
+        "Volume": {
+          "channel": "Master",
+          "val": "0"
+        },
+        "PresetNameList": null,
+        "TimeStamp": "145494402"
+      }
+    }
+  },
+  "other_xml_payloads": {}
+}

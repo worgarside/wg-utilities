@@ -1,0 +1,39 @@
+{
+  "timestamp": "2022-07-05 16:48:35.437055",
+  "service_id": "urn:upnp-org:serviceId:AVTransport",
+  "service_type": "urn:schemas-upnp-org:service:AVTransport:1",
+  "last_change": {
+    "Event": {
+      "xmlns": "urn:schemas-upnp-org:metadata-1-0/AVT/",
+      "InstanceID": {
+        "val": "0",
+        "TransportState": "PAUSED_PLAYBACK",
+        "TransportStatus": null,
+        "NumberOfTracks": null,
+        "CurrentTrack": null,
+        "CurrentTrackDuration": null,
+        "CurrentMediaDuration": null,
+        "CurrentTrackURI": null,
+        "AVTransportURI": null,
+        "TrackSource": null,
+        "CurrentTrackMetaData": null,
+        "AVTransportURIMetaData": null,
+        "PlaybackStorageMedium": null,
+        "PossiblePlaybackStorageMedia": null,
+        "PossibleRecordStorageMedia": null,
+        "RecordStorageMedium": null,
+        "CurrentPlayMode": null,
+        "TransportPlaySpeed": null,
+        "RecordMediumWriteStatus": null,
+        "CurrentRecordQualityMode": null,
+        "PossibleRecordQualityModes": null,
+        "RelativeTimePosition": null,
+        "AbsoluteTimePosition": null,
+        "RelativeCounterPosition": null,
+        "AbsoluteCounterPosition": null,
+        "CurrentTransportActions": "Play,Stop"
+      }
+    }
+  },
+  "other_xml_payloads": {}
+}

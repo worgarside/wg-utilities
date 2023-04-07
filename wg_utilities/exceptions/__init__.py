@@ -1,6 +1,7 @@
-"""Custom exception types"""
+"""Custom exception types."""
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from functools import wraps
 from inspect import stack
 from logging import Logger, getLogger
@@ -8,10 +9,11 @@ from os import getenv
 from socket import gethostname
 from sys import exc_info
 from traceback import format_exc
-from typing import Any, Callable, Iterable
+from typing import Any
 
 from dotenv import load_dotenv
 from requests import post
+from requests.exceptions import ConnectionError as RequestsConnectionError
 
 from wg_utilities.loggers import add_stream_handler
 
@@ -22,12 +24,16 @@ HA_LOG_ENDPOINT = getenv("HA_LOG_ENDPOINT", "homeassistant.local:8001")
 LOGGER: Logger | None = None
 
 
-class ResourceNotFound(Exception):
-    """Custom exception for when some kind of resource isn't found"""
+class ResourceNotFoundError(Exception):
+    """Custom exception for when some kind of resource isn't found."""
+
+
+class VerificationError(Exception):
+    """Custom exception for when API verification fails."""
 
 
 def send_exception_to_home_assistant(exc: Exception) -> None:
-    """Format an exception and send useful info to Home Assistant
+    """Format an exception and send useful info to Home Assistant.
 
     Args:
         exc (Exception): the exception being handled
@@ -46,9 +52,14 @@ def send_exception_to_home_assistant(exc: Exception) -> None:
         try:
             # If the host is on the same network as HA, then an HTTP local URL can be
             # used
-            post(f"http://{HA_LOG_ENDPOINT}/log/error", json=payload, timeout=10)
-        except Exception:  # pylint: disable=broad-except
-            post(f"https://{HA_LOG_ENDPOINT}/log/error", json=payload, timeout=10)
+            res = post(f"http://{HA_LOG_ENDPOINT}/log/error", json=payload, timeout=10)
+        except RequestsConnectionError as ha_exc:
+            if "Failed to establish a new connection" not in str(ha_exc):
+                raise
+
+            res = post(f"https://{HA_LOG_ENDPOINT}/log/error", json=payload, timeout=10)
+
+        res.raise_for_status()
     except Exception as send_exc:
         raise send_exc from exc
 
@@ -62,7 +73,7 @@ def on_exception(
     _suppress_ignorant_warnings: bool | None = None,
 ) -> Callable[[Any], Any]:
     # pylint: disable=useless-type-doc,useless-param-doc
-    """Decorator factory to allow parameterizing the inner decorator
+    """Parameterize the inner decorator with a decorator factory.
 
     Args:
         exception_callback (Callable): callback function to process the exception
@@ -78,7 +89,7 @@ def on_exception(
     """
 
     def _decorator(func: Callable[[Any], Any]) -> Callable[[Any, Any], Any]:
-        """Decorator to allow simple cover-all exception handler callback behaviour
+        """Allow simple cover-all exception handler callback behaviour.
 
         Args:
             func (Callable): the function being wrapped
@@ -89,7 +100,7 @@ def on_exception(
 
         @wraps(func)
         def worker(*args: Any, **kwargs: Any) -> Any:
-            """Tries to run the decorated function and calls the callback function
+            """Try to run the decorated function and calls the callback function.
 
             Args:
                 *args (Any): any args passed to the inner func
@@ -118,7 +129,7 @@ def on_exception(
                             or LOGGER
                             or (LOGGER := add_stream_handler(getLogger(__name__)))
                         ).warning(
-                            "Ignoring exception type %s in %s.%s. This function has"
+                            "Ignoring exception of type %s in %s.%s. This function has"
                             " ceased executing at line %i. To suppress these warnings"
                             " set the `_suppress_ignorant_warnings` parameter to True"
                             ' or env var `SUPPRESS_WG_UTILS_IGNORANCE` to "1".',
@@ -127,13 +138,11 @@ def on_exception(
                             func.__name__,
                             exc_info()[2].tb_lineno,  # type: ignore[union-attr]
                         )
+                else:
+                    exception_callback(exc)
 
-                    return None
-
-                exception_callback(exc)
-
-                if raise_after_callback:
-                    raise
+                    if raise_after_callback:
+                        raise
 
                 return None
 
@@ -142,4 +151,4 @@ def on_exception(
     return _decorator
 
 
-__all__ = ["on_exception", "send_exception_to_home_assistant", "ResourceNotFound"]
+__all__ = ["on_exception", "send_exception_to_home_assistant", "ResourceNotFoundError"]

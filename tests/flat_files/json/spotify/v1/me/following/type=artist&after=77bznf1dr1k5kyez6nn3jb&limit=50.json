@@ -1,0 +1,468 @@
+{
+  "artists": {
+    "cursors": {
+      "after": null
+    },
+    "href": "https://api.spotify.com/v1/me/following?type=artist&after=77BznF1Dr1k5KyEZ6Nn3jB&limit=50",
+    "items": [
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7A0awCXkE1FtSU8B0qwOJQ"
+        },
+        "followers": {
+          "href": null,
+          "total": 720498
+        },
+        "genres": [
+          "electronica",
+          "future garage",
+          "new rave"
+        ],
+        "href": "https://api.spotify.com/v1/artists/7A0awCXkE1FtSU8B0qwOJQ",
+        "id": "7A0awCXkE1FtSU8B0qwOJQ",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5eb0f9ac8c1b304b9010585df33",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab676161000051740f9ac8c1b304b9010585df33",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f1780f9ac8c1b304b9010585df33",
+            "width": 160
+          }
+        ],
+        "name": "Jamie xx",
+        "popularity": 60,
+        "type": "artist",
+        "uri": "spotify:artist:7A0awCXkE1FtSU8B0qwOJQ"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7AzjETXRUKNRSJHMW9GIqd"
+        },
+        "followers": {
+          "href": null,
+          "total": 320334
+        },
+        "genres": [
+          "alt z",
+          "dance pop",
+          "electropop",
+          "neo-singer-songwriter",
+          "pop",
+          "post-teen pop",
+          "uk pop"
+        ],
+        "href": "https://api.spotify.com/v1/artists/7AzjETXRUKNRSJHMW9GIqd",
+        "id": "7AzjETXRUKNRSJHMW9GIqd",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5ebc67042c57bc3df7d86e1cefc",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab67616100005174c67042c57bc3df7d86e1cefc",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f178c67042c57bc3df7d86e1cefc",
+            "width": 160
+          }
+        ],
+        "name": "Nina Nesbitt",
+        "popularity": 58,
+        "type": "artist",
+        "uri": "spotify:artist:7AzjETXRUKNRSJHMW9GIqd"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7CajNmpbOovFoOoasH2HaY"
+        },
+        "followers": {
+          "href": null,
+          "total": 22934698
+        },
+        "genres": [
+          "dance pop",
+          "edm",
+          "electro house",
+          "house",
+          "pop",
+          "progressive house",
+          "uk dance"
+        ],
+        "href": "https://api.spotify.com/v1/artists/7CajNmpbOovFoOoasH2HaY",
+        "id": "7CajNmpbOovFoOoasH2HaY",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5eb578905d5539cff25568dc097",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab67616100005174578905d5539cff25568dc097",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f178578905d5539cff25568dc097",
+            "width": 160
+          }
+        ],
+        "name": "Calvin Harris",
+        "popularity": 83,
+        "type": "artist",
+        "uri": "spotify:artist:7CajNmpbOovFoOoasH2HaY"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7EQ0qTo7fWT7DPxmxtSYEc"
+        },
+        "followers": {
+          "href": null,
+          "total": 5171477
+        },
+        "genres": [
+          "metropopolis",
+          "modern rock",
+          "pop",
+          "pop rock"
+        ],
+        "href": "https://api.spotify.com/v1/artists/7EQ0qTo7fWT7DPxmxtSYEc",
+        "id": "7EQ0qTo7fWT7DPxmxtSYEc",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5ebfb7a0fe5a0e33cf5325fcd91",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab67616100005174fb7a0fe5a0e33cf5325fcd91",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f178fb7a0fe5a0e33cf5325fcd91",
+            "width": 160
+          }
+        ],
+        "name": "Bastille",
+        "popularity": 73,
+        "type": "artist",
+        "uri": "spotify:artist:7EQ0qTo7fWT7DPxmxtSYEc"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7FDlvgcodNfC0IBdWevl4u"
+        },
+        "followers": {
+          "href": null,
+          "total": 581948
+        },
+        "genres": [
+          "indie folk",
+          "irish singer-songwriter",
+          "neo mellow"
+        ],
+        "href": "https://api.spotify.com/v1/artists/7FDlvgcodNfC0IBdWevl4u",
+        "id": "7FDlvgcodNfC0IBdWevl4u",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5eb35a1f891098b344cc70c7bd8",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab6761610000517435a1f891098b344cc70c7bd8",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f17835a1f891098b344cc70c7bd8",
+            "width": 160
+          }
+        ],
+        "name": "James Vincent McMorrow",
+        "popularity": 56,
+        "type": "artist",
+        "uri": "spotify:artist:7FDlvgcodNfC0IBdWevl4u"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7Ln80lUS6He07XvHI8qqHH"
+        },
+        "followers": {
+          "href": null,
+          "total": 16700356
+        },
+        "genres": [
+          "garage rock",
+          "modern rock",
+          "permanent wave",
+          "rock",
+          "sheffield indie"
+        ],
+        "href": "https://api.spotify.com/v1/artists/7Ln80lUS6He07XvHI8qqHH",
+        "id": "7Ln80lUS6He07XvHI8qqHH",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5eb7da39dea0a72f581535fb11f",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab676161000051747da39dea0a72f581535fb11f",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f1787da39dea0a72f581535fb11f",
+            "width": 160
+          }
+        ],
+        "name": "Arctic Monkeys",
+        "popularity": 87,
+        "type": "artist",
+        "uri": "spotify:artist:7Ln80lUS6He07XvHI8qqHH"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7MqnCTCAX6SsIYYdJCQj9B"
+        },
+        "followers": {
+          "href": null,
+          "total": 865909
+        },
+        "genres": [
+          "australian dance",
+          "dancefloor dnb",
+          "drum and bass"
+        ],
+        "href": "https://api.spotify.com/v1/artists/7MqnCTCAX6SsIYYdJCQj9B",
+        "id": "7MqnCTCAX6SsIYYdJCQj9B",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5ebc9473a9f882dc95c5d50bac6",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab67616100005174c9473a9f882dc95c5d50bac6",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f178c9473a9f882dc95c5d50bac6",
+            "width": 160
+          }
+        ],
+        "name": "Pendulum",
+        "popularity": 59,
+        "type": "artist",
+        "uri": "spotify:artist:7MqnCTCAX6SsIYYdJCQj9B"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7cDu9zG1gVQrMdSGBAhzvn"
+        },
+        "followers": {
+          "href": null,
+          "total": 59605
+        },
+        "genres": [
+          "scottish electronic"
+        ],
+        "href": "https://api.spotify.com/v1/artists/7cDu9zG1gVQrMdSGBAhzvn",
+        "id": "7cDu9zG1gVQrMdSGBAhzvn",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5eb7667eb854620175968f8f725",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab676161000051747667eb854620175968f8f725",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f1787667eb854620175968f8f725",
+            "width": 160
+          }
+        ],
+        "name": "Denis Sulta",
+        "popularity": 38,
+        "type": "artist",
+        "uri": "spotify:artist:7cDu9zG1gVQrMdSGBAhzvn"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7dGJo4pcD2V6oG8kP0tJRR"
+        },
+        "followers": {
+          "href": null,
+          "total": 61140486
+        },
+        "genres": [
+          "detroit hip hop",
+          "hip hop",
+          "rap"
+        ],
+        "href": "https://api.spotify.com/v1/artists/7dGJo4pcD2V6oG8kP0tJRR",
+        "id": "7dGJo4pcD2V6oG8kP0tJRR",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5eba00b11c129b27a88fc72f36b",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab67616100005174a00b11c129b27a88fc72f36b",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f178a00b11c129b27a88fc72f36b",
+            "width": 160
+          }
+        ],
+        "name": "Eminem",
+        "popularity": 90,
+        "type": "artist",
+        "uri": "spotify:artist:7dGJo4pcD2V6oG8kP0tJRR"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7jZycSvTyx0W9poD4PjEIG"
+        },
+        "followers": {
+          "href": null,
+          "total": 238061
+        },
+        "genres": [
+          "english indie rock",
+          "modern alternative rock",
+          "modern rock",
+          "rock",
+          "uk pop"
+        ],
+        "href": "https://api.spotify.com/v1/artists/7jZycSvTyx0W9poD4PjEIG",
+        "id": "7jZycSvTyx0W9poD4PjEIG",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5eb5798393deebf2325031b7704",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab676161000051745798393deebf2325031b7704",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f1785798393deebf2325031b7704",
+            "width": 160
+          }
+        ],
+        "name": "The Hunna",
+        "popularity": 56,
+        "type": "artist",
+        "uri": "spotify:artist:7jZycSvTyx0W9poD4PjEIG"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7uMh23xWiuR7zsNkuNcm2G"
+        },
+        "followers": {
+          "href": null,
+          "total": 274350
+        },
+        "genres": [
+          "uk contemporary r&b",
+          "uk dance",
+          "uk pop"
+        ],
+        "href": "https://api.spotify.com/v1/artists/7uMh23xWiuR7zsNkuNcm2G",
+        "id": "7uMh23xWiuR7zsNkuNcm2G",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5eb8aead61f68aba43ec002195b",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab676161000051748aead61f68aba43ec002195b",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f1788aead61f68aba43ec002195b",
+            "width": 160
+          }
+        ],
+        "name": "MNEK",
+        "popularity": 70,
+        "type": "artist",
+        "uri": "spotify:artist:7uMh23xWiuR7zsNkuNcm2G"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7yF6JnFPDzgml2Ytkyl5D7"
+        },
+        "followers": {
+          "href": null,
+          "total": 175678
+        },
+        "genres": [
+          "aussietronica",
+          "australian house",
+          "lo-fi house"
+        ],
+        "href": "https://api.spotify.com/v1/artists/7yF6JnFPDzgml2Ytkyl5D7",
+        "id": "7yF6JnFPDzgml2Ytkyl5D7",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5eb4130fb9748d7409e938fc041",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab676161000051744130fb9748d7409e938fc041",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f1784130fb9748d7409e938fc041",
+            "width": 160
+          }
+        ],
+        "name": "Mall Grab",
+        "popularity": 52,
+        "type": "artist",
+        "uri": "spotify:artist:7yF6JnFPDzgml2Ytkyl5D7"
+      }
+    ],
+    "limit": 50,
+    "next": null,
+    "total": 112
+  }
+}

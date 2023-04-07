@@ -1,0 +1,120 @@
+{
+  "files": [
+    {
+      "capabilities": {
+        "canAcceptOwnership": false,
+        "canAddChildren": false,
+        "canAddMyDriveParent": false,
+        "canChangeCopyRequiresWriterPermission": true,
+        "canChangeSecurityUpdateEnabled": false,
+        "canChangeViewersCanCopyContent": true,
+        "canComment": true,
+        "canCopy": true,
+        "canDelete": true,
+        "canDownload": true,
+        "canEdit": true,
+        "canListChildren": false,
+        "canModifyContent": true,
+        "canModifyLabels": false,
+        "canMoveChildrenWithinDrive": false,
+        "canMoveItemIntoTeamDrive": true,
+        "canMoveItemOutOfDrive": true,
+        "canMoveItemWithinDrive": true,
+        "canReadLabels": false,
+        "canReadRevisions": true,
+        "canRemoveChildren": false,
+        "canRemoveMyDriveParent": true,
+        "canRename": true,
+        "canShare": true,
+        "canTrash": true,
+        "canUntrash": true
+      },
+      "copyRequiresWriterPermission": false,
+      "createdTime": "2022-11-08T19:40:22.372Z",
+      "explicitlyTrashed": false,
+      "fileExtension": "zip",
+      "fullFileExtension": "zip",
+      "hasThumbnail": false,
+      "headRevisionId": "2D7-qayJxT25yeWWBNPJXeYuqOWw3SQqugSIwYyVjsSXHdShSOV",
+      "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/zip",
+      "id": "427zVhjAwBVSyqS-kplES3IhOUN0e-Ljd",
+      "isAppAuthorized": false,
+      "kind": "drive#file",
+      "lastModifyingUser": {
+        "displayName": "Google User",
+        "emailAddress": "google-user@gmail.com",
+        "kind": "drive#user",
+        "me": true,
+        "permissionId": "31838237028322295771",
+        "photoLink": "https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64"
+      },
+      "linkShareMetadata": {
+        "securityUpdateEligible": false,
+        "securityUpdateEnabled": true
+      },
+      "md5Checksum": "px0231hc5q7u30h84f82h1l0z10t83eq",
+      "mimeType": "application/zip",
+      "modifiedByMe": true,
+      "modifiedByMeTime": "2022-11-08T19:11:21.000Z",
+      "modifiedTime": "2022-11-08T19:11:21.000Z",
+      "name": "Photos Library.zip",
+      "originalFilename": "Kxxsaa Rddhgdy.oez",
+      "ownedByMe": true,
+      "owners": [
+        {
+          "displayName": "Google User",
+          "emailAddress": "google-user@gmail.com",
+          "kind": "drive#user",
+          "me": true,
+          "permissionId": "31838237028322295771",
+          "photoLink": "https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64"
+        }
+      ],
+      "parents": [
+        "0LNGOTumxU0BKMPRayWVRnqT8KmlwFwp1"
+      ],
+      "permissionIds": [
+        "anyoneWithLink",
+        "31838237028322295771"
+      ],
+      "permissions": [
+        {
+          "allowFileDiscovery": false,
+          "id": "anyoneWithLink",
+          "kind": "drive#permission",
+          "role": "reader",
+          "type": "anyone"
+        },
+        {
+          "deleted": false,
+          "displayName": "Google User",
+          "emailAddress": "google-user@gmail.com",
+          "id": "31838237028322295771",
+          "kind": "drive#permission",
+          "pendingOwner": false,
+          "photoLink": "https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64",
+          "role": "owner",
+          "type": "user"
+        }
+      ],
+      "quotaBytesUsed": "3208451378",
+      "sha1Checksum": "690i0645y3830nq2d5145bt037075iy2r71yle5q",
+      "sha256Checksum": "069x14246qm4aoe9bg5lka31y7982597p9y781886u48qk6ur0g7118486s7017k",
+      "shared": true,
+      "size": "3208451378",
+      "spaces": [
+        "drive"
+      ],
+      "starred": false,
+      "thumbnailVersion": "0",
+      "trashed": false,
+      "version": "0",
+      "viewedByMe": true,
+      "viewedByMeTime": "2022-11-08T19:40:22.372Z",
+      "viewersCanCopyContent": true,
+      "webContentLink": "https://drive.google.com/uc?id=427zVhjAwBVSyqS-kplES3IhOUN0e-Ljd&export=download",
+      "webViewLink": "https://drive.google.com/file/d/427zVhjAwBVSyqS-kplES3IhOUN0e-Ljd/view?usp=drivesdk",
+      "writersCanShare": true
+    }
+  ]
+}

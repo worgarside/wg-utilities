@@ -1,8 +1,9 @@
-"""Helper functions specifically for parsing/manipulating XML"""
+"""Helper functions specifically for parsing/manipulating XML."""
 
+
+from __future__ import annotations
 
 from logging import DEBUG, getLogger
-from typing import Dict, Optional
 
 from lxml import etree
 
@@ -12,11 +13,11 @@ LOGGER.setLevel(DEBUG)
 
 def get_nsmap(
     *,
-    root: Optional[etree._Element] = None,
-    xml_doc: Optional[str] = None,
+    root: etree._Element | None = None,
+    xml_doc: str | None = None,
     warn_on_defaults: bool = False,
-) -> Dict[str, str]:
-    """Get the namespace map for an XML document
+) -> dict[str, str]:
+    """Get the namespace map for an XML document.
 
     Args:
         root (Element): an lxml Element from an XML document
@@ -30,18 +31,21 @@ def get_nsmap(
     Raises:
         ValueError: if neither argument is provided
     """
-    if not (root or xml_doc):
-        raise ValueError("One of `root` or `xml_doc` should be non-null")
+    if root is None:
+        if xml_doc is None:
+            raise ValueError("One of `root` or `xml_doc` should be non-null")
 
-    root = root or etree.fromstring(xml_doc.encode())  # type: ignore
+        root = etree.fromstring(xml_doc.encode())
+
     nsmap = {}
-
     default_count = 0
     processed_urls = set()
 
     prefix: str
     url: str
-    for prefix, url in root.xpath("//namespace::*"):  # type: ignore
+    for prefix, url in root.xpath(  # type: ignore[misc,assignment,union-attr]
+        "//namespace::*"
+    ):
         if url in processed_urls:
             continue
 

@@ -1,0 +1,18 @@
+{
+  "application": {
+    "packageName": "com.google.android.gms"
+  },
+  "dataQualityStandard": [],
+  "dataStreamId": "derived:com.google.step_count.delta:com.google.android.gms:estimated_steps",
+  "dataStreamName": "estimated_steps",
+  "dataType": {
+    "field": [
+      {
+        "format": "integer",
+        "name": "steps"
+      }
+    ],
+    "name": "com.google.step_count.delta"
+  },
+  "type": "derived"
+}

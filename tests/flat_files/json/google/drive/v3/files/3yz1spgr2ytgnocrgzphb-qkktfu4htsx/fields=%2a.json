@@ -1,0 +1,100 @@
+{
+  "capabilities": {
+    "canAcceptOwnership": false,
+    "canAddChildren": true,
+    "canAddMyDriveParent": false,
+    "canChangeCopyRequiresWriterPermission": false,
+    "canChangeSecurityUpdateEnabled": false,
+    "canChangeViewersCanCopyContent": false,
+    "canComment": true,
+    "canCopy": false,
+    "canDelete": true,
+    "canDownload": true,
+    "canEdit": true,
+    "canListChildren": true,
+    "canModifyContent": true,
+    "canModifyLabels": false,
+    "canMoveChildrenWithinDrive": true,
+    "canMoveItemIntoTeamDrive": true,
+    "canMoveItemOutOfDrive": true,
+    "canMoveItemWithinDrive": true,
+    "canReadLabels": false,
+    "canReadRevisions": false,
+    "canRemoveChildren": true,
+    "canRemoveMyDriveParent": true,
+    "canRename": true,
+    "canShare": true,
+    "canTrash": true,
+    "canUntrash": true
+  },
+  "copyRequiresWriterPermission": false,
+  "createdTime": "2022-12-22T01:53:07.183Z",
+  "explicitlyTrashed": false,
+  "folderColorRgb": "#8f8f8f",
+  "hasThumbnail": false,
+  "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.folder",
+  "id": "3yz1SpGR2YtgnocrGzphb-qkKTfU4htSx",
+  "isAppAuthorized": false,
+  "kind": "drive#file",
+  "lastModifyingUser": {
+    "displayName": "Google User",
+    "emailAddress": "google-user@gmail.com",
+    "kind": "drive#user",
+    "me": true,
+    "permissionId": "31838237028322295771",
+    "photoLink": "https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64"
+  },
+  "linkShareMetadata": {
+    "securityUpdateEligible": false,
+    "securityUpdateEnabled": true
+  },
+  "mimeType": "application/vnd.google-apps.folder",
+  "modifiedByMe": true,
+  "modifiedByMeTime": "2022-12-22T01:53:07.183Z",
+  "modifiedTime": "2022-12-22T01:53:07.183Z",
+  "name": "Old Documents",
+  "ownedByMe": true,
+  "owners": [
+    {
+      "displayName": "Google User",
+      "emailAddress": "google-user@gmail.com",
+      "kind": "drive#user",
+      "me": true,
+      "permissionId": "31838237028322295771",
+      "photoLink": "https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64"
+    }
+  ],
+  "parents": [
+    "7tqryz0A9oYJfzF1cpBMLLsblJ-oHBi1e"
+  ],
+  "permissionIds": [
+    "31838237028322295771"
+  ],
+  "permissions": [
+    {
+      "deleted": false,
+      "displayName": "Google User",
+      "emailAddress": "google-user@gmail.com",
+      "id": "31838237028322295771",
+      "kind": "drive#permission",
+      "pendingOwner": false,
+      "photoLink": "https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64",
+      "role": "owner",
+      "type": "user"
+    }
+  ],
+  "quotaBytesUsed": "0",
+  "shared": false,
+  "spaces": [
+    "drive"
+  ],
+  "starred": false,
+  "thumbnailVersion": "0",
+  "trashed": false,
+  "version": "5",
+  "viewedByMe": true,
+  "viewedByMeTime": "2022-12-22T11:34:45.793Z",
+  "viewersCanCopyContent": true,
+  "webViewLink": "https://drive.google.com/drive/folders/3yz1SpGR2YtgnocrGzphb-qkKTfU4htSx",
+  "writersCanShare": true
+}

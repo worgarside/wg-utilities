@@ -1,0 +1,28 @@
+{
+  "accounts": [
+    {
+      "account_number": "86409085",
+      "closed": false,
+      "country_code": "GB",
+      "created": "2017-11-01T22:16:58.929Z",
+      "currency": "GBP",
+      "description": "user_0000000000000000000000",
+      "id": "acc_0000000000000000000000",
+      "owners": [
+        {
+          "preferred_first_name": "Ghwt",
+          "preferred_name": "Ghwt Ymperrq",
+          "user_id": "user_0000000000000000000000"
+        }
+      ],
+      "payment_details": {
+        "locale_uk": {
+          "account_number": "86409085",
+          "sort_code": "916634"
+        }
+      },
+      "sort_code": "916634",
+      "type": "uk_retail"
+    }
+  ]
+}

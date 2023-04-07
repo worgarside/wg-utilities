@@ -1,0 +1,37 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
+            s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+    <s:Body>
+        <u:GetMediaInfoResponse
+                xmlns:u="urn:schemas-upnp-org:service:AVTransport:1">
+            <NrTracks>0</NrTracks>
+            <MediaDuration>00:03:51</MediaDuration>
+            <CurrentURI>spotify:track:42Kznon0GBYL1bU24DkZSm</CurrentURI>
+            <CurrentURIMetaData>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+                &lt;DIDL-Lite xmlns:dc=&quot;http://purl.org/dc/elements/1.1/&quot; xmlns:upnp=&quot;urn:schemas-upnp-org:metadata-1-0/upnp/&quot; xmlns:song=&quot;www.wiimu.com/song/&quot; xmlns=&quot;urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/&quot;&gt;
+                &lt;upnp:class&gt;object.item.audioItem.musicTrack&lt;/upnp:class&gt;
+                &lt;item id=&quot;0&quot;&gt;
+                &lt;song:subid&gt;Outrun&lt;/song:subid&gt;
+                &lt;song:description&gt;&lt;/song:description&gt;
+                &lt;song:skiplimit&gt;0&lt;/song:skiplimit&gt;
+                &lt;song:id&gt;42Kznon0GBYL1bU24DkZSm&lt;/song:id&gt;
+                &lt;song:like&gt;0&lt;/song:like&gt;
+                &lt;song:singerid&gt;0&lt;/song:singerid&gt;
+                &lt;song:albumid&gt;0&lt;/song:albumid&gt;
+                &lt;res protocolInfo=&quot;http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;&quot; duration=&quot;00:03:51.000&quot;&gt;spotify:track:42Kznon0GBYL1bU24DkZSm&lt;/res&gt;
+                &lt;dc:title&gt;On Top&lt;/dc:title&gt;
+                &lt;dc:creator&gt;Flume&lt;/dc:creator&gt;
+                &lt;upnp:artist&gt;Flume&lt;/upnp:artist&gt;
+                &lt;upnp:album&gt;Flume&lt;/upnp:album&gt;
+                &lt;upnp:albumArtURI&gt;https://i.scdn.co/image/ab67616d0000b2733198dc8920850509e8a07d8c&lt;/upnp:albumArtURI&gt;
+                &lt;/item&gt;
+                &lt;/DIDL-Lite&gt;
+            </CurrentURIMetaData>
+            <NextURI></NextURI>
+            <NextURIMetaData></NextURIMetaData>
+            <TrackSource>spotify:playlist:0rByozJfX63TyYLWoMVnrl</TrackSource>
+            <PlayMedium>SPOTIFY</PlayMedium>
+            <RecordMedium>NOT_IMPLEMENTED</RecordMedium>
+            <WriteStatus>NOT_IMPLEMENTED</WriteStatus>
+        </u:GetMediaInfoResponse>
+    </s:Body>
+</s:Envelope>

@@ -1,0 +1,22 @@
+{
+  "devices": [
+    {
+      "id": "8b8fa4aff208f8289f5d2941d2ee4377fe95ebe2",
+      "is_active": false,
+      "is_private_session": false,
+      "is_restricted": false,
+      "name": "Lounge Chromecast",
+      "type": "TV",
+      "volume_percent": 100
+    },
+    {
+      "id": "5aaf08a88ee194545700b7a4bfd5945d4683cd32",
+      "is_active": false,
+      "is_private_session": false,
+      "is_restricted": false,
+      "name": "Will's YAS-209",
+      "type": "Speaker",
+      "volume_percent": 25
+    }
+  ]
+}

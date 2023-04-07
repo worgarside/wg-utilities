@@ -1,0 +1,2090 @@
+{
+  "href": "https://api.spotify.com/v1/users/worgarside/playlists?offset=0&limit=50",
+  "items": [
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/2aATXQt7RPsT73k00tJudG"
+      },
+      "href": "https://api.spotify.com/v1/playlists/2aATXQt7RPsT73k00tJudG",
+      "id": "2aATXQt7RPsT73k00tJudG",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2731b05da207113150ccc039661ab67616d0000b27357f165027c8170e37e526b86ab67616d0000b2735ccfe0e07a26de7e2c0ddac8ab67616d0000b273f6afb4e310fce7f1cb531901",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2731b05da207113150ccc039661ab67616d0000b27357f165027c8170e37e526b86ab67616d0000b2735ccfe0e07a26de7e2c0ddac8ab67616d0000b273f6afb4e310fce7f1cb531901",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2731b05da207113150ccc039661ab67616d0000b27357f165027c8170e37e526b86ab67616d0000b2735ccfe0e07a26de7e2c0ddac8ab67616d0000b273f6afb4e310fce7f1cb531901",
+          "width": 60
+        }
+      ],
+      "name": "November '22",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MTQsN2U2ODc5YmYyNzkxZjZjMmM1YzA1MDMyYWIwMmJmNzExN2NiNjY5ZA==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/2aATXQt7RPsT73k00tJudG/tracks",
+        "total": 13
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:2aATXQt7RPsT73k00tJudG"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/5BcLR2Dl4Q9uBX0vcRLs7Z"
+      },
+      "href": "https://api.spotify.com/v1/playlists/5BcLR2Dl4Q9uBX0vcRLs7Z",
+      "id": "5BcLR2Dl4Q9uBX0vcRLs7Z",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2738cfebe40bb99af0a25537788ab67616d0000b273a2b602200e9758e7f6ae20bcab67616d0000b273c3a29135b4ffc2cd146447b8ab67616d0000b273f01ad06a0ca7edaaea75faab",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2738cfebe40bb99af0a25537788ab67616d0000b273a2b602200e9758e7f6ae20bcab67616d0000b273c3a29135b4ffc2cd146447b8ab67616d0000b273f01ad06a0ca7edaaea75faab",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2738cfebe40bb99af0a25537788ab67616d0000b273a2b602200e9758e7f6ae20bcab67616d0000b273c3a29135b4ffc2cd146447b8ab67616d0000b273f01ad06a0ca7edaaea75faab",
+          "width": 60
+        }
+      ],
+      "name": "October '22",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MzksYmMzZTBlMzg5NjQ1ZWQzOGQwYzBkMTIxZTY2YTYzMWRmYWFiOWVlNQ==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/5BcLR2Dl4Q9uBX0vcRLs7Z/tracks",
+        "total": 36
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:5BcLR2Dl4Q9uBX0vcRLs7Z"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/67aWuiBWSsoqYbtcV3A1JK"
+      },
+      "href": "https://api.spotify.com/v1/playlists/67aWuiBWSsoqYbtcV3A1JK",
+      "id": "67aWuiBWSsoqYbtcV3A1JK",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b27346fdc7d7bfe07acd9af644c7ab67616d0000b27380aca4eba848f16fd9d5c943ab67616d0000b273b73fe8d1ede1d94961074685ab67616d0000b273fda889bb57058a4a1b88edcd",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b27346fdc7d7bfe07acd9af644c7ab67616d0000b27380aca4eba848f16fd9d5c943ab67616d0000b273b73fe8d1ede1d94961074685ab67616d0000b273fda889bb57058a4a1b88edcd",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b27346fdc7d7bfe07acd9af644c7ab67616d0000b27380aca4eba848f16fd9d5c943ab67616d0000b273b73fe8d1ede1d94961074685ab67616d0000b273fda889bb57058a4a1b88edcd",
+          "width": 60
+        }
+      ],
+      "name": "September '22",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MjMsODBiZDIyYTU4ZGI4ODU4NDYzMWZlMmEyMTkyYTQyYWQ4NDQ0YTQ2OQ==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/67aWuiBWSsoqYbtcV3A1JK/tracks",
+        "total": 23
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:67aWuiBWSsoqYbtcV3A1JK"
+    },
+    {
+      "collaborative": false,
+      "description": "<a href=\"spotify:genre:edm_dance\">electronic</a> melancholy < / 3",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DWVrtsSlLKzro"
+      },
+      "href": "https://api.spotify.com/v1/playlists/37i9dQZF1DWVrtsSlLKzro",
+      "id": "37i9dQZF1DWVrtsSlLKzro",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706f0000000390954451308db71d0e43a9fa",
+          "width": null
+        }
+      ],
+      "name": "Sad Beats",
+      "owner": {
+        "display_name": "Spotify",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/spotify"
+        },
+        "href": "https://api.spotify.com/v1/users/spotify",
+        "id": "spotify",
+        "type": "user",
+        "uri": "spotify:user:spotify"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MTY2NjkyOTY2MCwwMDAwMDAwMGZmMzk4ZmU3MjA2M2UxNTY4ZWJmZGUzYWI4YTVjOGQz",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/37i9dQZF1DWVrtsSlLKzro/tracks",
+        "total": 170
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:37i9dQZF1DWVrtsSlLKzro"
+    },
+    {
+      "collaborative": false,
+      "description": "All the 2022 releases from Anjunadeep as soon as they drop! Find out more: <a href=\"https://anjunadeep.com/\">Website</a> | <a href=\"https://www.facebook.com/anjunadeep\">Facebook</a> | <a href=\"https://www.instagram.com/anjunadeep/?hl=en\">Instagram</a> | <a href=\"http://anjunastore.com/\">Merch</a>",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/2wSNKxLM217jpZnkAgYZPH"
+      },
+      "href": "https://api.spotify.com/v1/playlists/2wSNKxLM217jpZnkAgYZPH",
+      "id": "2wSNKxLM217jpZnkAgYZPH",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebbeb6ad15d047ac7e0efeda7b0",
+          "width": null
+        }
+      ],
+      "name": "Anjunadeep New Releases 2022 (Deep House, Techno, Electronica)",
+      "owner": {
+        "display_name": "Anjunadeep",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/anjunadeep"
+        },
+        "href": "https://api.spotify.com/v1/users/anjunadeep",
+        "id": "anjunadeep",
+        "type": "user",
+        "uri": "spotify:user:anjunadeep"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MzU0NCxiMWY0NWMwMWVmZjU2MDVmYTFiYWRkYWYwMmZhZGQ2MDM5NDBkMDk0",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/2wSNKxLM217jpZnkAgYZPH/tracks",
+        "total": 77
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:2wSNKxLM217jpZnkAgYZPH"
+    },
+    {
+      "collaborative": false,
+      "description": "An independent playlist inspired by the essentials from the ABGT300 deep set, beats from current Anjunadeep releases  and associated artist releases. ",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/13UNl9OvdY4GxpUOa25qaF"
+      },
+      "href": "https://api.spotify.com/v1/playlists/13UNl9OvdY4GxpUOa25qaF",
+      "id": "13UNl9OvdY4GxpUOa25qaF",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebbcb193fafe860c5fca2bab5b8",
+          "width": null
+        }
+      ],
+      "name": "Anjunadeep Essentials",
+      "owner": {
+        "display_name": "Brock Delfante",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/12152806721"
+        },
+        "href": "https://api.spotify.com/v1/users/12152806721",
+        "id": "12152806721",
+        "type": "user",
+        "uri": "spotify:user:12152806721"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MjY1LDdmMmYwNDExOWU3YmM0ZTlmZjk5MmY5MTFiODhkMmY2ZTM2OGQ0OWM=",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/13UNl9OvdY4GxpUOa25qaF/tracks",
+        "total": 187
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:13UNl9OvdY4GxpUOa25qaF"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/7vK46qf4I352doLdlSG9G0"
+      },
+      "href": "https://api.spotify.com/v1/playlists/7vK46qf4I352doLdlSG9G0",
+      "id": "7vK46qf4I352doLdlSG9G0",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b27307c3f386c1da545e6a01a033ab67616d0000b27328793cbe2f23e8fc70d9a015ab67616d0000b2734183acdb68204bb972bf10f5ab67616d0000b273decc9374b603d2ab6a31491f",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b27307c3f386c1da545e6a01a033ab67616d0000b27328793cbe2f23e8fc70d9a015ab67616d0000b2734183acdb68204bb972bf10f5ab67616d0000b273decc9374b603d2ab6a31491f",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b27307c3f386c1da545e6a01a033ab67616d0000b27328793cbe2f23e8fc70d9a015ab67616d0000b2734183acdb68204bb972bf10f5ab67616d0000b273decc9374b603d2ab6a31491f",
+          "width": 60
+        }
+      ],
+      "name": "Pixel Now Playing",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "NDY1LDQ1MWQ0MDEzMDQ2MjA0ZDcyMGZjZGUzYzIzNTc1YWU2ZGNiMWJjOTY=",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/7vK46qf4I352doLdlSG9G0/tracks",
+        "total": 408
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:7vK46qf4I352doLdlSG9G0"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/3ihJb6Vw7I8m2nyEts7NS6"
+      },
+      "href": "https://api.spotify.com/v1/playlists/3ihJb6Vw7I8m2nyEts7NS6",
+      "id": "3ihJb6Vw7I8m2nyEts7NS6",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2730f0e63e38a0ea92314ab9d7fab67616d0000b2730f877ef2ebda6fdf7a040a71ab67616d0000b2731e6e88e7a3373509a4d2192cab67616d0000b273bafa195f89e8bea7b7846589",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2730f0e63e38a0ea92314ab9d7fab67616d0000b2730f877ef2ebda6fdf7a040a71ab67616d0000b2731e6e88e7a3373509a4d2192cab67616d0000b273bafa195f89e8bea7b7846589",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2730f0e63e38a0ea92314ab9d7fab67616d0000b2730f877ef2ebda6fdf7a040a71ab67616d0000b2731e6e88e7a3373509a4d2192cab67616d0000b273bafa195f89e8bea7b7846589",
+          "width": 60
+        }
+      ],
+      "name": "August '22",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MjIsOWU1Y2VhMTM0MTJjOWYwMGRlZjZmZjYxMDVhNTRiZjAwYmU4NDlmYg==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/3ihJb6Vw7I8m2nyEts7NS6/tracks",
+        "total": 21
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:3ihJb6Vw7I8m2nyEts7NS6"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/1FbIMXBQLI8JRDnqwQkKFX"
+      },
+      "href": "https://api.spotify.com/v1/playlists/1FbIMXBQLI8JRDnqwQkKFX",
+      "id": "1FbIMXBQLI8JRDnqwQkKFX",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b273044e892a66c0788ec906e621ab67616d0000b2738aa9fae66acbb7658185f612ab67616d0000b273a1cf50449aac3e282f8d5fa6ab67616d0000b273eb0a81a00efff8e014eaaa4a",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b273044e892a66c0788ec906e621ab67616d0000b2738aa9fae66acbb7658185f612ab67616d0000b273a1cf50449aac3e282f8d5fa6ab67616d0000b273eb0a81a00efff8e014eaaa4a",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b273044e892a66c0788ec906e621ab67616d0000b2738aa9fae66acbb7658185f612ab67616d0000b273a1cf50449aac3e282f8d5fa6ab67616d0000b273eb0a81a00efff8e014eaaa4a",
+          "width": 60
+        }
+      ],
+      "name": "July '22",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MTgsMjlmMzU3M2YwMzIxMTkyZTg2MWI5YzU5YWJjOTBmMjhmYjVkYWQwNw==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/1FbIMXBQLI8JRDnqwQkKFX/tracks",
+        "total": 21
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:1FbIMXBQLI8JRDnqwQkKFX"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/0rByozJfX63TyYLWoMVnrl"
+      },
+      "href": "https://api.spotify.com/v1/playlists/0rByozJfX63TyYLWoMVnrl",
+      "id": "0rByozJfX63TyYLWoMVnrl",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebbf308d90cc1015fe7953abcd2",
+          "width": null
+        }
+      ],
+      "name": "Outrun",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "MTEsMjBhZDBkMjM2NDk3ZDg5NmRhNjhkZmYxYmU5ZWFmZmM1NTExOTZiYQ==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/0rByozJfX63TyYLWoMVnrl/tracks",
+        "total": 8
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:0rByozJfX63TyYLWoMVnrl"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/1odyRa4BeT1PmgeZT47vfY"
+      },
+      "href": "https://api.spotify.com/v1/playlists/1odyRa4BeT1PmgeZT47vfY",
+      "id": "1odyRa4BeT1PmgeZT47vfY",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2733464ec813abdbe791cc791a7ab67616d0000b27340e68e4793da59e02e3eb342ab67616d0000b273d2bb110795eee07d9f03f5bcab67616d0000b273ed2a0b49e0be66b06fcc63b5",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2733464ec813abdbe791cc791a7ab67616d0000b27340e68e4793da59e02e3eb342ab67616d0000b273d2bb110795eee07d9f03f5bcab67616d0000b273ed2a0b49e0be66b06fcc63b5",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2733464ec813abdbe791cc791a7ab67616d0000b27340e68e4793da59e02e3eb342ab67616d0000b273d2bb110795eee07d9f03f5bcab67616d0000b273ed2a0b49e0be66b06fcc63b5",
+          "width": 60
+        }
+      ],
+      "name": "Wheelie Good Tunes",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "Niw5N2E3NmUwZDc3NWQxNjU1NzFkYTc0ZDU4YjJkZDIzZGZjYzVkOWZh",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/1odyRa4BeT1PmgeZT47vfY/tracks",
+        "total": 5
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:1odyRa4BeT1PmgeZT47vfY"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/55u51uB9eKKe2DuR653JN9"
+      },
+      "href": "https://api.spotify.com/v1/playlists/55u51uB9eKKe2DuR653JN9",
+      "id": "55u51uB9eKKe2DuR653JN9",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b273318443aab3531a0558e79a4dab67616d0000b273454b2713cddb866c157ac71aab67616d0000b273aa57e9aa705598154238f892ab67616d0000b273bd6f8ac82dc5fe1028c14f7d",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b273318443aab3531a0558e79a4dab67616d0000b273454b2713cddb866c157ac71aab67616d0000b273aa57e9aa705598154238f892ab67616d0000b273bd6f8ac82dc5fe1028c14f7d",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b273318443aab3531a0558e79a4dab67616d0000b273454b2713cddb866c157ac71aab67616d0000b273aa57e9aa705598154238f892ab67616d0000b273bd6f8ac82dc5fe1028c14f7d",
+          "width": 60
+        }
+      ],
+      "name": "2020s",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MTA5LDk2Y2ZiNjAxNWVjOGM2ZTcyZjc5MzYwYWY2M2M0NmM2MDkwMDU1OWM=",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/55u51uB9eKKe2DuR653JN9/tracks",
+        "total": 633
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:55u51uB9eKKe2DuR653JN9"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/6otPUorqRtFpee0vkAOBCy"
+      },
+      "href": "https://api.spotify.com/v1/playlists/6otPUorqRtFpee0vkAOBCy",
+      "id": "6otPUorqRtFpee0vkAOBCy",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2731784842155640874660c878bab67616d0000b2732a43fce4f008ea0e736c870bab67616d0000b273a2114d10368fd987a4103375ab67616d0000b273baa831742bd280c18404dd2a",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2731784842155640874660c878bab67616d0000b2732a43fce4f008ea0e736c870bab67616d0000b273a2114d10368fd987a4103375ab67616d0000b273baa831742bd280c18404dd2a",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2731784842155640874660c878bab67616d0000b2732a43fce4f008ea0e736c870bab67616d0000b273a2114d10368fd987a4103375ab67616d0000b273baa831742bd280c18404dd2a",
+          "width": 60
+        }
+      ],
+      "name": "2010s",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "ODQsMTRlMGI4YmI2ZjU3NmZmNjhiOTU0NDgyYjViMmJlNzBjM2VlYmJjNg==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/6otPUorqRtFpee0vkAOBCy/tracks",
+        "total": 5196
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:6otPUorqRtFpee0vkAOBCy"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/5XYW2PV0Tm3UM2SjU1V7P2"
+      },
+      "href": "https://api.spotify.com/v1/playlists/5XYW2PV0Tm3UM2SjU1V7P2",
+      "id": "5XYW2PV0Tm3UM2SjU1V7P2",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b27303def4675399db8fc775cef4ab67616d0000b273377169f345863de4ceb5d41fab67616d0000b273c3169b3a4cb8f843064d0d0bab67616d0000b273dbcb0dd9db3dfe1a31398efd",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b27303def4675399db8fc775cef4ab67616d0000b273377169f345863de4ceb5d41fab67616d0000b273c3169b3a4cb8f843064d0d0bab67616d0000b273dbcb0dd9db3dfe1a31398efd",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b27303def4675399db8fc775cef4ab67616d0000b273377169f345863de4ceb5d41fab67616d0000b273c3169b3a4cb8f843064d0d0bab67616d0000b273dbcb0dd9db3dfe1a31398efd",
+          "width": 60
+        }
+      ],
+      "name": "2000s",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MjMsZGZmYmNmMzdkMTMyNzI1MmUwZDJlZmUzZTI4YTViOWFlZTAwMTBhYg==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/5XYW2PV0Tm3UM2SjU1V7P2/tracks",
+        "total": 1810
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:5XYW2PV0Tm3UM2SjU1V7P2"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/7di4AovmPS0cF64sKZFfDr"
+      },
+      "href": "https://api.spotify.com/v1/playlists/7di4AovmPS0cF64sKZFfDr",
+      "id": "7di4AovmPS0cF64sKZFfDr",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b27301841d493ec3808242042c0fab67616d0000b273af5beb00d940f5ede452d6b5ab67616d0000b273c31d3c870a3dbaf7b53186ccab67616d0000b273f51852e6b440637d5f8a0f19",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b27301841d493ec3808242042c0fab67616d0000b273af5beb00d940f5ede452d6b5ab67616d0000b273c31d3c870a3dbaf7b53186ccab67616d0000b273f51852e6b440637d5f8a0f19",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b27301841d493ec3808242042c0fab67616d0000b273af5beb00d940f5ede452d6b5ab67616d0000b273c31d3c870a3dbaf7b53186ccab67616d0000b273f51852e6b440637d5f8a0f19",
+          "width": 60
+        }
+      ],
+      "name": "1990s",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "OCw1YzBhZWNiNTRhNTgxOTRkYmJiMjFkNzZiYWMwZDE1NzYzMmFiZjI4",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/7di4AovmPS0cF64sKZFfDr/tracks",
+        "total": 322
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:7di4AovmPS0cF64sKZFfDr"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/3Dh0AEPK6Q4fmOprjVSgs4"
+      },
+      "href": "https://api.spotify.com/v1/playlists/3Dh0AEPK6Q4fmOprjVSgs4",
+      "id": "3Dh0AEPK6Q4fmOprjVSgs4",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2730cf1266700930267eada5e2cab67616d0000b27391f442ef24b8410ec1e68003ab67616d0000b27396ab64f52273635308b6bf27ab67616d0000b273bb126e633cb3c52079aa7d82",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2730cf1266700930267eada5e2cab67616d0000b27391f442ef24b8410ec1e68003ab67616d0000b27396ab64f52273635308b6bf27ab67616d0000b273bb126e633cb3c52079aa7d82",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2730cf1266700930267eada5e2cab67616d0000b27391f442ef24b8410ec1e68003ab67616d0000b27396ab64f52273635308b6bf27ab67616d0000b273bb126e633cb3c52079aa7d82",
+          "width": 60
+        }
+      ],
+      "name": "1980s",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MjAsNGE3OGI5NzA5NmFkMTA5MjdjODY4YmE1NTgyNTZhYmQ1ZjE1MjBjOA==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/3Dh0AEPK6Q4fmOprjVSgs4/tracks",
+        "total": 56
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:3Dh0AEPK6Q4fmOprjVSgs4"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/3jBSWV5Ct8QQ8PRzO10rcr"
+      },
+      "href": "https://api.spotify.com/v1/playlists/3jBSWV5Ct8QQ8PRzO10rcr",
+      "id": "3jBSWV5Ct8QQ8PRzO10rcr",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2731d99f5402883ad273f45ebf8ab67616d0000b2735ccd022a69a4da9551efd988ab67616d0000b27390a50cfe99a4c19ff3cbfbdbab67616d0000b273f67fbf0d465cca2b3e25af96",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2731d99f5402883ad273f45ebf8ab67616d0000b2735ccd022a69a4da9551efd988ab67616d0000b27390a50cfe99a4c19ff3cbfbdbab67616d0000b273f67fbf0d465cca2b3e25af96",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2731d99f5402883ad273f45ebf8ab67616d0000b2735ccd022a69a4da9551efd988ab67616d0000b27390a50cfe99a4c19ff3cbfbdbab67616d0000b273f67fbf0d465cca2b3e25af96",
+          "width": 60
+        }
+      ],
+      "name": "1970s",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "NyxmZWViNGNlODgxODMxMGQ2MzgzNDIxYWRjMjEwZjBiODYxMGYyNWM3",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/3jBSWV5Ct8QQ8PRzO10rcr/tracks",
+        "total": 46
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:3jBSWV5Ct8QQ8PRzO10rcr"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/4vVPPWHs8YCuRy8PzBglJz"
+      },
+      "href": "https://api.spotify.com/v1/playlists/4vVPPWHs8YCuRy8PzBglJz",
+      "id": "4vVPPWHs8YCuRy8PzBglJz",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2731813ea8f590a0aab2820f922ab67616d0000b2736270e4915798db7ddc520b24ab67616d0000b273e20037311210924b3c386f00ab67616d0000b273fb9dac3244b8486758058a81",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2731813ea8f590a0aab2820f922ab67616d0000b2736270e4915798db7ddc520b24ab67616d0000b273e20037311210924b3c386f00ab67616d0000b273fb9dac3244b8486758058a81",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2731813ea8f590a0aab2820f922ab67616d0000b2736270e4915798db7ddc520b24ab67616d0000b273e20037311210924b3c386f00ab67616d0000b273fb9dac3244b8486758058a81",
+          "width": 60
+        }
+      ],
+      "name": "1960s",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MixkMDFhYzE0NjQ0ZjU1Nzc1YjUxMTk3YWM4N2VkYzQxMTNiOTExNDY1",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/4vVPPWHs8YCuRy8PzBglJz/tracks",
+        "total": 46
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:4vVPPWHs8YCuRy8PzBglJz"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/47H5HfQOi3F4HhHNSaGPef"
+      },
+      "href": "https://api.spotify.com/v1/playlists/47H5HfQOi3F4HhHNSaGPef",
+      "id": "47H5HfQOi3F4HhHNSaGPef",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b27320ee3e86e17f17239bef1f76ab67616d0000b27358816b5b546bdc2c0e7f6416ab67616d0000b2738a22827b01e5d68d3736d58bab67616d0000b273a496dc8c33ca6d10668b3157",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b27320ee3e86e17f17239bef1f76ab67616d0000b27358816b5b546bdc2c0e7f6416ab67616d0000b2738a22827b01e5d68d3736d58bab67616d0000b273a496dc8c33ca6d10668b3157",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b27320ee3e86e17f17239bef1f76ab67616d0000b27358816b5b546bdc2c0e7f6416ab67616d0000b2738a22827b01e5d68d3736d58bab67616d0000b273a496dc8c33ca6d10668b3157",
+          "width": 60
+        }
+      ],
+      "name": "1950s",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "Miw1OGY5ZGUwMGE1OTRjYmI0NDVmOWMwNzdmMjMyYWI4YTUxNmFmZDk1",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/47H5HfQOi3F4HhHNSaGPef/tracks",
+        "total": 5
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:47H5HfQOi3F4HhHNSaGPef"
+    },
+    {
+      "collaborative": false,
+      "description": "Delicate digital expressions of the heart.",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DXaRycgyh6kXP"
+      },
+      "href": "https://api.spotify.com/v1/playlists/37i9dQZF1DXaRycgyh6kXP",
+      "id": "37i9dQZF1DXaRycgyh6kXP",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706f00000003fc4c46b8f25ac6a8f9b5b80d",
+          "width": null
+        }
+      ],
+      "name": "Electronica Romantica",
+      "owner": {
+        "display_name": "Spotify",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/spotify"
+        },
+        "href": "https://api.spotify.com/v1/users/spotify",
+        "id": "spotify",
+        "type": "user",
+        "uri": "spotify:user:spotify"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MTY0Mzg1NjIwNiwwMDAwMDAwMGY5ODNlZmZiNjMyMWZiN2NhOWZiYTE1Yjk4OTY1OTZk",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/37i9dQZF1DXaRycgyh6kXP/tracks",
+        "total": 100
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:37i9dQZF1DXaRycgyh6kXP"
+    },
+    {
+      "collaborative": false,
+      "description": "Spotify Wrapped presents the songs that you loved most this year.",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1EUMDoJuT8yJsl"
+      },
+      "href": "https://api.spotify.com/v1/playlists/37i9dQZF1EUMDoJuT8yJsl",
+      "id": "37i9dQZF1EUMDoJuT8yJsl",
+      "images": [
+        {
+          "height": null,
+          "url": "https://lineup-images.scdn.co/wrapped-2021-top100_LARGE-en.jpg",
+          "width": null
+        }
+      ],
+      "name": "Your Top Songs 2021",
+      "owner": {
+        "display_name": "Spotify",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/spotify"
+        },
+        "href": "https://api.spotify.com/v1/users/spotify",
+        "id": "spotify",
+        "type": "user",
+        "uri": "spotify:user:spotify"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MCwwMDAwMDAwMDBmNGExYzg4ZDZhYThkMWRiZGRhNjgwMDMyYTRjYzc3",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/37i9dQZF1EUMDoJuT8yJsl/tracks",
+        "total": 100
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:37i9dQZF1EUMDoJuT8yJsl"
+    },
+    {
+      "collaborative": false,
+      "description": "The home for alternative electronic music. Cover: Nia Archives",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DXa71eg5j9dKZ"
+      },
+      "href": "https://api.spotify.com/v1/playlists/37i9dQZF1DXa71eg5j9dKZ",
+      "id": "37i9dQZF1DXa71eg5j9dKZ",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706f00000003ea301afd208849c9818e599c",
+          "width": null
+        }
+      ],
+      "name": "Altar",
+      "owner": {
+        "display_name": "Spotify",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/spotify"
+        },
+        "href": "https://api.spotify.com/v1/users/spotify",
+        "id": "spotify",
+        "type": "user",
+        "uri": "spotify:user:spotify"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MTY2NzUyMDAwMCwwMDAwMDAwMDM2YzQ4ZGI1ZTljYjI3MTcyNzZkMzgwMzhmNmM1MTNj",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/37i9dQZF1DXa71eg5j9dKZ/tracks",
+        "total": 88
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:37i9dQZF1DXa71eg5j9dKZ"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/4cNZeLT6VLx8GSLfNf1IY5"
+      },
+      "href": "https://api.spotify.com/v1/playlists/4cNZeLT6VLx8GSLfNf1IY5",
+      "id": "4cNZeLT6VLx8GSLfNf1IY5",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b27301dfb8024ab3b2acd4352203ab67616d0000b273786b6a201877e2ab871d969dab67616d0000b273c1ea4aac1ad07a38c59dd30cab67616d0000b273ea56f049af3cd747595ca724",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b27301dfb8024ab3b2acd4352203ab67616d0000b273786b6a201877e2ab871d969dab67616d0000b273c1ea4aac1ad07a38c59dd30cab67616d0000b273ea56f049af3cd747595ca724",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b27301dfb8024ab3b2acd4352203ab67616d0000b273786b6a201877e2ab871d969dab67616d0000b273c1ea4aac1ad07a38c59dd30cab67616d0000b273ea56f049af3cd747595ca724",
+          "width": 60
+        }
+      ],
+      "name": "Hamster's Paradise",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "MTIsNWEyZWQwOTI1MmI3NDAyNWRlMzM4NjYwYjQwMzZkNjRlNzQzOTVjZg==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/4cNZeLT6VLx8GSLfNf1IY5/tracks",
+        "total": 8
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:4cNZeLT6VLx8GSLfNf1IY5"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/7aBfQwSQhOrNDtRV60PC7D"
+      },
+      "href": "https://api.spotify.com/v1/playlists/7aBfQwSQhOrNDtRV60PC7D",
+      "id": "7aBfQwSQhOrNDtRV60PC7D",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2737e491408e9a88fd63eeafa32ab67616d0000b273c285d0cacd7b0d251553e625ab67616d0000b273c4be3d75578a04ad09ea60e9ab67616d0000b273f3c1367bd04f6cf4fbf60653",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2737e491408e9a88fd63eeafa32ab67616d0000b273c285d0cacd7b0d251553e625ab67616d0000b273c4be3d75578a04ad09ea60e9ab67616d0000b273f3c1367bd04f6cf4fbf60653",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2737e491408e9a88fd63eeafa32ab67616d0000b273c285d0cacd7b0d251553e625ab67616d0000b273c4be3d75578a04ad09ea60e9ab67616d0000b273f3c1367bd04f6cf4fbf60653",
+          "width": 60
+        }
+      ],
+      "name": "Discover Weekly Archive",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MjkxNiw5YWViOGNkNmIwMzczZThiZTNlOGRhMzZjY2YzNGY3YmQ3NWU1MjQx",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/7aBfQwSQhOrNDtRV60PC7D/tracks",
+        "total": 2875
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:7aBfQwSQhOrNDtRV60PC7D"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/6w3kcZysnP7rvvquPdg2Ce"
+      },
+      "href": "https://api.spotify.com/v1/playlists/6w3kcZysnP7rvvquPdg2Ce",
+      "id": "6w3kcZysnP7rvvquPdg2Ce",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b27357629d831030c7cd9506b49cab67616d0000b2736379107d0051880ab55737d3ab67616d0000b2738935646998a8d28d13bc348dab67616d0000b273bc191953b2df3b975f8e6ec4",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b27357629d831030c7cd9506b49cab67616d0000b2736379107d0051880ab55737d3ab67616d0000b2738935646998a8d28d13bc348dab67616d0000b273bc191953b2df3b975f8e6ec4",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b27357629d831030c7cd9506b49cab67616d0000b2736379107d0051880ab55737d3ab67616d0000b2738935646998a8d28d13bc348dab67616d0000b273bc191953b2df3b975f8e6ec4",
+          "width": 60
+        }
+      ],
+      "name": "Pop but pure pop",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "OSw4NGQ3NTY2YzJjMDNhMzE0ZWQxNjQ3OGE5NGE3YTEyZDI3MWE0NzFm",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/6w3kcZysnP7rvvquPdg2Ce/tracks",
+        "total": 9
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:6w3kcZysnP7rvvquPdg2Ce"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/1oAjkkf6CEG3va9yslzckg"
+      },
+      "href": "https://api.spotify.com/v1/playlists/1oAjkkf6CEG3va9yslzckg",
+      "id": "1oAjkkf6CEG3va9yslzckg",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b273088d99c85e6de4f30b39679cab67616d0000b27343e421b48df3b4a09ce3c722ab67616d0000b2734a3b5bb808c0b770e1246376ab67616d0000b2739c1fbc8be7e570f16309d28f",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b273088d99c85e6de4f30b39679cab67616d0000b27343e421b48df3b4a09ce3c722ab67616d0000b2734a3b5bb808c0b770e1246376ab67616d0000b2739c1fbc8be7e570f16309d28f",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b273088d99c85e6de4f30b39679cab67616d0000b27343e421b48df3b4a09ce3c722ab67616d0000b2734a3b5bb808c0b770e1246376ab67616d0000b2739c1fbc8be7e570f16309d28f",
+          "width": 60
+        }
+      ],
+      "name": "idk",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "NDQsYzRiY2IxMzhmMDg0Yzc2YTEzNzdjZGFjMjZkY2Q1MmFhMWI0OGE3Ng==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/1oAjkkf6CEG3va9yslzckg/tracks",
+        "total": 43
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:1oAjkkf6CEG3va9yslzckg"
+    },
+    {
+      "collaborative": false,
+      "description": "The songs you loved most this year, all wrapped up.",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1EMeAp1zF1YTDK"
+      },
+      "href": "https://api.spotify.com/v1/playlists/37i9dQZF1EMeAp1zF1YTDK",
+      "id": "37i9dQZF1EMeAp1zF1YTDK",
+      "images": [
+        {
+          "height": null,
+          "url": "https://lineup-images.scdn.co/wrapped-2020-top100_LARGE-en.jpg",
+          "width": null
+        }
+      ],
+      "name": "Your Top Songs 2020",
+      "owner": {
+        "display_name": "Spotify",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/spotify"
+        },
+        "href": "https://api.spotify.com/v1/users/spotify",
+        "id": "spotify",
+        "type": "user",
+        "uri": "spotify:user:spotify"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MjY3NzQ2MDQsMDAwMDAwMDBkODE1Nzc0OGY1ZWMxNWRhMmI4MmM2MWFhNDI4ZDA4Zg==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/37i9dQZF1EMeAp1zF1YTDK/tracks",
+        "total": 100
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:37i9dQZF1EMeAp1zF1YTDK"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/5oDSne0q1nvrG48PboKOgr"
+      },
+      "href": "https://api.spotify.com/v1/playlists/5oDSne0q1nvrG48PboKOgr",
+      "id": "5oDSne0q1nvrG48PboKOgr",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2735c444869fe1ea3264ed62c07ab67616d0000b2736e7bb273ff9cb1de1e1d4d0aab67616d0000b273bba7cfaf7c59ff0898acba1fab67616d0000b273bc475d512ed99639f005bd8c",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2735c444869fe1ea3264ed62c07ab67616d0000b2736e7bb273ff9cb1de1e1d4d0aab67616d0000b273bba7cfaf7c59ff0898acba1fab67616d0000b273bc475d512ed99639f005bd8c",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2735c444869fe1ea3264ed62c07ab67616d0000b2736e7bb273ff9cb1de1e1d4d0aab67616d0000b273bba7cfaf7c59ff0898acba1fab67616d0000b273bc475d512ed99639f005bd8c",
+          "width": 60
+        }
+      ],
+      "name": "Late Night Working",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "OSw3YzQ4ODQ1NTM4MWM1YWY1NjIwYWEyZTVmYzkzY2Q2NDBmOWI5ZWFj",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/5oDSne0q1nvrG48PboKOgr/tracks",
+        "total": 6
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:5oDSne0q1nvrG48PboKOgr"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/6Hzx4H6n60M6bcc4AzoryE"
+      },
+      "href": "https://api.spotify.com/v1/playlists/6Hzx4H6n60M6bcc4AzoryE",
+      "id": "6Hzx4H6n60M6bcc4AzoryE",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b27304ddb44811cf7d2f38451483ab67616d0000b27337116667619dd17b18faef72ab67616d0000b2738e2d682b09d54a6172a77407ab67616d0000b273cc65e5a3c83d3f94fd1f098a",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b27304ddb44811cf7d2f38451483ab67616d0000b27337116667619dd17b18faef72ab67616d0000b2738e2d682b09d54a6172a77407ab67616d0000b273cc65e5a3c83d3f94fd1f098a",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b27304ddb44811cf7d2f38451483ab67616d0000b27337116667619dd17b18faef72ab67616d0000b2738e2d682b09d54a6172a77407ab67616d0000b273cc65e5a3c83d3f94fd1f098a",
+          "width": 60
+        }
+      ],
+      "name": "This Would Go Off In The Barn",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "ODMsMzFjMTI5ZDAxZDAzNzQ3ZTY4Nzk1MGU4YjJjYTk4MTc4NjBlNjQ1Mg==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/6Hzx4H6n60M6bcc4AzoryE/tracks",
+        "total": 80
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:6Hzx4H6n60M6bcc4AzoryE"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/0rdCBeB9LQOlGy2D8flDE4"
+      },
+      "href": "https://api.spotify.com/v1/playlists/0rdCBeB9LQOlGy2D8flDE4",
+      "id": "0rdCBeB9LQOlGy2D8flDE4",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b27307fe7114e6d639a58ab792a1ab67616d0000b2733852b314a98be5ccf31439beab67616d0000b273c061423a25e84bddcb60bd97ab67616d0000b273e629cab6558cb496b60e2178",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b27307fe7114e6d639a58ab792a1ab67616d0000b2733852b314a98be5ccf31439beab67616d0000b273c061423a25e84bddcb60bd97ab67616d0000b273e629cab6558cb496b60e2178",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b27307fe7114e6d639a58ab792a1ab67616d0000b2733852b314a98be5ccf31439beab67616d0000b273c061423a25e84bddcb60bd97ab67616d0000b273e629cab6558cb496b60e2178",
+          "width": 60
+        }
+      ],
+      "name": "It's Drum and Bass. What you gonna do?",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "MTI4LDExN2M1YjRjOWRmOTVlNjEzZmJkMTQwODQ5NDZiNTljZWMxNjY4YTU=",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/0rdCBeB9LQOlGy2D8flDE4/tracks",
+        "total": 190
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:0rdCBeB9LQOlGy2D8flDE4"
+    },
+    {
+      "collaborative": false,
+      "description": "HYPERBOOM Hits? Techno Tunes? TrackMania Tunes!",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/4Vv023MaZsc8NTWZ4WJvIL"
+      },
+      "href": "https://api.spotify.com/v1/playlists/4Vv023MaZsc8NTWZ4WJvIL",
+      "id": "4Vv023MaZsc8NTWZ4WJvIL",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2733703efbf63dddeb2ce28f479ab67616d0000b2733f8887dbe03f95304b176a3dab67616d0000b2735889215746f6e9de26b85d60ab67616d0000b273f572f1f295d4d1d66429af20",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2733703efbf63dddeb2ce28f479ab67616d0000b2733f8887dbe03f95304b176a3dab67616d0000b2735889215746f6e9de26b85d60ab67616d0000b273f572f1f295d4d1d66429af20",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2733703efbf63dddeb2ce28f479ab67616d0000b2733f8887dbe03f95304b176a3dab67616d0000b2735889215746f6e9de26b85d60ab67616d0000b273f572f1f295d4d1d66429af20",
+          "width": 60
+        }
+      ],
+      "name": "JAMBOX Jams",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "MzI1LGE0MDI4NzhiZGUzYWU3ZDY0MzFjYmI5ZGVjOGFmMDhlMGE0N2Y4ZTE=",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/4Vv023MaZsc8NTWZ4WJvIL/tracks",
+        "total": 372
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:4Vv023MaZsc8NTWZ4WJvIL"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/3gRIFQ23CgaGNGJgS6oIFL"
+      },
+      "href": "https://api.spotify.com/v1/playlists/3gRIFQ23CgaGNGJgS6oIFL",
+      "id": "3gRIFQ23CgaGNGJgS6oIFL",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b27316a7b71782fa0d8d30d697e7ab67616d0000b27386628b6bf19b2bcb52ed2ed0ab67616d0000b273d9194aa18fa4c9362b47464fab67616d0000b273f907de96b9a4fbc04accc0d5",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b27316a7b71782fa0d8d30d697e7ab67616d0000b27386628b6bf19b2bcb52ed2ed0ab67616d0000b273d9194aa18fa4c9362b47464fab67616d0000b273f907de96b9a4fbc04accc0d5",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b27316a7b71782fa0d8d30d697e7ab67616d0000b27386628b6bf19b2bcb52ed2ed0ab67616d0000b273d9194aa18fa4c9362b47464fab67616d0000b273f907de96b9a4fbc04accc0d5",
+          "width": 60
+        }
+      ],
+      "name": "Gains Central",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "MjU4LGRiMmFkNTU4ODlkODVkZjMwMzEzM2Y5ODljYjdiZWE3NWQ0ZDZhMWU=",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/3gRIFQ23CgaGNGJgS6oIFL/tracks",
+        "total": 243
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:3gRIFQ23CgaGNGJgS6oIFL"
+    },
+    {
+      "collaborative": false,
+      "description": "Songs you love right now",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1EpA3QN7CMmHF9"
+      },
+      "href": "https://api.spotify.com/v1/playlists/37i9dQZF1EpA3QN7CMmHF9",
+      "id": "37i9dQZF1EpA3QN7CMmHF9",
+      "images": [
+        {
+          "height": null,
+          "url": "https://daily-mix.scdn.co/covers/on_repeat/PZN_On_Repeat2_LARGE-en.jpg",
+          "width": null
+        }
+      ],
+      "name": "On Repeat",
+      "owner": {
+        "display_name": "Spotify",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/spotify"
+        },
+        "href": "https://api.spotify.com/v1/users/spotify",
+        "id": "spotify",
+        "type": "user",
+        "uri": "spotify:user:spotify"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MTY2Nzg3NTIyMywwMDAwMDAwMDI2YzEzYmE2NGJiY2MwYjkzMmNiNDNjOTc3NTJkYzFm",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/37i9dQZF1EpA3QN7CMmHF9/tracks",
+        "total": 30
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:37i9dQZF1EpA3QN7CMmHF9"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/2lMx8FU0SeQ7eA5kcMlNpX"
+      },
+      "href": "https://api.spotify.com/v1/playlists/2lMx8FU0SeQ7eA5kcMlNpX",
+      "id": "2lMx8FU0SeQ7eA5kcMlNpX",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebb31de4c951d32e93d6d28231c",
+          "width": null
+        }
+      ],
+      "name": "Chill Electronica",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "NTIxLDdjOTYwNjE0YTE2Y2M4ZGU0YzUxYmFlOWMxNjIzODBmZDRkNjQ4ZTE=",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks",
+        "total": 518
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:2lMx8FU0SeQ7eA5kcMlNpX"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/2H40lUVu80qHz2AGE0fk3z"
+      },
+      "href": "https://api.spotify.com/v1/playlists/2H40lUVu80qHz2AGE0fk3z",
+      "id": "2H40lUVu80qHz2AGE0fk3z",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebb8e6572b798094fb59d8b49b0",
+          "width": null
+        }
+      ],
+      "name": "Bare DnB",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "NjgsZGU3MjI0ZmU5MzE0MzgxYWFiY2UyODU5N2M1NjlkOWRkOTRiMzYyNA==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/2H40lUVu80qHz2AGE0fk3z/tracks",
+        "total": 63
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:2H40lUVu80qHz2AGE0fk3z"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/3uUHmEPTvpSh8q2WQaTeFH"
+      },
+      "href": "https://api.spotify.com/v1/playlists/3uUHmEPTvpSh8q2WQaTeFH",
+      "id": "3uUHmEPTvpSh8q2WQaTeFH",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebb5ade491bc71d9ea2bccab638",
+          "width": null
+        }
+      ],
+      "name": "Chill Thy Beans",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "ODMsMjQ1YTViMzZhMDJmMmVjZjY3ZTk0YzVhNTUxODg2NGU5Yzg5YWYxYQ==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/3uUHmEPTvpSh8q2WQaTeFH/tracks",
+        "total": 70
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:3uUHmEPTvpSh8q2WQaTeFH"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/3HJrDuzRACD86eE0w5yrRv"
+      },
+      "href": "https://api.spotify.com/v1/playlists/3HJrDuzRACD86eE0w5yrRv",
+      "id": "3HJrDuzRACD86eE0w5yrRv",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebb1884d7a0da935232787f359b",
+          "width": null
+        }
+      ],
+      "name": "Dance Anthems",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MjEsMWI4NTg3MzJiMDcwOTc5ZWU4OGRjZjBkY2I3YmVkYmZiYmFmZDM4YQ==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/3HJrDuzRACD86eE0w5yrRv/tracks",
+        "total": 16
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:3HJrDuzRACD86eE0w5yrRv"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/5cZ7wPnpqxrJDQEi5OBCIQ"
+      },
+      "href": "https://api.spotify.com/v1/playlists/5cZ7wPnpqxrJDQEi5OBCIQ",
+      "id": "5cZ7wPnpqxrJDQEi5OBCIQ",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebbd3ed260a08c61ee5459d70b8",
+          "width": null
+        }
+      ],
+      "name": "Jackin' House",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "MTQzLGI1NTkzNjRhNzQ3ZmMwNDIwODViYjhiYmM4NTNlNDlhNWJhYTc0MmY=",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/5cZ7wPnpqxrJDQEi5OBCIQ/tracks",
+        "total": 134
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:5cZ7wPnpqxrJDQEi5OBCIQ"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/5lrIoQQ6uTsfUR7AkgKBUc"
+      },
+      "href": "https://api.spotify.com/v1/playlists/5lrIoQQ6uTsfUR7AkgKBUc",
+      "id": "5lrIoQQ6uTsfUR7AkgKBUc",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebb1f3049716b3f27555b5aa48f",
+          "width": null
+        }
+      ],
+      "name": "Proximity",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "OTIsMDliOGU5YWEyMWYwNDlkYmY1NTM0MzIyY2ZiNTU5YmY3YzU0ZGZhOQ==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/5lrIoQQ6uTsfUR7AkgKBUc/tracks",
+        "total": 85
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:5lrIoQQ6uTsfUR7AkgKBUc"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/1iJHDyFl4Dy6G4w1ubF8Kg"
+      },
+      "href": "https://api.spotify.com/v1/playlists/1iJHDyFl4Dy6G4w1ubF8Kg",
+      "id": "1iJHDyFl4Dy6G4w1ubF8Kg",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebb5745d246918ae85035d12919",
+          "width": null
+        }
+      ],
+      "name": "Summer Tunes, Yo",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "NjMsMDg4NTU0NTBkMmYyZmVkZWJlYTg4MDQxMTNlYjExNTVmMjQyYTNhNg==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/1iJHDyFl4Dy6G4w1ubF8Kg/tracks",
+        "total": 57
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:1iJHDyFl4Dy6G4w1ubF8Kg"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/5evtK8928YEzWXKTo7waAH"
+      },
+      "href": "https://api.spotify.com/v1/playlists/5evtK8928YEzWXKTo7waAH",
+      "id": "5evtK8928YEzWXKTo7waAH",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebbeb279b8b84517fec67e979cf",
+          "width": null
+        }
+      ],
+      "name": "Ultimate EDM",
+      "owner": {
+        "display_name": "Will Garside",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/worgarside"
+        },
+        "href": "https://api.spotify.com/v1/users/worgarside",
+        "id": "worgarside",
+        "type": "user",
+        "uri": "spotify:user:worgarside"
+      },
+      "primary_color": null,
+      "public": true,
+      "snapshot_id": "MzQsMTQ5ZWZhZmQ2OTY0YmM4OTAzMjAxNzA1NGExYmIyZmJjNmY3N2E2NQ==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/5evtK8928YEzWXKTo7waAH/tracks",
+        "total": 30
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:5evtK8928YEzWXKTo7waAH"
+    },
+    {
+      "collaborative": false,
+      "description": "Updated weekly with our favourite sounds from all over the world. This week\u2019s Headphone Selections cover shot by @paoloverzone",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/6yxbtfBJ62J403aVWQnwwI"
+      },
+      "href": "https://api.spotify.com/v1/playlists/6yxbtfBJ62J403aVWQnwwI",
+      "id": "6yxbtfBJ62J403aVWQnwwI",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebba2a479b7328a147ba24d7b01",
+          "width": null
+        }
+      ],
+      "name": "Headphone Selections by R\u00dcF\u00dcS DU SOL",
+      "owner": {
+        "display_name": "R\u00dcF\u00dcS",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/r%C3%BCf%C3%BCs"
+        },
+        "href": "https://api.spotify.com/v1/users/r%C3%BCf%C3%BCs",
+        "id": "r\u00fcf\u00fcs",
+        "type": "user",
+        "uri": "spotify:user:r%C3%BCf%C3%BCs"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "ODUwLDk3MDM1MjQ5MjVlM2E1Njg1MDA0OWQ0NWQ5YzMyMDAyNzZiMDNiMmU=",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/6yxbtfBJ62J403aVWQnwwI/tracks",
+        "total": 669
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:6yxbtfBJ62J403aVWQnwwI"
+    },
+    {
+      "collaborative": false,
+      "description": "A mix of tracks that I've been playing in my sets and music that is inspiring me at the moment.",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/7MGauBXssMrJ7JMa2RTp2w"
+      },
+      "href": "https://api.spotify.com/v1/playlists/7MGauBXssMrJ7JMa2RTp2w",
+      "id": "7MGauBXssMrJ7JMa2RTp2w",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebb404b06bc263ba6492f1b899c",
+          "width": null
+        }
+      ],
+      "name": "Sub Focus Selects",
+      "owner": {
+        "display_name": "Sub Focus",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/subfocusofficial"
+        },
+        "href": "https://api.spotify.com/v1/users/subfocusofficial",
+        "id": "subfocusofficial",
+        "type": "user",
+        "uri": "spotify:user:subfocusofficial"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MjE2MyxmMjZiZGQ5OGVjYzE4ODQ0MDVlZWVmN2NhODI1M2IwMDA1YWE0YWFl",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/7MGauBXssMrJ7JMa2RTp2w/tracks",
+        "total": 604
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:7MGauBXssMrJ7JMa2RTp2w"
+    },
+    {
+      "collaborative": false,
+      "description": "Selected electronic tracks mixed with an indie flavour.",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DXe9rwUsvOhKL"
+      },
+      "href": "https://api.spotify.com/v1/playlists/37i9dQZF1DXe9rwUsvOhKL",
+      "id": "37i9dQZF1DXe9rwUsvOhKL",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706f00000003eb8cf1dee950d1e0522f09f0",
+          "width": null
+        }
+      ],
+      "name": "Selectronica",
+      "owner": {
+        "display_name": "Spotify",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/spotify"
+        },
+        "href": "https://api.spotify.com/v1/users/spotify",
+        "id": "spotify",
+        "type": "user",
+        "uri": "spotify:user:spotify"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MTYzNDMwMjc3OCwwMDAwMDAwMDliNmRiMzU1MWM1MDg5OTBkYTYyYWVmMTNlMmU3NzM1",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/37i9dQZF1DXe9rwUsvOhKL/tracks",
+        "total": 71
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:37i9dQZF1DXe9rwUsvOhKL"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/4p97oVaf9JBR2zIwS5vWmZ"
+      },
+      "href": "https://api.spotify.com/v1/playlists/4p97oVaf9JBR2zIwS5vWmZ",
+      "id": "4p97oVaf9JBR2zIwS5vWmZ",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2734d44b7f4fc30e8522d411bbeab67616d0000b27361594af80362e94fb934af7aab67616d0000b273de342b284f5dc7e0257fe38cab67616d0000b273eded2e9bae0cba9092424797",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2734d44b7f4fc30e8522d411bbeab67616d0000b27361594af80362e94fb934af7aab67616d0000b273de342b284f5dc7e0257fe38cab67616d0000b273eded2e9bae0cba9092424797",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2734d44b7f4fc30e8522d411bbeab67616d0000b27361594af80362e94fb934af7aab67616d0000b273de342b284f5dc7e0257fe38cab67616d0000b273eded2e9bae0cba9092424797",
+          "width": 60
+        }
+      ],
+      "name": "Ya Kiddingggggggg!!!!!!!!",
+      "owner": {
+        "display_name": "Matt Batger",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/1271040612"
+        },
+        "href": "https://api.spotify.com/v1/users/1271040612",
+        "id": "1271040612",
+        "type": "user",
+        "uri": "spotify:user:1271040612"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "NDgyLGQ5ZDA3YzgxYzA1OWI4YWVlZmY0YjE0NjUyMzM3OWExOTJiMDFkOTY=",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/4p97oVaf9JBR2zIwS5vWmZ/tracks",
+        "total": 371
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:4p97oVaf9JBR2zIwS5vWmZ"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/6lQkH5L21twNPgllxkNzhm"
+      },
+      "href": "https://api.spotify.com/v1/playlists/6lQkH5L21twNPgllxkNzhm",
+      "id": "6lQkH5L21twNPgllxkNzhm",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b27342f18e4767b714e8b16fc193ab67616d0000b2734771d6cfad5b318bdf8575c6ab67616d0000b273d4322a9004288009f6da2975ab67616d0000b273e7edcaad955451771f08ff3b",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b27342f18e4767b714e8b16fc193ab67616d0000b2734771d6cfad5b318bdf8575c6ab67616d0000b273d4322a9004288009f6da2975ab67616d0000b273e7edcaad955451771f08ff3b",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b27342f18e4767b714e8b16fc193ab67616d0000b2734771d6cfad5b318bdf8575c6ab67616d0000b273d4322a9004288009f6da2975ab67616d0000b273e7edcaad955451771f08ff3b",
+          "width": 60
+        }
+      ],
+      "name": "print(\"Coding Bangers\")",
+      "owner": {
+        "display_name": "R_T_Jones",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/4gq3wgewrfvn2rjs5nqhbycdz"
+        },
+        "href": "https://api.spotify.com/v1/users/4gq3wgewrfvn2rjs5nqhbycdz",
+        "id": "4gq3wgewrfvn2rjs5nqhbycdz",
+        "type": "user",
+        "uri": "spotify:user:4gq3wgewrfvn2rjs5nqhbycdz"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "NTIsNmUwMzUxY2UzYTUxMjQyMWIyYjFkZDg0ODdiNmI0NGEwZmM4ZDhkMg==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/6lQkH5L21twNPgllxkNzhm/tracks",
+        "total": 51
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:6lQkH5L21twNPgllxkNzhm"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/5YLwQswSGERuK0YTw8BsbY"
+      },
+      "href": "https://api.spotify.com/v1/playlists/5YLwQswSGERuK0YTw8BsbY",
+      "id": "5YLwQswSGERuK0YTw8BsbY",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b27309669f3e434b202fcb4c957bab67616d0000b2730b640552194d7446c6a42f8eab67616d0000b2736ad26a2d54c33c9759946aa9ab67616d0000b27383b014552c741592fdb96348",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b27309669f3e434b202fcb4c957bab67616d0000b2730b640552194d7446c6a42f8eab67616d0000b2736ad26a2d54c33c9759946aa9ab67616d0000b27383b014552c741592fdb96348",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b27309669f3e434b202fcb4c957bab67616d0000b2730b640552194d7446c6a42f8eab67616d0000b2736ad26a2d54c33c9759946aa9ab67616d0000b27383b014552c741592fdb96348",
+          "width": 60
+        }
+      ],
+      "name": "Techno Tapas",
+      "owner": {
+        "display_name": "Henry Tannahill",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/11187155037"
+        },
+        "href": "https://api.spotify.com/v1/users/11187155037",
+        "id": "11187155037",
+        "type": "user",
+        "uri": "spotify:user:11187155037"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "NjEsMmUyOTBlYjllZmU2MTUwYTYyYWJjMmQ2OWJjNzMxMzI4MzkxNjBkZg==",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/5YLwQswSGERuK0YTw8BsbY/tracks",
+        "total": 36
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:5YLwQswSGERuK0YTw8BsbY"
+    },
+    {
+      "collaborative": false,
+      "description": "When the night isn't over just yet.",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DXdbizRAR17Ui"
+      },
+      "href": "https://api.spotify.com/v1/playlists/37i9dQZF1DXdbizRAR17Ui",
+      "id": "37i9dQZF1DXdbizRAR17Ui",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706f0000000337b56fa15ed7d0856f4a8063",
+          "width": null
+        }
+      ],
+      "name": "4AM Chillout",
+      "owner": {
+        "display_name": "Spotify",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/spotify"
+        },
+        "href": "https://api.spotify.com/v1/users/spotify",
+        "id": "spotify",
+        "type": "user",
+        "uri": "spotify:user:spotify"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MTY2Njk3NzA3MiwwMDAwMDAwMGFjZTFjMjE5Y2ZlYmY3YmVmNmZiMTYyNzFmMGZhY2Fk",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/37i9dQZF1DXdbizRAR17Ui/tracks",
+        "total": 50
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:37i9dQZF1DXdbizRAR17Ui"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/1umeWdzyHKGTsWGSIGkv2y"
+      },
+      "href": "https://api.spotify.com/v1/playlists/1umeWdzyHKGTsWGSIGkv2y",
+      "id": "1umeWdzyHKGTsWGSIGkv2y",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/ab67706c0000bebb360aed09ab3da0a3a1f6a5f0",
+          "width": null
+        }
+      ],
+      "name": "Repetitive Beats & Boring Drops",
+      "owner": {
+        "display_name": "mattscotto7",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/mattscotto7"
+        },
+        "href": "https://api.spotify.com/v1/users/mattscotto7",
+        "id": "mattscotto7",
+        "type": "user",
+        "uri": "spotify:user:mattscotto7"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MzM0LDQ0MzlmMDU3ZjJhNjdiYjE5MzFjMTAyM2QxZDRhZmY2ODQ5ODE0MGU=",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/1umeWdzyHKGTsWGSIGkv2y/tracks",
+        "total": 290
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:1umeWdzyHKGTsWGSIGkv2y"
+    },
+    {
+      "collaborative": false,
+      "description": "",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/07tSidYuaZsxYPFsDj9xtL"
+      },
+      "href": "https://api.spotify.com/v1/playlists/07tSidYuaZsxYPFsDj9xtL",
+      "id": "07tSidYuaZsxYPFsDj9xtL",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://mosaic.scdn.co/640/ab67616d0000b2736212921451f26bf0c1bc4d91ab67616d0000b27386ea2bbfc9494163c9f5e42dab67616d0000b273910f382c8547679ccfe3b736ab67616d0000b273bf82130ce529153496038461",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://mosaic.scdn.co/300/ab67616d0000b2736212921451f26bf0c1bc4d91ab67616d0000b27386ea2bbfc9494163c9f5e42dab67616d0000b273910f382c8547679ccfe3b736ab67616d0000b273bf82130ce529153496038461",
+          "width": 300
+        },
+        {
+          "height": 60,
+          "url": "https://mosaic.scdn.co/60/ab67616d0000b2736212921451f26bf0c1bc4d91ab67616d0000b27386ea2bbfc9494163c9f5e42dab67616d0000b273910f382c8547679ccfe3b736ab67616d0000b273bf82130ce529153496038461",
+          "width": 60
+        }
+      ],
+      "name": "Gym",
+      "owner": {
+        "display_name": "richatses",
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/richatses"
+        },
+        "href": "https://api.spotify.com/v1/users/richatses",
+        "id": "richatses",
+        "type": "user",
+        "uri": "spotify:user:richatses"
+      },
+      "primary_color": null,
+      "public": false,
+      "snapshot_id": "MTA2LDM0NDBmYWE2ZWY3ZTU1ZDk1YzI4NzYwNjI3MGM2NWNiNzhlNzUxN2Q=",
+      "tracks": {
+        "href": "https://api.spotify.com/v1/playlists/07tSidYuaZsxYPFsDj9xtL/tracks",
+        "total": 87
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:07tSidYuaZsxYPFsDj9xtL"
+    }
+  ],
+  "limit": 50,
+  "next": "https://api.spotify.com/v1/users/worgarside/playlists?offset=50&limit=50",
+  "offset": 0,
+  "previous": null,
+  "total": 153
+}

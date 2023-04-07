@@ -1,0 +1,64 @@
+---
+name: Draft Release
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches:
+      - release/*
+  workflow_dispatch:
+
+jobs:
+  draft-release:
+    name: Draft Release
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    outputs:
+      release-tag: ${{ steps.get-release-tag.outputs.new-release-number }}
+    steps:
+      - name: Clone Repo
+        uses: actions/checkout@v3
+
+      - name: Get Release Tag
+        id: get-release-tag
+        # yamllint disable rule:line-length
+        run: |
+          new_release_number=$(echo ${{ github.ref_name }} | cut -d '/' -f2)
+          if ! [[ $new_release_number =~ ^[0-9]{1,2}\.[0-9]{1,4}\.[0-9]{1,4}$ ]]
+          then
+              echo "Release number is invalid: \`$new_release_number\`" >> $GITHUB_STEP_SUMMARY
+              exit 1
+          else
+            echo "new-release-number=$new_release_number" >> $GITHUB_OUTPUT
+          fi
+        # yamllint enable rule:line-length
+
+      - name: Validate `pyproject.toml` version
+        # yamllint disable rule:line-length
+        run: |
+          expected_line="version = \"${{ steps.get-release-tag.outputs.new-release-number }}\""
+          actual_line=$(grep -E "^version = \"" pyproject.toml)
+          if [ "$expected_line" != "$actual_line" ]
+          then
+              echo "`pyproject.toml` version is invalid: \`$actual_line\`" >> $GITHUB_STEP_SUMMARY
+              exit 1
+          fi
+        # yamllint enable rule:line-length
+
+      - uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-and-add-to-notes:
+    name: Build and Add to Release Notes
+    needs:
+      - draft-release
+    uses: ./.github/workflows/build_and_publish.yml
+    with:
+      build_branch: ${{ github.base_ref }}
+      environment: 'development'
+      release_tag: ${{ needs.draft-release.outputs.release-tag }}
+    secrets:
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}

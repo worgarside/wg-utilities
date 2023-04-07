@@ -1,28 +1,42 @@
-"""Custom client for interacting with TrueLayer's API"""
+# pylint: disable=too-few-public-methods
+"""Custom client for interacting with TrueLayer's API."""
 from __future__ import annotations
 
-from datetime import datetime, timedelta
-from enum import Enum
-from json import dump, dumps, load
+from collections.abc import Iterable
+from datetime import date, datetime, timedelta
+from enum import Enum, auto
 from logging import DEBUG, getLogger
-from os import getenv
-from time import time
-from typing import Any, Generator, Iterable, Literal, TypedDict
-from webbrowser import open as open_browser
+from os.path import sep
+from pathlib import Path
+from typing import Any, ClassVar, Literal, TypeAlias, TypedDict, TypeVar
 
-from jwt import DecodeError, decode
-from requests import HTTPError, Response, get, post
+from pydantic import Field, validator
+from requests import HTTPError
+from strenum import StrEnum
 
-from wg_utilities.functions import force_mkdir, user_data_dir
+from wg_utilities.clients.oauth_client import (
+    BaseModelWithConfig,
+    GenericModelWithConfig,
+    OAuthClient,
+    StrBytIntFlt,
+)
+from wg_utilities.functions import user_data_dir
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
-DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+
+class AccountType(StrEnum):  # type: ignore[misc]
+    """Possible TrueLayer account types."""
+
+    TRANSACTION = auto()
+    SAVINGS = auto()
+    BUSINESS_TRANSACTION = auto()
+    BUSINESS_SAVINGS = auto()
 
 
 class Bank(Enum):
-    """Enum for all banks supported by TrueLayer"""
+    """Enum for all banks supported by TrueLayer."""
 
     ALLIED_IRISH_BANK_CORPORATE = "Allied Irish Bank Corporate"
     AMEX = "Amex"
@@ -53,6 +67,7 @@ class Bank(Enum):
     ROYAL_BANK_OF_SCOTLAND_BUSINESS = "Royal Bank of Scotland Business"
     SANTANDER = "Santander"
     STARLING = "Starling"
+    STARLING_JOINT = "Starling Joint"
     TESCO_BANK = "Tesco Bank"
     TIDE = "Tide"
     TSB = "TSB"
@@ -64,8 +79,11 @@ class Bank(Enum):
 
 
 class TransactionCategory(Enum):
-    """Enum for TrueLayer transaction types, including an overridden __init__
-    method for setting a description as well as the main value"""
+    """Enum for TrueLayer transaction types.
+
+    __init__ method is overridden to allow setting a description as well as the main
+     value.
+    """
 
     ATM = (
         "ATM",
@@ -111,490 +129,113 @@ class TransactionCategory(Enum):
         self.description = description
 
 
-class _TrueLayerEntityInfo(TypedDict):
-    account_id: str
-    currency: str
-    display_name: str
-    provider: dict[Literal["display_name", "logo_uri", "provider_id"], str]
-    update_timestamp: str
-
-
-class _AccountNumberInfo(TypedDict):
-    iban: str
-    number: str
-    sort_code: str
+class _AccountNumber(BaseModelWithConfig):
+    iban: str | None
+    number: str | None
+    sort_code: str | None
     swift_bic: str
 
 
-class _AccountInfo(_TrueLayerEntityInfo):
-    account_number: _AccountNumberInfo
-    account_type: Literal[
-        "TRANSACTION", "SAVINGS", "BUSINESS_TRANSACTION", "BUSINESS_SAVINGS"
-    ]
+class _TrueLayerBaseEntityJson(TypedDict):
+    account_id: str
+    currency: str
+    display_name: str
+    provider: _TrueLayerEntityProvider
+    update_timestamp: str
 
 
-class _CardInfo(_TrueLayerEntityInfo):
+class AccountJson(_TrueLayerBaseEntityJson):
+    """JSON representation of a TrueLayer Account."""
+
+    account_number: _AccountNumber
+    account_type: AccountType
+
+
+class CardJson(_TrueLayerBaseEntityJson):
+    """JSON representation of a Card."""
+
     card_network: str
     card_type: str
     partial_card_number: str
     name_on_card: str
-    valid_from: str
-    valid_to: str
+    valid_from: date | None
+    valid_to: date | None
 
 
-class _TransactionInfo(TypedDict):
-    transaction_id: str
-    normalised_provider_transaction_id: str | None
-    provider_transaction_id: str | None
-    timestamp: str
-    description: str
-    amount: float
+class BalanceVariables(BaseModelWithConfig):
+    """Variables for an account's balance summary."""
+
+    available_balance: int
+    current_balance: int
+    overdraft: int
+    credit_limit: int
+    last_statement_balance: int
+    last_statement_date: date
+    payment_due: int
+    payment_due_date: date
+
+
+class _TrueLayerEntityProvider(BaseModelWithConfig):
+    display_name: str
+    logo_uri: str
+    id: str = Field(alias="provider_id")
+
+
+TrueLayerEntityJson: TypeAlias = AccountJson | CardJson
+
+FJR = TypeVar("FJR", bound="TrueLayerEntity")
+
+
+class TrueLayerEntity(GenericModelWithConfig):
+    """Parent class for all TrueLayer entities (accounts, cards, etc.)."""
+
+    BALANCE_FIELDS: ClassVar[Iterable[str]] = ()
+
+    id: str = Field(alias="account_id")
     currency: str
-    transaction_type: str
-    transaction_category: Literal[
-        "ATM",
-        "BILL_PAYMENT",
-        "CASH",
-        "CASHBACK",
-        "CHEQUE",
-        "CORRECTION",
-        "CREDIT",
-        "DIRECT_DEBIT",
-        "DIVIDEND",
-        "FEE_CHARGE",
-        "INTEREST",
-        "OTHER",
-        "PURCHASE",
-        "STANDING_ORDER",
-        "TRANSFER",
-        "DEBIT",
-        "UNKNOWN",
-    ]
-    transaction_classification: list[str]
-    merchant_name: str | None
-    running_balance: dict[str, str | float] | None
-    meta: dict[str, str]
+    display_name: str
+    provider: _TrueLayerEntityProvider
+    update_timestamp: str
 
+    _available_balance: float
+    _current_balance: float
+    _overdraft: float
+    _credit_limit: float
+    _last_statement_balance: float
+    _last_statement_date: date
+    _payment_due: float
+    _payment_due_date: date
 
-class TrueLayerClient:
-    """Custom client for interacting with TrueLayer's APIs, including all necessary
-    authentication functionality
+    truelayer_client: TrueLayerClient = Field(exclude=True)
+    balance_update_threshold: timedelta = Field(timedelta(minutes=15), exclude=True)
+    last_balance_update: datetime = Field(datetime(1970, 1, 1), exclude=True)
+    _balance_variables: BalanceVariables
 
-    Args:
-        client_id (str): the client ID for the TrueLayer application
-        client_secret (str): the client secret
-        bank (Bank): the bank which we're working with
-        redirect_uri (str): the redirect URI for the auth flow
-        access_token_expiry_threshold (int): the number of seconds to subtract from
-         the access token's expiry when checking its expiry status
-        log_requests (bool): flag for choosing if to log all requests made
-        creds_cache_path (str): file path for where to cache credentials
-    """
+    @classmethod
+    def from_json_response(
+        cls: type[FJR], value: TrueLayerEntityJson, *, truelayer_client: TrueLayerClient
+    ) -> FJR:
+        """Create an account from a JSON response."""
 
-    BASE_URL = "https://api.truelayer.com"
-    ACCESS_TOKEN_ENDPOINT = "https://auth.truelayer.com/connect/token"
-    CREDS_FILE_PATH = user_data_dir(file_name="truelayer_api_creds.json")
-
-    def __init__(
-        self,
-        *,
-        client_id: str,
-        client_secret: str,
-        bank: Bank,
-        redirect_uri: str = "https://console.truelayer.com/redirect-page",
-        access_token_expiry_threshold: int = 60,
-        log_requests: bool = False,
-        creds_cache_path: str | None = None,
-    ):
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.bank = bank
-        self.redirect_uri = redirect_uri
-        self.access_token_expiry_threshold = access_token_expiry_threshold
-        self.log_requests = log_requests
-        self.creds_cache_path = creds_cache_path or self.CREDS_FILE_PATH
-
-        self.auth_code_env_var = f"TRUELAYER_{self.bank.name}_AUTH_CODE"
-
-        self._credentials: dict[str, str] = {}
-
-    def _get(self, url: str, params: dict[str, str] | None = None) -> Response:
-        """Wrapper for GET requests which covers authentication, URL parsing, etc. etc.
-
-        Args:
-            url (str): the URL path to the endpoint (not necessarily including the
-             base URL)
-            params (dict): the parameters to be passed in the HTTP request
-
-        Returns:
-            Response: the response from the HTTP request
-        """
-
-        if url.startswith("/"):
-            url = f"{self.BASE_URL}{url}"
-
-        if self.log_requests:
-            LOGGER.debug("GET %s with params %s", url, dumps(params or {}, default=str))
-
-        res = get(
-            url,
-            headers={"Authorization": f"Bearer {self.access_token}"},
-            params=params or {},
-        )
-
-        res.raise_for_status()
-
-        return res
-
-    def _get_entity_by_id(
-        self,
-        entity_id: str,
-        entity_class: type[Account] | type[Card],
-        entity_instance_kwargs: dict[Any, Any] | None = None,
-    ) -> Account | Card | None:
-        """Gets entity info based on a given ID
-
-        Args:
-            entity_id (str): the unique ID for the account/card
-            entity_class (type): the class to instantiate with the returned info
-            entity_instance_kwargs (dict): any kwargs to pass to the entity instance
-
-        Returns:
-            Union([Account, Card]): a Card instance with associated info
-
-        Raises:
-            HTTPError: if a HTTPError is raised by the request, and it's not because
-             the ID wasn't found
-            ValueError: if >1 result is returned from the TrueLayer API
-        """
-        try:
-            results: list[_AccountInfo | _CardInfo] = self.get_json_response(
-                f"/data/v1/{entity_class.__name__.lower()}s/{entity_id}"
-            ).get("results", [])
-        except HTTPError as exc:
-            if exc.response.json().get("error") == "account_not_found":
-                return None
-            raise
-
-        if len(results) != 1:
-            raise ValueError(
-                f"Unexpected number of results when getting {entity_class.__name__}:"
-                f" {len(results)}",
-            )
-
-        return entity_class(results[0], self, **entity_instance_kwargs or {})
-
-    def get_json_response(self, url: str, params: dict[str, str] | None = None) -> Any:
-        """Gets a simple JSON object from a URL
-
-        Args:
-            url (str): the API endpoint to GET
-            params (dict): the parameters to be passed in the HTTP request
-
-        Returns:
-            dict: the JSON from the response
-        """
-        return self._get(url, params=params).json()
-
-    def get_account_by_id(
-        self,
-        account_id: str,
-        instance_kwargs: None
-        | (dict[str, dict[str, str] | TrueLayerClient | int]) = None,
-    ) -> Account | None:
-        """Get an Account instance based on the ID
-
-        Args:
-            account_id (str): the ID of the card
-            instance_kwargs (dict): any kwargs to pass to the Account instance
-
-        Returns:
-            Account: an Account instance, with all relevant info
-        """
-        # pylint: disable=line-too-long
-        return self._get_entity_by_id(account_id, Account, instance_kwargs)  # type: ignore[return-value]
-
-    def get_card_by_id(
-        self,
-        card_id: str,
-        instance_kwargs: None
-        | (dict[str, dict[str, str] | TrueLayerClient | int]) = None,
-    ) -> Card | None:
-        """Get a Card instance based on the ID
-
-        Args:
-            card_id (str): the ID of the card
-            instance_kwargs (dict): any kwargs to pass to the Card instance
-
-        Returns:
-            Card: a Card instance, with all relevant info
-        """
-        return self._get_entity_by_id(card_id, Card, instance_kwargs)  # type: ignore
-
-    def list_accounts(self) -> Generator[Account, None, None]:
-        """Lists all accounts under the given bank account
-
-        Yields:
-            Account: Account instances, containing all related info
-
-        Raises:
-            HTTPError: if a HTTPError is raised by the _get method, but it's not a 501
-        """
-        try:
-            res = self.get_json_response(
-                "/data/v1/accounts",
-            )
-        except HTTPError as exc:
-            if exc.response.json().get("error") == "endpoint_not_supported":
-                LOGGER.warning("Accounts endpoint not supported by %s", self.bank.value)
-                res = {}
-            else:
-                raise
-
-        for result in res.get("results", []):
-            yield Account(result, self)
-
-    def list_cards(self) -> Generator[Card, None, None]:
-        """Lists all accounts under the given bank account
-
-        Yields:
-            Account: Account instances, containing all related info
-
-        Raises:
-            HTTPError: if a HTTPError is raised by the _get method, but it's not a 501
-        """
-        try:
-            res = self.get_json_response(
-                "/data/v1/cards",
-            )
-        except HTTPError as exc:
-            if exc.response.json().get("error") == "endpoint_not_supported":
-                LOGGER.warning("Cards endpoint not supported by %s", self.bank.value)
-                res = {}
-            else:
-                raise
-
-        for result in res.get("results", []):
-            yield Card(result, self)
-
-    def refresh_access_token(self) -> None:
-        """Uses the cached refresh token to submit a request to TL's API for a new
-        access token"""
-
-        LOGGER.info("Refreshing access token for %s", self.bank.value)
-
-        res = post(
-            self.ACCESS_TOKEN_ENDPOINT,
-            data={
-                "grant_type": "refresh_token",
-                "client_id": self.client_id,
-                "client_secret": self.client_secret,
-                "refresh_token": self._credentials.get("refresh_token"),
-            },
-        )
-
-        res.raise_for_status()
-
-        # Maintain any existing credential values in the dictionary whilst updating
-        # new ones
-        self.credentials = {
-            **self._credentials,
-            **res.json(),
+        value_data: dict[str, Any] = {
+            "truelayer_client": truelayer_client,
+            **value,
         }
 
-    def authenticate_against_bank(self, code: str) -> None:
-        """Allows first-time (or repeated) authentication against the given bank
+        instance = cls.parse_obj(value_data)
 
-        Args:
-            code (str): the authorization code returned from the TrueLayer console
-             auth flow
-        """
+        instance._validate()  # pylint: disable=protected-access
 
-        res = post(
-            self.ACCESS_TOKEN_ENDPOINT,
-            data={
-                "grant_type": "authorization_code",
-                "client_id": self.client_id,
-                "client_secret": self.client_secret,
-                "redirect_uri": self.redirect_uri,
-                "code": code,
-            },
-        )
-
-        res.raise_for_status()
-
-        self.credentials = res.json()
-
-    @property
-    def authentication_link(self) -> str:
-        """
-        Returns:
-            str: the authentication link, including the client ID
-        """
-        # pylint: disable=line-too-long
-        return f"https://auth.truelayer.com/?response_type=code&client_id={self.client_id}&scope=info%20accounts%20balance%20cards%20transactions%20direct_debits%20standing_orders%20offline_access&redirect_uri={self.redirect_uri}&providers=uk-ob-all%20uk-oauth-all"  # noqa
-
-    @property
-    def credentials(self) -> dict[str, str]:
-        """Attempts to retrieve credentials from local cache, creates new ones if
-        they're not found.
-
-        Returns:
-            dict: the credentials for the chosen bank
-
-        Raises:
-            EOFError: when no data is successfully returned for the auth code (usually
-             when running the script automatically)
-            ValueError: if no auth code is provided (manually or via env var)
-        """
-
-        try:
-            with open(self.creds_cache_path, encoding="UTF-8") as fin:
-                self._credentials = (
-                    load(fin).get(self.client_id, {}).get(self.bank.name)
-                )
-        except FileNotFoundError:
-            LOGGER.info("Unable to find local creds file")
-            self._credentials = {}
-
-        if not self._credentials:
-            LOGGER.info("Performing first time login for bank `%s`", self.bank.value)
-            LOGGER.debug("Opening %s", self.authentication_link)
-            open_browser(self.authentication_link)
-            try:
-                code = input(
-                    "Enter the authorization code "
-                    f"(or set as env var `{self.auth_code_env_var}`): "
-                ) or getenv(self.auth_code_env_var)
-            except EOFError:
-                if not (code := getenv(self.auth_code_env_var)):
-                    LOGGER.critical(
-                        "Unable to retrieve auth code from environment variables "
-                        "post-EOFError"
-                    )
-                    raise
-
-            if not code:
-                raise ValueError("No auth code provided")
-
-            self.authenticate_against_bank(code)
-
-        if self.access_token_has_expired:
-            self.refresh_access_token()
-
-        return self._credentials
-
-    @credentials.setter
-    def credentials(self, value: dict[str, str]) -> None:
-        """Update the creds, and write the value to the local cache file
-
-        Args:
-            value (dict): the creds to set
-        """
-        self._credentials = value
-
-        try:
-            with open(
-                force_mkdir(self.creds_cache_path, path_is_file=True), encoding="UTF-8"
-            ) as fin:
-                all_credentials = load(fin)
-        except FileNotFoundError:
-            all_credentials = {}
-
-        all_credentials.setdefault(self.client_id, {})[
-            self.bank.name
-        ] = self._credentials
-
-        with open(self.creds_cache_path, "w", encoding="UTF-8") as fout:
-            dump(all_credentials, fout)
-
-    @property
-    def access_token(self) -> str | None:
-        """
-        Returns:
-            str: the access token for this bank's API
-        """
-        return self.credentials.get("access_token")
-
-    @property
-    def access_token_has_expired(self) -> bool:
-        """Decodes the JWT access token and evaluates the expiry time
-
-        Returns:
-            bool: has the access token expired?
-        """
-        try:
-            expiry_epoch: int = decode(
-                # can't use self.access_token here, as that uses self.credentials,
-                # which in turn (recursively) checks if the access token has expired
-                self._credentials["access_token"],
-                options={"verify_signature": False},
-            ).get("exp", 0)
-
-            return (expiry_epoch - self.access_token_expiry_threshold) < int(time())
-        except DecodeError:
-            # treat invalid token as expired, so we get a new one
-            return True
-
-    @property
-    def refresh_token(self) -> str | None:
-        """
-        Returns:
-            str: the TL API refresh token
-        """
-        return self.credentials.get("refresh_token")
-
-    @property
-    def scope(self) -> list[str]:
-        """
-        Returns:
-            list: a list of active API scopes for the current application
-        """
-        return self.credentials.get("scope", "").split()
-
-
-class TrueLayerEntity:
-    """Parent class for all TrueLayer entities (accounts, cards, etc.)
-
-    Args:
-        json (dict): the JSON returned from the TrueLayer API which defines the
-         entity
-        truelayer_client (TrueLayerClient): a TrueLayer client, usually the one which
-         retrieved this entity from the API
-    """
-
-    # Default value
-    BALANCE_FIELDS: Iterable[str] = ()
-
-    def __init__(
-        self,
-        json: _TrueLayerEntityInfo,
-        truelayer_client: TrueLayerClient,
-        balance_update_threshold: int = 15,
-    ):
-        self.json = json
-        self._truelayer_client = truelayer_client
-
-        self._available_balance = None
-        self._current_balance = None
-        self._overdraft = None
-        self._credit_limit = None
-        self._last_statement_balance = None
-        self._last_statement_date = None
-        self._payment_due = None
-        self._payment_due_date = None
-
-        self.entity_type = self.__class__.__name__.lower()
-
-        self.last_balance_update = datetime(1970, 1, 1)
-        self.balance_update_threshold = balance_update_threshold
+        return instance
 
     def get_transactions(
         self,
         from_datetime: datetime | None = None,
         to_datetime: datetime | None = None,
-    ) -> Generator[Transaction, None, None]:
-        """Polls the TL API to get all transactions under the given entity. If
+    ) -> list[Transaction]:
+        """Get transactions for this entity.
+
+        Polls the TL API to get all transactions under the given entity. If
         only one datetime parameter is provided, then the other is given a default
         value which maximises the range of results returned
 
@@ -602,36 +243,44 @@ class TrueLayerEntity:
             from_datetime (datetime): lower range of transaction date range query
             to_datetime (datetime): upper range of transaction date range query
 
-        Yields:
-            Transaction: one instance per tx, including all metadata etc.
+        Returns:
+            list[Transaction]: one instance per tx, including all metadata etc.
         """
 
         if from_datetime or to_datetime:
             from_datetime = from_datetime or datetime.utcnow() - timedelta(days=90)
             to_datetime = to_datetime or datetime.utcnow()
 
-            params = {
-                "from": from_datetime.strftime(DATETIME_FORMAT),
-                "to": to_datetime.strftime(DATETIME_FORMAT),
+            params: dict[
+                StrBytIntFlt,
+                StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+            ] | None = {
+                "from": from_datetime.isoformat(),
+                "to": to_datetime.isoformat(),
             }
         else:
             params = None
 
-        results = self._truelayer_client.get_json_response(
-            f"/data/v1/{self.entity_type}s/{self.id}/transactions", params=params
-        ).get("results", [])
-
-        for result in results:
-            yield Transaction(result, self, self._truelayer_client)
+        return [
+            Transaction.parse_obj(result)
+            for result in self.truelayer_client.get_json_response(
+                f"/data/v1/{self.__class__.__name__.lower()}s/{self.id}/transactions",
+                params=params,
+            ).get("results", [])
+        ]
 
     def update_balance_values(self) -> None:
-        """Updates the balance-related instance attributes with the latest values from
-        the API
+        """Update the balance-related instance attributes.
+
+        Uses the latest values from the API. This is called automatically when
+        the balance-related attributes are accessed (if the attribute is None or
+        was updated more than `self.balance_update_threshold`minutes ago), but
+        can also be called manually.
         """
 
-        results = self._truelayer_client.get_json_response(
-            f"/data/v1/{self.entity_type}s/{self.id}/balance"
-        ).get("results")
+        results = self.truelayer_client.get_json_response(
+            f"/data/v1/{self.__class__.__name__.lower()}s/{self.id}/balance"
+        ).get("results", [])
 
         if len(results) != 1:
             raise ValueError(
@@ -641,14 +290,25 @@ class TrueLayerEntity:
 
         balance_result = results[0]
 
-        self._available_balance = balance_result.get("available")
-        self._current_balance = balance_result.get("current")
-        self._overdraft = balance_result.get("overdraft")
-        self._credit_limit = balance_result.get("credit_limit")
-        self._last_statement_balance = balance_result.get("last_statement_balance")
-        self._last_statement_date = balance_result.get("last_statement_date")
-        self._payment_due = balance_result.get("payment_due")
-        self._payment_due_date = balance_result.get("payment_due_date")
+        for k, v in balance_result.items():
+            if k in (
+                "available",
+                "current",
+            ):
+                attr_name = f"_{k}_balance"
+            elif k.endswith("_date"):
+                attr_name = f"_{k}"
+                if isinstance(v, str):
+                    v = datetime.strptime(v, "%Y-%m-%dT%H:%M:%SZ").date()
+            else:
+                attr_name = f"_{k}"
+
+            if attr_name.lstrip("_") not in self.BALANCE_FIELDS:
+                LOGGER.info("Skipping %s as it's not relevant for this entity type", k)
+                continue
+
+            LOGGER.info("Updating %s with value %s", attr_name, v)
+            self._set_private_attr(attr_name, v)
 
         self.last_balance_update = datetime.utcnow()
 
@@ -665,9 +325,11 @@ class TrueLayerEntity:
             "payment_due_date",
         ],
     ) -> str | float | int | None:
-        """Gets a value for a balance-specific property, updating the values if
-         necessary (i.e. if they don't already exist). This also has a check to see if
-         property is relevant for the given entity type and if not it just returns None
+        """Get a value for a balance-specific property.
+
+        Updates the values if necessary (i.e. if they don't already exist). This also
+        has a check to see if property is relevant for the given entity type and if not
+        it just returns None.
 
         Args:
             prop_name (str): the name of the property
@@ -679,16 +341,20 @@ class TrueLayerEntity:
         if prop_name not in self.BALANCE_FIELDS:
             return None
 
-        if getattr(self, f"_{prop_name}") is None or self.last_balance_update <= (
-            datetime.utcnow() - timedelta(minutes=self.balance_update_threshold)
+        if (
+            not hasattr(self, f"_{prop_name}")
+            or getattr(self, f"_{prop_name}") is None
+            or self.last_balance_update
+            <= (datetime.utcnow() - self.balance_update_threshold)
         ):
             self.update_balance_values()
 
-        return getattr(self, f"_{prop_name}")  # type: ignore
+        return getattr(self, f"_{prop_name}", None)
 
     @property
     def available_balance(self) -> str | float | int | None:
-        """
+        """Available balance for the entity.
+
         Returns:
             float: the amount of money available to the bank account holder
         """
@@ -696,7 +362,8 @@ class TrueLayerEntity:
 
     @property
     def current_balance(self) -> str | float | int | None:
-        """
+        """Current balance of the account.
+
         Returns:
             float: the total amount of money in the account, including pending
              transactions
@@ -705,7 +372,8 @@ class TrueLayerEntity:
 
     @property
     def overdraft(self) -> str | float | int | None:
-        """
+        """Overdraft limit for the account.
+
         Returns:
             float: the overdraft limit of the account
         """
@@ -713,7 +381,8 @@ class TrueLayerEntity:
 
     @property
     def credit_limit(self) -> str | float | int | None:
-        """
+        """Credit limit of the account.
+
         Returns:
             float: the credit limit available to the customer
         """
@@ -721,7 +390,8 @@ class TrueLayerEntity:
 
     @property
     def last_statement_balance(self) -> str | float | int | None:
-        """
+        """Balance of the account at the last statement date.
+
         Returns:
             float: the balance on the last statement
         """
@@ -729,7 +399,8 @@ class TrueLayerEntity:
 
     @property
     def last_statement_date(self) -> str | float | int | None:
-        """
+        """Date of the last statement.
+
         Returns:
             date: the date the last statement was issued on
         """
@@ -737,7 +408,8 @@ class TrueLayerEntity:
 
     @property
     def payment_due(self) -> str | float | int | None:
-        """
+        """Amount due on the next statement.
+
         Returns:
             float: the amount of any due payment
         """
@@ -745,287 +417,86 @@ class TrueLayerEntity:
 
     @property
     def payment_due_date(self) -> str | float | int | None:
-        """
+        """Date of the next statement.
+
         Returns:
             date: the date on which the next payment is due
         """
         return self._get_balance_property("payment_due_date")
 
-    @property
-    def pretty_json(self) -> str:
-        """
-        Returns:
-            str: a "pretty" version of the JSON, used for debugging etc.
-        """
-        return dumps(self.json, indent=4, default=str)
+    def __str__(self) -> str:
+        """Return a string representation of the entity."""
+        return f"{self.display_name} | {self.provider.display_name}"
 
-    @property
-    def currency(self) -> str | float | dict[Any, Any] | None:
-        """
-        Returns:
-            str: ISO 4217 alpha-3 currency code of this entity
-        """
-        return self.json.get("currency")
 
-    @property
-    def display_name(self) -> str | float | dict[Any, Any] | None:
-        """
-        Returns:
-            str: human-readable name of the entity
-        """
-        return self.json.get("display_name")
+class Transaction(BaseModelWithConfig):
+    """Class for individual transactions for data manipulation etc."""
 
-    @property
-    def id(self) -> str | float | dict[Any, Any] | None:
-        """
-        Returns:
-            str: the unique ID for this entity
-        """
-        return self.json.get("account_id")
+    amount: float
+    currency: str
+    description: str
+    id: str = Field(alias="transaction_id")
+    merchant_name: str | None
+    meta: dict[str, str]
+    normalised_provider_transaction_id: str | None
+    provider_transaction_id: str | None
+    running_balance: dict[str, str | float] | None
+    timestamp: datetime
+    transaction_category: TransactionCategory
+    transaction_classification: list[str]
+    transaction_type: str
 
-    @property
-    def provider_name(self) -> str | None:
-        """
-        Returns:
-            str: the name of the account provider
-        """
-        return self.json.get("provider", {}).get("display_name")
+    @validator("transaction_category", pre=True)
+    def validate_transaction_category(  # pylint: disable=no-self-argument
+        cls, v: str  # noqa: N805
+    ) -> TransactionCategory:
+        """Validate the transaction category.
 
-    @property
-    def provider_id(self) -> str | None:
-        """
-        Returns:
-            str: unique identifier for the provider
-        """
-        return self.json.get("provider", {}).get("provider_id")
+        The default Enum assignment doesn't work for some reason, so we have to do it
+        here.
 
-    @property
-    def provider_logo_uri(self) -> str | None:
+        This also helps to provide a meaningful error message if the category is
+        invalid; Pydantic's doesn't include the invalid value unfortunately.
         """
-        Returns:
-            str: url for the account provider's logo
-        """
-        return self.json.get("provider", {}).get("logo_uri")
+        if v not in TransactionCategory.__members__:  # pragma: no cover
+            raise ValueError(f"Invalid transaction category: {v}")
+
+        return TransactionCategory[v]
 
     def __str__(self) -> str:
-        return f"{self.display_name} | {self.provider_name}"
-
-
-class Transaction:
-    """Class for individual transactions for data manipulation etc.
-
-    Args:
-        json (dict): the JSON returned from the TrueLayer API which defines the
-         entity
-        parent_entity (TrueLayerEntity): the entity which this transaction was made
-         under
-        truelayer_client (TrueLayerClient): a client
-    """
-
-    def __init__(
-        self,
-        json: _TransactionInfo,
-        parent_entity: TrueLayerEntity,
-        truelayer_client: TrueLayerClient,
-    ):
-        self.json = json
-        self._truelayer_client = truelayer_client
-        self.parent_entity = parent_entity
-
-    @property
-    def pretty_json(self) -> str:
-        """
-        Returns:
-            str: a "pretty" version of the JSON, used for debugging etc.
-        """
-        return dumps(self.json, indent=4, default=str)
-
-    @property
-    def id(self) -> str | None:
-        """
-        Returns:
-            str: unique ID for this transaction, it may change between requests
-        """
-        return self.json.get("transaction_id")
-
-    @property
-    def currency(self) -> str | None:
-        """
-        Returns:
-            str: ISO 4217 alpha-3 currency code of this entity
-        """
-        return self.json.get("currency")
-
-    @property
-    def timestamp(self) -> datetime:
-        """
-        Returns:
-            datetime: the timestamp this transaction was made at
-        """
-        try:
-            return datetime.strptime(self.json["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ")
-        except ValueError:
-            return datetime.strptime(self.json["timestamp"], "%Y-%m-%dT%H:%M:%SZ")
-
-    @property
-    def description(self) -> str | None:
-        """
-        Returns:
-            str: the description of this transaction
-        """
-        return self.json.get("description")
-
-    @property
-    def type(self) -> str | None:
-        """
-        Returns:
-            str: the type of transaction
-        """
-        return self.json.get("transaction_type")
-
-    @property
-    def category(self) -> TransactionCategory:
-        """
-        Returns:
-            str: the category of this transaction
-        """
-        return TransactionCategory[self.json.get("transaction_category", "UNKNOWN")]
-
-    @property
-    def classifications(self) -> list[str] | None:
-        """
-        Returns:
-            list: a list of classifications for this transaction
-        """
-        return self.json.get("transaction_classification")
-
-    @property
-    def merchant_name(self) -> str | None:
-        """
-        Returns:
-            str: the name of the merchant with which this transaction was made
-        """
-        return self.json.get("merchant_name")
-
-    @property
-    def amount(self) -> float | None:
-        """
-        Returns:
-            float: the amount this transaction is for
-        """
-        return self.json.get("amount")
-
-    @property
-    def provider_transaction_id(self) -> str | None:
-        """
-        Returns:
-            str: the tx ID from the provider
-        """
-        return self.json.get("provider_transaction_id")
-
-    @property
-    def normalised_provider_transaction_id(self) -> str | None:
-        """
-        Returns:
-            str: a normalised tx ID, less likely to change
-        """
-        return self.json.get("normalised_provider_transaction_id")
-
-    @property
-    def provider_category(self) -> str | None:
-        """
-        Returns:
-            str: the provider transaction category
-        """
-        return self.json.get("meta", {}).get("provider_category")
-
-    @property
-    def provider_transaction_type(self) -> str | None:
-        """
-        Returns:
-            str: the type of transaction, as seen by the provider?
-        """
-        return self.json.get("meta", {}).get("transaction_type")
-
-    @property
-    def counter_party_preferred_name(self) -> str | None:
-        """
-        Returns:
-            str: the preferred name of the merchant
-        """
-        return self.json.get("meta", {}).get("counter_party_preferred_name")
-
-    @property
-    def provider_id(self) -> str | None:
-        """
-        Returns:
-            str: seems to be the same as `self.provider_transaction_id`
-        """
-        return self.json.get("meta", {}).get("provider_id")
-
-    @property
-    def debtor_account_name(self) -> str | None:
-        """
-        Returns:
-            str: the account name of the debtor, if the tx is inbound
-        """
-        return self.json.get("meta", {}).get("debtor_account_name")
-
-    def __str__(self) -> str:
+        """Return a string representation of the transaction."""
         return f"{self.description} | {self.amount} | {self.merchant_name}"
 
 
 class Account(TrueLayerEntity):
-    """Class for managing individual bank accounts"""
+    """Class for managing individual bank accounts."""
 
-    BALANCE_FIELDS = ("available_balance", "current_balance", "overdraft")
-    json: _AccountInfo
+    BALANCE_FIELDS: ClassVar[Iterable[str]] = (
+        "available_balance",
+        "current_balance",
+        "overdraft",
+    )
+    account_number: _AccountNumber
+    account_type: AccountType
 
-    @property
-    def type(self) -> str | None:
-        """
-        Returns:
-            str: type of the account
-        """
-        return self.json.get("account_type")
+    @validator("account_type", pre=True)
+    def validate_account_type(  # pylint: disable=no-self-argument
+        cls, value: str  # noqa: N805
+    ) -> AccountType:
+        """Validate `account_type` and parse it into an `AccountType` instance."""
+        if isinstance(value, AccountType):
+            return value
 
-    @property
-    def iban(self) -> str | None:
-        """
-        Returns:
-            str: the International Bank Account Number for this account
-        """
-        return self.json.get("account_number", {}).get("iban")
+        if value not in AccountType.__members__:  # pragma: no cover
+            raise ValueError(f"Invalid account type: `{value}`")
 
-    @property
-    def swift_bic(self) -> str | None:
-        """
-        Returns:
-            str: ISO 9362:2009 Business Identifier Codes.
-        """
-        return self.json.get("account_number", {}).get("swift_bic")
-
-    @property
-    def account_number(self) -> str | None:
-        """
-        Returns:
-            str: the account's account number
-        """
-        return self.json.get("account_number", {}).get("number")
-
-    @property
-    def sort_code(self) -> str | None:
-        """
-        Returns:
-            str: the account's sort code
-        """
-        return self.json.get("account_number", {}).get("sort_code")
+        return AccountType[value.upper()]  # type: ignore[no-any-return,misc]
 
 
 class Card(TrueLayerEntity):
-    """Class for managing individual cards"""
+    """Class for managing individual cards."""
 
-    BALANCE_FIELDS = (
+    BALANCE_FIELDS: ClassVar[Iterable[str]] = (
         "available_balance",
         "current_balance",
         "credit_limit",
@@ -1034,36 +505,182 @@ class Card(TrueLayerEntity):
         "payment_due",
         "payment_due_date",
     )
-    json: _CardInfo
 
-    @property
-    def card_network(self) -> str | None:
-        """
-        Returns:
-            str: card processor. For example, VISA
-        """
-        return self.json.get("card_network")
+    card_network: str
+    card_type: str
+    partial_card_number: str
+    name_on_card: str
+    valid_from: date | None
+    valid_to: date | None
 
-    @property
-    def type(self) -> str | None:
-        """
-        Returns:
-            str: type of card: credit, debit
-        """
-        return self.json.get("card_type")
 
-    @property
-    def partial_card_number(self) -> str | None:
-        """
-        Returns:
-            str: last few digits of card number
-        """
-        return self.json.get("partial_card_number")
+AccountOrCard = TypeVar("AccountOrCard", Account, Card)
 
-    @property
-    def name_on_card(self) -> str | None:
-        """
+
+class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJson]]]):
+    """Custom client for interacting with TrueLayer's APIs."""
+
+    AUTH_LINK_BASE = "https://auth.truelayer.com/"
+    ACCESS_TOKEN_ENDPOINT = "https://auth.truelayer.com/connect/token"
+    BASE_URL = "https://api.truelayer.com"
+
+    ALL_SCOPES = [
+        "info",
+        "accounts",
+        "balance",
+        "cards",
+        "transactions",
+        "direct_debits",
+        "standing_orders",
+        "offline_access",
+    ]
+
+    def __init__(
+        self,
+        *,
+        client_id: str,
+        client_secret: str,
+        bank: Bank,
+        log_requests: bool = False,
+        creds_cache_path: Path | None = None,
+        scopes: list[str] | None = None,
+    ):
+        super().__init__(
+            base_url=self.BASE_URL,
+            access_token_endpoint=self.ACCESS_TOKEN_ENDPOINT,
+            auth_link_base=self.AUTH_LINK_BASE,
+            client_id=client_id,
+            client_secret=client_secret,
+            log_requests=log_requests,
+            # TrueLayer shares the same Client ID for all banks, so override the
+            # default to separate by bank
+            creds_cache_path=creds_cache_path
+            or user_data_dir(
+                file_name=sep.join(
+                    [
+                        "oauth_credentials",
+                        type(self).__name__,
+                        client_id,
+                        f"{bank.name.lower()}.json",
+                    ]
+                )
+            ),
+            scopes=scopes or self.ALL_SCOPES,
+        )
+
+        self.bank = bank
+
+    def _get_entity_by_id(
+        self,
+        entity_id: str,
+        entity_class: type[AccountOrCard],
+    ) -> AccountOrCard | None:
+        """Get entity info based on a given ID.
+
+        Args:
+            entity_id (str): the unique ID for the account/card
+            entity_class (type): the class to instantiate with the returned info
+
         Returns:
-            str: the name on the card
+            Union([Account, Card]): a Card instance with associated info
+
+        Raises:
+            HTTPError: if a HTTPError is raised by the request, and it's not because
+             the ID wasn't found
+            ValueError: if >1 result is returned from the TrueLayer API
         """
-        return self.json.get("name_on_card")
+        try:
+            results = self.get_json_response(
+                f"/data/v1/{entity_class.__name__.lower()}s/{entity_id}"
+            ).get("results", [])
+        except HTTPError as exc:
+            if exc.response.json().get("error") == "account_not_found":
+                return None
+            raise
+
+        if len(results) != 1:
+            raise ValueError(
+                f"Unexpected number of results when getting {entity_class.__name__}:"
+                f" {len(results)}",
+            )
+
+        return entity_class.from_json_response(results[0], truelayer_client=self)
+
+    def _list_entities(self, entity_class: type[AccountOrCard]) -> list[AccountOrCard]:
+        """List all accounts/cards under the given bank account.
+
+        Args:
+            entity_class (type): the class to instantiate with the returned info
+
+        Returns:
+            list[Union([Account, Card])]: a list of Account/Card instances with
+             associated info
+
+        Raises:
+            HTTPError: if a HTTPError is raised by the `_get` method, but it's not a 501
+        """
+        try:
+            res = self.get_json_response(f"/data/v1/{entity_class.__name__.lower()}s")
+        except HTTPError as exc:
+            if exc.response.json().get("error") == "endpoint_not_supported":
+                LOGGER.warning(
+                    "{entity_class.__name__}s endpoint not supported by %s",
+                    self.bank.value,
+                )
+                res = {}
+            else:
+                raise
+
+        return [
+            entity_class.from_json_response(result, truelayer_client=self)
+            for result in res.get("results", [])
+        ]
+
+    def get_account_by_id(
+        self,
+        account_id: str,
+    ) -> Account | None:
+        """Get an Account instance based on the ID.
+
+        Args:
+            account_id (str): the ID of the card
+
+        Returns:
+            Account: an Account instance, with all relevant info
+        """
+        return self._get_entity_by_id(account_id, Account)
+
+    def get_card_by_id(
+        self,
+        card_id: str,
+    ) -> Card | None:
+        """Get a Card instance based on the ID.
+
+        Args:
+            card_id (str): the ID of the card
+
+        Returns:
+            Card: a Card instance, with all relevant info
+        """
+        return self._get_entity_by_id(card_id, Card)
+
+    def list_accounts(self) -> list[Account]:
+        """List all accounts under the given bank account.
+
+        Returns:
+            list[Account]: Account instances, containing all related info
+        """
+        return self._list_entities(Account)
+
+    def list_cards(self) -> list[Card]:
+        """List all accounts under the given bank account.
+
+        Returns:
+            list[Account]: Account instances, containing all related info
+        """
+        return self._list_entities(Card)
+
+
+Account.update_forward_refs()
+Card.update_forward_refs()
+TrueLayerEntity.update_forward_refs()

@@ -1,5 +1,5 @@
-# type: ignore
-"""
+"""Config for the EPD.
+
 * | File        :	  epdconfig.py
 * | Author      :   Waveshare team
 * | Function    :   Hardware underlying interface
@@ -27,17 +27,18 @@ LIABILITY WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
-# pylint: disable=missing-function-docstring,missing-class-docstring
+from __future__ import annotations
 
+# pylint: disable=missing-function-docstring,missing-class-docstring
 from logging import debug
 from os import path
-from os.path import dirname, exists, join, realpath
 from sys import modules
 from time import sleep
+from typing import Literal
 
 
 # noinspection PyMissingOrEmptyDocstring
-class RaspberryPi:
+class RaspberryPi:  # noqa: D101
     # Pin definition
     RST_PIN = 17
     DC_PIN = 25
@@ -46,7 +47,7 @@ class RaspberryPi:
 
     # noinspection PyUnresolvedReferences,PyPackageRequirements
     # pylint: disable=import-outside-toplevel
-    def __init__(self):
+    def __init__(self) -> None:
         from RPi import GPIO
         from spidev import SpiDev
 
@@ -55,21 +56,21 @@ class RaspberryPi:
         # SPI device, bus = 0, device = 0
         self.spi = SpiDev(0, 0)
 
-    def digital_write(self, pin, value):
+    def digital_write(self, pin: int, value: bool) -> None:  # noqa: D102
         self.gpio.output(pin, value)
 
-    def digital_read(self, pin):
-        return self.gpio.input(pin)
+    def digital_read(self, pin: int) -> bool:  # noqa: D102
+        return self.gpio.input(pin)  # type: ignore[no-any-return]
 
     @staticmethod
-    def delay_ms(delay_time):
+    def delay_ms(delay_time: float | int) -> None:  # noqa: D102
         sleep(delay_time / 1000.0)
 
-    def spi_writebyte(self, data):
+    def spi_writebyte(self, data: list[int]) -> None:  # noqa: D102
         self.spi.writebytes(data)
 
     # noinspection DuplicatedCode
-    def module_init(self):
+    def module_init(self) -> Literal[0]:  # noqa: D102
         self.gpio.setmode(self.gpio.BCM)
         self.gpio.setwarnings(False)
         self.gpio.setup(self.RST_PIN, self.gpio.OUT)
@@ -80,7 +81,7 @@ class RaspberryPi:
         self.spi.mode = 0b00
         return 0
 
-    def module_exit(self):
+    def module_exit(self) -> None:  # noqa: D102
         debug("spi end")
         self.spi.close()
 
@@ -91,7 +92,11 @@ class RaspberryPi:
         self.gpio.cleanup()
 
 
-# noinspection PyMissingOrEmptyDocstring
+# This is commented out because I don't have a Jetson Nano and I can't be bothered type
+# hinting it all
+
+# pylint: disable=pointless-string-statement
+"""
 class JetsonNano:
     # Pin definition
     RST_PIN = 17
@@ -100,7 +105,6 @@ class JetsonNano:
     BUSY_PIN = 24
 
     # noinspection PyUnresolvedReferences
-    # pylint: disable=import-outside-toplevel
     def __init__(self):
         from ctypes.cdll import LoadLibrary
 
@@ -156,13 +160,14 @@ class JetsonNano:
         self.gpio.output(self.DC_PIN, 0)
 
         self.gpio.cleanup()
-
+"""
 
 try:
     if path.exists("/sys/bus/platform/drivers/gpiomem-bcm2835"):
-        implementation = RaspberryPi()
+        # pylint: disable=used-before-assignment
+        implementation: RaspberryPi | FakeImplementation = RaspberryPi()
     else:
-        implementation = JetsonNano()
+        raise RuntimeError("Unsupported platform (Jetson Nano?)")
 
     for func in dir(implementation):
         if not func.startswith("_"):
@@ -170,12 +175,11 @@ try:
 
     TEST_MODE = False
 except (RuntimeError, ImportError):
-
     # pylint: disable=too-few-public-methods
     class FakeImplementation:
-        """Class to cover functionality of implementations on non-supporting devices"""
+        """Class to cover functionality of implementations on non-supporting devices."""
 
-    for method in set().union(dir(RaspberryPi), dir(JetsonNano)):
+    for method in dir(RaspberryPi):
         if not method.startswith("_"):
             setattr(FakeImplementation, method, lambda *a, **k: None)
 

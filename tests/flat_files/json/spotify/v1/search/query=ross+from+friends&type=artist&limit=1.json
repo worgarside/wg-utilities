@@ -1,0 +1,50 @@
+{
+  "artists": {
+    "href": "https://api.spotify.com/v1/search?query=Ross+from+Friends&type=artist&offset=0&limit=1",
+    "items": [
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+        },
+        "followers": {
+          "href": null,
+          "total": 148027
+        },
+        "genres": [
+          "deep house",
+          "electronica",
+          "float house",
+          "lo-fi house"
+        ],
+        "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+        "id": "1Ma3pJzPIrAyYPNRkp3SUF",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab6761610000e5eb220be919258c7391c5c0727b",
+            "width": 640
+          },
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/ab67616100005174220be919258c7391c5c0727b",
+            "width": 320
+          },
+          {
+            "height": 160,
+            "url": "https://i.scdn.co/image/ab6761610000f178220be919258c7391c5c0727b",
+            "width": 160
+          }
+        ],
+        "name": "Ross from Friends",
+        "popularity": 46,
+        "type": "artist",
+        "uri": "spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF"
+      }
+    ],
+    "limit": 1,
+    "next": "https://api.spotify.com/v1/search?query=Ross+from+Friends&type=artist&offset=1&limit=1",
+    "offset": 0,
+    "previous": null,
+    "total": 10
+  }
+}

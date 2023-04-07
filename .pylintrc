@@ -68,7 +68,10 @@ disable=raw-checker-failed,
         deprecated-pragma,
         use-symbolic-message-instead,
         wrong-import-order,
-        import-error
+        import-error,
+        useless-type-doc,
+        useless-param-doc,
+        invalid-name
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -503,7 +506,6 @@ min-public-methods=1
 
 [EXCEPTIONS]
 
-# Exceptions that will emit a warning when being caught. Defaults to
-# "BaseException, Exception".
-overgeneral-exceptions=BaseException,
-                       Exception
+# Exceptions that will emit a warning when being caught.
+overgeneral-exceptions=builtins.BaseException,
+                       builtins.Exception

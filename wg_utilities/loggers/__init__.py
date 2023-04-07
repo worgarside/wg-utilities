@@ -1,5 +1,7 @@
-"""Useful constants and functions for use in logging in other projects"""
-from datetime import datetime
+"""Useful constants and functions for use in logging in other projects."""
+from __future__ import annotations
+
+from collections.abc import Callable
 from logging import (
     CRITICAL,
     DEBUG,
@@ -13,18 +15,23 @@ from logging import (
     LogRecord,
     StreamHandler,
 )
+from pathlib import Path
 from sys import stdout
-from typing import Any, Callable, List, Optional
+from time import gmtime
+from typing import Any
 
 from wg_utilities.functions import force_mkdir
+from wg_utilities.functions.datetime_helpers import utcnow
 
 FORMATTER = Formatter(
-    "%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s", "%Y-%m-%d %H:%M:%S"
+    fmt="%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S%z",
 )
+FORMATTER.converter = gmtime
 
 
 class ListHandler(Handler):
-    """Custom handler to allow retrieval of log records after the fact
+    """Custom handler to allow retrieval of log records after the fact.
 
     Args:
         records_list (list): allows the user to pass in a pre-defined list to add
@@ -33,16 +40,16 @@ class ListHandler(Handler):
 
     def __init__(
         self,
-        records_list: Optional[List[Any]] = None,
+        records_list: list[Any] | None = None,
         *,
-        log_ttl: Optional[int] = 86400,
-        on_record: Optional[Callable[[LogRecord], Any]] = None,
-        on_expiry: Optional[Callable[[LogRecord], Any]] = None,
+        log_ttl: int | None = 86400,
+        on_record: Callable[[LogRecord], Any] | None = None,
+        on_expiry: Callable[[LogRecord], Any] | None = None,
     ):
         super().__init__()
 
         # Can't use `or` here as `[]` is False
-        self._records_list: List[LogRecord] = (
+        self._records_list: list[LogRecord] = (
             records_list if records_list is not None else []
         )
 
@@ -51,7 +58,7 @@ class ListHandler(Handler):
         self.on_expiry = on_expiry
 
     def emit(self, record: LogRecord) -> None:
-        """ "Emit" the record by adding it to the internal record store
+        """Add log record to the internal record store.
 
         Args:
             record (LogRecord): the new log record being "emitted"
@@ -64,12 +71,11 @@ class ListHandler(Handler):
             self.on_record(record)
 
     def expire_records(self) -> None:
-        """Remove records older than `self.ttl`, and call `self.on_expiry` on them"""
-
+        """Remove records older than `self.ttl`, and call `self.on_expiry` on them."""
         if self.ttl is None:
             return
 
-        now = datetime.now().timestamp()
+        now = utcnow().timestamp()
 
         while self._records_list:
             record = self._records_list.pop(0)
@@ -82,8 +88,9 @@ class ListHandler(Handler):
                 break
 
     @property
-    def debug_records(self) -> List[LogRecord]:
-        """
+    def debug_records(self) -> list[LogRecord]:
+        """Debug level records.
+
         Returns:
             list: a list of log records with the level DEBUG
         """
@@ -91,8 +98,9 @@ class ListHandler(Handler):
         return [record for record in self._records_list if record.levelno == DEBUG]
 
     @property
-    def info_records(self) -> List[LogRecord]:
-        """
+    def info_records(self) -> list[LogRecord]:
+        """Info level records.
+
         Returns:
             list: a list of log records with the level INFO
         """
@@ -100,8 +108,9 @@ class ListHandler(Handler):
         return [record for record in self._records_list if record.levelno == INFO]
 
     @property
-    def warning_records(self) -> List[LogRecord]:
-        """
+    def warning_records(self) -> list[LogRecord]:
+        """Warning level records.
+
         Returns:
             list: a list of log records with the level WARNING
         """
@@ -109,8 +118,9 @@ class ListHandler(Handler):
         return [record for record in self._records_list if record.levelno == WARNING]
 
     @property
-    def error_records(self) -> List[LogRecord]:
-        """
+    def error_records(self) -> list[LogRecord]:
+        """Error level records.
+
         Returns:
             list: a list of log records with the level ERROR
         """
@@ -118,8 +128,9 @@ class ListHandler(Handler):
         return [record for record in self._records_list if record.levelno == ERROR]
 
     @property
-    def critical_records(self) -> List[LogRecord]:
-        """
+    def critical_records(self) -> list[LogRecord]:
+        """Critical level records.
+
         Returns:
             list: a list of log records with the level CRITICAL
         """
@@ -127,8 +138,9 @@ class ListHandler(Handler):
         return [record for record in self._records_list if record.levelno == CRITICAL]
 
     @property
-    def records(self) -> List[LogRecord]:
-        """
+    def records(self) -> list[LogRecord]:
+        """All records.
+
         Returns:
             list: a list of log records with the level CRITICAL
         """
@@ -137,9 +149,9 @@ class ListHandler(Handler):
 
 
 def create_file_handler(
-    logfile_path: str, level: int = DEBUG, create_directory: bool = True
+    logfile_path: Path, level: int = DEBUG, create_directory: bool = True
 ) -> FileHandler:
-    """Create a file handler for use in other loggers
+    """Create a file handler for use in other loggers.
 
     Args:
         logfile_path (str): the path to the logging file
@@ -163,11 +175,11 @@ def create_file_handler(
 def add_file_handler(
     logger: Logger,
     *,
-    logfile_path: str,
+    logfile_path: Path,
     level: int = DEBUG,
     create_directory: bool = True,
 ) -> Logger:
-    """Add a FileHandler to an existing logger
+    """Add a FileHandler to an existing logger.
 
     Args:
         logger (Logger): the logger to add a file handler to
@@ -182,7 +194,7 @@ def add_file_handler(
     """
 
     f_handler = create_file_handler(
-        logfile_path, level, create_directory=create_directory
+        logfile_path=logfile_path, level=level, create_directory=create_directory
     )
 
     logger.addHandler(f_handler)
@@ -193,12 +205,12 @@ def add_file_handler(
 def add_list_handler(
     logger: Logger,
     *,
-    log_list: Optional[List[Any]] = None,
+    log_list: list[Any] | None = None,
     level: int = DEBUG,
-    log_ttl: Optional[int] = 86400,
-    on_expiry: Optional[Callable[[LogRecord], Any]] = None,
+    log_ttl: int | None = 86400,
+    on_expiry: Callable[[LogRecord], Any] | None = None,
 ) -> ListHandler:
-    """Add a ListHandler to an existing logger
+    """Add a ListHandler to an existing logger.
 
     Args:
         logger (Logger): the logger to add a file handler to
@@ -217,9 +229,9 @@ def add_list_handler(
 
 
 def add_stream_handler(
-    logger: Logger, *, formatter: Formatter = FORMATTER, level: int = DEBUG
+    logger: Logger, *, formatter: Formatter | None = FORMATTER, level: int = DEBUG
 ) -> Logger:
-    """Add a FileHandler to an existing logger
+    """Add a FileHandler to an existing logger.
 
     Args:
         logger (Logger): the logger to add a file handler to
@@ -238,3 +250,12 @@ def add_stream_handler(
     logger.addHandler(s_handler)
 
     return logger
+
+
+__all__ = [
+    "ListHandler",
+    "create_file_handler",
+    "add_list_handler",
+    "add_file_handler",
+    "add_stream_handler",
+]

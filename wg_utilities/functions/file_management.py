@@ -1,16 +1,19 @@
-"""Functions for specifically managing files and directories"""
+"""Set of functions for specifically managing files and directories."""
+
+from __future__ import annotations
 
 from os import environ, getenv
-from os.path import dirname
 from pathlib import Path
 from sys import platform
-from typing import Optional, Union
 
 
 def user_data_dir(
-    *, project_name: str = "WgUtilities", file_name: Optional[str] = None
+    *,
+    project_name: str = "WgUtilities",
+    file_name: str | None = None,
+    _platform: str = platform,
 ) -> Path:
-    """Get OS specific data directory path
+    r"""Get OS specific data directory path.
 
     Typical user data directories are:
         macOS:    ~/Library/Application Support
@@ -22,15 +25,16 @@ def user_data_dir(
     Args:
         project_name (str): the name of the project which the utils are running in
         file_name (Optional[str]): file to be fetched from the data dir
+        _platform (str): the platform to get the data dir for
 
     Returns:
         str: full path to the user-specific data dir
     """
 
     # get os specific path
-    if platform.startswith("win"):
+    if _platform.startswith("win"):
         os_path = environ["LOCALAPPDATA"]
-    elif platform.startswith("darwin"):
+    elif _platform.startswith("darwin"):
         os_path = "~/Library/Application Support"
     else:
         # linux
@@ -39,15 +43,13 @@ def user_data_dir(
     path = Path(os_path) / project_name
 
     if file_name:
-        return path.expanduser() / file_name
+        return force_mkdir(path.expanduser() / file_name, path_is_file=True)
 
     return path.expanduser()
 
 
-def force_mkdir(
-    target_path: Union[str, Path], path_is_file: bool = False
-) -> Union[str, Path]:
-    """Creates all directories needed for the given path
+def force_mkdir(target_path: Path, path_is_file: bool = False) -> Path:
+    """Create all directories needed for the given path.
 
     Args:
         target_path (str): the path to the directory which needs to be created
@@ -58,8 +60,8 @@ def force_mkdir(
         str: directory_path that was passed in
     """
     if path_is_file:
-        Path(dirname(target_path)).mkdir(exist_ok=True, parents=True)
+        target_path.parent.mkdir(exist_ok=True, parents=True)
     else:
-        Path(target_path).mkdir(exist_ok=True, parents=True)
+        target_path.mkdir(exist_ok=True, parents=True)
 
     return target_path

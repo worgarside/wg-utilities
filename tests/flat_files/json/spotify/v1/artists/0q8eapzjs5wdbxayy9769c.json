@@ -1,0 +1,36 @@
+{
+  "external_urls": {
+    "spotify": "https://open.spotify.com/artist/0q8eApZJs5WDBxayY9769C"
+  },
+  "followers": {
+    "href": null,
+    "total": 20819
+  },
+  "genres": [
+    "indie r&b",
+    "uk alternative hip hop"
+  ],
+  "href": "https://api.spotify.com/v1/artists/0q8eApZJs5WDBxayY9769C",
+  "id": "0q8eApZJs5WDBxayY9769C",
+  "images": [
+    {
+      "height": 640,
+      "url": "https://i.scdn.co/image/ab6761610000e5eba7d0c7ebc26b51027a2ce0ac",
+      "width": 640
+    },
+    {
+      "height": 320,
+      "url": "https://i.scdn.co/image/ab67616100005174a7d0c7ebc26b51027a2ce0ac",
+      "width": 320
+    },
+    {
+      "height": 160,
+      "url": "https://i.scdn.co/image/ab6761610000f178a7d0c7ebc26b51027a2ce0ac",
+      "width": 160
+    }
+  ],
+  "name": "Jeshi",
+  "popularity": 46,
+  "type": "artist",
+  "uri": "spotify:artist:0q8eApZJs5WDBxayY9769C"
+}

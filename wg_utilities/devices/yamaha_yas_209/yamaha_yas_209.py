@@ -1,8 +1,9 @@
-"""This module has classes etc. for subscribing to YAS-209 updates"""
+"""Classes etc. for subscribing to YAS-209 updates."""
 from __future__ import annotations
 
 from asyncio import new_event_loop, run
 from asyncio import sleep as async_sleep
+from collections.abc import Callable, Coroutine, Mapping, Sequence
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
@@ -10,23 +11,15 @@ from logging import DEBUG, getLogger
 from textwrap import dedent
 from threading import Thread
 from time import sleep, strptime
-from typing import (
-    Any,
-    Callable,
-    Coroutine,
-    Literal,
-    Mapping,
-    Sequence,
-    TypedDict,
-    TypeVar,
-)
+from typing import Any, Literal, TypedDict, TypeVar
 
 from async_upnp_client.aiohttp import AiohttpNotifyServer, AiohttpRequester
 from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable
 from async_upnp_client.client_factory import UpnpFactory
-from async_upnp_client.exceptions import UpnpActionResponseError, UpnpResponseError
+from async_upnp_client.exceptions import UpnpCommunicationError
 from async_upnp_client.utils import get_local_ip
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, Extra, Field, ValidationError
+from pydantic.error_wrappers import ErrorWrapper
 from xmltodict import parse as parse_xml
 
 from wg_utilities.functions import traverse_dict
@@ -38,60 +31,51 @@ add_stream_handler(LOGGER)
 
 
 # pylint: disable=too-few-public-methods
-class StateVariable(BaseModel, extra=Extra.forbid):
-    """BaseModel for state variables in DLNA payload"""
+class StateVariable(BaseModel, extra=Extra.allow):
+    """BaseModel for state variables in DLNA payload."""
 
     channel: str
     val: str
 
 
 # pylint: disable=too-few-public-methods
-class CurrentTrackMetaDataItemRes(BaseModel, extra=Extra.forbid):
-    """BaseModel for part of the DLNA payload"""
+class CurrentTrackMetaDataItemRes(BaseModel, extra=Extra.allow):
+    """BaseModel for part of the DLNA payload."""
 
-    protocolInfo: str
+    protocolInfo: str  # noqa: N815
     duration: str
     text: str | None
 
 
 # pylint: disable=too-few-public-methods
-class TrackMetaDataItem(BaseModel, extra=Extra.forbid):
-    """BaseModel for part of the DLNA payload"""
+class TrackMetaDataItem(BaseModel, extra=Extra.allow):
+    """BaseModel for part of the DLNA payload."""
 
     id: str
-    song_subid: str | None = Field(..., alias="song:subid")
-    song_description: str | None = Field(..., alias="song:description")
-    song_skiplimit: str = Field(..., alias="song:skiplimit")
-    song_id: str | None = Field(..., alias="song:id")
-    song_like: str = Field(..., alias="song:like")
-    song_singerid: str = Field(..., alias="song:singerid")
-    song_albumid: str = Field(..., alias="song:albumid")
+    song_subid: str | None = Field("", alias="song:subid")
+    song_description: str | None = Field("", alias="song:description")
+    song_skiplimit: str = Field("", alias="song:skiplimit")
+    song_id: str | None = Field("", alias="song:id")
+    song_like: str = Field("", alias="song:like")
+    song_singerid: str = Field("", alias="song:singerid")
+    song_albumid: str = Field("", alias="song:albumid")
     res: CurrentTrackMetaDataItemRes
     dc_title: str | None = Field(..., alias="dc:title")
-    dc_creator: str | None = Field(..., alias="dc:creator")
+    dc_creator: str | None = Field("", alias="dc:creator")
     upnp_artist: str | None = Field(..., alias="upnp:artist")
     upnp_album: str | None = Field(..., alias="upnp:album")
-    upnp_albumArtURI: str = Field(..., alias="upnp:albumArtURI")
+    upnp_albumArtURI: str = Field(..., alias="upnp:albumArtURI")  # noqa: N815
 
 
 # pylint: disable=too-few-public-methods
-class TrackMetaData(BaseModel, extra=Extra.forbid):
-    """BaseModel for part of the DLNA payload"""
+class TrackMetaData(BaseModel, extra=Extra.allow):
+    """BaseModel for part of the DLNA payload."""
 
-    xmlns_dc: Literal["http://purl.org/dc/elements/1.1/"] = Field(..., alias="xmlns:dc")
-    xmlns_upnp: Literal["urn:schemas-upnp-org:metadata-1-0/upnp/"] = Field(
-        ..., alias="xmlns:upnp"
-    )
-    xmlns_song: Literal["www.wiimu.com/song/"] = Field(..., alias="xmlns:song")
-    xmlns: Literal["urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"]
-    upnp_class: Literal["object.item.audioItem.musicTrack"] = Field(
-        ..., alias="upnp:class"
-    )
     item: TrackMetaDataItem
 
 
-class InstanceIDAVTransport(BaseModel, extra=Extra.forbid):
-    """BaseModel for part of the DLNA payload"""
+class InstanceIDAVTransport(BaseModel, extra=Extra.allow):
+    """BaseModel for part of the DLNA payload."""
 
     val: str
     TransportState: str
@@ -121,8 +105,8 @@ class InstanceIDAVTransport(BaseModel, extra=Extra.forbid):
     CurrentTransportActions: str | None
 
 
-class InstanceIDRenderingControl(BaseModel, extra=Extra.forbid):
-    """BaseModel for part of the DLNA payload"""
+class InstanceIDRenderingControl(BaseModel, extra=Extra.allow):
+    """BaseModel for part of the DLNA payload."""
 
     val: str
     Mute: StateVariable
@@ -135,59 +119,68 @@ class InstanceIDRenderingControl(BaseModel, extra=Extra.forbid):
     TimeStamp: str | None
 
 
-class EventAVTransport(BaseModel, extra=Extra.forbid):
-    """BaseModel for part of the DLNA payload"""
+class EventAVTransport(BaseModel, extra=Extra.allow):
+    """BaseModel for part of the DLNA payload."""
 
     xmlns: Literal["urn:schemas-upnp-org:metadata-1-0/AVT/"]
     InstanceID: InstanceIDAVTransport
 
 
-class EventRenderingControl(BaseModel, extra=Extra.forbid):
-    """BaseModel for part of the DLNA payload"""
+class EventRenderingControl(BaseModel, extra=Extra.allow):
+    """BaseModel for part of the DLNA payload."""
 
     xmlns: Literal["urn:schemas-upnp-org:metadata-1-0/RCS/"]
     InstanceID: InstanceIDRenderingControl
 
 
-class LastChange(BaseModel, extra=Extra.forbid):
-    """BaseModel for the DLNA payload"""
+class LastChange(BaseModel, extra=Extra.allow):
+    """BaseModel for the DLNA payload."""
 
     Event: Any
 
     @classmethod
-    def parse(cls, payload: dict[Literal["Event"], Any]) -> LastChange:
+    def parse(cls, payload: dict[Literal["Event"], object]) -> LastChange:
         """Parse a `LastChange` model from the payload dictionary.
 
         Args:
             payload (Dict[str, Any]): the DLNA DMR payload
 
-        Raises:
-            ValidationError: If any of the specified model fields are empty or of the
-             wrong type.
-            ValueError: if more than just "Event" is in the payload
-
         Returns:
             LastChange: The parsed `Case`.
+
+        Raises:
+            TypeError: if the payload isn't a dict
+            ValidationError: If any of the specified model fields are empty or of the
+             wrong type.
+            ValidationError: if more than just "Event" is in the payload
         """
+        if not isinstance(payload, dict):
+            raise TypeError("Expected a dict")
+
+        payload = payload.copy()
 
         event = payload.pop("Event")
 
-        if len(payload) > 0:
-            raise ValueError(
-                f"""Unexpected keys in payload: '{"', '".join(payload.keys())}'"""
+        if payload:
+            raise ValidationError(
+                [
+                    ErrorWrapper(ValueError("extra fields not permitted"), loc=key)
+                    for key in payload.keys()
+                ],
+                model=cls,
             )
 
         return cls(Event=event)
 
 
 class LastChangeAVTransport(LastChange):
-    """BaseModel for an AVTransport DLNA payload"""
+    """BaseModel for an AVTransport DLNA payload."""
 
     Event: EventAVTransport
 
 
 class LastChangeRenderingControl(LastChange):
-    """BaseModel for a RenderingControl DLNA payload"""
+    """BaseModel for a RenderingControl DLNA payload."""
 
     Event: EventRenderingControl
 
@@ -196,7 +189,7 @@ LastChangeTypeVar = TypeVar("LastChangeTypeVar", bound=LastChange)
 
 
 class GetMediaInfoResponse(BaseModel):
-    """BaseModel for the response from a GetMediaInfo request"""
+    """BaseModel for the response from a GetMediaInfo request."""
 
     NrTracks: int
     MediaDuration: str
@@ -211,7 +204,7 @@ class GetMediaInfoResponse(BaseModel):
 
 
 class CurrentTrack:
-    """Class for easy processing/passing of track metadata
+    """Class for easy processing/passing of track metadata.
 
     Attributes:
         album_art_uri (str): URL for album artwork
@@ -225,7 +218,7 @@ class CurrentTrack:
     NULL_TRACK_STR = "NULL"
 
     class Info(TypedDict):
-        """Info for the attributes of this class"""
+        """Info for the attributes of this class."""
 
         album_art_uri: str | None
         media_album_name: str | None
@@ -252,7 +245,7 @@ class CurrentTrack:
     def _create_from_metadata_item(
         cls, metadata_item: TrackMetaDataItem
     ) -> CurrentTrack:
-        """Create a CurrentTrack instance from a response metadata item
+        """Create a CurrentTrack instance from a response metadata item.
 
         Args:
             metadata_item (TrackMetaDataItem): the metadata pulled from the response
@@ -280,7 +273,8 @@ class CurrentTrack:
 
     @classmethod
     def from_get_media_info(cls, response: GetMediaInfoResponse) -> CurrentTrack:
-        """
+        """Create a CurrentTrack instance from a GetMediaInfo response.
+
         Args:
             response (GetMediaInfoResponse): the response from a GetMediaInfo request
 
@@ -291,7 +285,8 @@ class CurrentTrack:
 
     @classmethod
     def from_last_change(cls, last_change: LastChangeTypeVar) -> CurrentTrack:
-        """
+        """Create a CurrentTrack instance from a LastChange response.
+
         Args:
             last_change (LastChangeAVTransport): the payload from the last DLNA change
 
@@ -302,9 +297,25 @@ class CurrentTrack:
             last_change.Event.InstanceID.CurrentTrackMetaData.item
         )
 
+    @classmethod
+    def null_track(cls) -> CurrentTrack:
+        """Create a null track.
+
+        Returns:
+            CurrentTrack: a CurrentTrack instance with all attributes set to None
+        """
+        return cls(
+            album_art_uri=None,
+            media_album_name=None,
+            media_artist=None,
+            media_duration=0.0,
+            media_title=None,
+        )
+
     @property
     def json(self) -> CurrentTrack.Info:
-        """
+        """JSON representation of the current track.
+
         Returns:
             CurrentTrack.Info: info on the currently playing track
         """
@@ -316,7 +327,27 @@ class CurrentTrack:
             "media_title": self.media_title,
         }
 
+    def __eq__(self, other: object) -> bool:
+        """Check equality of this instance with another object.
+
+        Args:
+            other (object): the object to compare to
+
+        Returns:
+            bool: True if the objects are equal, False otherwise
+        """
+        if not isinstance(other, CurrentTrack):
+            return NotImplemented
+
+        return self.json == other.json
+
+    def __repr__(self) -> str:
+        """Get a string representation of this instance."""
+        return f"{self.__class__.__name__}({self.__str__()!r})"
+
     def __str__(self) -> str:
+        """Return a string representation of the current track."""
+
         if self.media_title is None and self.media_artist is None:
             return self.NULL_TRACK_STR
 
@@ -324,7 +355,7 @@ class CurrentTrack:
 
 
 class Yas209State(Enum):
-    """Enumeration for states as they come in the DLNA payload"""
+    """Enumeration for states as they come in the DLNA payload."""
 
     PLAYING = "playing", "Play"
     PAUSED_PLAYBACK = "paused", "Pause"
@@ -338,7 +369,7 @@ class Yas209State(Enum):
 
 
 class Yas209Service(Enum):
-    """Enumeration for available YAS-209 services"""
+    """Enumeration for available YAS-209 services."""
 
     AVT = (
         "AVTransport",
@@ -465,8 +496,10 @@ class Yas209Service(Enum):
 def _needs_device(
     func: Callable[[YamahaYas209], Coroutine[Any, Any, Mapping[str, Any] | None]]
 ) -> Callable[[YamahaYas209], Any]:
-    """This decorator is used when the DLNA device is needed and provides a clean
-     way of instantiating it lazily
+    """Use as a decorator to ensure the device is available.
+
+    This decorator is used when the DLNA device is needed and provides a clean
+    way of instantiating it lazily
 
     Args:
         func (Callable): the function being wrapped
@@ -477,8 +510,7 @@ def _needs_device(
 
     @wraps(func)
     def create_device(yas_209: YamahaYas209) -> Any:
-        """Inner function for creating the device before executing the wrapped
-         method
+        """Create the device before executing the wrapped method.
 
         Args:
             yas_209 (YamahaYas209): the YamahaYas209 instance
@@ -503,7 +535,32 @@ def _needs_device(
 
 
 class YamahaYas209:
-    """Class for consuming information from a YAS-209 in real time"""
+    """Class for consuming information from a YAS-209 in real time.
+
+    Callback functions can be provided, as well as the option to start the
+    listener immediately.
+
+    Args:
+        ip (str): the IP address of the YAS-209
+        on_event (Callable[[YamahaYas209, Event], None], optional): a callback
+            function to be called when an event is received. Defaults to None.
+        start_listener (bool, optional): whether to start the listener
+        on_volume_update (Callable[[YamahaYas209, int], None], optional): a
+            callback function to be called when the volume is updated. Defaults
+            to None.
+        on_track_update (Callable[[YamahaYas209, Track], None], optional): a
+            callback function to be called when the track is updated. Defaults
+            to None.
+        on_state_update (Callable[[YamahaYas209, State], None], optional): a
+            callback function to be called when the state is updated. Defaults
+            to None.
+        logging (bool, optional): whether to log events. Defaults to False.
+        listen_ip (str, optional): the IP address to listen on. Defaults to
+            None.
+        listen_port (int, optional): the port to listen on. Defaults to None.
+        source_port (int, optional): the port to use for the source. Defaults
+            to None.
+    """
 
     SUBSCRIPTION_SERVICES = (
         Yas209Service.AVT.service_id,
@@ -511,12 +568,12 @@ class YamahaYas209:
     )
 
     LAST_CHANGE_PAYLOAD_PARSERS = {
-        "urn:upnp-org:serviceId:AVTransport": LastChangeAVTransport.parse,
-        "urn:upnp-org:serviceId:RenderingControl": LastChangeRenderingControl.parse,
+        Yas209Service.AVT.service_id: LastChangeAVTransport.parse,
+        Yas209Service.RC.service_id: LastChangeRenderingControl.parse,
     }
 
     class EventPayloadInfo(TypedDict):
-        """Info for the payload sent to the `on_event` callback"""
+        """Info for the payload sent to the `on_event` callback."""
 
         timestamp: datetime
         service_id: str
@@ -564,7 +621,7 @@ class YamahaYas209:
         self._active_service_ids: list[str] = []
 
         if self._listen_ip is not None and self._listen_port is None:
-            raise TypeError(
+            raise ValueError(
                 "Argument `listen_port` cannot be None when `listen_ip` is not None:"
                 f" {self._listen_ip!r}"
             )
@@ -573,8 +630,7 @@ class YamahaYas209:
             self.listen()
 
     def listen(self) -> None:
-        """Start the listener"""
-
+        """Start the listener."""
         if self._logging:
             LOGGER.info("Starting listener")
 
@@ -586,7 +642,7 @@ class YamahaYas209:
                 )
             return
 
-        worker_exception: Exception | None = None
+        worker_exception: BaseException | None = None
 
         def _worker() -> None:
             nonlocal worker_exception
@@ -601,7 +657,7 @@ class YamahaYas209:
         while not self._listening and worker_exception is None:
             sleep(0.01)
 
-        if worker_exception is not None:
+        if isinstance(worker_exception, BaseException):
             raise worker_exception  # pylint: disable=raising-bad-type
 
         if self._logging:
@@ -613,15 +669,14 @@ class YamahaYas209:
     def on_event_wrapper(
         self, service: UpnpService, service_variables: Sequence[UpnpStateVariable[str]]
     ) -> None:
-        """Wrapper function for the `on_event` callback, so that we can process the
-        XML payload(s) first
+        """Wrap the `on_event` callback to process the XML payload(s) first.
 
         Args:
             service (UpnpService): the service which has sent an update
             service_variables (list): a list of state variables that have updated
         """
 
-        xml_payloads: dict[str, str | dict[str, Any] | None] = {
+        xml_payloads: dict[str, object] = {
             sv.name: sv.value for sv in service_variables
         }
 
@@ -633,15 +688,12 @@ class YamahaYas209:
         )
 
         event_payload: YamahaYas209.EventPayloadInfo = {
-            "timestamp": datetime.now(),
+            "timestamp": datetime.utcnow(),
             "service_id": service.service_id,
             "service_type": service.service_type,
             "last_change": last_change,
             "other_xml_payloads": xml_payloads,
         }
-
-        if event_payload["last_change"] is None:
-            return
 
         if service.service_id == "urn:upnp-org:serviceId:AVTransport":
             if last_change.Event.InstanceID.TransportState != self.state.name:
@@ -649,7 +701,9 @@ class YamahaYas209:
                     Yas209State[last_change.Event.InstanceID.TransportState],
                     local_only=True,
                 )
-            if last_change.Event.InstanceID.CurrentTrackMetaData is not None:
+            if last_change.Event.InstanceID.CurrentTrackMetaData is None:
+                self.current_track = CurrentTrack.null_track()
+            else:
                 self.current_track = CurrentTrack.from_last_change(last_change)
         elif service.service_id == "urn:upnp-org:serviceId:RenderingControl":
             # The DLNA payload has volume as a string value between 0 and 100
@@ -665,7 +719,6 @@ class YamahaYas209:
     async def _subscribe(self) -> None:
         # pylint: disable=too-many-branches
         """Subscribe to service(s) and output updates."""
-
         # start notify server/event handler
         local_ip = get_local_ip(self.device.device_url)
         source = (local_ip, self._source_port)
@@ -703,25 +756,22 @@ class YamahaYas209:
             )
 
         # create service subscriptions
-        services = []
         failed_subscriptions = []
         for service in self.device.services.values():
             if service.service_id not in self.SUBSCRIPTION_SERVICES:
                 continue
 
             service.on_event = self.on_event_wrapper
-            services.append(service)
             try:
                 await server.event_handler.async_subscribe(service)
                 self._active_service_ids.append(service.service_id)
-                LOGGER.debug("Subscribed to %s", service.service_id)
-            except UpnpResponseError as exc:
+                LOGGER.info("Subscribed to %s", service.service_id)
+            except UpnpCommunicationError as exc:
                 if self._logging:
                     LOGGER.exception(
-                        "Unable to subscribe to %s: %s - %s",
+                        "Unable to subscribe to %s: %s",
                         service.service_id,
-                        type(exc).__name__,
-                        str(exc),
+                        repr(exc),
                     )
                 failed_subscriptions.append(service)
 
@@ -730,11 +780,15 @@ class YamahaYas209:
         # keep the webservice running (force resubscribe)
         while self._listening:
             for _ in range(120):
-                if self._listening is False:
+                if not self._listening:
                     if self._logging:
                         LOGGER.debug("Exiting listener loop")
-                    return
+                    break
                 await async_sleep(1)
+
+            # The break above only covers the for loop, this is for the while loop
+            if not self._listening:
+                break
 
             LOGGER.debug("Resubscribing to all services")
             await server.event_handler.async_resubscribe_all()
@@ -751,7 +805,7 @@ class YamahaYas209:
                     await server.event_handler.async_subscribe(service)
                     self._active_service_ids.append(service.service_id)
                     services_to_remove.append(service)
-                except UpnpResponseError as exc:
+                except UpnpCommunicationError as exc:
                     log_message = (
                         f"Still unable to subscribe to {service.service_id}:"
                         f" {exc!r}"
@@ -765,27 +819,27 @@ class YamahaYas209:
 
             # This needs to be separate because `.remove` is the cleanest way to remove
             # the items, but can't be done within the loop, and I can't `deepcopy`
-            # `failed_subscriptions` and it's threaded content
+            # `failed_subscriptions` and its threaded content
             for service in services_to_remove:
                 failed_subscriptions.remove(service)
 
         if self._logging:
             LOGGER.debug(
-                "Exiting subscription loop, `self._listening` is `%s`", self._listening
+                "Exiting subscription loop, `self._listening` is `%s`",
+                str(self._listening),
             )
 
     def _call_service_action(
         self,
         service: Yas209Service,
         action: str,
-        callback: Callable[[Mapping[str, Any]], Any] | None = None,
+        callback: Callable[[Mapping[str, object]], None] | None = None,
         **call_kwargs: str | int,
     ) -> dict[str, Any] | None:
-
         if action not in service.actions:
             raise ValueError(
                 f"Unexpected action {action!r} for service {service.value!r}. "
-                f"""Must be one of {"', '".join(service.actions)!r}"""
+                f"""Must be one of '{"', '".join(service.actions)}'"""
             )
 
         @_needs_device
@@ -801,24 +855,13 @@ class YamahaYas209:
 
             return res
 
-        if action not in service.actions:
-            raise ValueError(
-                f"Unknown action {action!r}, must be one of:"
-                f" {', '.join(service.actions)}"
-            )
-        try:
-            return run(_worker(self))  # type: ignore[no-any-return]
-        except UpnpActionResponseError:
-            # if not trying to transition to the current state (and current state is
-            # known)
-            if self.state != Yas209State.UNKNOWN and self.state.action != action:
-                raise
-
-            return None
+        return run(_worker(self))  # type: ignore[no-any-return]
 
     @staticmethod
-    def _parse_xml_dict(xml_dict: dict[str, Any]) -> None:
-        """Parse a dictionary where some values are/could be XML strings, and unpack
+    def _parse_xml_dict(xml_dict: dict[str, object]) -> None:
+        """Convert XML to JSON within dict in place.
+
+        Parse a dictionary where some values are/could be XML strings, and unpack
         the XML into JSON within the dict
 
         Args:
@@ -827,29 +870,30 @@ class YamahaYas209:
         traverse_dict(
             xml_dict,
             target_type=str,
-            target_processor_func=lambda value: parse_xml(
-                value, attr_prefix="", cdata_key="text"
+            target_processor_func=lambda val, dict_key=None, list_index=None: parse_xml(
+                val, attr_prefix="", cdata_key="text"
             ),
             single_keys_to_remove=["val", "DIDL-Lite"],
         )
 
+    # TODO: @on_exception()
     def pause(self) -> None:
-        """Pause the current media"""
+        """Pause the current media."""
         self._call_service_action(Yas209Service.AVT, "Pause", InstanceID=0)
 
     def play(self) -> None:
-        """Play the current media"""
+        """Play the current media."""
         self._call_service_action(Yas209Service.AVT, "Play", InstanceID=0, Speed="1")
 
     def play_pause(self) -> None:
-        """Toggle the playing/paused state"""
+        """Toggle the playing/paused state."""
         if self.state == Yas209State.PLAYING:
             self.pause()
         else:
             self.play()
 
     def mute(self) -> None:
-        """Mute"""
+        """Mute."""
         self._call_service_action(
             Yas209Service.RC,
             "SetMute",
@@ -859,21 +903,27 @@ class YamahaYas209:
         )
 
     def next_track(self) -> None:
-        """Skip to the next track"""
+        """Skip to the next track."""
         self._call_service_action(Yas209Service.AVT, "Next", InstanceID=0)
 
     def previous_track(self) -> None:
-        """Go to the previous track"""
+        """Go to the previous track."""
         self._call_service_action(Yas209Service.AVT, "Previous", InstanceID=0)
 
     def set_state(self, value: Yas209State, local_only: bool = False) -> None:
-        """Sets the state to the given value
+        """Set the state to the given value.
 
         Args:
             value (Yas209State): the new state of the YAS-209
             local_only (bool): only change the local value of the state (i.e. don't
              update the soundbar)
+
+        Raises:
+            TypeError: if the value is not a valid state
         """
+        if not isinstance(value, Yas209State):
+            raise TypeError("Expected a Yas209State instance.")
+
         self._state = value
 
         if not local_only:
@@ -890,13 +940,20 @@ class YamahaYas209:
             self.on_state_update(self._state.value)
 
     def set_volume_level(self, value: float, local_only: bool = False) -> None:
-        """Set's the soundbar's volume level
+        """Set the soundbar's volume level.
 
         Args:
             value (float): the new volume level, as a float between 0 and 1
             local_only (bool): only change the local value of the volume level (i.e.
              don't update the soundbar)
+
+        Raises:
+            ValueError: if the value is not between 0 and 1
         """
+
+        if not 0 <= value <= 1:
+            raise ValueError("Volume level must be between 0 and 1")
+
         self._volume_level = round(value, 2)
 
         if not local_only:
@@ -912,18 +969,18 @@ class YamahaYas209:
             self.on_volume_update(self._volume_level)
 
     def stop(self) -> None:
-        """Stop whatever is currently playing"""
+        """Stop whatever is currently playing."""
         self._call_service_action(Yas209Service.AVT, "Stop", InstanceID=0, Speed="1")
 
     def stop_listening(self) -> None:
-        """Stop the event listener"""
+        """Stop the event listener."""
         if self._logging:
             LOGGER.debug("Stopping event listener (will take <= 2 minutes)")
 
         self._listening = False
 
     def unmute(self) -> None:
-        """Unmute"""
+        """Unmute."""
         self._call_service_action(
             Yas209Service.RC,
             "SetMute",
@@ -933,33 +990,31 @@ class YamahaYas209:
         )
 
     def volume_down(self) -> None:
-        """Decrease the volume by 2 points"""
-        self.set_volume_level(self.volume_level - 0.02)
+        """Decrease the volume by 2 points."""
+        self.set_volume_level(round(self.volume_level - 0.02, 2))
 
     def volume_up(self) -> None:
-        """Increase the volume by 2 points"""
-        self.set_volume_level(self.volume_level + 0.02)
+        """Increase the volume by 2 points."""
+        self.set_volume_level(round(self.volume_level + 0.02, 2))
 
     @property
     def album_art_uri(self) -> str | None:
-        """
+        """Album art URI for the currently playing media.
+
         Returns:
             str: URL for the current album's artwork
         """
-        if self.current_track is not None:
-            return self._current_track.album_art_uri
-
-        return None
+        return self.current_track.album_art_uri
 
     @property
-    def current_track(self) -> CurrentTrack | None:
-        """
+    def current_track(self) -> CurrentTrack:
+        """Currently playing track.
+
         Returns:
             dict: the current track's info
         """
         if not hasattr(self, "_current_track"):
             media_info = self.get_media_info()
-            self._parse_xml_dict(media_info)
             self._current_track = CurrentTrack.from_get_media_info(
                 GetMediaInfoResponse.parse_obj(media_info)
             )
@@ -968,46 +1023,61 @@ class YamahaYas209:
 
     @current_track.setter
     def current_track(self, value: CurrentTrack) -> None:
+        """Set the current track.
+
+        Args:
+            value (CurrentTrack): the new current track
+
+        Raises:
+            TypeError: if the value is not a CurrentTrack instance
+        """
+
+        if not isinstance(value, CurrentTrack):
+            raise TypeError("Expected a CurrentTrack instance.")
+
         self._current_track = value
 
         if self.on_track_update is not None:
             self.on_track_update(value.json)
 
     @property
-    def media_album_name(self) -> str | None:
+    def is_listening(self) -> bool:
+        """Whether the event listener is running.
+
+        Returns:
+            bool: whether the event listener is running
         """
+        return self._listening
+
+    @property
+    def media_album_name(self) -> str | None:
+        """Name of the current album.
+
         Returns:
             str: the current media_title
         """
-        if self.current_track is not None:
-            return self._current_track.media_album_name
-
-        return None
+        return self.current_track.media_album_name
 
     @property
     def media_artist(self) -> str | None:
-        """
+        """Currently playing artist.
+
         Returns:
             str: the current media_artist
         """
-        if self.current_track is not None:
-            return self._current_track.media_artist
-
-        return None
+        return self.current_track.media_artist
 
     @property
     def media_duration(self) -> float | None:
-        """
+        """Duration of current playing media in seconds.
+
         Returns:
             str: the current media_duration
         """
-        if self.current_track is not None:
-            return self._current_track.media_duration
-
-        return None
+        return self.current_track.media_duration
 
     def get_media_info(self) -> dict[str, Any]:
-        """Get the current media info from the soundbar
+        """Get the current media info from the soundbar.
 
         Returns:
             dict: the response in JSON form
@@ -1024,18 +1094,17 @@ class YamahaYas209:
 
     @property
     def media_title(self) -> str | None:
-        """
+        """Currently playing media title.
+
         Returns:
             str: the current media_album_name
         """
-        if self.current_track is not None:
-            return self._current_track.media_title
-
-        return None
+        return self.current_track.media_title
 
     @property
     def state(self) -> Yas209State:
-        """
+        """Current state of the soundbar.
+
         Returns:
             Yas209State: the current state of the YAS-209 (e.g. playing, stopped)
         """
@@ -1046,12 +1115,12 @@ class YamahaYas209:
 
     @property
     def volume_level(self) -> float:
-        """
+        """Current volume level.
+
         Returns:
             float: the current volume level
         """
         if not hasattr(self, "_volume_level"):
-
             res = (
                 self._call_service_action(
                     Yas209Service.RC,

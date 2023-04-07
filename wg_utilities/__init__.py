@@ -1,9 +1,13 @@
-# pylint: disable=missing-module-docstring,invalid-name
+# pylint: disable=invalid-name
+"""Utilities package for my other projects."""
+from __future__ import annotations
+
 name = "wg_utilities"
 
-__version__ = "2.33.0"
+__version__ = "3.0.0"
 
 __all__ = [
+    "api",
     "clients",
     "devices",
     "exceptions",

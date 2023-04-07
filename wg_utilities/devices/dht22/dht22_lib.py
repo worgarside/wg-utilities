@@ -1,4 +1,4 @@
-"""A class I found a long time ago for DHT22, I can't remember where :("""
+"""A class I found a long time ago for DHT22, I can't remember where :(."""
 from __future__ import annotations
 
 from time import sleep
@@ -7,7 +7,7 @@ from pigpio import EITHER_EDGE, INPUT, LOW, PUD_OFF, pi, tickDiff
 
 
 class DHT22Sensor:
-    """Class for DHT22 sensor, I can't remember where I got this from!
+    """Class for DHT22 sensor, I can't remember where I got this from.
 
     Args:
         pi_obj (pi): a PI instance from pigpio
@@ -66,7 +66,8 @@ class DHT22Sensor:
 
     def _cb(self, _: int, level: int, tick: int) -> None:
         # pylint: disable=too-many-branches,too-many-statements
-        """
+        """Callback function for DHT22 Sensor.
+
         Accumulate the 40 data bits.  Format into 5 bytes, humidity high,
         humidity low, temperature high, temperature low, checksum.
 
@@ -78,12 +79,11 @@ class DHT22Sensor:
             tick (int):    32 bit   The number of microseconds since boot
                                     WARNING: this wraps around from
                                     4294967295 to 0 roughly every 72 minutes
-        """
+        """  # noqa: D401
 
         diff = tickDiff(self.high_tick, tick)
 
         if level == 0:
-
             # Edge length determines if bit is 1 or 0.
             if diff >= 50:
                 val = 1
@@ -99,7 +99,6 @@ class DHT22Sensor:
                 self.checksum = (self.checksum << 1) + val
 
                 if self.bit == 39:
-
                     # 40th bit received.
 
                     self.pi.set_watchdog(self.gpio, 0)
@@ -111,7 +110,6 @@ class DHT22Sensor:
                     )
 
                     if (total & 255) == self.checksum:  # Is checksum ok?
-
                         self.humidity = ((self.hum_high << 8) + self.hum_low) * 0.1
 
                         if self.temp_high & 128:  # Negative temperature.
@@ -128,7 +126,6 @@ class DHT22Sensor:
                             self.pi.write(self.led, 0)
 
                     else:
-
                         self.bad_cs += 1
 
             elif self.bit >= 24:  # in temp low byte
@@ -193,7 +190,6 @@ class DHT22Sensor:
 
     def cancel(self) -> None:
         """Cancel the DHT22 Sensor."""
-
         self.pi.set_watchdog(self.gpio, 0)
 
         if self.callback is not None:

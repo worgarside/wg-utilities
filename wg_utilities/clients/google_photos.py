@@ -1,264 +1,339 @@
-"""Custom client for interacting with Google's Photos API"""
+# pylint: disable=too-few-public-methods,no-self-argument
+"""Custom client for interacting with Google's Photos API."""
 from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum, auto
-from json import dumps
-from logging import Logger
-from os import getenv
-from os.path import isfile, join
-from typing import Iterable, TypedDict, cast
+from logging import DEBUG, getLogger
+from pathlib import Path
+from typing import Any, Literal, TypeAlias, TypedDict, TypeVar
 
-from requests import get
+from pydantic import Field, validator
+from requests import post
 
-from wg_utilities.clients._google import GoogleClient, _GoogleEntityInfo
-from wg_utilities.functions import force_mkdir, user_data_dir
-
-LOCAL_MEDIA_DIRECTORY = getenv(
-    "LOCAL_MEDIA_DIRECTORY", user_data_dir(file_name="media_downloads")
+from wg_utilities.clients._google import GoogleClient
+from wg_utilities.clients.oauth_client import (
+    BaseModelWithConfig,
+    GenericModelWithConfig,
 )
+from wg_utilities.functions import force_mkdir
+from wg_utilities.loggers import add_stream_handler
+
+LOGGER = getLogger(__name__)
+LOGGER.setLevel(DEBUG)
+add_stream_handler(LOGGER)
 
 
 class _SharedAlbumOptionsInfo(TypedDict):
-    isCollaborative: bool
-    isCommentable: bool
+    isCollaborative: bool  # noqa: N815
+    isCommentable: bool  # noqa: N815
 
 
 class _ShareInfoInfo(TypedDict):
-    isJoinable: bool
-    isJoined: bool
-    isOwned: bool
-    shareableUrl: str
-    sharedAlbumOptions: _SharedAlbumOptionsInfo
-    shareToken: str
+    isJoinable: bool  # noqa: N815
+    isJoined: bool  # noqa: N815
+    isOwned: bool  # noqa: N815
+    shareableUrl: str  # noqa: N815
+    sharedAlbumOptions: _SharedAlbumOptionsInfo  # noqa: N815
+    shareToken: str  # noqa: N815
 
 
-class _AlbumInfo(_GoogleEntityInfo):
-    coverPhotoBaseUrl: str
-    coverPhotoMediaItemId: str
-    id: str
-    isWriteable: bool
-    mediaItemsCount: str
-    productUrl: str
-    shareInfo: _ShareInfoInfo
-    title: str
+class _MediaItemMetadataPhoto(BaseModelWithConfig):
+    camera_make: str | None = Field(alias="cameraMake")
+    camera_model: str | None = Field(alias="cameraModel")
+    focal_length: float | None = Field(alias="focalLength")
+    aperture_f_number: float | None = Field(alias="apertureFNumber")
+    iso_equivalent: int | None = Field(alias="isoEquivalent")
+    exposure_time: str | None = Field(alias="exposureTime")
 
 
-class _MediaItemMetadataInfo(TypedDict):
-    creationTime: str
-    height: str
-    width: str
+class _MediaItemMetadataVideo(BaseModelWithConfig):
+    camera_make: str | None = Field(alias="cameraMake")
+    camera_model: str | None = Field(alias="cameraModel")
+    status: Literal["READY"] | None
+    fps: float | None
 
 
-class _MediaItemInfo(_GoogleEntityInfo):
-    baseUrl: str
-    contributorInfo: dict[str, str]
-    description: str
-    filename: str
-    id: str
-    mediaMetadata: _MediaItemMetadataInfo
-    mimeType: str
-    productUrl: str
+class _MediaItemMetadata(BaseModelWithConfig):
+    creation_time: datetime = Field(alias="creationTime")
+    height: int
+    width: int
+    photo: _MediaItemMetadataPhoto | None
+    video: _MediaItemMetadataVideo | None
 
 
 class MediaType(Enum):
-    """Enum for all potential media types"""
+    """Enum for all potential media types."""
 
-    IMAGE = auto()
-    VIDEO = auto()
+    IMAGE = "image"
+    VIDEO = "video"
     UNKNOWN = auto()
 
 
-class Album:
-    """Class for Google Photos albums and their metadata/content
+FJR = TypeVar("FJR", bound="GooglePhotosEntity")
 
-    Args:
-        json (dict): the JSON which is returned from the Google Photos API when
-         describing the album
-        google_client (GooglePhotosClient): an active Google client which can be used to
-         list media items
 
-    """
+class GooglePhotosEntity(GenericModelWithConfig):
+    """Base class for Google Photos entities."""
 
-    def __init__(self, json: _AlbumInfo, google_client: GooglePhotosClient):
-        self.json = json
-        self._media_items: list[MediaItem] | None = None
+    id: str
+    product_url: str = Field(alias="productUrl")
 
-        self.google_client = google_client
+    google_client: GooglePhotosClient = Field(exclude=True)
+
+    @classmethod
+    def from_json_response(
+        cls: type[FJR],
+        value: GooglePhotosEntityJson,
+        *,
+        google_client: GooglePhotosClient,
+        _waive_validation: bool = False,
+    ) -> FJR:
+        """Create an entity from a JSON response."""
+
+        value_data: dict[str, Any] = {
+            "google_client": google_client,
+            **value,
+        }
+
+        instance = cls.parse_obj(value_data)
+
+        if not _waive_validation:
+            instance._validate()  # pylint: disable=protected-access
+
+        return instance
+
+
+class AlbumJson(TypedDict):
+    """JSON representation of an Album."""
+
+    id: str
+    productUrl: str  # noqa: N815
+
+    coverPhotoBaseUrl: str  # noqa: N815
+    coverPhotoMediaItemId: str  # noqa: N815
+    isWriteable: bool | None  # noqa: N815
+    mediaItemsCount: int  # noqa: N815
+    shareInfo: _ShareInfoInfo | None  # noqa: N815
+    title: str
+
+
+class Album(GooglePhotosEntity):
+    """Class for Google Photos albums and their metadata/content."""
+
+    cover_photo_base_url: str = Field(alias="coverPhotoBaseUrl")
+    cover_photo_media_item_id: str = Field(alias="coverPhotoMediaItemId")
+    is_writeable: bool | None = Field(alias="isWriteable")
+    media_items_count: int = Field(alias="mediaItemsCount")
+    share_info: _ShareInfoInfo | None = Field(alias="shareInfo")
+    title: str
+
+    _media_items: list[MediaItem]
+
+    @validator("title")
+    def _validate_title(cls, value: str) -> str:  # noqa: N805
+        """Validate the title of the album."""
+
+        if not value:
+            raise ValueError("Album title cannot be empty.")
+
+        return value.strip()
 
     @property
     def media_items(self) -> list[MediaItem]:
         # noinspection GrazieInspection
-        """Lists all media items in the album
+        """List all media items in the album.
 
         Returns:
             list: a list of MediaItem instances, representing the contents of the album
         """
 
-        if not self._media_items:
-            self._media_items = self.google_client.get_album_contents(self.id)
+        if not hasattr(self, "_media_items"):
+            self._set_private_attr(
+                "_media_items",
+                [
+                    MediaItem.from_json_response(item, google_client=self.google_client)
+                    for item in self.google_client.get_items(
+                        "/mediaItems:search",
+                        method_override=post,
+                        list_key="mediaItems",
+                        params={"albumId": self.id, "pageSize": 100},
+                    )
+                ],
+            )
 
         return self._media_items
 
-    @property
-    def title(self) -> str | None:
-        """
-        Returns:
-            str: the title of the album
-        """
-        return self.json.get("title")
+    def __contains__(self, item: MediaItem) -> bool:
+        """Check if the album contains the given media item."""
 
-    @property
-    def id(self) -> str:
-        """
-        Returns:
-            str: the ID of the album
-        """
-        return self.json["id"]
-
-    @property
-    def media_items_count(self) -> int:
-        """
-        Returns:
-            int: the number of media items within the album
-        """
-        return int(self.json.get("mediaItemsCount", "-1"))
-
-    def __str__(self) -> str:
-        return f"{self.title}: {self.id}"
+        return item.id in [media_item.id for media_item in self.media_items]
 
 
-class MediaItem:
-    """Class for representing a MediaItem and its metadata/content
+class MediaItemJson(TypedDict):
+    """JSON representation of a Media Item (photo or video)."""
 
-    Args:
-        json (dict): the JSON returned from the Google Photos API, which describes
-        this media item
-    """
+    id: str
+    productUrl: str  # noqa: N815
 
-    def __init__(self, json: _MediaItemInfo):
-        self.json: _MediaItemInfo = json
+    baseUrl: str  # noqa: N815
+    contributorInfo: dict[str, str] | None  # noqa: N815
+    description: str | None
+    filename: str
+    mediaMetadata: _MediaItemMetadata  # noqa: N815
+    mimeType: str  # noqa: N815
 
-        try:
-            self.creation_datetime = datetime.strptime(
-                json["mediaMetadata"]["creationTime"],
-                "%Y-%m-%dT%H:%M:%S.%fZ",
-            )
-        except ValueError:
-            self.creation_datetime = datetime.strptime(
-                json["mediaMetadata"]["creationTime"], "%Y-%m-%dT%H:%M:%SZ"
-            )
 
-        self.local_path = join(
-            LOCAL_MEDIA_DIRECTORY,
-            self.creation_datetime.strftime("%Y/%m/%d"),
-            json["filename"],
-        )
+class MediaItem(GooglePhotosEntity):
+    """Class for representing a MediaItem and its metadata/content."""
+
+    base_url: str = Field(alias="baseUrl")
+    contributor_info: dict[str, str] | None = Field(alias="contributorInfo")
+    description: str | None
+    filename: str
+    media_metadata: _MediaItemMetadata = Field(alias="mediaMetadata")
+    mime_type: str = Field(alias="mimeType")
+
+    _local_path: Path
 
     def download(
         self,
+        target_directory: Path | str = "",
+        *,
+        file_name_override: str | None = None,
         width_override: int | None = None,
         height_override: int | None = None,
         force_download: bool = False,
-    ) -> str:
-        """Download the media item to local storage. The width/height overrides do
-        not apply to videos
+    ) -> Path:
+        """Download the media item to local storage.
+
+        Notes:
+            The width/height overrides do not apply to videos.
 
         Args:
+            target_directory (Path or str): the directory to download the file to.
+                Defaults to the current working directory.
+            file_name_override (str): the file name to use when downloading the file
             width_override (int): the width override to use when downloading the file
             height_override (int): the height override to use when downloading the file
             force_download (bool): flag for forcing a download, even if it exists
-             locally already
+                locally already
 
-         Returns:
+        Returns:
              str: the path to the downloaded file (self.local_path)
         """
-        if not self.stored_locally or force_download:
+
+        if isinstance(target_directory, str):
+            target_directory = (
+                Path.cwd() if target_directory == "" else Path(target_directory)
+            )
+
+        self._set_private_attr(
+            "_local_path",
+            (
+                target_directory
+                / self.creation_datetime.strftime("%Y/%m/%d")
+                / (file_name_override or self.filename)
+            ),
+        )
+
+        if self.local_path.is_file() and not force_download:
+            LOGGER.warning(
+                "File already exists at `%s` and `force_download` is `False`;"
+                " skipping download.",
+                self.local_path,
+            )
+        else:
             width = width_override or self.width
             height = height_override or self.height
-
-            # LOGGER.debug("Downloading %s (%sx%s)", self.filename, width, height)
 
             param_str = {
                 MediaType.IMAGE: f"=w{width}-h{height}",
                 MediaType.VIDEO: "=dv",
             }.get(self.media_type, "")
 
-            with open(force_mkdir(self.local_path, path_is_file=True), "wb") as fout:
-                fout.write(get(f"{self.json['baseUrl']}{param_str}").content)
+            force_mkdir(self.local_path, path_is_file=True).write_bytes(
+                self.google_client._get(  # pylint: disable=protected-access
+                    f"{self.base_url}{param_str}", params={"pageSize": None}
+                ).content
+            )
 
         return self.local_path
 
     @property
     def bytes(self) -> bytes:
-        """Opens the local copy of the file (downloading it first if necessary) and
+        """MediaItem binary content.
+
+        Opens the local copy of the file (downloading it first if necessary) and
         reads the binary content of it
 
         Returns:
             bytes: the binary content of the file
         """
-        if not self.stored_locally:
+        if not (self.local_path and self.local_path.is_file()):
             self.download()
 
-        with open(self.local_path, "rb") as fin:
-            bytes_content = fin.read()
-
-        return bytes_content
+        return self.local_path.read_bytes()
 
     @property
-    def stored_locally(self) -> bool:
-        """
-        Returns:
-            bool: flag for if the file exists locally
-        """
-        return isfile(self.local_path)
-
-    @property
-    def filename(self) -> str | None:
-        """
-        Returns:
-            str: the media item's file name
-        """
-        return self.json.get("filename")
+    def creation_datetime(self) -> datetime:
+        """The datetime when the media item was created."""
+        return self.media_metadata.creation_time
 
     @property
     def height(self) -> int:
-        """
+        """MediaItem height.
+
         Returns:
             int: the media item's height
         """
-        return int(self.json.get("mediaMetadata", {}).get("height", "-1"))
+        return self.media_metadata.height
+
+    @property
+    def is_downloaded(self) -> bool:
+        """Whether the media item has been downloaded locally.
+
+        Returns:
+            bool: whether the media item has been downloaded locally
+        """
+        return bool(self.local_path and self.local_path.is_file())
+
+    @property
+    def local_path(self) -> Path:
+        """The path which the is/would be stored at locally.
+
+        Returns:
+            Path: where the file is/will be stored
+        """
+        return getattr(self, "_local_path", Path("undefined"))
 
     @property
     def width(self) -> int:
-        """
+        """MediaItem width.
+
         Returns:
             int: the media item's width
         """
-        return int(self.json.get("mediaMetadata", {}).get("width", "-1"))
+        return self.media_metadata.width
 
     @property
     def media_type(self) -> MediaType:
-        """Determines the media item's file type from the JSON
+        """Determines the media item's file type from the JSON.
 
         Returns:
             MediaType: the media type (image, video, etc.) for this item
         """
-
-        if "image" in (mime_type := self.json.get("mimeType", "")):
-            return MediaType.IMAGE
-
-        if "video" in mime_type:
-            return MediaType.VIDEO
-
-        return MediaType.UNKNOWN
-
-    def __str__(self) -> str:
-        return dumps(self.json, indent=4, default=str)
+        try:
+            return MediaType(self.mime_type.split("/")[0])
+        except ValueError:
+            return MediaType.UNKNOWN
 
 
-class GooglePhotosClient(GoogleClient):
-    """Custom client for interacting with the Google Photos API
+GooglePhotosEntityJson: TypeAlias = AlbumJson | MediaItemJson
+
+
+class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
+    """Custom client for interacting with the Google Photos API.
 
     See Also:
         GoogleClient: the base Google client, used for authentication and common
@@ -267,52 +342,65 @@ class GooglePhotosClient(GoogleClient):
 
     BASE_URL = "https://photoslibrary.googleapis.com/v1"
 
+    DEFAULT_SCOPES = [
+        "https://www.googleapis.com/auth/photoslibrary.readonly",
+        "https://www.googleapis.com/auth/photoslibrary.appendonly",
+        "https://www.googleapis.com/auth/photoslibrary.readonly.appcreateddata",
+        "https://www.googleapis.com/auth/photoslibrary.edit.appcreateddata",
+    ]
+
     def __init__(
         self,
-        project: str,
+        client_id: str,
+        client_secret: str,
+        *,
         scopes: list[str] | None = None,
-        client_id_json_path: str | None = None,
-        creds_cache_path: str | None = None,
-        access_token_expiry_threshold: int = 60,
-        logger: Logger | None = None,
+        log_requests: bool = False,
+        creds_cache_path: Path | None = None,
     ):
         super().__init__(
-            project,
-            scopes,
-            client_id_json_path,
-            creds_cache_path,
-            access_token_expiry_threshold,
-            logger,
+            base_url=self.BASE_URL,
+            client_id=client_id,
+            client_secret=client_secret,
+            scopes=scopes or self.DEFAULT_SCOPES,
+            log_requests=log_requests,
+            creds_cache_path=creds_cache_path,
         )
 
-        self._albums: list[Album] | None = None
+        self._albums: list[Album]
+        # Only really used to check if all album metadata has been fetched, not
+        # available to the user (would still require caching all albums).
+        self._album_count: int
 
-    def get_album_contents(self, album_id: str) -> list[MediaItem]:
-        # noinspection GrazieInspection
-        """Gets the contents of a given album in Google Photos
+    def get_album_by_id(self, album_id: str) -> Album:
+        """Get an album by its ID.
 
         Args:
-            album_id (str): the ID of the album which we want the contents of
+            album_id (str): the ID of the album to fetch
 
         Returns:
-            list: a list of MediaItem instances, representing each item in the album
+            Album: the album with the given ID
         """
 
-        return [
-            MediaItem(item)
-            for item in cast(
-                Iterable[_MediaItemInfo],
-                self._list_items(
-                    self.session.post,
-                    f"{self.BASE_URL}/mediaItems:search",
-                    "mediaItems",
-                    params={"albumId": album_id},
-                ),
-            )
-        ]
+        if hasattr(self, "_albums"):
+            for album in self._albums:
+                if album.id == album_id:
+                    return album
 
-    def get_album_from_name(self, album_name: str) -> Album:
-        """Gets an album definition from the Google API based on the album name
+        album = Album.from_json_response(
+            self.get_json_response(f"/albums/{album_id}", params={"pageSize": None}),
+            google_client=self,
+        )
+
+        if not hasattr(self, "_albums"):
+            self._albums = [album]
+        else:
+            self._albums.append(album)
+
+        return album
+
+    def get_album_by_name(self, album_name: str) -> Album:
+        """Get an album definition from the Google API based on the album name.
 
         Args:
             album_name (str): the name of the album to find
@@ -324,32 +412,49 @@ class GooglePhotosClient(GoogleClient):
             FileNotFoundError: if the client can't find an album with the correct name
         """
 
-        self.logger.info("Getting metadata for album `%s`", album_name)
+        LOGGER.info("Getting metadata for album `%s`", album_name)
         for album in self.albums:
             if album.title == album_name:
                 return album
 
-        raise FileNotFoundError(f"Unable to find album with name {album_name}")
+        raise FileNotFoundError(f"Unable to find album with name {album_name!r}.")
 
     @property
     def albums(self) -> list[Album]:
-        """Lists all albums in the active Google account
+        """List all albums in the active Google account.
 
         Returns:
             list: a list of Album instances
         """
 
-        if not self._albums:
+        if not hasattr(self, "_albums"):
             self._albums = [
-                Album(item, self)
-                for item in cast(
-                    Iterable[_AlbumInfo],
-                    self._list_items(
-                        self.session.get,
-                        f"{self.BASE_URL}/albums",
-                        "albums",
-                    ),
+                Album.from_json_response(item, google_client=self)
+                for item in self.get_items(
+                    f"{self.BASE_URL}/albums",
+                    list_key="albums",
+                    params={"pageSize": 50},
                 )
             ]
+            self._album_count = len(self._albums)
+        elif not hasattr(self, "_album_count"):
+            album_ids = [album.id for album in self._albums]
+            self._albums.extend(
+                [
+                    Album.from_json_response(item, google_client=self)
+                    for item in self.get_items(
+                        f"{self.BASE_URL}/albums",
+                        list_key="albums",
+                        params={"pageSize": 50},
+                    )
+                    if item["id"] not in album_ids
+                ]
+            )
+
+            self._album_count = len(self._albums)
 
         return self._albums
+
+
+Album.update_forward_refs()
+MediaItem.update_forward_refs()

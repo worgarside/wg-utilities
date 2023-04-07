@@ -1,0 +1,39 @@
+{
+  "collaborative": false,
+  "description": "This is a test playlist.",
+  "external_urls": {
+    "spotify": "https://open.spotify.com/playlist/65v3nBfPsfLys2qaFCHByb"
+  },
+  "followers": {
+    "href": null,
+    "total": 0
+  },
+  "href": "https://api.spotify.com/v1/playlists/65v3nBfPsfLys2qaFCHByb",
+  "id": "65v3nBfPsfLys2qaFCHByb",
+  "images": [],
+  "name": "Test Playlist",
+  "owner": {
+    "display_name": "Will Garside",
+    "external_urls": {
+      "spotify": "https://open.spotify.com/user/worgarside"
+    },
+    "href": "https://api.spotify.com/v1/users/worgarside",
+    "id": "worgarside",
+    "type": "user",
+    "uri": "spotify:user:worgarside"
+  },
+  "primary_color": null,
+  "public": false,
+  "snapshot_id": "MSw3ZGQxNzIxYTg0ODg3ZTk2NjhmMjc3OTMwMDRjM2FiNjBhMTM5OTkw",
+  "tracks": {
+    "href": "https://api.spotify.com/v1/playlists/65v3nBfPsfLys2qaFCHByb/tracks",
+    "items": [],
+    "limit": 100,
+    "next": null,
+    "offset": 0,
+    "previous": null,
+    "total": 0
+  },
+  "type": "playlist",
+  "uri": "spotify:playlist:65v3nBfPsfLys2qaFCHByb"
+}

@@ -1,0 +1,101 @@
+---
+name: Publish Release
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+      - master
+
+jobs:
+  cancel_if_not_merged:
+    name: Cancel Workflow if Pull Request is not merged
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == false
+    steps:
+      - name: Cancel Workflow Run
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  get-release-metadata:
+    name: Get Release Metadata
+    runs-on: ubuntu-latest
+    outputs:
+      release-id: ${{ steps.get-release-metadata.outputs.release-id }}
+      release-tag: ${{ steps.get-release-metadata.outputs.release-tag }}
+    steps:
+      - name: Get Release Metadata
+        id: get-release-metadata
+        run: |
+          release_tag=$(echo $GITHUB_HEAD_REF | cut -d '/' -f2)
+
+          if ! [[ $release_tag =~ ^[0-9]{1,2}\.[0-9]{1,4}\.[0-9]{1,4}$ ]]
+          then
+              echo "Release tag is invalid: \`$release_tag\`" >> $GITHUB_STEP_SUMMARY
+              exit 1
+          else
+            echo "release-id=$(gh release view $release_tag \
+            --json apiUrl \
+            --repo ${{ github.repository }} \
+            --jq '.apiUrl' | \
+            cut -d '/' -f8 \
+            )" >> $GITHUB_OUTPUT
+            echo "release-tag=$release_tag" >> $GITHUB_OUTPUT
+            echo "RELEASE_TAG=$release_tag" >> $GITHUB_ENV
+          fi
+
+  test:
+    name: Unit Tests
+    uses: ./.github/workflows/python_unit_tests.yml
+    with:
+      branch: ${{ github.base_ref }}
+
+  build-and-publish:
+    name: Build & Publish
+    needs:
+      - get-release-metadata
+      - test
+    uses: ./.github/workflows/build_and_publish.yml
+    with:
+      build_branch: ${{ github.base_ref }}
+      environment: 'production'
+      release_tag: ${{ needs.get-release-metadata.outputs.release-tag }}
+    secrets:
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+
+  publish_release_notes:
+    name: Publish Release Notes
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-publish
+      - get-release-metadata
+      - test
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: write
+      deployments: write
+      pages: write
+    steps:
+      - name: Point Release at `${{ github.base_ref }}`
+        run: |
+          gh release edit ${{ needs.get-release-metadata.outputs.release-tag }} \
+           --target ${{ github.base_ref }} \
+           --repo ${{ github.repository }}
+
+      - name: Publish Release Notes
+        uses: eregon/publish-release@v1
+        with:
+          release_id: ${{ needs.get-release-metadata.outputs.release-id }}
+
+      - name: Clone Repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.base_ref }}
+          fetch-depth: 0
+
+      - name: Delete Release Branch
+        run: 'git push origin --delete $GITHUB_HEAD_REF || :'

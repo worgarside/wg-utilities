@@ -1,0 +1,31 @@
+---
+version: 1
+
+appendOnly: true
+
+labels:
+  - label: bug
+    branch: ^bugfix\/
+
+  - label: dependencies
+    files:
+      - ^poetry\.lock$
+      - ^Pipfile\.lock$
+
+  - label: enhancement
+    branch: ^feature\/
+
+  - label: github-actions
+    files:
+      - ^\.github/workflows/.+\.ya?ml$
+
+  - label: python
+    files:
+      - ^.+\.py$
+
+  - label: release
+    branch: ^release\/
+
+  - label: tests
+    files:
+      - ^tests/.+$

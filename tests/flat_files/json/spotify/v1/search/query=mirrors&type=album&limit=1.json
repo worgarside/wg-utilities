@@ -1,0 +1,56 @@
+{
+  "albums": {
+    "href": "https://api.spotify.com/v1/search?query=Mirrors&type=album&offset=0&limit=1",
+    "items": [
+      {
+        "album_type": "album",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+            },
+            "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+            "id": "37YzpfBeFju8QRZ3g0Ha1Q",
+            "name": "DJ Seinfeld",
+            "type": "artist",
+            "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q"
+          }
+        ],
+        "available_markets": [],
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/7FvnTARvgjUyWnUT0flUN7"
+        },
+        "href": "https://api.spotify.com/v1/albums/7FvnTARvgjUyWnUT0flUN7",
+        "id": "7FvnTARvgjUyWnUT0flUN7",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab67616d0000b27357751ae9890e997676b998f2",
+            "width": 640
+          },
+          {
+            "height": 300,
+            "url": "https://i.scdn.co/image/ab67616d00001e0257751ae9890e997676b998f2",
+            "width": 300
+          },
+          {
+            "height": 64,
+            "url": "https://i.scdn.co/image/ab67616d0000485157751ae9890e997676b998f2",
+            "width": 64
+          }
+        ],
+        "name": "Mirrors",
+        "release_date": "2021-09-03",
+        "release_date_precision": "day",
+        "total_tracks": 10,
+        "type": "album",
+        "uri": "spotify:album:7FvnTARvgjUyWnUT0flUN7"
+      }
+    ],
+    "limit": 1,
+    "next": "https://api.spotify.com/v1/search?query=Mirrors&type=album&offset=1&limit=1",
+    "offset": 0,
+    "previous": null,
+    "total": 5660
+  }
+}

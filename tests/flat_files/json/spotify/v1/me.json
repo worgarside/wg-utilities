@@ -1,0 +1,28 @@
+{
+  "country": "GB",
+  "display_name": "Will Garside",
+  "email": "test_email_address@gmail.com",
+  "explicit_content": {
+    "filter_enabled": false,
+    "filter_locked": false
+  },
+  "external_urls": {
+    "spotify": "https://open.spotify.com/user/worgarside"
+  },
+  "followers": {
+    "href": null,
+    "total": 13
+  },
+  "href": "https://api.spotify.com/v1/users/worgarside",
+  "id": "worgarside",
+  "images": [
+    {
+      "height": null,
+      "url": "https://via.placeholder.com/200x100",
+      "width": null
+    }
+  ],
+  "product": "premium",
+  "type": "user",
+  "uri": "spotify:user:worgarside"
+}

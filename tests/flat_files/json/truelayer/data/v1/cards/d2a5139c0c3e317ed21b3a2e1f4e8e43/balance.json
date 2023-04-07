@@ -1,0 +1,13 @@
+{
+  "results": [
+    {
+      "currency": "GBP",
+      "current": 1509.79,
+      "last_statement_balance": 1892.3,
+      "payment_due": 0.0,
+      "payment_due_date": "2023-03-30T00:00:00Z",
+      "update_timestamp": "2023-03-27T20:44:22.6437637Z"
+    }
+  ],
+  "status": "Succeeded"
+}

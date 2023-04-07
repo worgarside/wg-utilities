@@ -1,4 +1,6 @@
-"""A module for any Pytest fixtures that can be used across projects"""
+"""Pytest fixtures that can be used across projects."""
+
+from __future__ import annotations
 
 from ._custom_mocks import MockBoto3Client
 

@@ -1,0 +1,7 @@
+<Event xmlns="urn:schemas-upnp-org:metadata-1-0/RCS/">
+    <InstanceID val="0">
+        <Volume channel="Master" val="56"/>
+        <Mute channel="Master" val="0"/>
+        <TimeStamp val="93296666"/>
+    </InstanceID>
+</Event>

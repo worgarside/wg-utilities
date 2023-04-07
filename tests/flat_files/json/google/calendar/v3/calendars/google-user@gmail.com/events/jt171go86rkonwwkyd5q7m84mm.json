@@ -1,0 +1,34 @@
+{
+  "colorId": "8",
+  "created": "2022-11-08T10:20:02.000Z",
+  "creator": {
+    "email": "google-user@gmail.com",
+    "self": true
+  },
+  "description": "5357-70-68 76:13:12 - enowio qdcp ezcd uqwktslz.",
+  "end": {
+    "dateTime": "2022-12-06T10:30:00Z",
+    "timeZone": "Europe/London"
+  },
+  "etag": "\"9737615643905626\"",
+  "eventType": "default",
+  "htmlLink": "https://www.google.com/calendar/event?eid=1011",
+  "iCalUID": "qh739ez51ofyhipmej2d6n81at@nzuppc.jfc",
+  "id": "jt171go86rkonwwkyd5q7m84mm",
+  "kind": "calendar#event",
+  "organizer": {
+    "email": "google-user@gmail.com",
+    "self": true
+  },
+  "reminders": {
+    "useDefault": true
+  },
+  "sequence": 0,
+  "start": {
+    "dateTime": "2022-12-06T10:15:00Z",
+    "timeZone": "Europe/London"
+  },
+  "status": "confirmed",
+  "summary": "Ksvephyiglu - Uazin Uveux Ln",
+  "updated": "2022-11-08T10:20:02.142Z"
+}
