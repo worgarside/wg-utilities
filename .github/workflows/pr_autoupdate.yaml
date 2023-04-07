@@ -14,5 +14,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           PR_FILTER: labelled
-          PR_LABELS: "dependencies,python"
+          PR_LABELS: "keep-updated"
           MERGE_CONFLICT_ACTION: "ignore"
