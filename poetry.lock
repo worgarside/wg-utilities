@@ -1383,7 +1383,7 @@ name = "jetson-gpio"
 version = "2.1.0"
 description = "A module to control Jetson GPIO channels"
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "Jetson.GPIO-2.1.0.tar.gz", hash = "sha256:e0ea4fd0e9832560917fa85ff20781a996f3ff995d28443f382b7be3aea2f53f"},
@@ -2753,7 +2753,7 @@ name = "rpi-gpio"
 version = "0.7.1"
 description = "A module to control Raspberry Pi GPIO channels"
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "RPi.GPIO-0.7.1-cp27-cp27mu-linux_armv6l.whl", hash = "sha256:b86b66dc02faa5461b443a1e1f0c1d209d64ab5229696f32fb3b0215e0600c8c"},
@@ -2832,7 +2832,7 @@ name = "spidev"
 version = "3.6"
 description = "Python bindings for Linux SPI access through spidev"
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "spidev-3.6-cp39-cp39-linux_armv7l.whl", hash = "sha256:280abc00a1ef7780ef62c3f294f52a2527b6c47d8c269fea98664970bcaf6da5"},
@@ -3380,4 +3380,4 @@ functions = ["lxml"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "9bef5bae34c85c634e2e3ec6986f54866dbb94522f68fecb606e5902a7c18c75"
+content-hash = "33471f4533f547bd4ed6154b6345999bc0ecc9339e780eb4daf911fd161a6546"
