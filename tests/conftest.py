@@ -340,6 +340,13 @@ def _mock_requests_root() -> YieldFixture[Mocker]:
             real_http=True,
         )
         mock_requests.get(
+            compile_regex(
+                # pylint: disable=line-too-long
+                r"^https?:\/\/localhost:[0-9]+(\/.*)?$",
+            ),
+            real_http=True,
+        )
+        mock_requests.get(
             "http://www.not-a-real-website-abc.com",
             real_http=True,
         )

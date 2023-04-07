@@ -22,7 +22,7 @@ def test_server_thread_instantiation(flask_app: Flask) -> None:
 
     assert isinstance(st, TempAuthServer.ServerThread)
 
-    assert st.server.host == "0.0.0.0"
+    assert st.server.host == "localhost"
     assert isinstance(st.server.port, int)
     assert st.server.port > 0
     assert st.ctx.app == flask_app
@@ -54,7 +54,7 @@ def test_temp_auth_server_instantiation() -> None:
 
     assert isinstance(tas, TempAuthServer)
 
-    assert tas.host == "0.0.0.0"
+    assert tas.host == "localhost"
     assert tas._user_port == 1234
     assert tas.debug is False
 
