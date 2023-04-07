@@ -13,6 +13,10 @@
     description: New feature or request
     color: "A2EEEF"
 
+  - name: feature-request
+    description: New feature or request
+    color: "A2EEEF"
+
   - name: github-actions
     description: Pull requests that update GitHub Actions code
     color: "000000"
