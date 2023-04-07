@@ -566,7 +566,7 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         self.temp_auth_server.start_server()
 
-        redirect_uri = f"http://0.0.0.0:{self.temp_auth_server.port}/get_auth_code"
+        redirect_uri = f"http://localhost:{self.temp_auth_server.port}/get_auth_code"
 
         auth_link = (
             self.auth_link_base
