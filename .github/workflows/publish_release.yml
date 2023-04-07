@@ -1,5 +1,5 @@
 ---
-name: Publish Release Notes
+name: Publish Release
 
 on:
   pull_request:
@@ -55,11 +55,14 @@ jobs:
 
   build-and-publish:
     name: Build & Publish
+    needs:
+      - get-release-metadata
+      - test
     uses: ./.github/workflows/build_and_publish.yml
     with:
       build_branch: ${{ github.base_ref }}
       environment: 'production'
-      release_tag: $RELEASE_TAG
+      release_tag: ${{ needs.get-release-metadata.outputs.release-tag }}
     secrets:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
 
