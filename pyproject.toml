@@ -76,17 +76,16 @@ clients = [
     "flask",
     "pyjwt",
     "requests",
-    "pytz",
     "tzlocal",
     "pydantic",
     "python-dotenv",
     "strenum",
 ]
-"devices.epd" = ["spidev", "rpi.gpio", "Pillow"]
-"devices.dht22" = ["pigpio"]
-"devices.yamaha_yas_209" = ["async-upnp-client", "pydantic", "xmltodict"]
-"exceptions" = ["python-dotenv", "requests"]
-"functions" = ["lxml"]
+epd = ["spidev", "rpi.gpio", "Pillow"]
+dht22 = ["pigpio"]
+yamaha_yas_209 = ["async-upnp-client", "pydantic", "xmltodict"]
+exceptions = ["python-dotenv", "requests"]
+functions = ["lxml"]
 
 
 # Tool Configs
