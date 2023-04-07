@@ -118,5 +118,5 @@ jobs:
 
       - uses: yogevbd/enforce-label-action@2.1.0
         with:
-          REQUIRED_LABELS_ANY: "major,minor,patch,hotfix,non-functional"
+          REQUIRED_LABELS_ANY: "major,minor,patch,hotfix,non-functional,bug"
           REQUIRED_LABELS_ANY_DESCRIPTION: "Include a SemVer or `non-functional` label"
