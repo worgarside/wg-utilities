@@ -23,5 +23,8 @@
     "**/.DS_Store": true,
     "**/Thumbs.db": true
   },
-  "python.testing.autoTestDiscoverOnSaveEnabled": true
+  "python.testing.autoTestDiscoverOnSaveEnabled": true,
+  "launches": {
+    "PythonCurrentFile": "Python: Current File (wg-utilities)"
+  }
 }
