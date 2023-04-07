@@ -22,7 +22,6 @@ concurrency:
 jobs:
   set_labels:
     name: Set Non-Release Labels
-    if: github.event.action != 'auto_merge_enabled'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -44,8 +43,7 @@ jobs:
     needs: set_labels
     if: |
       github.base_ref == 'main' &&
-      startsWith(github.head_ref, 'release/') &&
-      !startsWith(github.event.action, 'auto_merge_')
+      startsWith(github.head_ref, 'release/')
     permissions:
       contents: read
       pull-requests: write
