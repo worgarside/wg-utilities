@@ -65,13 +65,9 @@ jobs:
           path: dist/
 
       - name: Upload Artifacts
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/*
-          tag: ${{ inputs.release_tag }}
-          overwrite: true
-          file_glob: true
+        run: gh release upload ${{ inputs.release_tag }} dist/* --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish_to_pypi:
     name: Publish to PyPI
