@@ -65,7 +65,10 @@ jobs:
           path: dist/
 
       - name: Upload Artifacts
-        run: gh release upload ${{ inputs.release_tag }} dist/* --clobber
+        run: |
+          gh release upload ${{ inputs.release_tag }} dist/* \
+          --clobber \
+          --repo ${{ github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -76,6 +79,12 @@ jobs:
       - build
     runs-on: ubuntu-latest
     steps:
+      - name: Summarise Environment
+        run: |
+          echo -e "Environment: \`${{ inputs.environment }}\`"
+          echo -e "Build Branch: \`${{ inputs.build_branch }}\`"
+          echo -e "Release Tag: \`${{ inputs.release_tag }}\`"
+
       - name: Download Artifact
         uses: actions/download-artifact@v3
         with:
@@ -84,6 +93,7 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        continue-on-error: ${{ inputs.environment == 'development' }}
         with:
           # yamllint disable-line rule:line-length
           password: "${{ secrets.PYPI_API_TOKEN }}"
