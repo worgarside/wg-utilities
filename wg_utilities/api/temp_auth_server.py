@@ -28,11 +28,11 @@ class TempAuthServer:
     class ServerThread(Thread):
         """Run a Flask app in a separate thread with shutdown control."""
 
-        def __init__(self, app: Flask, host: str = "0.0.0.0", port: int = 0):
+        def __init__(self, app: Flask, host: str = "localhost", port: int = 0):
             super().__init__()
 
             if port == 0:
-                for i in range(5000, 5021):
+                for i in range(5001, 5021):
                     try:
                         self.server = make_server(host, i, app)
                         break
@@ -60,10 +60,10 @@ class TempAuthServer:
     def __init__(
         self,
         name: str,
-        host: str = "0.0.0.0",
+        host: str = "localhost",
         port: int = 0,
         debug: bool = False,
-        auto_run: bool = True,
+        auto_run: bool = False,
     ):
         self.host = host
         self._user_port = port
@@ -239,7 +239,7 @@ class TempAuthServer:
             ServerThread: the server thread
         """
         if not hasattr(self, "_server_thread"):
-            self._server_thread = TempAuthServer.ServerThread(
+            self._server_thread = self.ServerThread(
                 self.app, host=self.host, port=self._user_port
             )
 

@@ -566,7 +566,7 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         self.temp_auth_server.start_server()
 
-        redirect_uri = f"http://0.0.0.0:{self.temp_auth_server.port}/get_auth_code"
+        redirect_uri = f"http://localhost:{self.temp_auth_server.port}/get_auth_code"
 
         auth_link = (
             self.auth_link_base
@@ -596,18 +596,26 @@ class OAuthClient(Generic[GetJsonResponse]):
                 f"`{request_args.get('state')}` != `{state_token}`"
             )
 
+        payload_key = (
+            "data"
+            if self.__class__.__name__ in ("MonzoClient", "SpotifyClient")
+            else "json"
+        )
+
         res = self._post(
             self.access_token_endpoint,
-            json={
-                "code": request_args["code"],
-                "grant_type": "authorization_code",
-                "client_id": self._client_id,
-                "client_secret": self._client_secret,
-                "redirect_uri": redirect_uri,
+            **{  # type: ignore[arg-type]
+                payload_key: {
+                    "code": request_args["code"],
+                    "grant_type": "authorization_code",
+                    "client_id": self._client_id,
+                    "client_secret": self._client_secret,
+                    "redirect_uri": redirect_uri,
+                }
             },
             # Stops recursive call to `self.request_headers`
             header_overrides={"Content-Type": "application/x-www-form-urlencoded"}
-            if self.__class__.__name__ == "SpotifyClient"
+            if self.__class__.__name__ in ("MonzoClient", "SpotifyClient")
             else {},
         )
 
