@@ -22,17 +22,17 @@ python = "^3.10"
 async-upnp-client = { version = "*", optional = true }
 botocore = { version = "*", optional = true }
 flask = { version = ">=2.0.2", optional = true }
-"jetson.gpio" = { version = "*", markers = "sys_platform == 'linux'" }
+"jetson.gpio" = { version = "*", markers = "sys_platform == 'linux'", optional = true  }
 lxml = { version = "==4.9.2", optional = true }
 pigpio = { version = "*", optional = true }
 pillow = { version = "*", optional = true }
 pydantic = { version = "*", optional = true }
 pyjwt = { version = "~=2.6.0", optional = true }
 python-dotenv = { version = "*", optional = true }
-pytz = { version = ">=2022.1", optional = true }
+pytz = ">=2022.1"
 requests = { version = ">=2.26.0", optional = true }
-"rpi.gpio" = { version = "*", markers = "sys_platform == 'linux'" }
-spidev = { version = "*", markers = "sys_platform == 'linux'" }
+"rpi.gpio" = { version = "*", markers = "sys_platform == 'linux'" , optional = true }
+spidev = { version = "*", markers = "sys_platform == 'linux'", optional = true  }
 strenum = { version = "*", optional = true }
 tzlocal = { version = "*", optional = true }
 xmltodict = { version = "*", optional = true }
