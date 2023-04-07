@@ -25,6 +25,10 @@
     description: "Something isn't working and needs to be fixed ASAP"
     color: "D73A4A"
 
+  - name: keep-updated
+    description: "Keep this PR updated from `develop`"
+    color: "87FAA6"
+
   - name: major
     description: "A major-level change or release"
     color: "FF0000"
