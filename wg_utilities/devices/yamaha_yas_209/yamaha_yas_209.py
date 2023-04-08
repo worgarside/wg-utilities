@@ -560,6 +560,8 @@ class YamahaYas209:
         listen_port (int, optional): the port to listen on. Defaults to None.
         source_port (int, optional): the port to use for the source. Defaults
             to None.
+        resubscribe_seconds (int, optional): the number of seconds between each
+            resubscription. Defaults to 2 minutes.
     """
 
     SUBSCRIPTION_SERVICES = (
@@ -594,6 +596,7 @@ class YamahaYas209:
         listen_ip: str | None = None,
         listen_port: int | None = None,
         source_port: int | None = None,
+        resubscribe_seconds: int = 120,
     ):
         self.ip = ip
         self.on_event = on_event
@@ -617,6 +620,8 @@ class YamahaYas209:
         self._listen_ip = listen_ip
         self._listen_port = listen_port
         self._source_port = source_port or 0
+
+        self.resubscribe_seconds = resubscribe_seconds
 
         self._active_service_ids: list[str] = []
 
@@ -779,7 +784,7 @@ class YamahaYas209:
 
         # keep the webservice running (force resubscribe)
         while self._listening:
-            for _ in range(120):
+            for _ in range(self.resubscribe_seconds):
                 if not self._listening:
                     if self._logging:
                         LOGGER.debug("Exiting listener loop")
