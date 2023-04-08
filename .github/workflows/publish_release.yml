@@ -91,5 +91,11 @@ jobs:
           ref: ${{ github.base_ref }}
           fetch-depth: 0
 
+      - name: Merge Release Branch into `develop`
+        run: |
+          git checkout develop
+          git merge $GITHUB_HEAD_REF --no-edit
+          git push origin develop
+
       - name: Delete Release Branch
         run: 'git push origin --delete $GITHUB_HEAD_REF || :'
