@@ -40,9 +40,9 @@ jobs:
             echo "RELEASE_TAG=$release_tag" >> $GITHUB_ENV
           fi
 
-  test:
+  test-and-scan:
     name: Unit Tests
-    uses: ./.github/workflows/python_unit_tests.yml
+    uses: ./.github/workflows/test_and_scan.yml
     with:
       branch: ${{ github.base_ref }}
 
@@ -50,7 +50,7 @@ jobs:
     name: Build & Publish
     needs:
       - get-release-metadata
-      - test
+      - test-and-scan
     uses: ./.github/workflows/build_and_publish.yml
     with:
       build_branch: ${{ github.base_ref }}
@@ -65,7 +65,7 @@ jobs:
     needs:
       - build-and-publish
       - get-release-metadata
-      - test
+      - test-and-scan
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:

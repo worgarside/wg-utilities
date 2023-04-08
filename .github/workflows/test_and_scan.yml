@@ -1,5 +1,5 @@
 ---
-name: Python Unit Tests
+name: Test & Scan
 
 # yamllint disable-line rule:truthy
 on:
@@ -68,6 +68,13 @@ jobs:
         run: poetry run pytest --cov=./ --cov-report=xml
         continue-on-error: true
 
+      - name: Upload `coverage.xml` as Artifact
+        if: matrix.python-version == '3.10'
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: ./coverage.xml
+
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.10'
         uses: codecov/codecov-action@v3
@@ -81,3 +88,24 @@ jobs:
       - name: Check on UT failures
         if: steps.unit_tests.outcome != 'success'
         run: exit 1
+
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Download Coverage Report
+        uses: actions/download-artifact@v2
+        with:
+          name: coverage-report
+          path: ./coverage.xml
+
+      - name: Run SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
