@@ -73,7 +73,9 @@ jobs:
             --title "Release ${{ steps.get-tag.outputs.release-tag }}" \
             --fill \
             --base main \
-            --head release/${{ steps.get-tag.outputs.release-tag }}
+            --head release/${{ steps.get-tag.outputs.release-tag }} \
+            --reviewer ${{ github.repository_owner }} \
+            --draft
 
   draft-release:
     name: Draft Release
