@@ -21,7 +21,9 @@ jobs:
       release-tag: ${{ steps.get-tag.outputs.release-tag }}
     steps:
       - name: Log GitHub Context
-        run: echo -e "\`\`\`json\n${{ toJson(github) }}\n\`\`\`" >> $GITHUB_STEP_SUMMARY
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo -e "\`\`\`json$GITHUB_CONTEXT\n\n\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Get Release Tag
         id: get-tag
