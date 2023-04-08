@@ -57,6 +57,12 @@ jobs:
               echo "create-pr=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Clone Repo
+        if: steps.check-if-pr-exists.outputs.create-pr == 'true'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - name: Create PR
         if: steps.check-if-pr-exists.outputs.create-pr == 'true'
         env:
