@@ -23,13 +23,13 @@ jobs:
       - name: Log GitHub Context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo -e "\`\`\`json$GITHUB_CONTEXT\n\n\`\`\`" >> $GITHUB_STEP_SUMMARY
+        run: echo -e "\`\`\`json\n$GITHUB_CONTEXT\n\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Get Release Tag
         id: get-tag
         # yamllint disable rule:line-length
         run: |
-          release_tag=$(echo "${{ github.ref_name }}" | cut -d '/' -f2)
+          release_tag=$(echo "${{ github.head_ref }}" | cut -d '/' -f2)
 
           if ! [[ $release_tag =~ ^[0-9]{1,2}\.[0-9]{1,4}\.[0-9]{1,4}$ ]]
           then
