@@ -91,6 +91,8 @@ jobs:
 
   sonarcloud:
     name: SonarCloud
+    needs:
+      - test
     runs-on: ubuntu-latest
     steps:
       - name: Clone Repo
