@@ -6,6 +6,11 @@ on:
   push:
     branches:
       - release/*
+  pull_request:
+    branches:
+      - main
+    types:
+      - ready_for_review
   workflow_dispatch:
 
 jobs:
