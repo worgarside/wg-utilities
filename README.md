@@ -13,6 +13,7 @@ Loads of useful stuff for the things I do :)
 ### To-Do List
  - [ ] Finish README
  - [x] Add Coverage Badge
+ - [ ] Sphinx docs
 
 ### Unit Test Coverage
 
