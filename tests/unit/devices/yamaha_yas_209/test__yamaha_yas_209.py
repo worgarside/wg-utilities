@@ -1041,7 +1041,8 @@ def test_stop_listening_sets_attribute(
     assert len(caplog.records) == 1
     assert caplog.records[0].levelno == DEBUG
     assert (
-        caplog.records[0].message == "Stopping event listener (will take <= 2 minutes)"
+        caplog.records[0].message
+        == "Stopping event listener (will take <= 120 seconds)"
     )
 
 
@@ -1716,5 +1717,6 @@ def test_stop_listening_stops_listener(
 
     assert caplog.records[-1].levelno == DEBUG
     assert (
-        caplog.records[-1].message == "Stopping event listener (will take <= 2 minutes)"
+        caplog.records[-1].message
+        == "Stopping event listener (will take <= 120 seconds)"
     )

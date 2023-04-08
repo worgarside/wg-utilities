@@ -16,6 +16,14 @@ on:
         description: Branch to run tests on
         required: true
   pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+  push:
+    branches:
+      - develop
 
 concurrency:
   group: ${{ github.ref }}
@@ -27,6 +35,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os:
           - ubuntu-latest

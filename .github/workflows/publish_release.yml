@@ -82,7 +82,7 @@ jobs:
       - name: Publish Release Notes
         run: |
           gh release edit ${{ needs.get-release-metadata.outputs.release-tag }} \
-            --draft false \
+            --draft=false \
             --repo ${{ github.repository }}
 
       - name: Clone Repository
@@ -90,6 +90,13 @@ jobs:
         with:
           ref: ${{ github.base_ref }}
           fetch-depth: 0
+
+      - name: Merge Release Branch into `develop`
+        run: |
+          git checkout $GITHUB_HEAD_REF
+          git checkout develop
+          git merge $GITHUB_HEAD_REF --no-edit
+          git push origin develop
 
       - name: Delete Release Branch
         run: 'git push origin --delete $GITHUB_HEAD_REF || :'
