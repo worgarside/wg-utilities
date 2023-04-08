@@ -24,10 +24,9 @@ jobs:
     name: Get Release Metadata
     runs-on: ubuntu-latest
     outputs:
-      release-id: ${{ steps.get-release-metadata.outputs.release-id }}
       release-tag: ${{ steps.get-release-metadata.outputs.release-tag }}
     steps:
-      - name: Get Release Metadata
+      - name: Get Release Tag
         id: get-release-metadata
         run: |
           release_tag=$(echo $GITHUB_HEAD_REF | cut -d '/' -f2)
@@ -37,12 +36,6 @@ jobs:
               echo "Release tag is invalid: \`$release_tag\`" >> $GITHUB_STEP_SUMMARY
               exit 1
           else
-            echo "release-id=$(gh release view $release_tag \
-            --json apiUrl \
-            --repo ${{ github.repository }} \
-            --jq '.apiUrl' | \
-            cut -d '/' -f8 \
-            )" >> $GITHUB_OUTPUT
             echo "release-tag=$release_tag" >> $GITHUB_OUTPUT
             echo "RELEASE_TAG=$release_tag" >> $GITHUB_ENV
           fi
@@ -87,9 +80,10 @@ jobs:
            --repo ${{ github.repository }}
 
       - name: Publish Release Notes
-        uses: eregon/publish-release@v1
-        with:
-          release_id: ${{ needs.get-release-metadata.outputs.release-id }}
+        run: |
+          gh release edit ${{ needs.get-release-metadata.outputs.release-tag }} \
+            --draft false \
+            --repo ${{ github.repository }}
 
       - name: Clone Repository
         uses: actions/checkout@v3
