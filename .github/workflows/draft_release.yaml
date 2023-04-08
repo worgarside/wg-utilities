@@ -65,6 +65,7 @@ jobs:
           gh pr create \
             --repo ${{ github.repository }} \
             --title "Release ${{ steps.get-tag.outputs.release-tag }}" \
+            --fill \
             --base main \
             --head release/${{ steps.get-tag.outputs.release-tag }}
 
