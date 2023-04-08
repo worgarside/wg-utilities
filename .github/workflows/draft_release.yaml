@@ -56,9 +56,9 @@ jobs:
           if [[ -z "$existing_pr" ]]; then
               echo "create-pr=true" >> $GITHUB_OUTPUT
           else
-              echo -e "Existing PR found: ```json" >> $GITHUB_STEP_SUMMARY
-              echo "$existing_pr" | jq --color-output >> $GITHUB_STEP_SUMMARY
-              echo -e "```" >> $GITHUB_STEP_SUMMARY
+              echo -e "Existing PR found: \`\`\`json" >> $GITHUB_STEP_SUMMARY
+              echo "$("$existing_pr" | jq --color-output)" >> $GITHUB_STEP_SUMMARY
+              echo -e "\`\`\`" >> $GITHUB_STEP_SUMMARY
               echo "create-pr=false" >> $GITHUB_OUTPUT
           fi
 
