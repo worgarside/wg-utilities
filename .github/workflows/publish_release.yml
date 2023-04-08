@@ -82,7 +82,7 @@ jobs:
       - name: Publish Release Notes
         run: |
           gh release edit ${{ needs.get-release-metadata.outputs.release-tag }} \
-            --draft false \
+            --draft=false \
             --repo ${{ github.repository }}
 
       - name: Clone Repository
