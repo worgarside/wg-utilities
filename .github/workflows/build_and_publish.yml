@@ -82,11 +82,12 @@ jobs:
           echo "pr-is-draft=$(
             gh pr list \
             --json baseRefName,headRefName,isDraft \
+            --repo ${{ github.repository }} \
             --jq '
               .[] | select(
                 .baseRefName == "main"
               ) | select(
-                .headRefName == "release/3.1.0"
+                .headRefName == "release/${{ inputs.release_tag }}"
               ) | .isDraft
             '
           )" >> $GITHUB_OUTPUT
