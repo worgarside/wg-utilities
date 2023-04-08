@@ -93,8 +93,9 @@ jobs:
 
       - name: Merge Release Branch into `develop`
         run: |
+          git checkout ${{ github.head_ref }}
           git checkout develop
-          git merge $GITHUB_HEAD_REF --no-edit
+          git merge ${{ github.head_ref }} --no-edit
           git push origin develop
 
       - name: Delete Release Branch
