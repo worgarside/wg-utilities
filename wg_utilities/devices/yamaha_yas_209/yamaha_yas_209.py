@@ -980,7 +980,10 @@ class YamahaYas209:
     def stop_listening(self) -> None:
         """Stop the event listener."""
         if self._logging:
-            LOGGER.debug("Stopping event listener (will take <= 2 minutes)")
+            LOGGER.debug(
+                "Stopping event listener (will take <= %i seconds)",
+                self.resubscribe_seconds,
+            )
 
         self._listening = False
 
