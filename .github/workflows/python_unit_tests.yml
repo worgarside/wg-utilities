@@ -16,6 +16,11 @@ on:
         description: Branch to run tests on
         required: true
   pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
   push:
     branches:
       - develop
