@@ -378,6 +378,25 @@ def test_on_event_wrapper_parses_xml_dicts(
 
 
 @mark.upnp_value_path(  # type: ignore[misc]
+    # You & I by JANEVA
+    FLAT_FILES_DIR
+    / "xml"
+    / "yamaha_yas_209"
+    / "event_payloads"
+    / "av_transport"
+    / "payload_20230408232348755378.xml"
+)
+def test_xml_payloads_with_ampersands_can_be_parsed(
+    yamaha_yas_209: YamahaYas209,
+    upnp_service_av_transport: UpnpService,
+    upnp_state_variable: UpnpStateVariable,
+) -> None:
+    """Test that a song with an ampersand in the title can be parsed."""
+
+    yamaha_yas_209.on_event_wrapper(upnp_service_av_transport, [upnp_state_variable])
+
+
+@mark.upnp_value_path(  # type: ignore[misc]
     # Obvs by Jamie XX
     FLAT_FILES_DIR
     / "xml"
