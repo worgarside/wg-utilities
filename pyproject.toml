@@ -135,9 +135,9 @@ markers = [
 ]
 
 [tool.coverage.report]
+exclude_lines = ["pragma: no cover", "def __repr__", "def __str__", "@overload"]
 
 [tool.coverage.run]
-exclude_lines = ["pragma: no cover", "def __repr__", "def __str__", "@overload"]
 relative_files = true
 
 [tool.mypy]
