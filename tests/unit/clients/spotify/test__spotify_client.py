@@ -472,7 +472,7 @@ def test_get_json_response_returns_json(
         "https://api.spotify.com/v1/bar",
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
-        text="text",
+        text="",
     )
 
     assert (

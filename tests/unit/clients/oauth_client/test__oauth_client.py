@@ -417,7 +417,7 @@ def test_request_json_response_defaults_to_empty_dict_with_json_decode_error(
         "https://api.example.com/test_endpoint",
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
-        text="invalid_json",
+        text="",
     )
 
     res = oauth_client._request_json_response(
@@ -426,6 +426,27 @@ def test_request_json_response_defaults_to_empty_dict_with_json_decode_error(
     )
 
     assert res == {}
+
+
+def test_request_json_response_raises_exception_with_invalid_json(
+    oauth_client: OAuthClient[dict[str, Any]], mock_requests: Mocker
+) -> None:
+    """Test that the request method returns an empty dict for JSON decode errors."""
+
+    mock_requests.get(
+        "https://api.example.com/test_endpoint",
+        status_code=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        text="invalid_json",
+    )
+
+    with raises(ValueError) as exc_info:
+        oauth_client._request_json_response(
+            method=get,
+            url="/test_endpoint",
+        )
+
+    assert str(exc_info.value) == "invalid_json"
 
 
 def test_delete_creds_file(oauth_client: OAuthClient[dict[str, Any]]) -> None:
