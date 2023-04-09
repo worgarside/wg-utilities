@@ -420,22 +420,25 @@ class OAuthClient(Generic[GetJsonResponse]):
         json: Any | None = None,
         data: Any | None = None,
     ) -> GetJsonResponse:
+        res = self._request(
+            method=method,
+            url=url,
+            params=params,
+            header_overrides=header_overrides,
+            timeout=timeout,
+            json=json,
+            data=data,
+        )
+        if res.status_code == HTTPStatus.NO_CONTENT:
+            return {}  # type: ignore[return-value]
+
         try:
-            res = self._request(
-                method=method,
-                url=url,
-                params=params,
-                header_overrides=header_overrides,
-                timeout=timeout,
-                json=json,
-                data=data,
-            )
-            if res.status_code == HTTPStatus.NO_CONTENT:
+            return res.json()  # type: ignore[no-any-return]
+        except JSONDecodeError as exc:
+            if not res.content:
                 return {}  # type: ignore[return-value]
 
-            return res.json()  # type: ignore[no-any-return]
-        except JSONDecodeError:
-            return {}  # type: ignore[return-value]
+            raise ValueError(res.text) from exc
 
     def delete_creds_file(self) -> None:
         """Delete the local creds file."""
