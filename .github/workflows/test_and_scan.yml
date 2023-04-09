@@ -16,6 +16,9 @@ on:
         description: Branch to run tests on
         required: true
     secrets:
+      CODECOV_TOKEN:
+        description: CodeCov token
+        required: true
       SONAR_TOKEN:
         description: SonarCloud token
         required: true
