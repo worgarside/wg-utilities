@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
 from logging import DEBUG, getLogger
+from re import compile as re_compile
 from textwrap import dedent
 from threading import Thread
 from time import sleep, strptime
@@ -872,11 +873,14 @@ class YamahaYas209:
         Args:
             xml_dict (dict): the dictionary to parse
         """
+
+        pattern = re_compile(r"&(?!(amp|apos|lt|gt|quot);)")
+
         traverse_dict(
             xml_dict,
             target_type=str,
             target_processor_func=lambda val, dict_key=None, list_index=None: parse_xml(
-                val, attr_prefix="", cdata_key="text"
+                pattern.sub("&amp;", val), attr_prefix="", cdata_key="text"
             ),
             single_keys_to_remove=["val", "DIDL-Lite"],
         )

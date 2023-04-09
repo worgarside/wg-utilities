@@ -1,0 +1,46 @@
+<Event xmlns="urn:schemas-upnp-org:metadata-1-0/AVT/">
+    <InstanceID val="0">
+        <TransportState val="PLAYING"/>
+        <TransportStatus val="OK"/>
+        <NumberOfTracks val="0"/>
+        <CurrentTrack val="0"/>
+        <CurrentTrackDuration val="00:04:11"/>
+        <CurrentMediaDuration val="00:04:11"/>
+        <CurrentTrackURI val="spotify:track:0qc9orA9xxAVePx8L0X4o3"/>
+        <AVTransportURI val="spotify:track:0qc9orA9xxAVePx8L0X4o3"/>
+        <CurrentTrackMetaData val="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;DIDL-Lite xmlns:dc=&quot;http://purl.org/dc/elements/1.1/&quot; xmlns:upnp=&quot;urn:schemas-upnp-org:metadata-1-0/upnp/&quot; xmlns:song=&quot;www.wiimu.com/song/&quot; xmlns=&quot;urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/&quot;&gt;
+&lt;upnp:class&gt;object.item.audioItem.musicTrack&lt;/upnp:class&gt;
+&lt;item id=&quot;0&quot;&gt;
+&lt;song:subid&gt;Chill Electronica&lt;/song:subid&gt;
+&lt;song:description&gt;&lt;/song:description&gt;
+&lt;song:skiplimit&gt;0&lt;/song:skiplimit&gt;
+&lt;song:id&gt;0qc9orA9xxAVePx8L0X4o3&lt;/song:id&gt;
+&lt;song:like&gt;0&lt;/song:like&gt;
+&lt;song:singerid&gt;0&lt;/song:singerid&gt;
+&lt;song:albumid&gt;0&lt;/song:albumid&gt;
+&lt;res protocolInfo=&quot;http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;&quot; duration=&quot;00:04:11.000&quot;&gt;spotify:track:0qc9orA9xxAVePx8L0X4o3&lt;/res&gt;
+&lt;dc:title&gt;You &amp; I&lt;/dc:title&gt;
+&lt;dc:creator&gt;JANEVA&lt;/dc:creator&gt;
+&lt;upnp:artist&gt;JANEVA&lt;/upnp:artist&gt;
+&lt;upnp:album&gt;You &amp; I&lt;/upnp:album&gt;
+&lt;upnp:albumArtURI&gt;https://i.scdn.co/image/ab67616d0000b27309a28b2d82b709193c8d5dde&lt;/upnp:albumArtURI&gt;
+&lt;/item&gt;
+&lt;/DIDL-Lite&gt;
+"/>9
+        <PlaybackStorageMedium val="SPOTIFY"/>
+        <PossiblePlaybackStorageMedia val="NONE,STATION-NETWORK,SONGLIST-NETWORK,SONGLIST-LOCAL,SONGLIST-LOCAL_TF,THIRD-DLNA,AIRPLAY,UNKNOWN"/>
+        <PossibleRecordStorageMedia val="NOT_IMPLEMENTED"/>
+        <RecordStorageMedium val="NOT_IMPLEMENTED"/>
+        <CurrentPlayMode val="NORMAL"/>
+        <TransportPlaySpeed val="1"/>
+        <RecordMediumWriteStatus val="NOT_IMPLEMENTED"/>
+        <CurrentRecordQualityMode val="NOT_IMPLEMENTED"/>
+        <PossibleRecordQualityModes val="NOT_IMPLEMENTED"/>
+        <RelativeTimePosition val="00:03:17"/>
+        <AbsoluteTimePosition val="NOT_IMPLEMENTED"/>
+        <RelativeCounterPosition val="-1"/>
+        <AbsoluteCounterPosition val="-1"/>
+        <CurrentTransportActions val="Stop,Seek,X_DLNA_SeekTime,Pause"/>
+    </InstanceID>
+</Event>
