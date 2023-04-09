@@ -15,6 +15,10 @@ on:
         type: string
         description: Branch to run tests on
         required: true
+    secrets:
+      SONAR_TOKEN:
+        description: SonarCloud token
+        required: true
   pull_request:
     types:
       - opened
