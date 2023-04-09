@@ -45,6 +45,9 @@ jobs:
     uses: ./.github/workflows/test_and_scan.yml
     with:
       branch: ${{ github.base_ref }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build-and-publish:
     name: Build & Publish
