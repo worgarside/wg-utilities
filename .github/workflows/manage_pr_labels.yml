@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: srvaroa/labeler@v1.5.0
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   set_release_label:
     # If a new PR is raised against `main`, label it with the correct release label
@@ -54,7 +54,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          fallback: '0.0.0'
+          fallback: 0.0.0
 
       - name: Derive Label
         id: derive-label
@@ -117,14 +117,11 @@ jobs:
       - name: Validate SemVer Label
         uses: yogevbd/enforce-label-action@2.1.0
         with:
-          REQUIRED_LABELS_ANY: "bug,hotfix,major,minor,non-functional,patch"
+          REQUIRED_LABELS_ANY: bug,hotfix,major,minor,non-functional,patch,sync
 
   edit-keep-updated-label:
     name: |
-      ${{
-        github.event.action == 'auto_merge_enabled' && 'Add' ||
-        'Remove'
-      }} `keep-updated` label
+      Edit `keep-updated` label
     if: startsWith(github.event.action, 'auto_merge_')
     runs-on: ubuntu-latest
     permissions:
