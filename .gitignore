@@ -277,7 +277,3 @@ fabric.properties
 !cdk.json
 
 /config/secrets.yaml
-
-!.vscode/settings.json
-!.vscode/launch.json
-.vscode/*.code-workspace
