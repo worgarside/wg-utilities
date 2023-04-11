@@ -115,7 +115,7 @@ jobs:
       )
     steps:
       - name: Validate SemVer Label
-        uses: yogevbd/enforce-label-action@2.1.0
+        uses: yogevbd/enforce-label-action@2.2.2
         with:
           # yamllint disable-line rule:line-length
           REQUIRED_LABELS_ANY: bug,dependencies,hotfix,major,minor,non-functional,patch,sync
