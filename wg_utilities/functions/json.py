@@ -1,7 +1,7 @@
 """Useful functions for working with JSON/dictionaries."""
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, MutableMapping, Sequence
 from logging import DEBUG, getLogger
 from typing import Any, Protocol, Union
 
@@ -12,7 +12,7 @@ LOGGER.setLevel(DEBUG)
 JSONVal = Union[
     None, object, bool, str, float, int, list["JSONVal"], "JSONObj", dict[str, object]
 ]
-JSONObj = dict[str, JSONVal]
+JSONObj = MutableMapping[str, JSONVal]
 
 
 def set_nested_value(

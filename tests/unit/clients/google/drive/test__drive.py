@@ -22,7 +22,7 @@ from wg_utilities.clients.google_drive import (
 )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "drive_json",
     (
         param(
@@ -104,7 +104,7 @@ def test_kind_validation(google_drive_client: GoogleDriveClient) -> None:
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("cls", "entity_id", "expected_path"),
     (
         (
@@ -370,7 +370,7 @@ def test_map_directories_already_mapped(drive: Drive) -> None:
     mock_get_items.assert_not_called()
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     (
         "term",
         "entity_type",

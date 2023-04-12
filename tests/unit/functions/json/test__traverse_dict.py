@@ -74,7 +74,7 @@ def test_empty_dict_doesnt_raise_exception() -> None:
     assert in_dict == {}
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "in_dict,target_type,target_processor_func,expected",
     [
         (
@@ -174,7 +174,7 @@ def test_varying_inputs_processed_as_expected(
     assert in_dict == expected
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ",".join(
         [
             "in_dict",
@@ -258,7 +258,7 @@ def test_exceptions_are_raised_correctly(
     assert in_dict == expected
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ",".join(
         [
             "in_dict",
@@ -656,7 +656,7 @@ def test_single_keys_of_target_type_have_exceptions_raised(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "in_dict,target_type,target_processor_func,expected",
     [
         (

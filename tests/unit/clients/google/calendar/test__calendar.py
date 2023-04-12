@@ -74,7 +74,7 @@ def test_get_events_method(calendar: Calendar) -> None:
     assert len(events) == 1011
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ["from_datetime", "to_datetime", "day_limit", "expected_params"],
     (
         (

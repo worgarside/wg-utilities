@@ -157,7 +157,7 @@ def test_get_recently_liked_tracks_track_limit(
 
 # Freezing time to when I wrote this test, otherwise the hardcoded values in the flat
 # files will be out of date.
-@freeze_time("2022-11-11")  # type: ignore[misc]
+@freeze_time("2022-11-11")
 def test_get_recently_liked_tracks_day_limit(
     spotify_user: User,
     spotify_client: SpotifyClient,
@@ -193,7 +193,7 @@ def test_get_recently_liked_tracks_day_limit(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ["entity_fixture", "request_values"],
     [
         (
@@ -654,7 +654,7 @@ def test_tracks_property(
     assert mock_requests.call_count == 5
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "properties_to_reset",
     [
         None,

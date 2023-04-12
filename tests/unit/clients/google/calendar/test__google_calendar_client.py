@@ -33,7 +33,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     assert not hasattr(client, "_primary_calendar")
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     (
         "summary",
         "start_datetime",
@@ -184,7 +184,7 @@ def test_create_event_request(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     (
         "summary",
         "start_datetime",
@@ -347,7 +347,7 @@ def test_create_event_response(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("start_datetime", "end_datetime", "expected_exception_message"),
     (
         (date(2021, 1, 1), date(2021, 1, 2), None),
@@ -412,6 +412,7 @@ def test_delete_event_by_id(
 
     google_calendar_client.delete_event_by_id(event_id=event.id, calendar=calendar)
 
+    assert mock_requests.last_request
     assert (
         mock_requests.last_request.url == f"{google_calendar_client.base_url}/calendars"
         f"/{calendar.id}/events/{event.id}"

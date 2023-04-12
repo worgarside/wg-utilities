@@ -49,6 +49,8 @@ def test_deposit_into_pot_makes_correct_request(
     with freeze_time("2020-01-01 00:00:00"):
         monzo_client.deposit_into_pot(monzo_pot, 100)
 
+    assert mock_requests.last_request
+
     assert mock_requests.last_request.method == "PUT"
     assert (
         mock_requests.last_request.url
@@ -85,8 +87,8 @@ def test_deposit_into_pot_raises_error_on_failure(
     )
 
 
-@mark.parametrize("include_closed", (True, False))  # type: ignore[misc]
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize("include_closed", (True, False))
+@mark.parametrize(
     "account_type",
     (
         "uk_retail",
@@ -172,7 +174,7 @@ def test_list_pots_method(
         pot for pot in all_pots if not pot.deleted
     ]
 
-    assert mock_requests.last_request.method == "GET"
+    assert mock_requests.last_request and mock_requests.last_request.method == "GET"
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
@@ -188,7 +190,7 @@ def test_get_pot_by_id_method(
     """Test that the `get_pot_by_id` returns the single expected `Pot` instance."""
     assert monzo_client.get_pot_by_id(monzo_pot.id) == monzo_pot
 
-    assert mock_requests.last_request.method == "GET"
+    assert mock_requests.last_request and mock_requests.last_request.method == "GET"
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
@@ -207,7 +209,7 @@ def test_get_pot_by_name_exact_match_true(
 
     assert monzo_client.get_pot_by_name(monzo_pot.name, exact_match=True) == monzo_pot
 
-    assert mock_requests.last_request.method == "GET"
+    assert mock_requests.last_request and mock_requests.last_request.method == "GET"
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
@@ -232,7 +234,7 @@ def test_get_pot_by_name_exact_match_false(
         == monzo_pot
     )
 
-    assert mock_requests.last_request.method == "GET"
+    assert mock_requests.last_request and mock_requests.last_request.method == "GET"
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(

@@ -3,7 +3,14 @@ from __future__ import annotations
 
 from time import sleep
 
-from pigpio import EITHER_EDGE, INPUT, LOW, PUD_OFF, pi, tickDiff
+from pigpio import (  # type: ignore[import]
+    EITHER_EDGE,
+    INPUT,
+    LOW,
+    PUD_OFF,
+    pi,
+    tickDiff,
+)
 
 
 class DHT22Sensor:

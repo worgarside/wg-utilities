@@ -48,7 +48,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "entity",
     (
         "account",
@@ -85,7 +85,7 @@ def test_get_entity_by_id(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     (
         "response_json",
         "response_status",
@@ -210,7 +210,7 @@ def test_list_cards(truelayer_client: TrueLayerClient, mock_requests: Mocker) ->
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     (
         "response_json",
         "response_status",

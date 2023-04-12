@@ -32,9 +32,7 @@ from wg_utilities.clients.oauth_client import (
 from wg_utilities.functions import user_data_dir
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "model_class", (BaseModelWithConfig, GenericModelWithConfig)
-)
+@mark.parametrize("model_class", (BaseModelWithConfig, GenericModelWithConfig))
 def test_x_model_with_config_has_correct_config(model_class: BaseModel) -> None:
     """Check the `Config` options for `Base/GenericModelWithConfig` are correct."""
 
@@ -43,7 +41,7 @@ def test_x_model_with_config_has_correct_config(model_class: BaseModel) -> None:
     assert model_class.__config__.validate_assignment is True
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "attribute_value",
     (
         0,
@@ -58,9 +56,7 @@ def test_x_model_with_config_has_correct_config(model_class: BaseModel) -> None:
         {"a": "b", 1: 2},
     ),
 )
-@mark.parametrize(  # type: ignore[misc]
-    "model_class", (BaseModelWithConfig, GenericModelWithConfig)
-)
+@mark.parametrize("model_class", (BaseModelWithConfig, GenericModelWithConfig))
 def test_x_model_with_config_set_private_attr_method(
     model_class: type[BaseModelWithConfig | GenericModelWithConfig],
     attribute_value: int | bool | str | list[Any] | set[Any] | dict[str, Any],

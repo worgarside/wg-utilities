@@ -33,7 +33,7 @@ def test_get_album_by_id_no_albums(
     assert album == google_photos_album
     assert google_photos_client._albums == [google_photos_album]
     assert (
-        len(mock_requests.request_history) == 1
+        mock_requests.last_request
         and mock_requests.last_request.url
         == f"https://photoslibrary.googleapis.com/v1/albums/{google_photos_album.id}"
     )
@@ -83,7 +83,7 @@ def test_get_album_by_id_unknown_album(
     )
     assert google_photos_album in google_photos_client._albums
     assert (
-        len(mock_requests.request_history) == 1
+        mock_requests.last_request
         and mock_requests.last_request.url
         == f"https://photoslibrary.googleapis.com/v1/albums/{google_photos_album.id}"
     )

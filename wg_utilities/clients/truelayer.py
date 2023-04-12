@@ -12,7 +12,7 @@ from typing import Any, ClassVar, Literal, TypeAlias, TypedDict, TypeVar
 
 from pydantic import Field, validator
 from requests import HTTPError
-from strenum import StrEnum
+from strenum import StrEnum  # type: ignore[import]
 
 from wg_utilities.clients.oauth_client import (
     BaseModelWithConfig,

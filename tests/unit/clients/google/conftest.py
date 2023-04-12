@@ -28,7 +28,7 @@ from wg_utilities.clients.google_photos import Album, GooglePhotosClient, MediaI
 from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
-@fixture(scope="function", name="calendar")  # type: ignore[misc]
+@fixture(scope="function", name="calendar")
 def _calendar(google_calendar_client: GoogleCalendarClient) -> Calendar:
     """Fixture for a Google Calendar instance."""
     return Calendar.from_json_response(
@@ -37,7 +37,7 @@ def _calendar(google_calendar_client: GoogleCalendarClient) -> Calendar:
     )
 
 
-@fixture(scope="function", name="data_source")  # type: ignore[misc]
+@fixture(scope="function", name="data_source")
 def _data_source(google_fit_client: GoogleFitClient) -> DataSource:
     """Fixture for a Google Fit DataSource instance."""
     return DataSource(
@@ -47,7 +47,7 @@ def _data_source(google_fit_client: GoogleFitClient) -> DataSource:
     )
 
 
-@fixture(scope="function", name="directory")  # type: ignore[misc]
+@fixture(scope="function", name="directory")
 def _directory(drive: Drive, google_drive_client: GoogleDriveClient) -> Directory:
     # pylint: disable=protected-access
     """Fixture for a Google Drive Directory instance."""
@@ -73,7 +73,7 @@ def _directory(drive: Drive, google_drive_client: GoogleDriveClient) -> Director
     return diry
 
 
-@fixture(scope="function", name="drive_comparison_entity_lookup")  # type: ignore[misc]
+@fixture(scope="function", name="drive_comparison_entity_lookup")
 def _drive_comparison_entity_lookup(
     drive: Drive, google_drive_client: GoogleDriveClient
 ) -> dict[str, Drive | File | Directory]:
@@ -104,7 +104,7 @@ def _drive_comparison_entity_lookup(
     return lookup
 
 
-@fixture(scope="function", name="drive")  # type: ignore[misc]
+@fixture(scope="function", name="drive")
 def _drive(google_drive_client: GoogleDriveClient) -> Drive:
     """Fixture for a Google Drive instance."""
     return Drive.from_json_response(
@@ -113,7 +113,7 @@ def _drive(google_drive_client: GoogleDriveClient) -> Drive:
     )
 
 
-@fixture(scope="function", name="event")  # type: ignore[misc]
+@fixture(scope="function", name="event")
 def _event(google_calendar_client: GoogleCalendarClient, calendar: Calendar) -> Event:
     """Fixture for a Google Calendar event."""
     return Event.from_json_response(
@@ -126,7 +126,7 @@ def _event(google_calendar_client: GoogleCalendarClient, calendar: Calendar) -> 
     )
 
 
-@fixture(scope="function", name="file")  # type: ignore[misc]
+@fixture(scope="function", name="file")
 def _file(
     drive: Drive, directory: Directory, google_drive_client: GoogleDriveClient
 ) -> File:
@@ -154,7 +154,7 @@ def _file(
     return file
 
 
-@fixture(scope="function", name="google_calendar_client")  # type: ignore[misc]
+@fixture(scope="function", name="google_calendar_client")
 def _google_calendar_client(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
@@ -174,7 +174,7 @@ def _google_calendar_client(
     )
 
 
-@fixture(scope="function", name="google_drive_client")  # type: ignore[misc]
+@fixture(scope="function", name="google_drive_client")
 def _google_drive_client(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
@@ -194,7 +194,7 @@ def _google_drive_client(
     )
 
 
-@fixture(scope="function", name="google_fit_client")  # type: ignore[misc]
+@fixture(scope="function", name="google_fit_client")
 def _google_fit_client(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
@@ -213,7 +213,7 @@ def _google_fit_client(
     )
 
 
-@fixture(scope="function", name="google_photos_album")  # type: ignore[misc]
+@fixture(scope="function", name="google_photos_album")
 def _google_photos_album(google_photos_client: GooglePhotosClient) -> Album:
     """Fixture for a Google Photos Album."""
 
@@ -227,7 +227,7 @@ def _google_photos_album(google_photos_client: GooglePhotosClient) -> Album:
     )
 
 
-@fixture(scope="function", name="google_photos_client")  # type: ignore[misc]
+@fixture(scope="function", name="google_photos_client")
 def _google_photos_client(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
@@ -247,7 +247,7 @@ def _google_photos_client(
     )
 
 
-@fixture(scope="function", name="media_item_image")  # type: ignore[misc]
+@fixture(scope="function", name="media_item_image")
 def _media_item_image(
     google_photos_client: GooglePhotosClient,
 ) -> YieldFixture[MediaItem]:
@@ -278,7 +278,7 @@ def _media_item_image(
     )
 
 
-@fixture(scope="function", name="media_item_video")  # type: ignore[misc]
+@fixture(scope="function", name="media_item_video")
 def _media_item_video(google_photos_client: GooglePhotosClient) -> MediaItem:
     """Fixture for a `MediaItem` instance with a video MIME type."""
 
@@ -300,7 +300,7 @@ def _media_item_video(google_photos_client: GooglePhotosClient) -> MediaItem:
     return video
 
 
-@fixture(scope="function", name="simple_file")  # type: ignore[misc]
+@fixture(scope="function", name="simple_file")
 def _simple_file(
     drive: Drive, directory: Directory, google_drive_client: GoogleDriveClient
 ) -> File:
@@ -325,7 +325,7 @@ def _simple_file(
     return simple_file
 
 
-@fixture(scope="function", name="mock_requests", autouse=True)  # type: ignore[misc]
+@fixture(scope="function", name="mock_requests", autouse=True)
 def _mock_requests(
     mock_requests_root: Mocker,
     request: FixtureRequest,

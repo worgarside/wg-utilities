@@ -9,7 +9,7 @@ from tests.conftest import YieldFixture
 from wg_utilities.loggers import ListHandler
 
 
-@fixture(scope="function", name="list_handler")  # type: ignore[misc]
+@fixture(scope="function", name="list_handler")
 def _list_handler() -> ListHandler:
     """Fixture for creating a ListHandler instance."""
     l_handler = ListHandler(log_ttl=None)
@@ -17,7 +17,7 @@ def _list_handler() -> ListHandler:
     return l_handler
 
 
-@fixture(scope="function", name="list_handler_prepopulated")  # type: ignore[misc]
+@fixture(scope="function", name="list_handler_prepopulated")
 def _list_handler_prepopulated(
     logger: Logger,
     list_handler: ListHandler,
@@ -33,7 +33,7 @@ def _list_handler_prepopulated(
     return list_handler
 
 
-@fixture(scope="function", name="logger")  # type: ignore[misc]
+@fixture(scope="function", name="logger")
 def _logger(request: FixtureRequest) -> YieldFixture[Logger]:
     """Fixture for creating a logger."""
 
@@ -46,7 +46,7 @@ def _logger(request: FixtureRequest) -> YieldFixture[Logger]:
     _logger.handlers.clear()
 
 
-@fixture(scope="function", name="sample_log_record")  # type: ignore[misc]
+@fixture(scope="function", name="sample_log_record")
 def _sample_log_record() -> LogRecord:
     """Fixture for creating a sample log record."""
     return LogRecord(
@@ -61,9 +61,7 @@ def _sample_log_record() -> LogRecord:
     )
 
 
-@fixture(  # type: ignore[misc]
-    scope="function", name="sample_log_record_messages_with_level"
-)
+@fixture(scope="function", name="sample_log_record_messages_with_level")
 def _sample_log_record_messages_with_level() -> list[tuple[int, str]]:
     """Fixture for creating a list of sample log records."""
     log_levels = [DEBUG, INFO, WARNING, ERROR, CRITICAL] * 5

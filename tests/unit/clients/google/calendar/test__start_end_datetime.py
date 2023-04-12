@@ -9,7 +9,7 @@ from pytz import timezone
 from wg_utilities.clients.google_calendar import _StartEndDatetime
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("obj_json", "expected_datetime"),
     [
         (

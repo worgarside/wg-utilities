@@ -58,7 +58,7 @@ for file in (
     ALL_EVENTS.extend(loads(file.read_text()).get("items", []))
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "event_json",
     (choice(ALL_EVENTS) for _ in range(100)),
 )

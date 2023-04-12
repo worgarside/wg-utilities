@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from asyncio import new_event_loop, run
 from asyncio import sleep as async_sleep
-from collections.abc import Callable, Coroutine, Mapping, Sequence
+from collections.abc import Callable, Coroutine, Mapping, MutableMapping, Sequence
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
@@ -864,7 +864,7 @@ class YamahaYas209:
         return run(_worker(self))  # type: ignore[no-any-return]
 
     @staticmethod
-    def _parse_xml_dict(xml_dict: dict[str, object]) -> None:
+    def _parse_xml_dict(xml_dict: MutableMapping[str, object]) -> None:
         """Convert XML to JSON within dict in place.
 
         Parse a dictionary where some values are/could be XML strings, and unpack

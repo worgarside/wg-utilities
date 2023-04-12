@@ -155,7 +155,7 @@ def yamaha_yas_209_last_change_rendering_control_events() -> YieldFixture[JSONOb
         yield json_obj
 
 
-@fixture(scope="function", name="current_track_null")  # type: ignore[misc]
+@fixture(scope="function", name="current_track_null")
 def _current_track_null() -> CurrentTrack:
     """Return a CurrentTrack object with null values."""
     return CurrentTrack(
@@ -167,7 +167,7 @@ def _current_track_null() -> CurrentTrack:
     )
 
 
-@fixture(scope="function", name="mock_aiohttp")  # type: ignore[misc]
+@fixture(scope="function", name="mock_aiohttp")
 def _mock_aiohttp() -> YieldFixture[aioresponses]:
     """Fixture for mocking async HTTP requests."""
 
@@ -191,7 +191,7 @@ def _mock_aiohttp() -> YieldFixture[aioresponses]:
         yield mock_aiohttp
 
 
-@fixture(scope="function", name="upnp_service_av_transport")  # type: ignore[misc]
+@fixture(scope="function", name="upnp_service_av_transport")
 def _upnp_service_av_transport() -> UpnpService:
     """Fixture for creating an UpnpService instance."""
     return UpnpService(
@@ -223,7 +223,7 @@ def _upnp_service_av_transport() -> UpnpService:
     )
 
 
-@fixture(scope="function", name="upnp_service_rendering_control")  # type: ignore[misc]
+@fixture(scope="function", name="upnp_service_rendering_control")
 def _upnp_service_rendering_control() -> UpnpService:
     """Fixture for creating an UpnpService instance."""
     return UpnpService(
@@ -254,10 +254,10 @@ def _upnp_service_rendering_control() -> UpnpService:
     )
 
 
-@fixture(scope="function", name="upnp_state_variable")  # type: ignore[misc]
-def _upnp_state_variable(request: FixtureRequest) -> UpnpStateVariable:
+@fixture(scope="function", name="upnp_state_variable")
+def _upnp_state_variable(request: FixtureRequest) -> UpnpStateVariable[str]:
     """Fixture for creating an UpnpStateVariable instance."""
-    state_var = UpnpStateVariable(
+    state_var = UpnpStateVariable[str](
         StateVariableInfo(
             name="LastChange",
             send_events=True,
@@ -295,7 +295,7 @@ def _upnp_state_variable(request: FixtureRequest) -> UpnpStateVariable:
     return state_var
 
 
-@fixture(scope="function", name="yamaha_yas_209")  # type: ignore[misc]
+@fixture(scope="function", name="yamaha_yas_209")
 def _yamaha_yas_209() -> YieldFixture[YamahaYas209]:
     """Fixture for creating a YamahaYAS209 instance."""
 
