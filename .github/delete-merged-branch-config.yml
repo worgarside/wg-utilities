@@ -6,3 +6,5 @@ exclude:
   - hotfix/*
   - main
   - release/*
+  - home-assistant.local
+  - master
