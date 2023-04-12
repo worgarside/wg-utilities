@@ -44,7 +44,7 @@ def test_single_item_list() -> None:
     assert in_list == ["TEST"]
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "in_list,target_type,target_processor_func,expected",
     [
         (
@@ -112,7 +112,7 @@ def test_varying_inputs_processed_as_expected(
     assert in_list == expected
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ",".join(
         [
             "in_list",
@@ -172,7 +172,7 @@ def test_exceptions_are_raised_correctly(
     assert in_list == expected
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ",".join(
         [
             "in_list",
@@ -249,7 +249,7 @@ def test_exceptions_are_logged_correctly(
     assert len(log_records) == 0
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "in_list,expected",
     [
         (
@@ -310,7 +310,7 @@ def test_nested_lists_are_processed_correctly(
     assert in_list == expected
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "in_list,call_args_list",
     [
         (
@@ -405,7 +405,7 @@ def test_nested_dicts_are_passed_to_traverse_dict(
     assert mock_traverse_dict.call_args_list == call_args_list
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "in_list,target_type,target_processor_func,expected",
     [
         (

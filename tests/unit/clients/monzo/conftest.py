@@ -17,7 +17,7 @@ from wg_utilities.clients.monzo import Account, MonzoClient, Pot
 from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
-@fixture(scope="function", name="monzo_account")  # type: ignore[misc]
+@fixture(scope="function", name="monzo_account")
 def _monzo_account(monzo_client: MonzoClient) -> Account:
     """Fixture for creating a Account instance."""
 
@@ -29,7 +29,7 @@ def _monzo_account(monzo_client: MonzoClient) -> Account:
     )
 
 
-@fixture(scope="function", name="monzo_client")  # type: ignore[misc]
+@fixture(scope="function", name="monzo_client")
 def _monzo_client(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
@@ -50,7 +50,7 @@ def _monzo_client(
     )
 
 
-@fixture(scope="function", name="monzo_pot")  # type: ignore[misc]
+@fixture(scope="function", name="monzo_pot")
 def _monzo_pot() -> Pot:
     """Fixture for creating a Pot instance."""
 
@@ -62,7 +62,7 @@ def _monzo_pot() -> Pot:
     )
 
 
-@fixture(scope="function", name="mock_requests", autouse=True)  # type: ignore[misc]
+@fixture(scope="function", name="mock_requests", autouse=True)
 def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 

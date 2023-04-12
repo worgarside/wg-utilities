@@ -88,7 +88,7 @@ def test_tracks_property(
     assert mock_requests.call_count == 11
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ["track_response_filename", "in_playlist"],
     zip(
         sorted(listdir(FLAT_FILES_DIR / "json" / "spotify" / "v1" / "tracks")),

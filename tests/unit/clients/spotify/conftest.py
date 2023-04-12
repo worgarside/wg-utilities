@@ -51,7 +51,7 @@ def spotify_create_playlist_callback(
     return res
 
 
-@fixture(scope="function", name="spotify_album")  # type: ignore[misc]
+@fixture(scope="function", name="spotify_album")
 def _spotify_album(spotify_client: SpotifyClient) -> SpotifyAlbum:
     """Fixture for creating a Spotify `Album` instance.
 
@@ -65,7 +65,7 @@ def _spotify_album(spotify_client: SpotifyClient) -> SpotifyAlbum:
     )
 
 
-@fixture(scope="function", name="spotify_artist")  # type: ignore[misc]
+@fixture(scope="function", name="spotify_artist")
 def _spotify_artist(spotify_client: SpotifyClient) -> Artist:
     """Fixture for creating a Spotify `Artist` instance.
 
@@ -79,7 +79,7 @@ def _spotify_artist(spotify_client: SpotifyClient) -> Artist:
     )
 
 
-@fixture(scope="function", name="spotify_client")  # type: ignore[misc]
+@fixture(scope="function", name="spotify_client")
 def _spotify_client(
     fake_oauth_credentials: OAuthCredentials,
     temp_dir: Path,
@@ -99,7 +99,7 @@ def _spotify_client(
     )
 
 
-@fixture(scope="function", name="spotify_entity")  # type: ignore[misc]
+@fixture(scope="function", name="spotify_entity")
 def _spotify_entity(
     spotify_client: SpotifyClient,
 ) -> SpotifyEntity[SpotifyBaseEntityJson]:
@@ -118,7 +118,7 @@ def _spotify_entity(
     )
 
 
-@fixture(scope="function", name="spotify_playlist")  # type: ignore[misc]
+@fixture(scope="function", name="spotify_playlist")
 def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
     """Fixture for creating a `Playlist` instance.
 
@@ -132,7 +132,7 @@ def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
     )
 
 
-@fixture(scope="function", name="spotify_track")  # type: ignore[misc]
+@fixture(scope="function", name="spotify_track")
 def _spotify_track(spotify_client: SpotifyClient) -> Track:
     """Fixture for creating a `Track` instance."""
 
@@ -142,7 +142,7 @@ def _spotify_track(spotify_client: SpotifyClient) -> Track:
     )
 
 
-@fixture(scope="function", name="spotify_user")  # type: ignore[misc]
+@fixture(scope="function", name="spotify_user")
 def _spotify_user(spotify_client: SpotifyClient) -> User:
     """Fixture for creating a Spotify User instance."""
 
@@ -152,7 +152,7 @@ def _spotify_user(spotify_client: SpotifyClient) -> User:
     )
 
 
-@fixture(scope="function", name="mock_requests", autouse=True)  # type: ignore[misc]
+@fixture(scope="function", name="mock_requests", autouse=True)
 def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 

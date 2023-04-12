@@ -21,7 +21,7 @@ def get_jwt_expiry(token: str) -> float:
     return float(decode(token, options={"verify_signature": False})["exp"])
 
 
-@fixture(scope="function", name="oauth_client")  # type: ignore[misc]
+@fixture(scope="function", name="oauth_client")
 def _oauth_client(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
@@ -46,14 +46,14 @@ def _oauth_client(
     )
 
 
-@fixture(scope="session", name="flask_app")  # type: ignore[misc]
+@fixture(scope="session", name="flask_app")
 def _flask_app() -> Flask:
     """Fixture for Flask app."""
 
     return Flask(__name__)
 
 
-@fixture(scope="function", name="server_thread")  # type: ignore[misc]
+@fixture(scope="function", name="server_thread")
 def _server_thread(flask_app: Flask) -> YieldFixture[TempAuthServer.ServerThread]:
     """Fixture for creating a server thread."""
 
@@ -66,7 +66,7 @@ def _server_thread(flask_app: Flask) -> YieldFixture[TempAuthServer.ServerThread
     del server_thread
 
 
-@fixture(scope="function", name="temp_auth_server")  # type: ignore[misc]
+@fixture(scope="function", name="temp_auth_server")
 def _temp_auth_server() -> YieldFixture[TempAuthServer]:
     """Fixture for creating a temporary auth server."""
 
@@ -77,7 +77,7 @@ def _temp_auth_server() -> YieldFixture[TempAuthServer]:
     temp_auth_server.stop_server()
 
 
-@fixture(scope="function", name="mock_requests", autouse=True)  # type: ignore[misc]
+@fixture(scope="function", name="mock_requests", autouse=True)
 def _mock_requests(
     mock_requests_root: Mocker, live_jwt_token_alt: str
 ) -> YieldFixture[Mocker]:

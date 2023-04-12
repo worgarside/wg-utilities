@@ -22,7 +22,7 @@ from requests.exceptions import MissingSchema
 from requests_mock import Mocker
 from requests_mock.request import _RequestObjectProxy
 from requests_mock.response import _Context
-from xdist.scheduler.loadscope import LoadScopeScheduling
+from xdist.scheduler.loadscope import LoadScopeScheduling  # type: ignore[import]
 
 from wg_utilities.clients._spotify_types import SpotifyEntityJson
 from wg_utilities.clients.google_calendar import CalendarJson, GoogleCalendarEntityJson
@@ -217,7 +217,7 @@ def read_json_file(
 
 
 def get_flat_file_from_url(
-    request: _RequestObjectProxy = None, context: _Context = None
+    request: _RequestObjectProxy, context: _Context
 ) -> (
     JSONObj
     | SpotifyEntityJson
@@ -279,7 +279,7 @@ def get_flat_file_from_url(
 # <editor-fold desc="Fixtures">
 
 
-@fixture(scope="function", name="fake_oauth_credentials")  # type: ignore[misc]
+@fixture(scope="function", name="fake_oauth_credentials")
 def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
     """Fixture for fake OAuth credentials."""
     return OAuthCredentials(
@@ -293,7 +293,7 @@ def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
     )
 
 
-@fixture(scope="module", name="live_jwt_token")  # type: ignore[misc]
+@fixture(scope="module", name="live_jwt_token")
 def _live_jwt_token() -> str:
     """Fixture for a live JWT token."""
     return str(
@@ -309,7 +309,7 @@ def _live_jwt_token() -> str:
     )
 
 
-@fixture(scope="module", name="live_jwt_token_alt")  # type: ignore[misc]
+@fixture(scope="module", name="live_jwt_token_alt")
 def _live_jwt_token_alt() -> str:
     """Another fixture for a live JWT token."""
     return str(
@@ -325,9 +325,7 @@ def _live_jwt_token_alt() -> str:
     )
 
 
-@fixture(  # type: ignore[misc]
-    scope="function", name="mock_requests_root", autouse=True
-)
+@fixture(scope="function", name="mock_requests_root", autouse=True)
 def _mock_requests_root() -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 
@@ -341,7 +339,6 @@ def _mock_requests_root() -> YieldFixture[Mocker]:
         )
         mock_requests.get(
             compile_regex(
-                # pylint: disable=line-too-long
                 r"^https?:\/\/localhost:[0-9]+(\/.*)?$",
             ),
             real_http=True,
@@ -354,13 +351,13 @@ def _mock_requests_root() -> YieldFixture[Mocker]:
         yield mock_requests
 
 
-@fixture(scope="function", name="mock_open_browser")  # type: ignore[misc]
+@fixture(scope="function", name="mock_open_browser")
 def _mock_open_browser() -> YieldFixture[MagicMock]:
     with patch("wg_utilities.clients.oauth_client.open_browser") as mock_open_browser:
         yield mock_open_browser
 
 
-@fixture(scope="function", name="temp_dir")  # type: ignore[misc]
+@fixture(scope="function", name="temp_dir")
 def _temp_dir() -> YieldFixture[Path]:
     """Fixture for creating a temporary directory."""
 

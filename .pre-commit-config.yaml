@@ -103,7 +103,6 @@ repos:
           - --show-error-codes
         additional_dependencies:
           - types-requests
-          - types-paramiko
           - boto3-stubs
           - lxml-stubs
           - types-flask
@@ -113,6 +112,19 @@ repos:
           - pydantic
           - types-PyYAML
           - types-python-dateutil
+          - pytest
+          - types-freezegun
+          - async-upnp-client
+          - types-pyjwt
+          - aioresponses
+          - types-xmltodict
+          - requests-mock
+          - python-dotenv
+          - mypy_boto3_lambda
+          - mypy_boto3_s3
+          - voluptuous-stubs
+
+
 
   - repo: local
     hooks:

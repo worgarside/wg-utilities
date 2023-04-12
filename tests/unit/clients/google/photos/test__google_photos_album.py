@@ -42,7 +42,7 @@ def test_from_json_response_instantiation(
     assert album.title == "Projects"
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("title", "expected"),
     (
         (

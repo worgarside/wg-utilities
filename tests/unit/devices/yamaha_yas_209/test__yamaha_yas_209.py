@@ -17,8 +17,17 @@ from xml.etree import ElementTree
 from aioresponses import aioresponses
 from aioresponses.core import RequestCall
 from async_upnp_client.aiohttp import AiohttpNotifyServer
-from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable
-from async_upnp_client.const import StateVariableInfo, StateVariableTypeInfo
+from async_upnp_client.client import (
+    UpnpDevice,
+    UpnpRequester,
+    UpnpService,
+    UpnpStateVariable,
+)
+from async_upnp_client.const import (
+    AddressTupleVXType,
+    StateVariableInfo,
+    StateVariableTypeInfo,
+)
 from async_upnp_client.exceptions import UpnpResponseError
 from async_upnp_client.utils import get_local_ip
 from freezegun import freeze_time
@@ -352,7 +361,7 @@ def test_on_event_wrapper_parses_xml_dicts(
     mock_parse_xml_dict: MagicMock,
     yamaha_yas_209: YamahaYas209,
     upnp_service_av_transport: UpnpService,
-    upnp_state_variable: UpnpStateVariable,
+    upnp_state_variable: UpnpStateVariable[str],
 ) -> None:
     """Test that the `on_event` wrapper works."""
 
@@ -377,7 +386,7 @@ def test_on_event_wrapper_parses_xml_dicts(
     assert str(exc_info.value) == "Expected a dict"
 
 
-@mark.upnp_value_path(  # type: ignore[misc]
+@mark.upnp_value_path(
     # You & I by JANEVA
     FLAT_FILES_DIR
     / "xml"
@@ -389,14 +398,14 @@ def test_on_event_wrapper_parses_xml_dicts(
 def test_xml_payloads_with_ampersands_can_be_parsed(
     yamaha_yas_209: YamahaYas209,
     upnp_service_av_transport: UpnpService,
-    upnp_state_variable: UpnpStateVariable,
+    upnp_state_variable: UpnpStateVariable[str],
 ) -> None:
     """Test that a song with an ampersand in the title can be parsed."""
 
     yamaha_yas_209.on_event_wrapper(upnp_service_av_transport, [upnp_state_variable])
 
 
-@mark.upnp_value_path(  # type: ignore[misc]
+@mark.upnp_value_path(
     # Obvs by Jamie XX
     FLAT_FILES_DIR
     / "xml"
@@ -410,7 +419,7 @@ def test_av_transport_state_change_updates_local_state(
     mock_set_state: MagicMock,
     yamaha_yas_209: YamahaYas209,
     upnp_service_av_transport: UpnpService,
-    upnp_state_variable: UpnpStateVariable,
+    upnp_state_variable: UpnpStateVariable[str],
 ) -> None:
     """Test that an AVTransport service state change updates the local state."""
 
@@ -457,7 +466,7 @@ def test_av_transport_state_change_updates_local_state(
     )
 
 
-@mark.upnp_value_path(  # type: ignore[misc]
+@mark.upnp_value_path(
     # Obvs by Jamie XX
     FLAT_FILES_DIR
     / "xml"
@@ -469,7 +478,7 @@ def test_av_transport_state_change_updates_local_state(
 def test_av_transport_ctm_updates_current_track(
     yamaha_yas_209: YamahaYas209,
     upnp_service_av_transport: UpnpService,
-    upnp_state_variable: UpnpStateVariable,
+    upnp_state_variable: UpnpStateVariable[str],
     current_track_null: CurrentTrack,
     mock_aiohttp: aioresponses,
 ) -> None:
@@ -538,7 +547,7 @@ def test_av_transport_ctm_updates_current_track(
     assert yamaha_yas_209.current_track == current_track_null
 
 
-@mark.upnp_value_path(  # type: ignore[misc]
+@mark.upnp_value_path(
     FLAT_FILES_DIR
     / "xml"
     / "yamaha_yas_209"
@@ -551,7 +560,7 @@ def test_rendering_control_updates_volume(
     mock_set_volume_level: MagicMock,
     yamaha_yas_209: YamahaYas209,
     upnp_service_rendering_control: UpnpService,
-    upnp_state_variable: UpnpStateVariable,
+    upnp_state_variable: UpnpStateVariable[str],
     mock_aiohttp: aioresponses,
 ) -> None:
     """Test that an AVTransport service state change updates the local state."""
@@ -617,11 +626,11 @@ def test_rendering_control_updates_volume(
     )
 
 
-@freeze_time()  # type: ignore[misc]
+@freeze_time()
 def test_on_event_callback_called_correctly(
     yamaha_yas_209: YamahaYas209,
     upnp_service_rendering_control: UpnpService,
-    upnp_state_variable: UpnpStateVariable,
+    upnp_state_variable: UpnpStateVariable[str],
 ) -> None:
     """Test that the callback is called correctly.
 
@@ -686,8 +695,8 @@ def test_on_event_callback_called_correctly(
 
         # Those "XML-dicts" can then be parsed into full "JSON-dicts"
 
-        yamaha_yas_209._parse_xml_dict(last_change_value)
-        yamaha_yas_209._parse_xml_dict(something_else_value)
+        yamaha_yas_209._parse_xml_dict(last_change_value)  # type: ignore[arg-type]
+        yamaha_yas_209._parse_xml_dict(something_else_value)  # type: ignore[arg-type]
 
         assert payload == {
             # This whole test has frozen time, so we can just use `datetime.utcnow()`
@@ -695,7 +704,9 @@ def test_on_event_callback_called_correctly(
             "service_id": upnp_service_rendering_control.service_id,
             "service_type": upnp_service_rendering_control.service_type,
             # The last change will be a `LastChange` instance
-            "last_change": LastChangeRenderingControl.parse(last_change_value["-"]),
+            "last_change": LastChangeRenderingControl.parse(
+                last_change_value["-"]  # type: ignore[arg-type]
+            ),
             "other_xml_payloads": something_else_value,
         }
 
@@ -1389,11 +1400,15 @@ def test_subscribe_creates_notify_server_with_correct_subscriptions(
         yamaha_yas_209._listening = False
 
     def _fake_server(
-        *args: tuple[object], **kwargs: dict[str, object]
+        requester: UpnpRequester,
+        source: AddressTupleVXType,
+        callback_url: str,
     ) -> AiohttpNotifyServer:
         """Create a real/fake(?) server for use in the test."""
         nonlocal fake_aiohttp_server
-        fake_aiohttp_server = AiohttpNotifyServer(*args, **kwargs)
+        fake_aiohttp_server = AiohttpNotifyServer(
+            requester=requester, source=source, callback_url=callback_url
+        )
         return fake_aiohttp_server
 
     local_ip = get_local_ip("")
@@ -1462,16 +1477,7 @@ def test_subscribe_creates_notify_server_logs_subscription_errors(
         """When the `async_sleep` call is made, force-stop the subscription loop."""
         yamaha_yas_209._listening = False
 
-    def _fake_server(
-        *args: tuple[object], **kwargs: dict[str, object]
-    ) -> AiohttpNotifyServer:
-        """Create a real/fake(?) server for use in the test."""
-        return AiohttpNotifyServer(*args, **kwargs)
-
     with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
-        side_effect=_fake_server,
-    ), patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
         side_effect=_sleep_side_effect,
     ):
@@ -1520,16 +1526,7 @@ def test_subscribe_resubscribes_to_active_services(
         if call_count > 120:
             yamaha_yas_209._listening = False
 
-    def _fake_server(
-        *args: tuple[object], **kwargs: dict[str, object]
-    ) -> AiohttpNotifyServer:
-        """Create a real/fake(?) server for use in the test."""
-        return AiohttpNotifyServer(*args, **kwargs)
-
     with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
-        side_effect=_fake_server,
-    ), patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
         side_effect=_sleep_side_effect,
     ):
@@ -1575,16 +1572,7 @@ def test_subscribe_resubscribes_to_failed_services(
         if call_count > 120:
             yamaha_yas_209._listening = False
 
-    def _fake_server(
-        *args: tuple[object], **kwargs: dict[str, object]
-    ) -> AiohttpNotifyServer:
-        """Create a real/fake(?) server for use in the test."""
-        return AiohttpNotifyServer(*args, **kwargs)
-
     with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
-        side_effect=_fake_server,
-    ), patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
         side_effect=_sleep_side_effect,
     ):
@@ -1610,7 +1598,7 @@ def test_subscribe_resubscribes_to_failed_services(
     assert call_count == 121
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ["logging", "expected_level"],
     (
         (True, ERROR),
@@ -1658,16 +1646,7 @@ def test_subscribe_keeps_retrying_failed_subscriptions(
         if call_count > 120:
             yamaha_yas_209._listening = False
 
-    def _fake_server(
-        *args: tuple[object], **kwargs: dict[str, object]
-    ) -> AiohttpNotifyServer:
-        """Create a real/fake(?) server for use in the test."""
-        return AiohttpNotifyServer(*args, **kwargs)
-
     with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
-        side_effect=_fake_server,
-    ), patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
         side_effect=_sleep_side_effect,
     ):
@@ -1710,25 +1689,14 @@ def test_stop_listening_stops_listener(
     add_av_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
     add_rc_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
 
-    def _fake_server(
-        *args: tuple[object], **kwargs: dict[str, object]
-    ) -> AiohttpNotifyServer:
-        """Create a real/fake(?) server for use in the test."""
-        return AiohttpNotifyServer(*args, **kwargs)
+    def _worker() -> None:
+        new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
 
-    with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
-        side_effect=_fake_server,
-    ):
-
-        def _worker() -> None:
-            new_event_loop().run_until_complete(yamaha_yas_209._subscribe())
-
-        caplog.clear()
-        stopper_thread = Thread(target=_worker)
-        stopper_thread.start()
-        sleep(0.1)
-        yamaha_yas_209.stop_listening()
+    caplog.clear()
+    stopper_thread = Thread(target=_worker)
+    stopper_thread.start()
+    sleep(0.1)
+    yamaha_yas_209.stop_listening()
 
     # These are the only real meaningful assertion; just the fact that the tests gets
     # this far is a passing scenario (i.e. the listener loop has exited)

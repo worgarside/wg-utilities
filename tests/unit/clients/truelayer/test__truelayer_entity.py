@@ -48,7 +48,7 @@ def test_from_json_response_instantiation(truelayer_client: TrueLayerClient) -> 
     assert tle.truelayer_client == truelayer_client
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("from_datetime", "to_datetime"),
     (
         (datetime(2023, 1, 1), datetime(2023, 1, 7)),
@@ -121,7 +121,7 @@ def test_update_balance_values_multiple_results(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("property_name", "expected_value"),
     (
         ("available_balance", 1234.56),
@@ -170,7 +170,7 @@ def test_get_balance_property_account(
             mock_update_balance_values.assert_not_called()
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("property_name", "expected_value"),
     (
         ("available_balance", 3279.0),
@@ -223,7 +223,7 @@ def test_get_balance_property_card(
             mock_update_balance_values.assert_not_called()
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "property_name",
     sorted(set(Account.BALANCE_FIELDS + Card.BALANCE_FIELDS)),  # type: ignore[operator]
 )

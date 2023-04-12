@@ -7,7 +7,7 @@ from pytest import mark, raises
 from wg_utilities.functions import chunk_list
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "user_input,chunk_len,want",
     [
         ([], 5, []),
@@ -32,9 +32,7 @@ def test_chunk_list_with_varying_input(
     assert all_items == user_input
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "chunk_len,exception_expected", [(i, i < 1) for i in range(-10, 10)]
-)
+@mark.parametrize("chunk_len,exception_expected", [(i, i < 1) for i in range(-10, 10)])
 def test_chunk_len_less_than_one_throws_value_error(
     chunk_len: int, exception_expected: bool
 ) -> None:

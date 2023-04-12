@@ -17,7 +17,7 @@ from wg_utilities.functions import user_data_dir
         "XDG_DATA_HOME": "/home/will/.local/share",
     },
 )
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "platform,expected",
     [
         ("windows", "C:/Users/test/AppData/Local/WgUtilities"),
@@ -37,7 +37,7 @@ def test_correct_value_returned_per_system(platform: str, expected: str) -> None
         "XDG_DATA_HOME": "/home/will/.local/share",
     },
 )
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "platform,project_name,expected",
     [
         (
@@ -71,7 +71,7 @@ def test_project_name_processed_correctly(
         "XDG_DATA_HOME": "/home/will/.local/share",
     },
 )
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "platform,file_name,expected",
     [
         (

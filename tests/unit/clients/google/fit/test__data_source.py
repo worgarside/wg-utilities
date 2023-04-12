@@ -56,7 +56,7 @@ def test_description_property(data_source: DataSource) -> None:
     }
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("from_datetime", "to_datetime", "expected_url_range", "expected_count"),
     [
         (

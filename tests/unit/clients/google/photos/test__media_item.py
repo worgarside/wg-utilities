@@ -10,7 +10,7 @@ from tests.conftest import YieldFixture, read_json_file
 from wg_utilities.clients.google_photos import GooglePhotosClient, MediaItem, MediaType
 
 
-@fixture(scope="function", name="temp_dir_cleanup")  # type: ignore[misc]
+@fixture(scope="function", name="temp_dir_cleanup")
 def _temp_dir_cleanup(temp_dir: Path) -> YieldFixture[None]:
     """Fixture for cleaning up the temporary directory.
 
@@ -134,7 +134,7 @@ def test_is_downloaded_property(
     assert media_item_image.is_downloaded
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("mime_type", "expected_media_type"),
     (
         (

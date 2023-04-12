@@ -42,7 +42,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     assert client.log_requests is True
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "file_path",
     [
         path_object
@@ -104,7 +104,7 @@ def test_get_method_with_sample_responses(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "file_path",
     [
         path_object
@@ -165,7 +165,7 @@ def test_get_method_without_leading_slash(
     assert caplog.records[0].message == f"GET {endpoint}: {dumps(params or {})}"
 
 
-@mark.parametrize("http_status", HTTPStatus)  # type: ignore[misc]
+@mark.parametrize("http_status", HTTPStatus)
 def test_get_method_with_exception(
     spotify_client: SpotifyClient, mock_requests: Mocker, http_status: HTTPStatus
 ) -> None:
@@ -497,7 +497,7 @@ def test_get_json_response_returns_json(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     [
         "search_term",
         "entity_type",
@@ -734,7 +734,7 @@ def test_current_user_property(
     )
 
 
-@mark.parametrize("update_instance_tracklist", [True, False])  # type: ignore[misc]
+@mark.parametrize("update_instance_tracklist", [True, False])
 def test_add_tracks_to_playlist(
     spotify_client: SpotifyClient,
     spotify_playlist: Playlist,
@@ -812,7 +812,7 @@ def test_add_tracks_to_playlist_ignores_tracks_already_in_playlist(
     assert not mock_requests.request_history
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     [
         "public",
         "collaborative",
@@ -845,9 +845,7 @@ def test_create_playlist_method(
     assert new_playlist.tracks == []
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "album_id", ["4julBAGYv4WmRXwhjJ2LPD", "7FvnTARvgjUyWnUT0flUN7"]
-)
+@mark.parametrize("album_id", ["4julBAGYv4WmRXwhjJ2LPD", "7FvnTARvgjUyWnUT0flUN7"])
 def test_get_album_by_id_method(
     spotify_client: SpotifyClient,
     album_id: str,
@@ -876,9 +874,7 @@ def test_get_album_by_id_method(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "artist_id", ["0q8eApZJs5WDBxayY9769C", "1Ma3pJzPIrAyYPNRkp3SUF"]
-)
+@mark.parametrize("artist_id", ["0q8eApZJs5WDBxayY9769C", "1Ma3pJzPIrAyYPNRkp3SUF"])
 def test_get_artist_by_id_method(
     spotify_client: SpotifyClient,
     artist_id: str,
@@ -907,7 +903,7 @@ def test_get_artist_by_id_method(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "playlist_id",
     [
         "2lMx8FU0SeQ7eA5kcMlNpX",
@@ -944,9 +940,7 @@ def test_get_playlist_by_id_method(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "playlist_id", ["2lMx8FU0SeQ7eA5kcMlNpX", "4Vv023MaZsc8NTWZ4WJvIL"]
-)
+@mark.parametrize("playlist_id", ["2lMx8FU0SeQ7eA5kcMlNpX", "4Vv023MaZsc8NTWZ4WJvIL"])
 def test_get_playlist_by_id_after_property_accessed(
     spotify_client: SpotifyClient, playlist_id: str, mock_requests: Mocker
 ) -> None:
@@ -963,7 +957,7 @@ def test_get_playlist_by_id_after_property_accessed(
     assert not mock_requests.request_history
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "track_id",
     [
         "1PfbIpFjsS1BayUoqB3X7O",

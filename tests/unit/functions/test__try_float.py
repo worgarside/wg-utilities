@@ -9,7 +9,7 @@ from pytest import mark
 from wg_utilities.functions import try_float
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "user_input,should_convert",
     [
         ("1", True),
