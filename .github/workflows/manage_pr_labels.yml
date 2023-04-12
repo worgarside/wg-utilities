@@ -118,7 +118,7 @@ jobs:
         uses: yogevbd/enforce-label-action@2.2.2
         with:
           # yamllint disable-line rule:line-length
-          REQUIRED_LABELS_ANY: bug,dependencies,hotfix,major,minor,non-functional,patch,sync
+          REQUIRED_LABELS_ANY: bug,dependencies,hasspi-sync,hotfix,major,minor,non-functional,patch,sync
 
   edit-keep-updated-label:
     name: |
