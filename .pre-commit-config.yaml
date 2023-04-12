@@ -113,6 +113,14 @@ repos:
           - pydantic
           - types-PyYAML
           - types-python-dateutil
+          - pigpio
+          - pytest
+          - types-freezegun
+          - async-upnp-client
+          - types-pyjwt
+          - strenum
+          - aioresponses
+          - types-xmltodict
 
   - repo: local
     hooks:

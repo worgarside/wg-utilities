@@ -141,7 +141,6 @@ exclude_lines = ["pragma: no cover", "def __repr__", "def __str__", "@overload"]
 relative_files = true
 
 [tool.mypy]
-ignore_missing_imports = true
 exclude = ["_local_sandbox"]
 show_error_codes = true
 plugins = 'pydantic.mypy'
