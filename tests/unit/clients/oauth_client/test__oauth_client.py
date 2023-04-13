@@ -182,6 +182,9 @@ def test_instantiation(
     )
     assert client.auth_link_base == "https://api.example.com/oauth2/authorize"
 
+    assert client.DEFAULT_CACHE_DIR is None
+    assert not client.DEFAULT_PARAMS and isinstance(client.DEFAULT_PARAMS, dict)
+
 
 def test_get_method_calls_request_correctly(
     oauth_client: OAuthClient[dict[str, Any]],
@@ -817,6 +820,35 @@ def test_creds_cache_path_returns_expected_value(
     assert (
         oauth_client.creds_cache_path
         == user_data_dir()
+        / "oauth_credentials"
+        / "OAuthClient"
+        / f"{oauth_client.client_id}.json"
+    )
+
+
+@patch.object(
+    OAuthClient,
+    "DEFAULT_CACHE_DIR",
+    str(Path(__file__).parent / ".wg-utilities" / "oauth_credentials"),
+)
+def test_creds_cache_path_with_env_var(
+    oauth_client: OAuthClient[dict[str, Any]],
+) -> None:
+    """Test `creds_cache_path` returns the expected value when the env var is set.
+
+    I've had to patch the `DEFAULT_CACHE_DIR` attribute because I can't set the env
+    var for _just_ this test.
+    """
+    oauth_client._creds_cache_path = None
+    del oauth_client._credentials
+
+    assert oauth_client.DEFAULT_CACHE_DIR == str(
+        Path(__file__).parent / ".wg-utilities" / "oauth_credentials"
+    )
+
+    assert oauth_client.creds_cache_path == (
+        Path(__file__).parent
+        / ".wg-utilities"
         / "oauth_credentials"
         / "OAuthClient"
         / f"{oauth_client.client_id}.json"
