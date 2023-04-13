@@ -238,6 +238,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
+        oauth_login_redirect_host: str = "localhost",
     ):
         self._client_id = client_id
         self._client_secret = client_secret
@@ -246,6 +247,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         self.auth_link_base = auth_link_base
         self.log_requests = log_requests
         self._creds_cache_path = creds_cache_path
+        self.oauth_login_redirect_host = oauth_login_redirect_host
 
         self.scopes = scopes or []
 
@@ -571,7 +573,8 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         self.temp_auth_server.start_server()
 
-        redirect_uri = f"http://localhost:{self.temp_auth_server.port}/get_auth_code"
+        # pylint: disable=line-too-long
+        redirect_uri = f"http://{self.oauth_login_redirect_host}:{self.temp_auth_server.port}/get_auth_code"
 
         auth_link = (
             self.auth_link_base

@@ -540,10 +540,11 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         *,
         client_id: str,
         client_secret: str,
-        bank: Bank,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
+        oauth_login_redirect_host: str = "localhost",
+        bank: Bank,
     ):
         super().__init__(
             base_url=self.BASE_URL,
@@ -566,6 +567,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
                 )
             ),
             scopes=scopes or self.ALL_SCOPES,
+            oauth_login_redirect_host=oauth_login_redirect_host,
         )
 
         self.bank = bank

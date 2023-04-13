@@ -88,6 +88,7 @@ class GoogleClient(
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
+        oauth_login_redirect_host: str = "localhost",
     ):
         """Initialise the client."""
         super().__init__(
@@ -99,6 +100,7 @@ class GoogleClient(
             log_requests=log_requests,
             creds_cache_path=creds_cache_path,
             scopes=scopes,
+            oauth_login_redirect_host=oauth_login_redirect_host,
         )
 
     def get_items(
