@@ -1476,6 +1476,7 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
         creds_cache_path: Path | None = None,
         # pylint: disable=line-too-long
         item_metadata_retrieval: ItemMetadataRetrieval = ItemMetadataRetrieval.ON_FIRST_REQUEST,
+        oauth_login_redirect_host: str = "localhost",
     ):
         super().__init__(
             base_url=self.BASE_URL,
@@ -1484,6 +1485,7 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
             scopes=scopes or self.DEFAULT_SCOPE,
             log_requests=log_requests,
             creds_cache_path=creds_cache_path,
+            oauth_login_redirect_host=oauth_login_redirect_host,
         )
 
         self._my_drive: Drive

@@ -435,6 +435,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         client_secret: str,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
+        oauth_login_redirect_host: str = "localhost",
     ):
         super().__init__(
             base_url=self.BASE_URL,
@@ -444,6 +445,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
             client_secret=client_secret,
             log_requests=log_requests,
             creds_cache_path=creds_cache_path,
+            oauth_login_redirect_host=oauth_login_redirect_host,
         )
 
         self._current_account: Account
