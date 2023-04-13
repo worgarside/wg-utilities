@@ -8,6 +8,7 @@ from datetime import datetime
 from http import HTTPStatus
 from json import JSONDecodeError, dumps
 from logging import DEBUG, getLogger
+from os import getenv
 from pathlib import Path
 from random import choice
 from string import ascii_letters
@@ -23,6 +24,7 @@ from requests import Response, get, post
 
 from wg_utilities.api import TempAuthServer
 from wg_utilities.functions import user_data_dir
+from wg_utilities.functions.file_management import force_mkdir
 from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
@@ -219,7 +221,7 @@ class OAuthClient(Generic[GetJsonResponse]):
 
     ACCESS_TOKEN_EXPIRY_THRESHOLD = 150
 
-    DATE_FORMAT = "%Y-%m-%d"
+    DEFAULT_CACHE_DIR = getenv("WG_UTILITIES_CREDS_CACHE_DIR")
 
     DEFAULT_PARAMS: dict[
         StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None
@@ -727,8 +729,13 @@ class OAuthClient(Generic[GetJsonResponse]):
                 "Unable to get client ID to generate path for credentials cache file."
             )
 
-        return user_data_dir(
-            file_name=f"oauth_credentials/{type(self).__name__}/{self.client_id}.json"
+        file_path = f"{type(self).__name__}/{self.client_id}.json"
+
+        return force_mkdir(
+            Path(self.DEFAULT_CACHE_DIR) / file_path
+            if self.DEFAULT_CACHE_DIR
+            else user_data_dir() / "oauth_credentials" / file_path,
+            path_is_file=True,
         )
 
     @property

@@ -13,7 +13,8 @@
     "reportUnusedFunction": "none"
   },
   "editor.rulers": [
-    88
+    88,
+    101
   ],
   "files.exclude": {
     "**/.git": true,
@@ -23,8 +24,8 @@
     "**/.DS_Store": true,
     "**/Thumbs.db": true
   },
-  "python.testing.autoTestDiscoverOnSaveEnabled": true,
   "launches": {
-    "PythonCurrentFile": "Python: Current File (wg-utilities)"
-  }
+    "PythonCurrentFile": "Python: Current File"
+  },
+  "python.testing.autoTestDiscoverOnSaveEnabled": false
 }
