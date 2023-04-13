@@ -76,10 +76,12 @@ def test_list_transactions(
                     {
                         "account_id": monzo_account.id,
                         "since": (
-                            frozen_datetime.time_to_freeze - timedelta(days=89)
+                            frozen_datetime.time_to_freeze  # type: ignore[union-attr]
+                            - timedelta(days=89)
                         ).isoformat()
                         + "Z",
-                        "before": frozen_datetime.time_to_freeze.isoformat() + "Z",
+                        # pylint: disable=line-too-long
+                        "before": frozen_datetime.time_to_freeze.isoformat() + "Z",  # type: ignore[union-attr]
                         "limit": 100,
                     }
                 ),
@@ -106,16 +108,19 @@ def test_list_transactions_with_limit(
         monzo_account.list_transactions(limit=20)
 
     assert (
-        mock_requests.last_request.url
+        mock_requests.last_request
+        and mock_requests.last_request.url
         == f"{monzo_account.monzo_client.base_url}/transactions?"
         + urlencode(
             {
                 "account_id": monzo_account.id,
                 "since": (
-                    frozen_datetime.time_to_freeze - timedelta(days=89)
+                    frozen_datetime.time_to_freeze  # type: ignore[union-attr]
+                    - timedelta(days=89)
                 ).isoformat()
                 + "Z",
-                "before": frozen_datetime.time_to_freeze.isoformat() + "Z",
+                # pylint: disable=line-too-long
+                "before": frozen_datetime.time_to_freeze.isoformat() + "Z",  # type: ignore[union-attr]
                 "limit": 20,
             }
         )
@@ -140,7 +145,8 @@ def test_list_transactions_with_time_parameters(
     )
 
     assert (
-        mock_requests.last_request.url
+        mock_requests.last_request
+        and mock_requests.last_request.url
         == f"{monzo_account.monzo_client.base_url}/transactions?"
         + urlencode(
             {

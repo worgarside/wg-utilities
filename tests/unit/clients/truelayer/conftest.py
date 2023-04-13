@@ -16,7 +16,7 @@ from wg_utilities.clients.oauth_client import OAuthCredentials
 from wg_utilities.clients.truelayer import Account, Bank, Card, TrueLayerClient
 
 
-@fixture(scope="function", name="account")  # type: ignore[misc]
+@fixture(scope="function", name="account")
 def _account(truelayer_client: TrueLayerClient) -> Account:
     """Fixture for creating a `Account` instance."""
 
@@ -29,7 +29,7 @@ def _account(truelayer_client: TrueLayerClient) -> Account:
     )
 
 
-@fixture(scope="function", name="card")  # type: ignore[misc]
+@fixture(scope="function", name="card")
 def _card(truelayer_client: TrueLayerClient) -> Card:
     """Fixture for creating a `Card` instance."""
 
@@ -42,7 +42,7 @@ def _card(truelayer_client: TrueLayerClient) -> Card:
     )
 
 
-@fixture(scope="function", name="truelayer_client")  # type: ignore[misc]
+@fixture(scope="function", name="truelayer_client")
 def _truelayer_client(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
@@ -62,7 +62,7 @@ def _truelayer_client(
     )
 
 
-@fixture(scope="function", name="mock_requests", autouse=True)  # type: ignore[misc]
+@fixture(scope="function", name="mock_requests", autouse=True)
 def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 

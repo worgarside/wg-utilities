@@ -201,6 +201,7 @@ class GoogleFitClient(GoogleClient[Any]):
         scopes: list[str] | None = None,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
+        oauth_login_redirect_host: str = "localhost",
     ):
         super().__init__(
             base_url=self.BASE_URL,
@@ -209,6 +210,7 @@ class GoogleFitClient(GoogleClient[Any]):
             scopes=scopes or self.DEFAULT_SCOPES,
             log_requests=log_requests,
             creds_cache_path=creds_cache_path,
+            oauth_login_redirect_host=oauth_login_redirect_host,
         )
 
         self.data_sources: dict[str, DataSource] = {}

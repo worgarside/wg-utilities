@@ -124,7 +124,7 @@ jobs:
       - draft-release
     uses: ./.github/workflows/build_and_publish.yml
     with:
-      build_branch: ${{ github.base_ref }}
+      build_branch: ${{ github.head_ref || github.ref_name }}
       environment: 'development'
       release_tag: ${{ needs.create-pr.outputs.release-tag }}
     secrets:

@@ -8,6 +8,7 @@ from datetime import datetime
 from http import HTTPStatus
 from json import JSONDecodeError, dumps
 from logging import DEBUG, getLogger
+from os import getenv
 from pathlib import Path
 from random import choice
 from string import ascii_letters
@@ -23,6 +24,7 @@ from requests import Response, get, post
 
 from wg_utilities.api import TempAuthServer
 from wg_utilities.functions import user_data_dir
+from wg_utilities.functions.file_management import force_mkdir
 from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
@@ -219,7 +221,7 @@ class OAuthClient(Generic[GetJsonResponse]):
 
     ACCESS_TOKEN_EXPIRY_THRESHOLD = 150
 
-    DATE_FORMAT = "%Y-%m-%d"
+    DEFAULT_CACHE_DIR = getenv("WG_UTILITIES_CREDS_CACHE_DIR")
 
     DEFAULT_PARAMS: dict[
         StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None
@@ -236,6 +238,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
+        oauth_login_redirect_host: str = "localhost",
     ):
         self._client_id = client_id
         self._client_secret = client_secret
@@ -244,6 +247,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         self.auth_link_base = auth_link_base
         self.log_requests = log_requests
         self._creds_cache_path = creds_cache_path
+        self.oauth_login_redirect_host = oauth_login_redirect_host
 
         self.scopes = scopes or []
 
@@ -420,22 +424,25 @@ class OAuthClient(Generic[GetJsonResponse]):
         json: Any | None = None,
         data: Any | None = None,
     ) -> GetJsonResponse:
+        res = self._request(
+            method=method,
+            url=url,
+            params=params,
+            header_overrides=header_overrides,
+            timeout=timeout,
+            json=json,
+            data=data,
+        )
+        if res.status_code == HTTPStatus.NO_CONTENT:
+            return {}  # type: ignore[return-value]
+
         try:
-            res = self._request(
-                method=method,
-                url=url,
-                params=params,
-                header_overrides=header_overrides,
-                timeout=timeout,
-                json=json,
-                data=data,
-            )
-            if res.status_code == HTTPStatus.NO_CONTENT:
+            return res.json()  # type: ignore[no-any-return]
+        except JSONDecodeError as exc:
+            if not res.content:
                 return {}  # type: ignore[return-value]
 
-            return res.json()  # type: ignore[no-any-return]
-        except JSONDecodeError:
-            return {}  # type: ignore[return-value]
+            raise ValueError(res.text) from exc
 
     def delete_creds_file(self) -> None:
         """Delete the local creds file."""
@@ -566,7 +573,8 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         self.temp_auth_server.start_server()
 
-        redirect_uri = f"http://localhost:{self.temp_auth_server.port}/get_auth_code"
+        # pylint: disable=line-too-long
+        redirect_uri = f"http://{self.oauth_login_redirect_host}:{self.temp_auth_server.port}/get_auth_code"
 
         auth_link = (
             self.auth_link_base
@@ -724,8 +732,13 @@ class OAuthClient(Generic[GetJsonResponse]):
                 "Unable to get client ID to generate path for credentials cache file."
             )
 
-        return user_data_dir(
-            file_name=f"oauth_credentials/{type(self).__name__}/{self.client_id}.json"
+        file_path = f"{type(self).__name__}/{self.client_id}.json"
+
+        return force_mkdir(
+            Path(self.DEFAULT_CACHE_DIR) / file_path
+            if self.DEFAULT_CACHE_DIR
+            else user_data_dir() / "oauth_credentials" / file_path,
+            path_is_file=True,
         )
 
     @property

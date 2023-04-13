@@ -36,7 +36,7 @@ def test_handler_is_applied_to_logger_correctly(logger: Logger) -> None:
     assert l_handler.on_expiry is None
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "level",
     [
         CRITICAL,

@@ -8,7 +8,7 @@ from unittest.mock import patch
 from boto3 import client
 from dateutil.tz import tzutc
 from freezegun import freeze_time
-from moto import mock_s3
+from moto import mock_s3  # type: ignore[import]
 from mypy_boto3_lambda import LambdaClient
 from mypy_boto3_s3 import S3Client
 from pytest import FixtureRequest, fixture, mark
@@ -17,7 +17,7 @@ from tests.conftest import YieldFixture
 from wg_utilities.testing import MockBoto3Client
 
 
-@fixture(scope="module", autouse=True)  # type: ignore[misc]
+@fixture(scope="module", autouse=True)
 def _aws_credentials_env_vars() -> YieldFixture[None]:
     """Mock environment variables.
 
@@ -37,13 +37,13 @@ def _aws_credentials_env_vars() -> YieldFixture[None]:
         yield
 
 
-@fixture(scope="function", name="lambda_client")  # type: ignore[misc]
+@fixture(scope="function", name="lambda_client")
 def _lambda_client() -> LambdaClient:
     """Fixture for creating a boto3 client instance for Lambda Functions."""
     return client("lambda")
 
 
-@fixture(scope="function", name="mb3c")  # type: ignore[misc]
+@fixture(scope="function", name="mb3c")
 def _mb3c(request: FixtureRequest) -> MockBoto3Client:
     """Fixture for creating a MockBoto3Client instance."""
 
@@ -55,7 +55,7 @@ def _mb3c(request: FixtureRequest) -> MockBoto3Client:
     return MockBoto3Client(mocked_operation_lookup=mocked_operation_lookup)
 
 
-@fixture(scope="function", name="s3_client")  # type: ignore[misc]
+@fixture(scope="function", name="s3_client")
 def _s3_client() -> S3Client:
     """Fixture for creating a boto3 client instance for S3."""
     return client("s3")
@@ -79,7 +79,7 @@ def test_reset_boto3_calls(mb3c: MockBoto3Client) -> None:
     assert mb3c.boto3_calls == {}
 
 
-@mark.mocked_operation_lookup(  # type: ignore[misc]
+@mark.mocked_operation_lookup(
     {
         "ListBuckets": {"Buckets": ["barry", "paul", "jimmy", "brian"]},
         "CreateBucket": "done",
@@ -98,70 +98,100 @@ def test_boto3_calls_are_logged_correctly(
     ):
         s3_client.list_buckets()
         s3_client.create_bucket(
-            **(
-                create_bucket_args := {
-                    "ACL": "private",
-                    "Bucket": "string",
-                    "CreateBucketConfiguration": {"LocationConstraint": "af-south-1"},
-                    "GrantFullControl": "string",
-                    "GrantRead": "string",
-                    "GrantReadACP": "string",
-                    "GrantWrite": "string",
-                    "GrantWriteACP": "string",
-                    "ObjectLockEnabledForBucket": True,
-                    "ObjectOwnership": "BucketOwnerPreferred",
-                }
-            )
+            ACL="private",
+            Bucket="string",
+            CreateBucketConfiguration={"LocationConstraint": "af-south-1"},
+            GrantFullControl="string",
+            GrantRead="string",
+            GrantReadACP="string",
+            GrantWrite="string",
+            GrantWriteACP="string",
+            ObjectLockEnabledForBucket=True,
+            ObjectOwnership="BucketOwnerPreferred",
         )
         lambda_client.list_functions()
         lambda_client.create_function(
-            **(
-                create_function_args := {
-                    "FunctionName": "string",
-                    "Runtime": "string",
-                    "Role": "string",
-                    "Handler": "string",
-                    "Code": {"ZipFile": b"string"},
-                    "Description": "string",
-                    "Timeout": 123,
-                    "MemorySize": 123,
-                    "Publish": True,
-                    "VpcConfig": {
-                        "SubnetIds": ["string"],
-                        "SecurityGroupIds": ["string"],
-                    },
-                    "Environment": {"Variables": {"string": "string"}},
-                    "KMSKeyArn": "string",
-                    "TracingConfig": {"Mode": "Active"},
-                    "Tags": {"string": "string"},
-                    "Layers": ["string"],
-                    "FileSystemConfigs": [
-                        {
-                            "Arn": "string",
-                            "LocalMountPath": "string",
-                            "AuthorizationConfig": {
-                                "AccessPointId": "string",
-                                "IAM": "DISABLED",
-                            },
-                        }
-                    ],
-                    "DeadLetterConfig": {"TargetArn": "string"},
-                    "ImageConfig": {"RepositoryAccessMode": "string"},
-                    "PackageType": "Zip",
-                    "CodeSigningConfigArn": "string",
+            FunctionName="string",
+            Runtime="python3.9",
+            Role="string",
+            Handler="string",
+            Code={"ZipFile": b"string"},
+            Description="string",
+            Timeout=123,
+            MemorySize=123,
+            Publish=True,
+            VpcConfig={
+                "SubnetIds": ["string"],
+                "SecurityGroupIds": ["string"],
+            },
+            Environment={"Variables": {"string": "string"}},
+            KMSKeyArn="string",
+            TracingConfig={"Mode": "Active"},
+            Tags={"string": "string"},
+            Layers=["string"],
+            FileSystemConfigs=[
+                {
+                    "Arn": "string",
+                    "LocalMountPath": "string",
                 }
-            )
+            ],
+            DeadLetterConfig={"TargetArn": "string"},
+            PackageType="Zip",
+            CodeSigningConfigArn="string",
         )
 
     assert mb3c.boto3_calls == {
         "ListBuckets": [{}],
-        "CreateBucket": [create_bucket_args],
+        "CreateBucket": [
+            {
+                "ACL": "private",
+                "Bucket": "string",
+                "CreateBucketConfiguration": {"LocationConstraint": "af-south-1"},
+                "GrantFullControl": "string",
+                "GrantRead": "string",
+                "GrantReadACP": "string",
+                "GrantWrite": "string",
+                "GrantWriteACP": "string",
+                "ObjectLockEnabledForBucket": True,
+                "ObjectOwnership": "BucketOwnerPreferred",
+            }
+        ],
         "ListFunctions": [{}],
-        "CreateFunction": [create_function_args],
+        "CreateFunction": [
+            {
+                "FunctionName": "string",
+                "Runtime": "python3.9",
+                "Role": "string",
+                "Handler": "string",
+                "Code": {"ZipFile": b"string"},
+                "Description": "string",
+                "Timeout": 123,
+                "MemorySize": 123,
+                "Publish": True,
+                "VpcConfig": {
+                    "SubnetIds": ["string"],
+                    "SecurityGroupIds": ["string"],
+                },
+                "Environment": {"Variables": {"string": "string"}},
+                "KMSKeyArn": "string",
+                "TracingConfig": {"Mode": "Active"},
+                "Tags": {"string": "string"},
+                "Layers": ["string"],
+                "FileSystemConfigs": [
+                    {
+                        "Arn": "string",
+                        "LocalMountPath": "string",
+                    }
+                ],
+                "DeadLetterConfig": {"TargetArn": "string"},
+                "PackageType": "Zip",
+                "CodeSigningConfigArn": "string",
+            }
+        ],
     }
 
 
-@mark.mocked_operation_lookup(  # type: ignore[misc]
+@mark.mocked_operation_lookup(
     {
         "ListBuckets": {"Buckets": ["barry", "paul", "jimmy", "brian"]},
         "CreateBucket": "done",
@@ -180,14 +210,18 @@ def test_boto3_calls_get_correct_responses(
     ):
         # No arguments this time, they're inconsequential
         list_bucket_res = s3_client.list_buckets()
-        create_bucket_res = s3_client.create_bucket()
+        create_bucket_res = s3_client.create_bucket()  # type: ignore[call-arg]
         list_functions = lambda_client.list_functions()
-        create_function = lambda_client.create_function()
+        create_function = lambda_client.create_function()  # type: ignore[call-arg]
 
-    assert list_bucket_res == {"Buckets": ["barry", "paul", "jimmy", "brian"]}
-    assert create_bucket_res == "done"
-    assert list_functions == {"Functions": ["foo", "bar", "baz"]}
-    assert create_function == "done"
+    assert list_bucket_res == {  # type: ignore[comparison-overlap]
+        "Buckets": ["barry", "paul", "jimmy", "brian"]
+    }
+    assert create_bucket_res == "done"  # type: ignore[comparison-overlap]
+    assert list_functions == {  # type: ignore[comparison-overlap]
+        "Functions": ["foo", "bar", "baz"]
+    }
+    assert create_function == "done"  # type: ignore[comparison-overlap]
 
 
 def test_reset_boto3_calls_argument(mb3c: MockBoto3Client) -> None:
@@ -230,7 +264,7 @@ def test_callable_override(mb3c: MockBoto3Client, lambda_client: LambdaClient) -
                 FunctionName="foo.bar.baz", Qualifier="TEST"
             )
 
-            assert counter == res == i + 1
+            assert counter == res == i + 1  # type: ignore[comparison-overlap]
 
 
 def test_callable_override_with_args_kwargs(
@@ -264,10 +298,11 @@ def test_callable_override_with_args_kwargs(
                 FunctionName="foo.bar.baz",
                 Qualifier="TEST",
                 # Added this to show new values will be passed through
-                Counter=counter,
+                Counter=counter,  # type: ignore[call-arg]
             )
 
-            assert counter == res == (i + 1) * len("foo.bar.baz")
+            # pylint: disable=line-too-long
+            assert counter == res == (i + 1) * len("foo.bar.baz")  # type: ignore[comparison-overlap]
 
 
 def test_nested_callable_override(
@@ -300,11 +335,11 @@ def test_nested_callable_override(
             )
 
             assert counter == i + 1
-            assert res == {"value": counter}
+            assert res == {"value": counter}  # type: ignore[comparison-overlap]
 
 
 @mock_s3  # type: ignore[misc]
-@mark.mocked_operation_lookup(  # type: ignore[misc]
+@mark.mocked_operation_lookup(
     {
         "ListBuckets": {"Buckets": ["barry", "paul", "jimmy", "brian"]},
     }
@@ -323,7 +358,9 @@ def test_non_mocked_calls_still_go_to_aws(
             CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
         )
 
-        assert s3_client.list_buckets()["Buckets"] == [
+        assert s3_client.list_buckets()[
+            "Buckets"
+        ] == [  # type: ignore[comparison-overlap]
             "barry",
             "paul",
             "jimmy",
@@ -340,7 +377,7 @@ def test_non_mocked_calls_still_go_to_aws(
 
 
 @mock_s3  # type: ignore[misc]
-@mark.mocked_operation_lookup(  # type: ignore[misc]
+@mark.mocked_operation_lookup(
     {
         "ListBuckets": {"Buckets": ["barry", "paul", "jimmy", "brian"]},
     }
@@ -351,7 +388,7 @@ def test_lookup_overrides_in_api_call_builder(
     """Test `lookup_overrides` work as expected when passed to `build_api_call`."""
 
     with patch(MockBoto3Client.PATCH_METHOD, mb3c.build_api_call()):
-        assert s3_client.list_buckets() == {
+        assert s3_client.list_buckets() == {  # type: ignore[comparison-overlap]
             "Buckets": ["barry", "paul", "jimmy", "brian"]
         }
 
@@ -359,7 +396,9 @@ def test_lookup_overrides_in_api_call_builder(
         MockBoto3Client.PATCH_METHOD,
         mb3c.build_api_call(lookup_overrides={"ListBuckets": {"Buckets": ["foo"]}}),
     ):
-        assert s3_client.list_buckets() == {"Buckets": ["foo"]}
+        assert s3_client.list_buckets() == {  # type: ignore[comparison-overlap]
+            "Buckets": ["foo"]
+        }
 
 
 # This is a test I tried to write to test the `except KeyError` block in the `api_call`
@@ -369,7 +408,7 @@ def test_lookup_overrides_in_api_call_builder(
 # pylint: disable=pointless-string-statement
 """
 @mock_pinpoint  # type: ignore[misc]
-@mark.mocked_operation_lookup(  # type: ignore[misc]
+@mark.mocked_operation_lookup(
     {
         "GetApp": {
             "ApplicationResponse": {

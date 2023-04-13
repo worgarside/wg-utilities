@@ -95,7 +95,7 @@ repos:
           - --all
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.1.1
+    rev: v1.2.0
     hooks:
       - id: mypy
         args:
@@ -103,7 +103,6 @@ repos:
           - --show-error-codes
         additional_dependencies:
           - types-requests
-          - types-paramiko
           - boto3-stubs
           - lxml-stubs
           - types-flask
@@ -113,6 +112,19 @@ repos:
           - pydantic
           - types-PyYAML
           - types-python-dateutil
+          - pytest
+          - types-freezegun
+          - async-upnp-client
+          - types-pyjwt
+          - aioresponses
+          - types-xmltodict
+          - requests-mock
+          - python-dotenv
+          - mypy_boto3_lambda
+          - mypy_boto3_s3
+          - voluptuous-stubs
+
+
 
   - repo: local
     hooks:
@@ -144,6 +156,6 @@ repos:
           - tomli
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.260
+    rev: v0.0.261
     hooks:
       - id: ruff

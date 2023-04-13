@@ -184,7 +184,6 @@ class _GoogleDriveEntity(GenericModelWithConfig):
         if not _waive_validation:
             instance._validate()  # pylint: disable=protected-access
 
-        # pylint: disable=isinstance-second-argument-not-valid-type
         if isinstance(instance, File | Directory):
             if parent is not None:
                 parent.add_child(instance)
@@ -292,7 +291,6 @@ class _GoogleDriveEntity(GenericModelWithConfig):
         if isinstance(self, Drive):
             return self
 
-        # pylint: disable=isinstance-second-argument-not-valid-type
         if isinstance(self, File | Directory):
             return self.host_drive_
 
@@ -920,7 +918,6 @@ class File(_GoogleDriveEntity):
         Returns:
             Directory: the parent directory of this file
         """
-        # pylint: disable=isinstance-second-argument-not-valid-type
         if self.parent_ is None and isinstance(self, File | Directory):
             if (parent_id := self.parents[0]) == self.host_drive.id:
                 self.parent_ = self.host_drive
@@ -1479,6 +1476,7 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
         creds_cache_path: Path | None = None,
         # pylint: disable=line-too-long
         item_metadata_retrieval: ItemMetadataRetrieval = ItemMetadataRetrieval.ON_FIRST_REQUEST,
+        oauth_login_redirect_host: str = "localhost",
     ):
         super().__init__(
             base_url=self.BASE_URL,
@@ -1487,6 +1485,7 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
             scopes=scopes or self.DEFAULT_SCOPE,
             log_requests=log_requests,
             creds_cache_path=creds_cache_path,
+            oauth_login_redirect_host=oauth_login_redirect_host,
         )
 
         self._my_drive: Drive

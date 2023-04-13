@@ -138,7 +138,7 @@ def test_mime_type_validation(
     assert "Use `Directory` class to create a directory" in str(exc_info.value)
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "parents_value",
     (
         param([], id="empty list"),

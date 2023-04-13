@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wg-utilities"
-version = "3.1.1"
+version = "3.2.0"
 description = "Loads of useful stuff for the things I do :)"
 
 authors = ["Will Garside <worgarside@gmail.com>"]
@@ -141,7 +141,6 @@ exclude_lines = ["pragma: no cover", "def __repr__", "def __str__", "@overload"]
 relative_files = true
 
 [tool.mypy]
-ignore_missing_imports = true
 exclude = ["_local_sandbox"]
 show_error_codes = true
 plugins = 'pydantic.mypy'

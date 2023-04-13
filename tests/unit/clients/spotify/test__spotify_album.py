@@ -129,7 +129,7 @@ def test_tracks_property_no_json(
     assert all(isinstance(track, Track) for track in spotify_album.tracks)
 
     assert (
-        len(mock_requests.request_history) == 1
+        mock_requests.last_request
         and mock_requests.last_request.url
         == "https://api.spotify.com/v1/albums/7FvnTARvgjUyWnUT0flUN7/tracks?limit=50"
     )

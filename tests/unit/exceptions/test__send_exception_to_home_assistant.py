@@ -60,9 +60,7 @@ def _send_fake_exception_to_home_assistant(
     return expected_payload
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
-)
+@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
 def test_url_is_correct(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
@@ -87,9 +85,7 @@ def test_url_is_correct(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
-)
+@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
 def test_https_url_is_used_on_error(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
@@ -121,9 +117,7 @@ def test_https_url_is_used_on_error(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
-)
+@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
 def test_payload_is_correctly_formed(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
@@ -141,9 +135,7 @@ def test_payload_is_correctly_formed(
     assert mock_requests_root.request_history[0].json() == expected_payload
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
-)
+@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
 def test_send_failure_raises_exception(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
@@ -169,9 +161,7 @@ def test_send_failure_raises_exception(
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
-)
+@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
 def test_unexpected_connection_error_exception_is_raised(
     exception_type: type[Exception],
     raise_func: Callable[[], object],

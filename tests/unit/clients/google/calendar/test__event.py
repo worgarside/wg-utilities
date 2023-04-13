@@ -58,7 +58,7 @@ def test_delete_method(
 
     event.delete()
 
-    assert len(mock_requests.request_history) == 1
+    assert mock_requests.last_request
     assert mock_requests.last_request.method == "DELETE"
     assert (
         mock_requests.last_request.headers["Authorization"]
@@ -67,7 +67,7 @@ def test_delete_method(
     assert mock_requests.last_request.headers["Content-Type"] == "application/json"
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("attendees", "creator", "expected_response_status"),
     (
         (

@@ -194,7 +194,7 @@ def test_add_child_invalid_type(drive: Drive) -> None:
     assert str(exc_info.value) == "Cannot add `str` instance to My Drive's children."
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("navigate_path", "instance_path"),
     (
         # pylint: disable=line-too-long
@@ -310,7 +310,7 @@ def test_navigate_method(
     assert actual == expected
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("navigate_path", "exception_message"),
     (
         (
@@ -362,7 +362,7 @@ def test_reset_known_children(directory: Directory) -> None:
     ]
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     (
         "include_files",
         "archive_files_only_tree",
@@ -459,7 +459,7 @@ def test_tree_not_local_only(drive: Drive) -> None:
     assert drive.tree(include_files=True, local_only=False) == expected
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     ("preload_paths", "expected"),
     (
         (

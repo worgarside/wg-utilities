@@ -1,5 +1,5 @@
 ---
-name: Dependabot Auto-merge
+name: Dependabot Auto-Merge
 
 # yamllint disable-line rule:truthy
 on:
@@ -9,8 +9,11 @@ jobs:
   auto-merge:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: ahmadnassri/action-dependabot-auto-merge@v2
+      - name: Clone Repo
+        uses: actions/checkout@v3
+
+      - name: Merge Dependabot PRs
+        uses: ahmadnassri/action-dependabot-auto-merge@v2
         with:
           target: major
           github-token: ${{ secrets.GH_PAT }}

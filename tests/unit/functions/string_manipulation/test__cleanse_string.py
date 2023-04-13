@@ -10,7 +10,7 @@ from tests.unit.functions import random_nested_json
 from wg_utilities.functions import cleanse_string
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "in_str,expected",
     [
         ("   ", ""),
@@ -41,7 +41,7 @@ def test_varying_inputs(in_str: str, expected: str) -> None:
     assert cleanse_string(in_str) == expected
 
 
-@mark.parametrize(  # type:ignore[misc]
+@mark.parametrize(
     "in_str,preserve_newlines,expected",
     [
         ("a\nb\nc\n", False, "abc"),
@@ -60,7 +60,7 @@ def test_newline_preservation(
     assert cleanse_string(in_str, preserve_newlines=preserve_newlines) == expected
 
 
-@mark.parametrize(  # type:ignore[misc]
+@mark.parametrize(
     # pylint: disable=unused-variable,undefined-variable
     "in_str,whitespace_amount,expected",
     [

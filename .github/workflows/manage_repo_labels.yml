@@ -5,10 +5,10 @@ name: Manage Repo Labels
 on:
   push:
     branches:
-      - 'main'
+      - develop
     paths:
-      - '.github/repo_labels.yml'
-      - '.github/workflows/manage_repo_labels.yml'
+      - .github/repo_labels.yml
+      - .github/workflows/manage_repo_labels.yml
   workflow_dispatch:
 
 jobs:

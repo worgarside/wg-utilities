@@ -62,7 +62,7 @@ def test_json_property() -> None:
     }
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     [
         "media_info_dict",
         "json_values",
@@ -107,7 +107,7 @@ def test_from_get_media_info(
     assert current_track.json == json_values
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     [
         "last_change_dict",
         "json_values",

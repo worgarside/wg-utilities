@@ -66,9 +66,7 @@ def test_exception_is_sent_to_ha_by_default(mock_requests_root: Mocker) -> None:
     )
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
-)
+@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
 def test_decorator_catches_exception_and_calls_callback_correctly(
     exception_type: (
         type[AttributeError]
@@ -111,9 +109,7 @@ def test_decorator_catches_exception_and_calls_callback_correctly(
     assert exc_info.value is exception
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
-)
+@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
 def test_false_raise_after_callback_does_not_raise(
     exception_type: type[Exception],
     raise_func: Callable[..., object],
@@ -145,9 +141,7 @@ def test_false_raise_after_callback_does_not_raise(
     assert isinstance(exception, exception_type)
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
-)
+@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
 def test_ignore_exception_types(
     exception_type: type[Exception],
     raise_func: Callable[..., object],
@@ -174,9 +168,7 @@ def test_ignore_exception_types(
     assert finished is False
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
-)
+@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
 def test_ignoring_exceptions_is_logged_as_warning(
     exception_type: type[Exception],
     raise_func: Callable[..., object],
@@ -218,9 +210,7 @@ def test_ignoring_exceptions_is_logged_as_warning(
 
 
 @patch.dict(environ, {"SUPPRESS_WG_UTILS_IGNORANCE": "0"})
-@mark.parametrize(  # type: ignore[misc]
-    "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
-)
+@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
 def test_ignorant_warning_suppression_via_parameter(
     exception_type: type[Exception],
     raise_func: Callable[..., object],
@@ -250,9 +240,7 @@ def test_ignorant_warning_suppression_via_parameter(
 
 
 @patch.dict(environ, {"SUPPRESS_WG_UTILS_IGNORANCE": "1"})
-@mark.parametrize(  # type: ignore[misc]
-    "exception_type,raise_func,raise_args", EXCEPTION_GENERATORS
-)
+@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
 def test_ignorant_warning_suppression_via_env_var(
     exception_type: type[Exception],
     raise_func: Callable[..., object],

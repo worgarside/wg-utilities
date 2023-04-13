@@ -32,9 +32,7 @@ from wg_utilities.clients.oauth_client import (
 from wg_utilities.functions import user_data_dir
 
 
-@mark.parametrize(  # type: ignore[misc]
-    "model_class", (BaseModelWithConfig, GenericModelWithConfig)
-)
+@mark.parametrize("model_class", (BaseModelWithConfig, GenericModelWithConfig))
 def test_x_model_with_config_has_correct_config(model_class: BaseModel) -> None:
     """Check the `Config` options for `Base/GenericModelWithConfig` are correct."""
 
@@ -43,7 +41,7 @@ def test_x_model_with_config_has_correct_config(model_class: BaseModel) -> None:
     assert model_class.__config__.validate_assignment is True
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "attribute_value",
     (
         0,
@@ -58,9 +56,7 @@ def test_x_model_with_config_has_correct_config(model_class: BaseModel) -> None:
         {"a": "b", 1: 2},
     ),
 )
-@mark.parametrize(  # type: ignore[misc]
-    "model_class", (BaseModelWithConfig, GenericModelWithConfig)
-)
+@mark.parametrize("model_class", (BaseModelWithConfig, GenericModelWithConfig))
 def test_x_model_with_config_set_private_attr_method(
     model_class: type[BaseModelWithConfig | GenericModelWithConfig],
     attribute_value: int | bool | str | list[Any] | set[Any] | dict[str, Any],
@@ -185,6 +181,9 @@ def test_instantiation(
         == temp_dir / "oauth_credentials" / "test_client_id.json"
     )
     assert client.auth_link_base == "https://api.example.com/oauth2/authorize"
+
+    assert client.DEFAULT_CACHE_DIR is None
+    assert not client.DEFAULT_PARAMS and isinstance(client.DEFAULT_PARAMS, dict)
 
 
 def test_get_method_calls_request_correctly(
@@ -417,7 +416,7 @@ def test_request_json_response_defaults_to_empty_dict_with_json_decode_error(
         "https://api.example.com/test_endpoint",
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
-        text="invalid_json",
+        text="",
     )
 
     res = oauth_client._request_json_response(
@@ -426,6 +425,27 @@ def test_request_json_response_defaults_to_empty_dict_with_json_decode_error(
     )
 
     assert res == {}
+
+
+def test_request_json_response_raises_exception_with_invalid_json(
+    oauth_client: OAuthClient[dict[str, Any]], mock_requests: Mocker
+) -> None:
+    """Test that the request method returns an empty dict for JSON decode errors."""
+
+    mock_requests.get(
+        "https://api.example.com/test_endpoint",
+        status_code=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        text="invalid_json",
+    )
+
+    with raises(ValueError) as exc_info:
+        oauth_client._request_json_response(
+            method=get,
+            url="/test_endpoint",
+        )
+
+    assert str(exc_info.value) == "invalid_json"
 
 
 def test_delete_creds_file(oauth_client: OAuthClient[dict[str, Any]]) -> None:
@@ -800,6 +820,35 @@ def test_creds_cache_path_returns_expected_value(
     assert (
         oauth_client.creds_cache_path
         == user_data_dir()
+        / "oauth_credentials"
+        / "OAuthClient"
+        / f"{oauth_client.client_id}.json"
+    )
+
+
+@patch.object(
+    OAuthClient,
+    "DEFAULT_CACHE_DIR",
+    str(Path(__file__).parent / ".wg-utilities" / "oauth_credentials"),
+)
+def test_creds_cache_path_with_env_var(
+    oauth_client: OAuthClient[dict[str, Any]],
+) -> None:
+    """Test `creds_cache_path` returns the expected value when the env var is set.
+
+    I've had to patch the `DEFAULT_CACHE_DIR` attribute because I can't set the env
+    var for _just_ this test.
+    """
+    oauth_client._creds_cache_path = None
+    del oauth_client._credentials
+
+    assert oauth_client.DEFAULT_CACHE_DIR == str(
+        Path(__file__).parent / ".wg-utilities" / "oauth_credentials"
+    )
+
+    assert oauth_client.creds_cache_path == (
+        Path(__file__).parent
+        / ".wg-utilities"
         / "oauth_credentials"
         / "OAuthClient"
         / f"{oauth_client.client_id}.json"

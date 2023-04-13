@@ -49,7 +49,7 @@ def test_target_directory_is_not_created() -> None:
     assert str(exc_info.value) == f"[Errno 2] No such file or directory: '{file_path}'"
 
 
-@mark.parametrize(  # type: ignore[misc]
+@mark.parametrize(
     "level",
     [
         CRITICAL,
