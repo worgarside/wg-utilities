@@ -143,3 +143,23 @@ jobs:
             }}-label "keep-updated" || :
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  set-auto-merge:
+    name: Set Auto Merge
+    runs-on: ubuntu-latest
+    if: |
+      ${{ github.event.action == 'ready_for_review' }} &&
+      ${{ github.event.pull_request.head.user.login }} == 'worgarside-dev'
+    steps:
+      - name: Clone Repo
+        uses: actions/checkout@v3
+
+      - name: Set Auto-Merge on PR
+        run: |
+          gh pr merge \
+            --delete-branch \
+            --squash \
+            --auto \
+            "${{ github.event.pull_request.html_url }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
