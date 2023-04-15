@@ -148,18 +148,26 @@ jobs:
     name: Set Auto Merge
     runs-on: ubuntu-latest
     if: |
-      ${{ github.event.action == 'ready_for_review' }} &&
-      ${{ github.event.pull_request.head.user.login }} == 'worgarside-dev'
+      github.event.action == 'ready_for_review' &&
+      github.event.pull_request.user.login == 'worgarside-dev'
     steps:
       - name: Clone Repo
         uses: actions/checkout@v3
 
-      - name: Set Auto-Merge on PR
+      - name: Log GitHub Context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: |
-          gh pr merge \
+          echo -e "\`\`\`json\n$GITHUB_CONTEXT\n\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Set Auto-Merge on PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          gh pr merge "${{ github.event.pull_request.html_url }}"\
             --delete-branch \
             --squash \
             --auto \
-            "${{ github.event.pull_request.html_url }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+            --subject "$PR_TITLE" \
+            --body "#${{ github.event.pull_request.number }}"
