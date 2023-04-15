@@ -91,6 +91,7 @@ class AlbumSummaryJson(SpotifyNamedEntityJson, total=False):
     artists: list[ArtistSummaryJson]
     available_markets: list[str]
     images: list[Image]
+    is_playable: bool | None
     release_date: str | date
     release_date_precision: str
     total_tracks: int
@@ -255,7 +256,7 @@ class TrackLocalJson(SpotifyLocalEntityJson, total=False):
     explicit: bool
     external_ids: dict[None, None]
     is_local: Literal[True]
-    is_playable: NotRequired[str]
+    is_playable: NotRequired[bool]
     linked_from: NotRequired[_LinkedFromInTrack]
     popularity: int
     preview_url: None
@@ -275,7 +276,7 @@ class TrackFullJson(SpotifyNamedEntityJson, total=False):
     explicit: bool
     external_ids: NotRequired[dict[str, str]]
     is_local: Literal[False]
-    is_playable: NotRequired[str]
+    is_playable: NotRequired[bool]
     linked_from: NotRequired[_LinkedFromInTrack]
     popularity: int
     preview_url: str
