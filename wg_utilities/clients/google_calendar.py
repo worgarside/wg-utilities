@@ -7,7 +7,6 @@ from datetime import date as date_
 from datetime import datetime as datetime_
 from datetime import timedelta, tzinfo
 from enum import Enum
-from pathlib import Path
 from typing import Any, Literal, TypeAlias, TypedDict, TypeVar
 
 from pydantic import Field, root_validator, validator
@@ -589,32 +588,12 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         "maxResults": "250",
     }
 
-    DEFAULT_SCOPE = [
+    DEFAULT_SCOPES = [
         "https://www.googleapis.com/auth/calendar",
         "https://www.googleapis.com/auth/calendar.events",
     ]
 
-    def __init__(
-        self,
-        client_id: str,
-        client_secret: str,
-        *,
-        scopes: list[str] | None = None,
-        log_requests: bool = False,
-        creds_cache_path: Path | None = None,
-        oauth_login_redirect_host: str = "localhost",
-    ):
-        super().__init__(
-            base_url=self.BASE_URL,
-            client_id=client_id,
-            client_secret=client_secret,
-            scopes=scopes or self.DEFAULT_SCOPE,
-            log_requests=log_requests,
-            creds_cache_path=creds_cache_path,
-            oauth_login_redirect_host=oauth_login_redirect_host,
-        )
-
-        self._primary_calendar: Calendar
+    _primary_calendar: Calendar
 
     def create_event(
         self,

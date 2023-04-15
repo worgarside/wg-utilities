@@ -524,7 +524,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
     ACCESS_TOKEN_ENDPOINT = "https://auth.truelayer.com/connect/token"
     BASE_URL = "https://api.truelayer.com"
 
-    ALL_SCOPES = [
+    DEFAULT_SCOPES = [
         "info",
         "accounts",
         "balance",
@@ -566,7 +566,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
                     ]
                 )
             ),
-            scopes=scopes or self.ALL_SCOPES,
+            scopes=scopes or self.DEFAULT_SCOPES,
             oauth_login_redirect_host=oauth_login_redirect_host,
         )
 

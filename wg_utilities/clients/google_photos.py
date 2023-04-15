@@ -349,30 +349,10 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
         "https://www.googleapis.com/auth/photoslibrary.edit.appcreateddata",
     ]
 
-    def __init__(
-        self,
-        client_id: str,
-        client_secret: str,
-        *,
-        scopes: list[str] | None = None,
-        log_requests: bool = False,
-        creds_cache_path: Path | None = None,
-        oauth_login_redirect_host: str = "localhost",
-    ):
-        super().__init__(
-            base_url=self.BASE_URL,
-            client_id=client_id,
-            client_secret=client_secret,
-            scopes=scopes or self.DEFAULT_SCOPES,
-            log_requests=log_requests,
-            creds_cache_path=creds_cache_path,
-            oauth_login_redirect_host=oauth_login_redirect_host,
-        )
-
-        self._albums: list[Album]
-        # Only really used to check if all album metadata has been fetched, not
-        # available to the user (would still require caching all albums).
-        self._album_count: int
+    _albums: list[Album]
+    # Only really used to check if all album metadata has been fetched, not
+    # available to the user (would still require caching all albums).
+    _album_count: int
 
     def get_album_by_id(self, album_id: str) -> Album:
         """Get an album by its ID.
