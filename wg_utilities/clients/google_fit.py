@@ -195,22 +195,22 @@ class GoogleFitClient(GoogleClient[Any]):
 
     def __init__(
         self,
+        *,
         client_id: str,
         client_secret: str,
-        *,
-        scopes: list[str] | None = None,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
+        scopes: list[str] | None = None,
         oauth_login_redirect_host: str = "localhost",
     ):
         super().__init__(
-            base_url=self.BASE_URL,
             client_id=client_id,
             client_secret=client_secret,
-            scopes=scopes or self.DEFAULT_SCOPES,
             log_requests=log_requests,
             creds_cache_path=creds_cache_path,
+            scopes=scopes or self.DEFAULT_SCOPES,
             oauth_login_redirect_host=oauth_login_redirect_host,
+            base_url=self.BASE_URL,
         )
 
         self.data_sources: dict[str, DataSource] = {}

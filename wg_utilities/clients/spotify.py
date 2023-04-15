@@ -10,7 +10,6 @@ from enum import Enum
 from http import HTTPStatus
 from json import dumps
 from logging import DEBUG, getLogger
-from pathlib import Path
 from re import sub
 from typing import (
     Any,
@@ -136,9 +135,10 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
     AUTH_LINK_BASE = "https://accounts.spotify.com/authorize"
     ACCESS_TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token"
     BASE_URL = "https://api.spotify.com/v1"
+
     DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
-    ALL_SCOPES = [
+    DEFAULT_SCOPES = [
         "ugc-image-upload",
         "user-read-recently-played",
         "user-top-read",
@@ -169,29 +169,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         # "episode",
     )
 
-    def __init__(
-        self,
-        *,
-        client_id: str,
-        client_secret: str,
-        log_requests: bool = False,
-        creds_cache_path: Path | None = None,
-        scopes: list[str] | None = None,
-        oauth_login_redirect_host: str = "localhost",
-    ):
-        super().__init__(
-            base_url=self.BASE_URL,
-            access_token_endpoint=self.ACCESS_TOKEN_ENDPOINT,
-            auth_link_base=self.AUTH_LINK_BASE,
-            client_id=client_id,
-            client_secret=client_secret,
-            log_requests=log_requests,
-            creds_cache_path=creds_cache_path,
-            scopes=scopes or self.ALL_SCOPES,
-            oauth_login_redirect_host=oauth_login_redirect_host,
-        )
-
-        self._current_user: User
+    _current_user: User
 
     def add_tracks_to_playlist(
         self,

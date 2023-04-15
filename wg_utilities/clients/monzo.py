@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 from logging import DEBUG, getLogger
-from pathlib import Path
 from typing import Any, Literal, TypedDict, final
 
 from pydantic import Field
@@ -428,27 +427,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None
     ] = {}
 
-    def __init__(
-        self,
-        *,
-        client_id: str,
-        client_secret: str,
-        log_requests: bool = False,
-        creds_cache_path: Path | None = None,
-        oauth_login_redirect_host: str = "localhost",
-    ):
-        super().__init__(
-            base_url=self.BASE_URL,
-            access_token_endpoint=self.ACCESS_TOKEN_ENDPOINT,
-            auth_link_base=self.AUTH_LINK_BASE,
-            client_id=client_id,
-            client_secret=client_secret,
-            log_requests=log_requests,
-            creds_cache_path=creds_cache_path,
-            oauth_login_redirect_host=oauth_login_redirect_host,
-        )
-
-        self._current_account: Account
+    _current_account: Account
 
     def deposit_into_pot(
         self, pot: Pot, amount_pence: int, dedupe_id: str | None = None

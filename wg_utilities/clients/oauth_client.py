@@ -219,37 +219,41 @@ class OAuthClient(Generic[GetJsonResponse]):
     Includes all necessary/basic authentication functionality
     """
 
+    ACCESS_TOKEN_ENDPOINT: str
+    AUTH_LINK_BASE: str
+    BASE_URL: str
+
     ACCESS_TOKEN_EXPIRY_THRESHOLD = 150
 
     DEFAULT_CACHE_DIR = getenv("WG_UTILITIES_CREDS_CACHE_DIR")
-
     DEFAULT_PARAMS: dict[
         StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None
     ] = {}
+    DEFAULT_SCOPES: list[str] = []
 
     def __init__(
         self,
         *,
-        base_url: str,
-        access_token_endpoint: str,
-        auth_link_base: str,
         client_id: str | None = None,
         client_secret: str | None = None,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
         oauth_login_redirect_host: str = "localhost",
+        access_token_endpoint: str | None = None,
+        auth_link_base: str | None = None,
+        base_url: str | None = None,
     ):
         self._client_id = client_id
         self._client_secret = client_secret
-        self.base_url = base_url
-        self.access_token_endpoint = access_token_endpoint
-        self.auth_link_base = auth_link_base
+        self.base_url = base_url or self.BASE_URL
+        self.access_token_endpoint = access_token_endpoint or self.ACCESS_TOKEN_ENDPOINT
+        self.auth_link_base = auth_link_base or self.AUTH_LINK_BASE
         self.log_requests = log_requests
         self._creds_cache_path = creds_cache_path
         self.oauth_login_redirect_host = oauth_login_redirect_host
 
-        self.scopes = scopes or []
+        self.scopes = scopes or self.DEFAULT_SCOPES
 
         self._credentials: OAuthCredentials
         self._temp_auth_server: TempAuthServer
