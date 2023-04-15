@@ -5,7 +5,6 @@ from collections.abc import Callable, Iterable, Mapping
 from copy import deepcopy
 from json import dumps
 from logging import DEBUG, getLogger
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypedDict, TypeVar
 
 from requests import Response, get
@@ -74,34 +73,11 @@ class GoogleClient(
 
     ACCESS_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
     AUTH_LINK_BASE = "https://accounts.google.com/o/oauth2/v2/auth"
+    BASE_URL: str
 
     DEFAULT_PARAMS: dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None] = {
         "pageSize": "50",
     }
-
-    def __init__(
-        self,
-        *,
-        client_id: str,
-        client_secret: str,
-        base_url: str,
-        log_requests: bool = False,
-        creds_cache_path: Path | None = None,
-        scopes: list[str] | None = None,
-        oauth_login_redirect_host: str = "localhost",
-    ):
-        """Initialise the client."""
-        super().__init__(
-            base_url=base_url,
-            access_token_endpoint=self.ACCESS_TOKEN_ENDPOINT,
-            auth_link_base=self.AUTH_LINK_BASE,
-            client_id=client_id,
-            client_secret=client_secret,
-            log_requests=log_requests,
-            creds_cache_path=creds_cache_path,
-            scopes=scopes,
-            oauth_login_redirect_host=oauth_login_redirect_host,
-        )
 
     def get_items(
         self,

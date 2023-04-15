@@ -1456,7 +1456,7 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
 
     BASE_URL = "https://www.googleapis.com/drive/v3"
 
-    DEFAULT_SCOPE = [
+    DEFAULT_SCOPES = [
         "https://www.googleapis.com/auth/drive",
         "https://www.googleapis.com/auth/drive.file",
         "https://www.googleapis.com/auth/drive.readonly",
@@ -1468,24 +1468,26 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
 
     def __init__(
         self,
+        *,
         client_id: str,
         client_secret: str,
-        *,
-        scopes: list[str] | None = None,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
+        scopes: list[str] | None = None,
+        oauth_login_redirect_host: str = "localhost",
         # pylint: disable=line-too-long
         item_metadata_retrieval: ItemMetadataRetrieval = ItemMetadataRetrieval.ON_FIRST_REQUEST,
-        oauth_login_redirect_host: str = "localhost",
+        headless_auth_link_callback: Callable[[str], None] | None = None,
     ):
         super().__init__(
-            base_url=self.BASE_URL,
             client_id=client_id,
             client_secret=client_secret,
-            scopes=scopes or self.DEFAULT_SCOPE,
             log_requests=log_requests,
             creds_cache_path=creds_cache_path,
+            scopes=scopes or self.DEFAULT_SCOPES,
             oauth_login_redirect_host=oauth_login_redirect_host,
+            base_url=self.BASE_URL,
+            headless_auth_link_callback=headless_auth_link_callback,
         )
 
         self._my_drive: Drive

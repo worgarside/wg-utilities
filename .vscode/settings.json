@@ -27,5 +27,5 @@
   "launches": {
     "PythonCurrentFile": "Python: Current File"
   },
-  "python.testing.autoTestDiscoverOnSaveEnabled": false
+  "python.testing.autoTestDiscoverOnSaveEnabled": true
 }

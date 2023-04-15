@@ -81,6 +81,10 @@ class _XdistScheduler(LoadScopeScheduling):  # type: ignore[misc]
     def _split_scope(self, nodeid: str) -> str:
         if "devices/yamaha_yas_209" in nodeid:
             return "yamaha_yas_209-tests"
+
+        if "force_mkdir" in nodeid:
+            return "force_mkdir-tests"
+
         return nodeid
 
 

@@ -13,6 +13,7 @@ from threading import Thread
 from time import sleep, time
 from typing import Any
 from unittest.mock import ANY, MagicMock, call, patch
+from urllib.parse import urlencode
 
 from freezegun import freeze_time
 from pydantic import BaseModel, Extra
@@ -889,3 +890,134 @@ def test_temp_auth_server_property(oauth_client: OAuthClient[dict[str, Any]]) ->
     ) as mock_temp_auth_server:
         assert oauth_client.temp_auth_server == oauth_tas
         mock_temp_auth_server.assert_not_called()
+
+
+@patch.object(
+    OAuthClient,
+    "HEADLESS_MODE",
+    True,
+)
+@patch("wg_utilities.clients.oauth_client.ascii_letters", "x")
+@patch("wg_utilities.clients.oauth_client.open_browser")
+def test_headless_mode_first_time_login(
+    mock_open_browser: MagicMock,
+    oauth_client: OAuthClient[dict[str, Any]],
+    mock_requests: Mocker,
+    live_jwt_token_alt: str,
+) -> None:
+    """Test the `run_first_time_login` calls the callback correctly."""
+
+    headless_cb_called = False
+
+    def _cb(auth_link: str) -> None:
+        nonlocal headless_cb_called
+
+        # pylint: disable=line-too-long
+        redirect_uri = f"http://{oauth_client.oauth_login_redirect_host}:{oauth_client.temp_auth_server.port}/get_auth_code"
+
+        assert auth_link == oauth_client.auth_link_base + "?" + urlencode(
+            {
+                "client_id": oauth_client.client_id,
+                "redirect_uri": redirect_uri,
+                "response_type": "code",
+                "state": "x" * 32,
+                "access_type": "offline",
+                "prompt": "consent",
+            }
+        )
+
+        sleep(1)
+
+        res = get(
+            oauth_client.temp_auth_server.get_auth_code_url
+            + "?"
+            + urlencode({"code": "test_auth_code", "state": "x" * 32}),
+            timeout=5,
+        )
+
+        assert res.status_code == HTTPStatus.OK
+        assert res.reason == HTTPStatus.OK.phrase
+
+        headless_cb_called = True
+
+    oauth_client.headless_auth_link_callback = _cb
+
+    oauth_client.run_first_time_login()
+
+    assert headless_cb_called
+    mock_open_browser.assert_not_called()
+
+    assert not oauth_client.temp_auth_server.is_running
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                # pylint: disable=line-too-long
+                "url": f"{oauth_client.temp_auth_server.get_auth_code_url}?code=test_auth_code&state={'x' * 32}",
+                "method": "GET",
+                "headers": {},
+            },
+            {
+                "url": "https://api.example.com/oauth2/token",
+                "method": "POST",
+                "headers": {},
+            },
+        ],
+    )
+
+    assert oauth_client.credentials.dict(exclude_none=True) == {
+        "access_token": live_jwt_token_alt,
+        "client_id": "test_client_id",
+        "client_secret": "test_client_secret",
+        "expiry_epoch": ANY,
+        "refresh_token": "new_test_refresh_token",
+        "scope": "test_scope,test_scope_two",
+        "token_type": "Bearer",
+    }
+
+
+@patch.object(
+    OAuthClient,
+    "HEADLESS_MODE",
+    True,
+)
+@patch("wg_utilities.clients.oauth_client.ascii_letters", "x")
+@patch("wg_utilities.clients.oauth_client.open_browser")
+def test_headless_mode_first_time_login_missing_callback(
+    mock_open_browser: MagicMock,
+    oauth_client: OAuthClient[dict[str, Any]],
+    caplog: LogCaptureFixture,
+) -> None:
+    """Test the `run_first_time_login` logs the auth link with no callback."""
+
+    oauth_client.scopes = ["test_scope", "test_scope_two"]
+
+    with patch.object(OAuthClient, "temp_auth_server") as mock_temp_auth_server:
+        mock_temp_auth_server.port = 5000
+        mock_temp_auth_server.wait_for_request.return_value = {
+            "state": "x" * 32,
+            "code": "test_auth_code",
+        }
+        oauth_client.run_first_time_login()
+
+    mock_open_browser.assert_not_called()
+
+    assert (
+        "Headless mode is enabled, but no headless auth link callback "
+        "has been set. The auth link will not be opened."
+    ) in caplog.text
+
+    auth_link_params = {
+        "client_id": oauth_client.client_id,
+        "redirect_uri": "http://localhost:5000/get_auth_code",
+        "response_type": "code",
+        "state": "x" * 32,
+        "access_type": "offline",
+        "prompt": "consent",
+        "scope": "test_scope test_scope_two",
+    }
+
+    assert (
+        f"Auth link: {oauth_client.auth_link_base}?{urlencode(auth_link_params)}"
+    ) in caplog.text

@@ -2,7 +2,7 @@
 """Custom client for interacting with TrueLayer's API."""
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
 from logging import DEBUG, getLogger
@@ -524,7 +524,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
     ACCESS_TOKEN_ENDPOINT = "https://auth.truelayer.com/connect/token"
     BASE_URL = "https://api.truelayer.com"
 
-    ALL_SCOPES = [
+    DEFAULT_SCOPES = [
         "info",
         "accounts",
         "balance",
@@ -544,6 +544,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
         oauth_login_redirect_host: str = "localhost",
+        headless_auth_link_callback: Callable[[str], None] | None = None,
         bank: Bank,
     ):
         super().__init__(
@@ -566,8 +567,9 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
                     ]
                 )
             ),
-            scopes=scopes or self.ALL_SCOPES,
+            scopes=scopes or self.DEFAULT_SCOPES,
             oauth_login_redirect_host=oauth_login_redirect_host,
+            headless_auth_link_callback=headless_auth_link_callback,
         )
 
         self.bank = bank
