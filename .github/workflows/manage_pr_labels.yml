@@ -152,17 +152,24 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set Auto-Merge on PR
+        if: ${{ github.repository }} != 'worgarside/github-config-files'
         env:
           GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
-          PR_TITLE:
-          GH_CONFIG_FILES_OVERRIDE: >
-            --subject "${{ github.event.pull_request.title }}"
-            --body "${{ github.repository }}#${{ github.event.pull_request.number }}"
-        # yamllint disable rule:line-length
         run: |
-          gh pr merge "${{ github.event.pull_request.html_url }}"\
+          gh pr merge "${{ github.event.pull_request.html_url }}" \
+            --delete-branch \
+            --squash \
+            --auto
+
+      - name: Set Auto-Merge on PR (GHCF)
+        if: ${{ github.repository }} == 'worgarside/github-config-files'
+        env:
+          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          gh pr merge "${{ github.event.pull_request.html_url }}" \
             --delete-branch \
             --squash \
             --auto \
-            ${{ github.repository == 'worgarside/github-config-files' && env.GH_CONFIG_FILES_OVERRIDE || '' }}
-        # yamllint enable rule:line-length
+            --subject "$PR_TITLE" \
+            --body "${{ github.repository }}#${{ github.event.pull_request.number }}"
