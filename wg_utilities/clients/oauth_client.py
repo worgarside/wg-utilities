@@ -604,7 +604,7 @@ class OAuthClient(Generic[GetJsonResponse]):
                     "Headless mode is enabled, but no headless auth link callback "
                     "has been set. The auth link will not be opened."
                 )
-                LOGGER.debug(auth_link)
+                LOGGER.debug("Auth link: %s", auth_link)
             else:
                 LOGGER.info("Sending auth link to callback")
                 self.headless_auth_link_callback(auth_link)

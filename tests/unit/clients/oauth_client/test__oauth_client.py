@@ -975,3 +975,49 @@ def test_headless_mode_first_time_login(
         "scope": "test_scope,test_scope_two",
         "token_type": "Bearer",
     }
+
+
+@patch.object(
+    OAuthClient,
+    "HEADLESS_MODE",
+    True,
+)
+@patch("wg_utilities.clients.oauth_client.ascii_letters", "x")
+@patch("wg_utilities.clients.oauth_client.open_browser")
+def test_headless_mode_first_time_login_missing_callback(
+    mock_open_browser: MagicMock,
+    oauth_client: OAuthClient[dict[str, Any]],
+    caplog: LogCaptureFixture,
+) -> None:
+    """Test the `run_first_time_login` logs the auth link with no callback."""
+
+    oauth_client.scopes = ["test_scope", "test_scope_two"]
+
+    with patch.object(OAuthClient, "temp_auth_server") as mock_temp_auth_server:
+        mock_temp_auth_server.port = 5000
+        mock_temp_auth_server.wait_for_request.return_value = {
+            "state": "x" * 32,
+            "code": "test_auth_code",
+        }
+        oauth_client.run_first_time_login()
+
+    mock_open_browser.assert_not_called()
+
+    assert (
+        "Headless mode is enabled, but no headless auth link callback "
+        "has been set. The auth link will not be opened."
+    ) in caplog.text
+
+    auth_link_params = {
+        "client_id": oauth_client.client_id,
+        "redirect_uri": "http://localhost:5000/get_auth_code",
+        "response_type": "code",
+        "state": "x" * 32,
+        "access_type": "offline",
+        "prompt": "consent",
+        "scope": "test_scope test_scope_two",
+    }
+
+    assert (
+        f"Auth link: {oauth_client.auth_link_base}?{urlencode(auth_link_params)}"
+    ) in caplog.text
