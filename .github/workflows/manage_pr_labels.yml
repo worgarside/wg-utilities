@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: srvaroa/labeler@v1.5.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN || secrets.GITHUB_TOKEN }}
 
   set_release_label:
     name: Set Release Label
@@ -92,7 +92,7 @@ jobs:
           gh pr edit ${{ github.event.pull_request.number }} \
             --add-label "${{ steps.derive-label.outputs.release-label}},release"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Summarise
         # yamllint disable rule:line-length
@@ -139,7 +139,7 @@ jobs:
               github.event.action == 'auto_merge_enabled' && 'add' || 'remove'
             }}-label "keep-updated" || :
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN || secrets.GITHUB_TOKEN }}
 
   set-auto-merge:
     name: Set Auto Merge
