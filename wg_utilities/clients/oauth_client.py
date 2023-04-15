@@ -231,6 +231,8 @@ class OAuthClient(Generic[GetJsonResponse]):
     ] = {}
     DEFAULT_SCOPES: list[str] = []
 
+    HEADLESS_MODE = getenv("WG_UTILITIES_HEADLESS_MODE", "0") == "1"
+
     def __init__(
         self,
         *,
@@ -243,6 +245,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         access_token_endpoint: str | None = None,
         auth_link_base: str | None = None,
         base_url: str | None = None,
+        headless_auth_link_callback: Callable[[str], None] | None = None,
     ):
         self._client_id = client_id
         self._client_secret = client_secret
@@ -252,6 +255,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         self.log_requests = log_requests
         self._creds_cache_path = creds_cache_path
         self.oauth_login_redirect_host = oauth_login_redirect_host
+        self.headless_auth_link_callback = headless_auth_link_callback
 
         self.scopes = scopes or self.DEFAULT_SCOPES
 
@@ -580,23 +584,32 @@ class OAuthClient(Generic[GetJsonResponse]):
         # pylint: disable=line-too-long
         redirect_uri = f"http://{self.oauth_login_redirect_host}:{self.temp_auth_server.port}/get_auth_code"
 
-        auth_link = (
-            self.auth_link_base
-            + "?"
-            + urlencode(
-                {
-                    "client_id": self._client_id,
-                    "redirect_uri": redirect_uri,
-                    "response_type": "code",
-                    "state": state_token,
-                    "scope": " ".join(self.scopes),
-                    "access_type": "offline",
-                    "prompt": "consent",
-                }
-            )
-        )
-        LOGGER.debug("Opening %s", auth_link)
-        open_browser(auth_link)
+        auth_link_params = {
+            "client_id": self._client_id,
+            "redirect_uri": redirect_uri,
+            "response_type": "code",
+            "state": state_token,
+            "access_type": "offline",
+            "prompt": "consent",
+        }
+
+        if self.scopes:
+            auth_link_params["scope"] = " ".join(self.scopes)
+
+        auth_link = self.auth_link_base + "?" + urlencode(auth_link_params)
+
+        if self.HEADLESS_MODE:
+            if self.headless_auth_link_callback is None:
+                LOGGER.warning(
+                    "Headless mode is enabled, but no headless auth link callback "
+                    "has been set. The auth link will not be opened."
+                )
+                LOGGER.debug(auth_link)
+            else:
+                LOGGER.info("Sending auth link to callback")
+                self.headless_auth_link_callback(auth_link)
+        else:
+            open_browser(auth_link)
 
         request_args = self.temp_auth_server.wait_for_request(
             "/get_auth_code", kill_on_request=True

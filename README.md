@@ -10,10 +10,20 @@
 
 Loads of useful stuff for the things I do :)
 
-### To-Do List
+## To-Do List
  - [ ] Finish README
  - [x] Add Coverage Badge
  - [ ] Sphinx docs
+
+## Environment Variables
+
+| Name | Description | Default |
+|------|-------------|---------|
+| `HA_LOG_ENDPOINT` | The HomeAssistant **host** to send logs to | `homeassistant.local:8001` |
+| `SUPPRESS_WG_UTILS_IGNORANCE` | If set to `"1"`, will suppress warnings about ignored exceptions caught in the `on_exception` [decorator](https://github.com/worgarside/wg-utilities/blob/main/wg_utilities/exceptions/__init__.py#L67) | `null` |
+| `WG_UTILITIES_CREDS_CACHE_DIR` | The directory to store the credentials cache in | `<App Data Dir>/WgUtilities/oauth_credentials/` |
+| `WG_UTILITIES_HEADLESS_MODE` | If set to `"1"`, allows a callback to be provided to OAuth clients instead of opening the auth link directly in the browser. Useful for running on headless devices. | `"-"` |
+
 
 ### Unit Test Coverage
 

@@ -1,6 +1,7 @@
 """Custom client for interacting with Google's Fit API."""
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal, TypedDict
@@ -202,6 +203,7 @@ class GoogleFitClient(GoogleClient[Any]):
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
         oauth_login_redirect_host: str = "localhost",
+        headless_auth_link_callback: Callable[[str], None] | None = None,
     ):
         super().__init__(
             client_id=client_id,
@@ -211,6 +213,7 @@ class GoogleFitClient(GoogleClient[Any]):
             scopes=scopes or self.DEFAULT_SCOPES,
             oauth_login_redirect_host=oauth_login_redirect_host,
             base_url=self.BASE_URL,
+            headless_auth_link_callback=headless_auth_link_callback,
         )
 
         self.data_sources: dict[str, DataSource] = {}
