@@ -9,6 +9,10 @@
     description: Pull requests that update a dependency file
     color: 0366D6
 
+  - name: documentation
+    color: 0075CA
+    description: Improvements or additions to documentation
+
   - name: enhancement
     description: New feature or request
     color: A2EEEF

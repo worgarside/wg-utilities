@@ -12,6 +12,11 @@ labels:
       - ^poetry\.lock$
       - ^Pipfile\.lock$
 
+  - label: documentation
+    files:
+      - ^docs/.+$
+      - ^.+\.md$
+
   - label: enhancement
     branch: ^feature\/
 
