@@ -784,6 +784,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
     external_ids: dict[str, str] | None
     genres: list[str] | None
     images: list[Image]
+    is_playable: bool | None
     label: str | None
     popularity: int | None
     release_date_precision: Literal["year", "month", "day"] | None
@@ -952,7 +953,7 @@ class Track(SpotifyEntity[TrackFullJson]):
     explicit: bool
     external_ids: dict[str, str] | None
     is_local: bool
-    is_playable: str | None
+    is_playable: bool | None
     linked_from: TrackFullJson | None
     popularity: int | None
     preview_url: str | None
