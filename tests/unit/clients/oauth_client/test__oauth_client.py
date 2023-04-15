@@ -13,7 +13,7 @@ from threading import Thread
 from time import sleep, time
 from typing import Any
 from unittest.mock import ANY, MagicMock, call, patch
-from urllib.parse import quote_plus, urlencode
+from urllib.parse import urlencode
 
 from freezegun import freeze_time
 from pydantic import BaseModel, Extra
@@ -918,7 +918,7 @@ def test_headless_mode_first_time_login(
         assert auth_link == oauth_client.auth_link_base + "?" + urlencode(
             {
                 "client_id": oauth_client.client_id,
-                "redirect_uri": quote_plus(redirect_uri),
+                "redirect_uri": redirect_uri,
                 "response_type": "code",
                 "state": "x" * 32,
                 "access_type": "offline",
