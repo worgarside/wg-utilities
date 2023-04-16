@@ -193,7 +193,7 @@ class _GoogleDriveEntity(GenericModelWithConfig):
 
         if (
             not _block_describe_call
-            and google_client.item_metadata_retrieval == ItemMetadataRetrieval.ON_INIT
+            and google_client.item_metadata_retrieval == IMR.ON_INIT
             and hasattr(instance, "describe")
         ):
             instance.describe()
@@ -456,8 +456,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
                 try:
                     file_fields = (
                         "*"
-                        if self.google_client.item_metadata_retrieval
-                        == ItemMetadataRetrieval.ON_INIT
+                        if self.google_client.item_metadata_retrieval == IMR.ON_INIT
                         else "id, name, parents, mimeType, kind"
                     )
 
@@ -622,8 +621,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
             # TODO replace these with a `file_fields` property
             file_fields = (
                 "*"
-                if self.google_client.item_metadata_retrieval
-                == ItemMetadataRetrieval.ON_INIT
+                if self.google_client.item_metadata_retrieval == IMR.ON_INIT
                 else "id, name, parents, mimeType, kind"
             )
 
@@ -669,8 +667,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
         if self._files_loaded is not True:
             file_fields = (
                 "*"
-                if self.google_client.item_metadata_retrieval
-                == ItemMetadataRetrieval.ON_INIT
+                if self.google_client.item_metadata_retrieval == IMR.ON_INIT
                 else "id, name, parents, mimeType, kind"
             )
 
@@ -806,10 +803,7 @@ class File(_GoogleDriveEntity):
 
         if name not in self.__fields_set__ or not super().__getattribute__(name):
             # If IMR is enabled, load all metadata
-            if (
-                self.google_client.item_metadata_retrieval
-                == ItemMetadataRetrieval.ON_FIRST_REQUEST
-            ):
+            if self.google_client.item_metadata_retrieval == IMR.ON_FIRST_REQUEST:
                 self.describe()
                 return super().__getattribute__(name)
 
@@ -1136,8 +1130,7 @@ class Drive(_CanHaveChildren):
         """
         file_fields = (
             "*"
-            if self.google_client.item_metadata_retrieval
-            == ItemMetadataRetrieval.ON_INIT
+            if self.google_client.item_metadata_retrieval == IMR.ON_INIT
             else "id, name, parents, mimeType, kind"
         )
 
@@ -1209,8 +1202,7 @@ class Drive(_CanHaveChildren):
         # item anyway
         file_fields = (
             "*"
-            if self.google_client.item_metadata_retrieval
-            == ItemMetadataRetrieval.ON_INIT
+            if self.google_client.item_metadata_retrieval == IMR.ON_INIT
             else "id, name, parents, mimeType, kind"
         )
 
@@ -1338,8 +1330,7 @@ class Drive(_CanHaveChildren):
 
         file_fields = (
             "*"
-            if self.google_client.item_metadata_retrieval
-            == ItemMetadataRetrieval.ON_INIT
+            if self.google_client.item_metadata_retrieval == IMR.ON_INIT
             else "id, name, parents, mimeType, kind"
         )
 
@@ -1446,6 +1437,9 @@ class ItemMetadataRetrieval(str, Enum):
     ON_INIT = "on_init"
 
 
+IMR = ItemMetadataRetrieval
+
+
 class GoogleDriveClient(GoogleClient[JSONObj]):
     """Custom client specifically for Google's Drive API.
 
@@ -1475,9 +1469,9 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
         oauth_login_redirect_host: str = "localhost",
-        # pylint: disable=line-too-long
-        item_metadata_retrieval: ItemMetadataRetrieval = ItemMetadataRetrieval.ON_FIRST_REQUEST,
+        oauth_redirect_uri_override: str | None = None,
         headless_auth_link_callback: Callable[[str], None] | None = None,
+        item_metadata_retrieval: IMR = IMR.ON_FIRST_REQUEST,
     ):
         super().__init__(
             client_id=client_id,
@@ -1486,8 +1480,9 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
             creds_cache_path=creds_cache_path,
             scopes=scopes or self.DEFAULT_SCOPES,
             oauth_login_redirect_host=oauth_login_redirect_host,
-            base_url=self.BASE_URL,
+            oauth_redirect_uri_override=oauth_redirect_uri_override,
             headless_auth_link_callback=headless_auth_link_callback,
+            base_url=self.BASE_URL,
         )
 
         self._my_drive: Drive
