@@ -21,6 +21,7 @@ from wg_utilities.clients.oauth_client import (
     StrBytIntFlt,
 )
 from wg_utilities.functions import user_data_dir
+from wg_utilities.functions.file_management import force_mkdir
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -564,6 +565,8 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
                         ]
                     )
                 )
+
+        force_mkdir(creds_cache_path, path_is_file=True)
 
         super().__init__(
             base_url=self.BASE_URL,
