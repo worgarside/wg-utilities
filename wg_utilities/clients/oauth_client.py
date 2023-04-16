@@ -242,10 +242,11 @@ class OAuthClient(Generic[GetJsonResponse]):
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
         oauth_login_redirect_host: str = "localhost",
+        oauth_redirect_uri_override: str | None = None,
+        headless_auth_link_callback: Callable[[str], None] | None = None,
         access_token_endpoint: str | None = None,
         auth_link_base: str | None = None,
         base_url: str | None = None,
-        headless_auth_link_callback: Callable[[str], None] | None = None,
     ):
         self._client_id = client_id
         self._client_secret = client_secret
@@ -255,6 +256,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         self.log_requests = log_requests
         self._creds_cache_path = creds_cache_path
         self.oauth_login_redirect_host = oauth_login_redirect_host
+        self.oauth_redirect_uri_override = oauth_redirect_uri_override
         self.headless_auth_link_callback = headless_auth_link_callback
 
         self.scopes = scopes or self.DEFAULT_SCOPES
@@ -581,8 +583,11 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         self.temp_auth_server.start_server()
 
-        # pylint: disable=line-too-long
-        redirect_uri = f"http://{self.oauth_login_redirect_host}:{self.temp_auth_server.port}/get_auth_code"
+        if self.oauth_redirect_uri_override:
+            redirect_uri = self.oauth_redirect_uri_override
+        else:
+            # pylint: disable=line-too-long
+            redirect_uri = f"http://{self.oauth_login_redirect_host}:{self.temp_auth_server.port}/get_auth_code"
 
         auth_link_params = {
             "client_id": self._client_id,

@@ -203,6 +203,7 @@ class GoogleFitClient(GoogleClient[Any]):
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
         oauth_login_redirect_host: str = "localhost",
+        oauth_redirect_uri_override: str | None = None,
         headless_auth_link_callback: Callable[[str], None] | None = None,
     ):
         super().__init__(
@@ -212,8 +213,9 @@ class GoogleFitClient(GoogleClient[Any]):
             creds_cache_path=creds_cache_path,
             scopes=scopes or self.DEFAULT_SCOPES,
             oauth_login_redirect_host=oauth_login_redirect_host,
-            base_url=self.BASE_URL,
+            oauth_redirect_uri_override=oauth_redirect_uri_override,
             headless_auth_link_callback=headless_auth_link_callback,
+            base_url=self.BASE_URL,
         )
 
         self.data_sources: dict[str, DataSource] = {}

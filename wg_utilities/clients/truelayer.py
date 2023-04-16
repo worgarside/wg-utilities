@@ -544,6 +544,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         creds_cache_path: Path | None = None,
         scopes: list[str] | None = None,
         oauth_login_redirect_host: str = "localhost",
+        oauth_redirect_uri_override: str | None = None,
         headless_auth_link_callback: Callable[[str], None] | None = None,
         bank: Bank,
     ):
@@ -569,6 +570,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
             ),
             scopes=scopes or self.DEFAULT_SCOPES,
             oauth_login_redirect_host=oauth_login_redirect_host,
+            oauth_redirect_uri_override=oauth_redirect_uri_override,
             headless_auth_link_callback=headless_auth_link_callback,
         )
 
