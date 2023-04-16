@@ -101,7 +101,7 @@ jobs:
           git checkout $GITHUB_HEAD_REF
           git checkout develop
           git merge $GITHUB_HEAD_REF --no-edit
-          git push origin develop
+          git push origin develop --force
 
       - name: Delete Release Branch
         run: 'git push origin --delete $GITHUB_HEAD_REF || :'
