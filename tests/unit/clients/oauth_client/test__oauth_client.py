@@ -892,6 +892,9 @@ def test_temp_auth_server_property(oauth_client: OAuthClient[dict[str, Any]]) ->
         mock_temp_auth_server.assert_not_called()
 
 
+@mark.parametrize(
+    "redirect_uri_override", (None, "https://some-proxy-site.com/path/to/stuff")
+)
 @patch.object(
     OAuthClient,
     "HEADLESS_MODE",
@@ -904,21 +907,31 @@ def test_headless_mode_first_time_login(
     oauth_client: OAuthClient[dict[str, Any]],
     mock_requests: Mocker,
     live_jwt_token_alt: str,
+    redirect_uri_override: str | None,
 ) -> None:
-    """Test the `run_first_time_login` calls the callback correctly."""
+    """Test the `run_first_time_login` calls the callback correctly.
+
+    `redirect_uri` is parameterised to test that the auth link is formed correctly.
+    """
+
+    if redirect_uri_override:
+        oauth_client.oauth_redirect_uri_override = redirect_uri_override
 
     headless_cb_called = False
 
     def _cb(auth_link: str) -> None:
-        nonlocal headless_cb_called
+        nonlocal headless_cb_called, redirect_uri_override
 
         # pylint: disable=line-too-long
-        redirect_uri = f"http://{oauth_client.oauth_login_redirect_host}:{oauth_client.temp_auth_server.port}/get_auth_code"
+        expected_redirect_uri = (
+            redirect_uri_override
+            or f"http://{oauth_client.oauth_login_redirect_host}:{oauth_client.temp_auth_server.port}/get_auth_code"
+        )
 
         assert auth_link == oauth_client.auth_link_base + "?" + urlencode(
             {
                 "client_id": oauth_client.client_id,
-                "redirect_uri": redirect_uri,
+                "redirect_uri": expected_redirect_uri,
                 "response_type": "code",
                 "state": "x" * 32,
                 "access_type": "offline",
