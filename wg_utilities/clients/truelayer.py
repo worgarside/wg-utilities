@@ -566,7 +566,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
                     )
                 )
 
-        force_mkdir(creds_cache_path.parent)
+        force_mkdir(creds_cache_path, path_is_file=True)
 
         super().__init__(
             base_url=self.BASE_URL,
