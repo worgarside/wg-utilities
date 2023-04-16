@@ -140,36 +140,3 @@ jobs:
             }}-label "keep-updated" || :
         env:
           GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN || secrets.GITHUB_TOKEN }}
-
-  set-auto-merge:
-    name: Set Auto Merge
-    runs-on: ubuntu-latest
-    if: |
-      github.event.action == 'ready_for_review' &&
-      github.event.pull_request.user.login == 'worgarside-dev'
-    steps:
-      - name: Clone Repo
-        uses: actions/checkout@v3
-
-      - name: Set Auto-Merge on PR
-        if: ${{ github.repository != 'worgarside/github-config-files' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_TOKEN }}
-        run: |
-          gh pr merge "${{ github.event.pull_request.html_url }}" \
-            --delete-branch \
-            --squash \
-            --auto
-
-      - name: Set Auto-Merge on PR (GHCF)
-        if: ${{ github.repository == 'worgarside/github-config-files' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_TOKEN }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          gh pr merge "${{ github.event.pull_request.html_url }}" \
-            --delete-branch \
-            --squash \
-            --auto \
-            --subject "$PR_TITLE" \
-            --body "${{ github.repository }}#${{ github.event.pull_request.number }}"
