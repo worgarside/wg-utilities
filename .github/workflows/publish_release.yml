@@ -53,7 +53,6 @@ jobs:
     name: Build & Publish
     needs:
       - get-release-metadata
-      - test-and-scan
     uses: ./.github/workflows/build_and_publish.yml
     with:
       build_branch: ${{ github.base_ref }}
@@ -68,7 +67,6 @@ jobs:
     needs:
       - build-and-publish
       - get-release-metadata
-      - test-and-scan
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
