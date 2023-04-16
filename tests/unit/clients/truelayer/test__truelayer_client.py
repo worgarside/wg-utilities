@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from http import HTTPStatus
+from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
@@ -14,38 +15,66 @@ from requests_mock import Mocker
 from tests.conftest import assert_mock_requests_request_history
 from wg_utilities.clients.oauth_client import OAuthCredentials
 from wg_utilities.clients.truelayer import Account, Bank, Card, TrueLayerClient
+from wg_utilities.functions.file_management import user_data_dir
 
 
-def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
+@mark.parametrize(
+    "default_cache_dir",
+    (
+        None,
+        str(Path(__file__).parent / ".wg-utilities" / "oauth_credentials"),
+    ),
+)
+def test_instantiation(
+    fake_oauth_credentials: OAuthCredentials, default_cache_dir: str | None
+) -> None:
     """Test that a `TrueLayerClient` can be instantiated."""
 
-    truelayer_client = TrueLayerClient(
-        client_id=fake_oauth_credentials.client_id,
-        client_secret=fake_oauth_credentials.client_secret,
-        bank=Bank.ALLIED_IRISH_BANK_CORPORATE,
-    )
+    with patch.object(TrueLayerClient, "DEFAULT_CACHE_DIR", default_cache_dir):
+        truelayer_client = TrueLayerClient(
+            client_id=fake_oauth_credentials.client_id,
+            client_secret=fake_oauth_credentials.client_secret,
+            bank=Bank.ALLIED_IRISH_BANK_CORPORATE,
+        )
 
-    assert isinstance(truelayer_client, TrueLayerClient)
-    assert truelayer_client.client_id == fake_oauth_credentials.client_id
-    assert truelayer_client.client_secret == fake_oauth_credentials.client_secret
-    assert truelayer_client.bank == Bank.ALLIED_IRISH_BANK_CORPORATE
-    assert truelayer_client.log_requests is False
-    assert truelayer_client.scopes == [
-        "info",
-        "accounts",
-        "balance",
-        "cards",
-        "transactions",
-        "direct_debits",
-        "standing_orders",
-        "offline_access",
-    ]
+        assert isinstance(truelayer_client, TrueLayerClient)
+        assert truelayer_client.client_id == fake_oauth_credentials.client_id
+        assert truelayer_client.client_secret == fake_oauth_credentials.client_secret
+        assert truelayer_client.bank == Bank.ALLIED_IRISH_BANK_CORPORATE
+        assert truelayer_client.log_requests is False
+        assert truelayer_client.scopes == [
+            "info",
+            "accounts",
+            "balance",
+            "cards",
+            "transactions",
+            "direct_debits",
+            "standing_orders",
+            "offline_access",
+        ]
 
-    # Ensure credential caches are separate for each bank
-    assert (
-        f"{Bank.ALLIED_IRISH_BANK_CORPORATE.name.lower()}.json"
-        == truelayer_client.creds_cache_path.name
-    )
+        # Ensure credential caches are separate for each bank
+        assert (
+            f"{Bank.ALLIED_IRISH_BANK_CORPORATE.name.lower()}.json"
+            == truelayer_client.creds_cache_path.name
+        )
+        print(truelayer_client.creds_cache_path)
+        if default_cache_dir:
+            assert truelayer_client.DEFAULT_CACHE_DIR == default_cache_dir
+            assert truelayer_client.creds_cache_path == Path(
+                default_cache_dir
+            ).joinpath(
+                "TrueLayerClient",
+                "test_client_id",
+                f"{Bank.ALLIED_IRISH_BANK_CORPORATE.name.lower()}.json",
+            )
+        else:
+            assert truelayer_client.creds_cache_path == user_data_dir().joinpath(
+                "oauth_credentials",
+                "TrueLayerClient",
+                "test_client_id",
+                f"{Bank.ALLIED_IRISH_BANK_CORPORATE.name.lower()}.json",
+            )
 
 
 @mark.parametrize(

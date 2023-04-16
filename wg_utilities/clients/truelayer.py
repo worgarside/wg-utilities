@@ -548,6 +548,23 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         headless_auth_link_callback: Callable[[str], None] | None = None,
         bank: Bank,
     ):
+        if not creds_cache_path:
+            if self.DEFAULT_CACHE_DIR:
+                creds_cache_path = Path(self.DEFAULT_CACHE_DIR).joinpath(
+                    type(self).__name__, client_id, f"{bank.name.lower()}.json"
+                )
+            else:
+                creds_cache_path = user_data_dir(
+                    file_name=sep.join(
+                        [
+                            "oauth_credentials",
+                            type(self).__name__,
+                            client_id,
+                            f"{bank.name.lower()}.json",
+                        ]
+                    )
+                )
+
         super().__init__(
             base_url=self.BASE_URL,
             access_token_endpoint=self.ACCESS_TOKEN_ENDPOINT,
@@ -557,17 +574,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
             log_requests=log_requests,
             # TrueLayer shares the same Client ID for all banks, so override the
             # default to separate by bank
-            creds_cache_path=creds_cache_path
-            or user_data_dir(
-                file_name=sep.join(
-                    [
-                        "oauth_credentials",
-                        type(self).__name__,
-                        client_id,
-                        f"{bank.name.lower()}.json",
-                    ]
-                )
-            ),
+            creds_cache_path=creds_cache_path,
             scopes=scopes or self.DEFAULT_SCOPES,
             oauth_login_redirect_host=oauth_login_redirect_host,
             oauth_redirect_uri_override=oauth_redirect_uri_override,
