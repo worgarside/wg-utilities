@@ -1294,13 +1294,13 @@ files = [
 
 [[package]]
 name = "jetson-gpio"
-version = "2.1.0"
+version = "2.1.1"
 description = "A module to control Jetson GPIO channels"
 category = "main"
 optional = true
 python-versions = "*"
 files = [
-    {file = "Jetson.GPIO-2.1.0.tar.gz", hash = "sha256:e0ea4fd0e9832560917fa85ff20781a996f3ff995d28443f382b7be3aea2f53f"},
+    {file = "Jetson.GPIO-2.1.1.tar.gz", hash = "sha256:8cd4f6d10ff13a75becfa35e2c26a17be27eba4a2459a5e451c278a205f9c757"},
 ]
 
 [[package]]
