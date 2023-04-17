@@ -550,5 +550,16 @@ class MonzoClient(OAuthClient[MonzoGJR]):
 
         return self._current_account
 
+    @property
+    def request_headers(self) -> dict[str, str]:
+        """Header to be used in requests to the API.
+
+        Returns:
+            dict: auth headers for HTTP requests
+        """
+        return {
+            "Authorization": f"Bearer {self.access_token}",
+        }
+
 
 Account.update_forward_refs()
