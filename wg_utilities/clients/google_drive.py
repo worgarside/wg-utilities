@@ -1460,6 +1460,8 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
         "https://www.googleapis.com/auth/drive.photos.readonly",
     ]
 
+    _my_drive: Drive
+
     def __init__(
         self,
         *,
@@ -1471,6 +1473,7 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
         oauth_login_redirect_host: str = "localhost",
         oauth_redirect_uri_override: str | None = None,
         headless_auth_link_callback: Callable[[str], None] | None = None,
+        use_existing_credentials_only: bool = False,
         item_metadata_retrieval: IMR = IMR.ON_FIRST_REQUEST,
     ):
         super().__init__(
@@ -1482,10 +1485,10 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
             oauth_login_redirect_host=oauth_login_redirect_host,
             oauth_redirect_uri_override=oauth_redirect_uri_override,
             headless_auth_link_callback=headless_auth_link_callback,
+            use_existing_credentials_only=use_existing_credentials_only,
             base_url=self.BASE_URL,
         )
 
-        self._my_drive: Drive
         self.item_metadata_retrieval = item_metadata_retrieval
 
     @property

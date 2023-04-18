@@ -1034,3 +1034,18 @@ def test_headless_mode_first_time_login_missing_callback(
     assert (
         f"Auth link: {oauth_client.auth_link_base}?{urlencode(auth_link_params)}"
     ) in caplog.text
+
+
+def test_use_existing_credentials_only(
+    oauth_client: OAuthClient[dict[str, Any]]
+) -> None:
+    """Test that the `use_existing_credentials_only` property works correctly."""
+
+    oauth_client.use_existing_credentials_only = True
+
+    with raises(
+        RuntimeError,
+        match="^No existing credentials found, and `use_existing_credentials_only` is "
+        "set to True$",
+    ):
+        oauth_client.run_first_time_login()

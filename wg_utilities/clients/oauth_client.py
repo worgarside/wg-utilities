@@ -244,6 +244,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         oauth_login_redirect_host: str = "localhost",
         oauth_redirect_uri_override: str | None = None,
         headless_auth_link_callback: Callable[[str], None] | None = None,
+        use_existing_credentials_only: bool = False,
         access_token_endpoint: str | None = None,
         auth_link_base: str | None = None,
         base_url: str | None = None,
@@ -258,6 +259,7 @@ class OAuthClient(Generic[GetJsonResponse]):
         self.oauth_login_redirect_host = oauth_login_redirect_host
         self.oauth_redirect_uri_override = oauth_redirect_uri_override
         self.headless_auth_link_callback = headless_auth_link_callback
+        self.use_existing_credentials_only = use_existing_credentials_only
 
         self.scopes = scopes or self.DEFAULT_SCOPES
 
@@ -576,7 +578,19 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         This is a blocking call which will not return until the user has
         authenticated with the OAuth provider.
+
+        Raises:
+            RuntimeError: if `use_existing_credentials_only` is set to True
+            ValueError: if the state token returned by the OAuth provider does not
+                match
         """
+
+        if self.use_existing_credentials_only:
+            raise RuntimeError(
+                "No existing credentials found, and `use_existing_credentials_only` "
+                "is set to True"
+            )
+
         LOGGER.info("Performing first time login")
 
         state_token = "".join(choice(ascii_letters) for _ in range(32))
