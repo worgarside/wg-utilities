@@ -205,6 +205,7 @@ class GoogleFitClient(GoogleClient[Any]):
         oauth_login_redirect_host: str = "localhost",
         oauth_redirect_uri_override: str | None = None,
         headless_auth_link_callback: Callable[[str], None] | None = None,
+        use_existing_credentials_only: bool = False,
     ):
         super().__init__(
             client_id=client_id,
@@ -215,6 +216,7 @@ class GoogleFitClient(GoogleClient[Any]):
             oauth_login_redirect_host=oauth_login_redirect_host,
             oauth_redirect_uri_override=oauth_redirect_uri_override,
             headless_auth_link_callback=headless_auth_link_callback,
+            use_existing_credentials_only=use_existing_credentials_only,
             base_url=self.BASE_URL,
         )
 
