@@ -6,7 +6,6 @@ on:
   pull_request:
     types:
       - ready_for_review
-      - opened
 
 concurrency:
   group: set-auto-merge-${{ github.event.pull_request.number }}
@@ -20,13 +19,7 @@ jobs:
   set-auto-merge:
     name: Set Auto Merge
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-    if: |
-      github.event.action == 'ready_for_review' &&
-      github.event.pull_request.user.login == 'worgarside-dev' ||
-      github.event.action == 'opened' &&
-      github.event.pull_request.user.login == 'dependabot[bot]'
+    if: ${{ github.event.pull_request.user.login == 'worgarside-dev' }}
     steps:
       - name: Clone Repo
         uses: actions/checkout@v3
