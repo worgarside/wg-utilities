@@ -26,15 +26,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - name: Log GitHub Context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        continue-on-error: true
-        run: |
-          echo -e "\`\`\`json\n$GITHUB_CONTEXT\n\`\`\`" >> $GITHUB_STEP_SUMMARY
-
-      - name: Label PR
-        uses: srvaroa/labeler@v1.5.0
+      - uses: srvaroa/labeler@v1.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN || secrets.GITHUB_TOKEN }}
 
