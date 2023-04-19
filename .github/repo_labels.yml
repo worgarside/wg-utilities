@@ -5,6 +5,10 @@
     color: D73A4A
     description: Something isn't working
 
+  - name: chore
+    color: 8B4513
+    description: Regular code maintenance
+
   - name: dependencies
     description: Pull requests that update a dependency file
     color: 0366D6
