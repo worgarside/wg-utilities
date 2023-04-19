@@ -19,6 +19,10 @@ from tests.unit.clients.spotify.conftest import snapshot_id_request
 from wg_utilities.clients import SpotifyClient
 from wg_utilities.clients.spotify import Playlist, Track, User
 
+SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID = (
+    "MzI1LGE0MDI4NzhiZGUzYWU3ZDY0MzFjYmI5ZGVjOGFmMDhlMGE0N2Y4ZTE="
+)
+
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:
     """Test that the `Playlist` class instantiates correctly."""
@@ -230,10 +234,7 @@ def test_live_snapshot_id(
 ) -> None:
     """Test that the `Playlist.live_snapshot_id` property works as expected."""
 
-    assert (
-        spotify_playlist_alt.snapshot_id
-        == "MzI1LGE0MDI4NzhiZGUzYWU3ZDY0MzFjYmI5ZGVjOGFmMDhlMGE0N2Y4ZTE="
-    )
+    assert spotify_playlist_alt.snapshot_id == SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID
 
     assert not hasattr(spotify_playlist_alt, "_live_snapshot_id")
     assert not hasattr(spotify_playlist_alt, "_live_snapshot_id_timestamp")
@@ -249,10 +250,7 @@ def test_live_snapshot_id(
     assert spotify_playlist_alt._live_snapshot_id == "new-snapshot-id"
     assert spotify_playlist_alt.live_snapshot_id == "new-snapshot-id"
 
-    assert (
-        spotify_playlist_alt.snapshot_id
-        == "MzI1LGE0MDI4NzhiZGUzYWU3ZDY0MzFjYmI5ZGVjOGFmMDhlMGE0N2Y4ZTE="
-    )
+    assert spotify_playlist_alt.snapshot_id == SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID
 
 
 def test_tracks_property_updates_snapshot_id(
@@ -281,17 +279,15 @@ def test_tracks_property_updates_snapshot_id(
         ]
     )
 
-    assert (
-        spotify_playlist_alt.snapshot_id
-        == "MzI1LGE0MDI4NzhiZGUzYWU3ZDY0MzFjYmI5ZGVjOGFmMDhlMGE0N2Y4ZTE="
-    )
+    assert spotify_playlist_alt.snapshot_id == SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID
 
     # First call should add a value to the `_live_snapshot_id` attribute
     _ = spotify_playlist_alt.tracks
 
     assert (
-        spotify_playlist_alt._live_snapshot_id
-        == "MzI1LGE0MDI4NzhiZGUzYWU3ZDY0MzFjYmI5ZGVjOGFmMDhlMGE0N2Y4ZTE="
+        spotify_playlist_alt.snapshot_id
+        == spotify_playlist_alt._live_snapshot_id
+        == SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID
     )
 
     assert_mock_requests_request_history(mock_requests.request_history, track_requests)
@@ -301,8 +297,11 @@ def test_tracks_property_updates_snapshot_id(
     # Second call should be update `snapshot_id` to the new value
     _ = spotify_playlist_alt.tracks
 
-    assert spotify_playlist_alt.snapshot_id == "new-snapshot-id"
-    assert spotify_playlist_alt._live_snapshot_id == "new-snapshot-id"
+    assert (
+        spotify_playlist_alt.snapshot_id
+        == spotify_playlist_alt._live_snapshot_id
+        == "new-snapshot-id"
+    )
 
     assert_mock_requests_request_history(
         mock_requests.request_history,
