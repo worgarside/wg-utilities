@@ -24,7 +24,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
                         "external_urls": {
                             "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
                         },
-                        "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+                        "href": f"{SpotifyClient.BASE_URL}/artists/37YzpfBeFju8QRZ3g0Ha1Q",
                         "id": "37YzpfBeFju8QRZ3g0Ha1Q",
                         "name": "DJ Seinfeld",
                         "type": "artist",
@@ -35,7 +35,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
                 "external_urls": {
                     "spotify": "https://open.spotify.com/album/7FvnTARvgjUyWnUT0flUN7"
                 },
-                "href": "https://api.spotify.com/v1/albums/7FvnTARvgjUyWnUT0flUN7",
+                "href": f"{SpotifyClient.BASE_URL}/albums/7FvnTARvgjUyWnUT0flUN7",
                 "id": "7FvnTARvgjUyWnUT0flUN7",
                 "images": [
                     {
@@ -66,7 +66,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
                     "external_urls": {
                         "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
                     },
-                    "href": "https://api.spotify.com/v1/artists/37YzpfBeFju8QRZ3g0Ha1Q",
+                    "href": f"{SpotifyClient.BASE_URL}/artists/37YzpfBeFju8QRZ3g0Ha1Q",
                     "id": "37YzpfBeFju8QRZ3g0Ha1Q",
                     "name": "DJ Seinfeld",
                     "type": "artist",
@@ -81,7 +81,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
             "external_urls": {
                 "spotify": "https://open.spotify.com/track/27cgqh0VRhVeM61ugTnorD"
             },
-            "href": "https://api.spotify.com/v1/tracks/27cgqh0VRhVeM61ugTnorD",
+            "href": f"{SpotifyClient.BASE_URL}/tracks/27cgqh0VRhVeM61ugTnorD",
             "id": "27cgqh0VRhVeM61ugTnorD",
             "is_local": False,
             "name": "These Things Will Come To Be",
@@ -146,9 +146,9 @@ def test_audio_features_property(
         "type": "audio_features",
         "id": "27cgqh0VRhVeM61ugTnorD",
         "uri": "spotify:track:27cgqh0VRhVeM61ugTnorD",
-        "track_href": "https://api.spotify.com/v1/tracks/27cgqh0VRhVeM61ugTnorD",
+        "track_href": f"{SpotifyClient.BASE_URL}/tracks/27cgqh0VRhVeM61ugTnorD",
         # pylint: disable=line-too-long
-        "analysis_url": "https://api.spotify.com/v1/audio-analysis/27cgqh0VRhVeM61ugTnorD",
+        "analysis_url": f"{SpotifyClient.BASE_URL}/audio-analysis/27cgqh0VRhVeM61ugTnorD",
         "duration_ms": 296360,
         "time_signature": 4,
     }
@@ -160,7 +160,7 @@ def test_audio_features_property(
         [
             {
                 # pylint: disable=line-too-long
-                "url": "https://api.spotify.com/v1/audio-features/27cgqh0VRhVeM61ugTnorD",
+                "url": f"{SpotifyClient.BASE_URL}/audio-features/27cgqh0VRhVeM61ugTnorD",
                 "method": "GET",
                 "headers": {
                     "Authorization": f"Bearer {live_jwt_token}",
@@ -199,7 +199,7 @@ def test_audio_features_not_found(
 
     assert str(exc_info.value) == (
         "500 Server Error: Internal Server Error for url: "
-        "https://api.spotify.com/v1/audio-features/0YHujB8olZYDC3GwYEHbG8"
+        f"{SpotifyClient.BASE_URL}/audio-features/0YHujB8olZYDC3GwYEHbG8"
     )
 
     mock_requests.get(

@@ -27,7 +27,7 @@ def test_summary_json_is_correct(
     assert spotify_entity.summary_json == {
         "id": "0gxyHStUsqpMadRV0Di1Qt",
         "uri": "spotify:artist:0gxyHStUsqpMadRV0Di1Qt",
-        "href": "https://api.spotify.com/v1/artists/0gxyHStUsqpMadRV0Di1Qt",
+        "href": f"{SpotifyClient.BASE_URL}/artists/0gxyHStUsqpMadRV0Di1Qt",
         "external_urls": {
             "spotify": "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt",
         },
@@ -102,7 +102,7 @@ def test_eq(
     )
 
     assert spotify_entity != SpotifyEntity[SpotifyBaseEntityJson](
-        href="https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+        href=f"{SpotifyClient.BASE_URL}/artists/1Ma3pJzPIrAyYPNRkp3SUF",
         id="1Ma3pJzPIrAyYPNRkp3SUF",
         uri="spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF",
         external_urls={

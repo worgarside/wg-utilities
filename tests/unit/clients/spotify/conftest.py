@@ -38,7 +38,7 @@ def snapshot_id_request(playlist_id: str, jwt: str) -> dict[str, str | dict[str,
 
     return {
         "method": "GET",
-        "url": f"https://api.spotify.com/v1/playlists/{playlist_id}?fields=snapshot_id",
+        "url": f"{SpotifyClient.BASE_URL}/playlists/{playlist_id}?fields=snapshot_id",
         "headers": {"Authorization": f"Bearer {jwt}"},
     }
 
@@ -119,7 +119,7 @@ def _spotify_entity(
 
     return SpotifyEntity.from_json_response(
         {
-            "href": "https://api.spotify.com/v1/artists/0gxyHStUsqpMadRV0Di1Qt",
+            "href": f"{SpotifyClient.BASE_URL}/artists/0gxyHStUsqpMadRV0Di1Qt",
             "id": "0gxyHStUsqpMadRV0Di1Qt",
             "uri": "spotify:artist:0gxyHStUsqpMadRV0Di1Qt",
             "external_urls": {
@@ -262,7 +262,7 @@ def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
     )
 
     mock_requests_root.post(
-        "https://api.spotify.com/v1/users/worgarside/playlists",
+        f"{SpotifyClient.BASE_URL}/users/worgarside/playlists",
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
         json=spotify_create_playlist_callback,

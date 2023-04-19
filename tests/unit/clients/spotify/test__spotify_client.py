@@ -214,7 +214,7 @@ def test_get_items_from_url_no_pagination(
     """Test that the `get_items_from_url` method processes a single page correctly."""
 
     items = spotify_client.get_items(
-        url="https://api.spotify.com/v1/artists/1ma3pjzpirayypnrkp3suf/albums"
+        url=f"{SpotifyClient.BASE_URL}/artists/1ma3pjzpirayypnrkp3suf/albums"
     )
     assert len(mock_requests.request_history) == 1
 
@@ -227,7 +227,7 @@ def test_get_items_from_url_with_pagination(
     """Test that the `get_items_from_url` method processes multiple pages correctly."""
 
     items = spotify_client.get_items(
-        url="https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks"
+        url=f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks"
     )
     # Not testing all request details as it's covered by
     # `tests.unit.clients.spotify.test__playlist.test_tracks_property`
@@ -250,7 +250,7 @@ def test_get_items_from_url_handles_params_correctly(
     """Test that the `params` dict are turned into a query string correctly."""
 
     mock_requests.get(
-        "https://api.spotify.com/v1/foo?key=value&query=string&limit=50",
+        f"{SpotifyClient.BASE_URL}/foo?key=value&query=string&limit=50",
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
     )
@@ -261,7 +261,7 @@ def test_get_items_from_url_handles_params_correctly(
         mock_requests.request_history,
         [
             {
-                "url": "https://api.spotify.com/v1/foo?key=value&query=string&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/foo?key=value&query=string&limit=50",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -278,7 +278,7 @@ def test_get_items_from_url_hard_limit(
     """Test the `hard_limit` argument works correctly."""
 
     items = spotify_client.get_items(
-        url="https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
+        url=f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
         hard_limit=75,
     )
 
@@ -289,7 +289,7 @@ def test_get_items_from_url_hard_limit(
         [
             # pylint: disable=line-too-long
             {
-                "url": "https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?limit=50",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -297,7 +297,7 @@ def test_get_items_from_url_hard_limit(
                 },
             },
             {
-                "url": "https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?offset=50&limit=25",
+                "url": f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?offset=50&limit=25",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -316,7 +316,7 @@ def test_get_items_from_url_limit_func(
     """Test that a limit function can be passed to `get_items_from_url`."""
 
     items = spotify_client.get_items(
-        url="https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
+        url=f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
         limit_func=lambda item: datetime.strptime(
             item["added_at"],  # type: ignore[typeddict-item]
             spotify_client.DATETIME_FORMAT,
@@ -349,7 +349,7 @@ def test_get_items_from_url_limit_func(
         [
             # pylint: disable=line-too-long
             {
-                "url": "https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?limit=50",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -357,7 +357,7 @@ def test_get_items_from_url_limit_func(
                 },
             },
             {
-                "url": "https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?offset=50&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?offset=50&limit=50",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -365,7 +365,7 @@ def test_get_items_from_url_limit_func(
                 },
             },
             {
-                "url": "https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?offset=100&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?offset=100&limit=50",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -373,7 +373,7 @@ def test_get_items_from_url_limit_func(
                 },
             },
             {
-                "url": "https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?offset=150&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?offset=150&limit=50",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -381,7 +381,7 @@ def test_get_items_from_url_limit_func(
                 },
             },
             {
-                "url": "https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?offset=200&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?offset=200&limit=50",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -389,7 +389,7 @@ def test_get_items_from_url_limit_func(
                 },
             },
             {
-                "url": "https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?offset=250&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?offset=250&limit=50",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -406,7 +406,7 @@ def test_get_items_from_url_limit_func(
     assert (
         len(
             spotify_client.get_items(
-                "https://api.spotify.com/v1/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
+                f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
                 hard_limit=75,
                 limit_func=lambda item: datetime.strptime(
                     item["added_at"],  # type: ignore[typeddict-item]
@@ -464,13 +464,13 @@ def test_get_json_response_returns_json(
     # Test when no (valid) JSON is returned
     # This is a valid case, as non-200 responses are raised by the `_get` method
     mock_requests.get(
-        "https://api.spotify.com/v1/foo",
+        f"{SpotifyClient.BASE_URL}/foo",
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
         text="",
     )
     mock_requests.get(
-        "https://api.spotify.com/v1/bar",
+        f"{SpotifyClient.BASE_URL}/bar",
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
         text="",
@@ -487,7 +487,7 @@ def test_get_json_response_returns_json(
 
     # Test a 204 No Content response
     mock_requests.get(
-        "https://api.spotify.com/v1/baz",
+        f"{SpotifyClient.BASE_URL}/baz",
         status_code=HTTPStatus.NO_CONTENT,
         reason=HTTPStatus.NO_CONTENT.phrase,
     )
@@ -511,7 +511,7 @@ def test_get_json_response_returns_json(
             "Mirrors",
             Album,
             "album",
-            "https://api.spotify.com/v1/search?query=mirrors&type=album&limit=1",
+            f"{SpotifyClient.BASE_URL}/search?query=mirrors&type=album&limit=1",
             "v1/albums/7FvnTARvgjUyWnUT0flUN7.json",
         ),
         # pylint: disable=line-too-long
@@ -519,21 +519,21 @@ def test_get_json_response_returns_json(
             "Ross from Friends",
             Artist,
             "artist",
-            "https://api.spotify.com/v1/search?query=ross+from+friends&type=artist&limit=1",
+            f"{SpotifyClient.BASE_URL}/search?query=ross+from+friends&type=artist&limit=1",
             "v1/artists/1Ma3pJzPIrAyYPNRkp3SUF.json",
         ),
         (
             "Chill Electronica",
             Playlist,
             "playlist",
-            "https://api.spotify.com/v1/search?query=Chill+Electronica&type=playlist&limit=1",
+            f"{SpotifyClient.BASE_URL}/search?query=Chill+Electronica&type=playlist&limit=1",
             "v1/playlists/2lmx8fu0seq7ea5kcmlnpx.json",
         ),
         (
             "Past Life Tame Impala",
             Track,
             "track",
-            "https://api.spotify.com/v1/search?query=past+life+tame+impala&type=track&limit=1",
+            f"{SpotifyClient.BASE_URL}/search?query=past+life+tame+impala&type=track&limit=1",
             "v1/tracks/4a9fw33myr8lhxboluhbff.json",
         ),
     ],
@@ -594,7 +594,7 @@ def test_search_method_get_best_match_only_multiple_entity_types_throws_error(
 
     # Check that the error isn't raised when `get_best_match_only` is False
     mock_requests.get(
-        "https://api.spotify.com/v1/search?query=mirrors&type=album%2cartist&limit=50",
+        f"{SpotifyClient.BASE_URL}/search?query=mirrors&type=album%2cartist&limit=50",
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
     )
@@ -635,7 +635,7 @@ def test_search_method_with_pagination(
         [
             # pylint: disable=line-too-long
             {
-                "url": "https://api.spotify.com/v1/search?query=uncommon+search&type=track&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/search?query=uncommon+search&type=track&limit=50",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -643,7 +643,7 @@ def test_search_method_with_pagination(
                 },
             },
             {
-                "url": "https://api.spotify.com/v1/search?query=uncommon+search&type=track&offset=50&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/search?query=uncommon+search&type=track&offset=50&limit=50",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -651,7 +651,7 @@ def test_search_method_with_pagination(
                 },
             },
             {
-                "url": "https://api.spotify.com/v1/search?query=uncommon+search&type=track&offset=100&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/search?query=uncommon+search&type=track&offset=100&limit=50",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -659,7 +659,7 @@ def test_search_method_with_pagination(
                 },
             },
             {
-                "url": "https://api.spotify.com/v1/search?query=uncommon+search&type=track&offset=150&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/search?query=uncommon+search&type=track&offset=150&limit=50",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -724,7 +724,7 @@ def test_current_user_property(
         mock_requests.request_history,
         [
             {
-                "url": "https://api.spotify.com/v1/me",
+                "url": f"{SpotifyClient.BASE_URL}/me",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -766,7 +766,7 @@ def test_add_tracks_to_playlist(
         [
             {
                 # pylint: disable=line-too-long
-                "url": "https://api.spotify.com/v1/playlists/4Vv023MaZsc8NTWZ4WJvIL/tracks",
+                "url": f"{SpotifyClient.BASE_URL}/playlists/4Vv023MaZsc8NTWZ4WJvIL/tracks",
                 "method": "POST",
                 "headers": {
                     "Content-Type": "application/json",
@@ -807,7 +807,7 @@ def test_add_tracks_to_playlist_ignores_tracks_already_in_playlist(
     # To avoid re-pulling all tracks
     mock_requests.get(
         # pylint: disable=line-too-long
-        "https://api.spotify.com/v1/playlists/4Vv023MaZsc8NTWZ4WJvIL?fields=snapshot_id",
+        f"{SpotifyClient.BASE_URL}/playlists/4Vv023MaZsc8NTWZ4WJvIL?fields=snapshot_id",
         json={"snapshot_id": playlist_to_add_to.snapshot_id},
     )
 
@@ -874,7 +874,7 @@ def test_get_album_by_id_method(
         mock_requests.request_history,
         [
             {
-                "url": f"https://api.spotify.com/v1/albums/{album_id}",
+                "url": f"{SpotifyClient.BASE_URL}/albums/{album_id}",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -903,7 +903,7 @@ def test_get_artist_by_id_method(
         mock_requests.request_history,
         [
             {
-                "url": f"https://api.spotify.com/v1/artists/{artist_id}",
+                "url": f"{SpotifyClient.BASE_URL}/artists/{artist_id}",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -940,7 +940,7 @@ def test_get_playlist_by_id_method(
         mock_requests.request_history,
         [
             {
-                "url": f"https://api.spotify.com/v1/playlists/{playlist_id}",
+                "url": f"{SpotifyClient.BASE_URL}/playlists/{playlist_id}",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
@@ -996,7 +996,7 @@ def test_get_track_by_id_method(
         mock_requests.request_history,
         [
             {
-                "url": f"https://api.spotify.com/v1/tracks/{track_id}",
+                "url": f"{SpotifyClient.BASE_URL}/tracks/{track_id}",
                 "method": "GET",
                 "headers": {
                     "Content-Type": "application/json",
