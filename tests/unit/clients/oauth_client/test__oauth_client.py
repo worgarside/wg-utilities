@@ -17,7 +17,7 @@ from urllib.parse import urlencode
 
 from freezegun import freeze_time
 from pydantic import BaseModel, Extra
-from pytest import LogCaptureFixture, mark, raises
+from pytest import LogCaptureFixture, approx, mark, raises
 from requests import HTTPError, get, post
 from requests_mock import Mocker
 
@@ -134,13 +134,14 @@ def test_oauth_credentials_update_access_token(
     oauth_client: OAuthClient[dict[str, Any]], fake_oauth_credentials: OAuthCredentials
 ) -> None:
     """Test the `update_access_token` method updates the access token."""
+
     assert oauth_client.access_token == fake_oauth_credentials.access_token
-    assert oauth_client.credentials.expiry_epoch < time() + 3600
+    assert oauth_client.credentials.expiry_epoch == approx(int(time()) + 3600, abs=5)
 
     oauth_client.credentials.update_access_token(
-        "new_access_token", expires_in=3700, refresh_token="new_refresh_token"
+        "new_access_token", expires_in=7200, refresh_token="new_refresh_token"
     )
-    assert not oauth_client.credentials.expiry_epoch < time() + 3600
+    assert oauth_client.credentials.expiry_epoch == approx(int(time()) + 7200, abs=5)
 
     assert oauth_client.access_token == "new_access_token"
     assert oauth_client.credentials.refresh_token == "new_refresh_token"
@@ -152,7 +153,7 @@ def test_oauth_credentials_is_expired_property(
     """Test the `is_expired` property."""
     assert fake_oauth_credentials.is_expired is False
 
-    with freeze_time(datetime.utcnow() + timedelta(seconds=3600)):
+    with freeze_time(datetime.fromtimestamp(fake_oauth_credentials.expiry_epoch + 1)):
         assert fake_oauth_credentials.is_expired is True
 
 

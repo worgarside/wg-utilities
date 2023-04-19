@@ -77,7 +77,7 @@ class _ModelBase:
             self.__class__, model_dict, self.__class__  # type: ignore[arg-type]
         )
 
-        if validation_error:
+        if validation_error:  # pragma: no cover
             LOGGER.error(repr(validation_error))
             raise validation_error
 
@@ -225,7 +225,10 @@ class OAuthClient(Generic[GetJsonResponse]):
 
     ACCESS_TOKEN_EXPIRY_THRESHOLD = 150
 
-    DEFAULT_CACHE_DIR = getenv("WG_UTILITIES_CREDS_CACHE_DIR")
+    # Second env var added for compatibility
+    DEFAULT_CACHE_DIR = getenv(
+        "WG_UTILITIES_CACHE_DIR", getenv("WG_UTILITIES_CREDS_CACHE_DIR")
+    )
     DEFAULT_PARAMS: dict[
         StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None
     ] = {}
@@ -697,7 +700,8 @@ class OAuthClient(Generic[GetJsonResponse]):
                 return True
 
         return (
-            self.credentials.expiry_epoch < time() + self.ACCESS_TOKEN_EXPIRY_THRESHOLD
+            self.credentials.expiry_epoch
+            < int(time()) + self.ACCESS_TOKEN_EXPIRY_THRESHOLD
         )
 
     @property

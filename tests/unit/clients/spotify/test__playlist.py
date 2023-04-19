@@ -1,9 +1,12 @@
+# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.clients.spotify.Playlist`."""
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from os import listdir
 
+from freezegun import freeze_time
 from pytest import mark, raises
 from requests_mock import Mocker
 
@@ -12,8 +15,13 @@ from tests.conftest import (
     assert_mock_requests_request_history,
     read_json_file,
 )
+from tests.unit.clients.spotify.conftest import snapshot_id_request
 from wg_utilities.clients import SpotifyClient
 from wg_utilities.clients.spotify import Playlist, Track, User
+
+SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID = (
+    "MzI1LGE0MDI4NzhiZGUzYWU3ZDY0MzFjYmI5ZGVjOGFmMDhlMGE0N2Y4ZTE="
+)
 
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:
@@ -63,7 +71,7 @@ def test_tracks_property(
     expected_requests = [
         {
             # pylint: disable=line-too-long
-            "url": f"https://api.spotify.com/v1/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks?offset={(i+1)*50}&limit=50",
+            "url": f"{SpotifyClient.BASE_URL}/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks?offset={(i+1)*50}&limit=50",
             "method": "GET",
             "headers": {"Authorization": f"Bearer {live_jwt_token}"},
         }
@@ -73,7 +81,7 @@ def test_tracks_property(
         0,
         {
             # pylint: disable=line-too-long
-            "url": "https://api.spotify.com/v1/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks?limit=50",
+            "url": f"{SpotifyClient.BASE_URL}/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks?limit=50",
             "method": "GET",
             "headers": {"Authorization": f"Bearer {live_jwt_token}"},
         },
@@ -219,3 +227,104 @@ def test_lt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) ->
     # Special cases:
     assert not spotify_playlist < spotify_playlist
     assert not spotify_owned_playlist < spotify_owned_playlist
+
+
+def test_live_snapshot_id(
+    spotify_playlist_alt: Playlist,
+) -> None:
+    """Test that the `Playlist.live_snapshot_id` property works as expected."""
+
+    assert spotify_playlist_alt.snapshot_id == SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID
+
+    assert not hasattr(spotify_playlist_alt, "_live_snapshot_id")
+    assert not hasattr(spotify_playlist_alt, "_live_snapshot_id_timestamp")
+
+    with freeze_time(frozen_time := datetime.utcnow()):
+        # Because a different value is in the `fields=snapshot_id.json` stub
+        assert spotify_playlist_alt.live_snapshot_id != spotify_playlist_alt.snapshot_id
+
+    assert spotify_playlist_alt._live_snapshot_id != spotify_playlist_alt.snapshot_id
+
+    assert spotify_playlist_alt._live_snapshot_id_timestamp == frozen_time
+
+    assert spotify_playlist_alt._live_snapshot_id == "new-snapshot-id"
+    assert spotify_playlist_alt.live_snapshot_id == "new-snapshot-id"
+
+    assert spotify_playlist_alt.snapshot_id == SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID
+
+
+def test_tracks_property_updates_snapshot_id(
+    spotify_playlist_alt: Playlist, mock_requests: Mocker, live_jwt_token: str
+) -> None:
+    """Test that the `Playlist.tracks` property updates the snapshot ID correctly."""
+
+    track_requests: list[dict[str, str | dict[str, str]]] = [
+        {
+            # pylint: disable=line-too-long
+            "url": f"{SpotifyClient.BASE_URL}/playlists/{spotify_playlist_alt.id}/tracks?limit=50",
+            "method": "GET",
+            "headers": {"Authorization": f"Bearer {live_jwt_token}"},
+        },
+    ]
+
+    track_requests.extend(
+        [
+            {
+                # pylint: disable=line-too-long
+                "url": f"{SpotifyClient.BASE_URL}/playlists/{spotify_playlist_alt.id}/tracks?offset={(i+1)*50}&limit=50",  # noqa: E501
+                "method": "GET",
+                "headers": {"Authorization": f"Bearer {live_jwt_token}"},
+            }
+            for i in range(7)
+        ]
+    )
+
+    assert spotify_playlist_alt.snapshot_id == SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID
+
+    # First call should add a value to the `_live_snapshot_id` attribute
+    _ = spotify_playlist_alt.tracks
+
+    assert (
+        spotify_playlist_alt.snapshot_id
+        == spotify_playlist_alt._live_snapshot_id
+        == SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID
+    )
+
+    assert_mock_requests_request_history(mock_requests.request_history, track_requests)
+
+    mock_requests.reset_mock()
+
+    # Second call should be update `snapshot_id` to the new value
+    _ = spotify_playlist_alt.tracks
+
+    assert (
+        spotify_playlist_alt.snapshot_id
+        == spotify_playlist_alt._live_snapshot_id
+        == "new-snapshot-id"
+    )
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [snapshot_id_request(spotify_playlist_alt.id, live_jwt_token), *track_requests],
+    )
+
+    mock_requests.reset_mock()
+
+    # Third call should not make any requests
+    _ = spotify_playlist_alt.tracks
+
+    assert not mock_requests.request_history
+
+    mock_requests.reset_mock()
+
+    # After a minute the only call should be to check the snapshot ID
+
+    with freeze_time(frozen_time := datetime.utcnow() + timedelta(minutes=1)):
+        _ = spotify_playlist_alt.tracks
+
+    assert spotify_playlist_alt._live_snapshot_id_timestamp == frozen_time
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [snapshot_id_request(spotify_playlist_alt.id, live_jwt_token)],
+    )
