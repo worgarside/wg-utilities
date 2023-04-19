@@ -1066,6 +1066,36 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
     _owner: User
 
     sj_type: ClassVar[type_[SpotifyEntityJson]] = PlaylistSummaryJson
+    _live_snapshot_id_timestamp: datetime
+    _live_snapshot_id: str
+
+    @property
+    def live_snapshot_id(self) -> str:
+        """The live snapshot ID of the playlist.
+
+        Returns:
+            str: the live snapshot ID of the playlist
+        """
+        if (
+            not hasattr(self, "_live_snapshot_id_timestamp")
+            or not hasattr(self, "_live_snapshot_id")
+            or datetime.utcnow() - self._live_snapshot_id_timestamp
+            > timedelta(minutes=1)
+        ):
+            self._set_private_attr(
+                "_live_snapshot_id",
+                self.spotify_client.get_json_response(
+                    f"/playlists/{self.id}", params={"fields": "snapshot_id"}
+                )[
+                    "snapshot_id"  # type: ignore[typeddict-item]
+                ],
+            )
+            self._set_private_attr(
+                "_live_snapshot_id_timestamp",
+                datetime.utcnow(),
+            )
+
+        return self._live_snapshot_id
 
     @property
     def owner(self) -> User:
@@ -1093,7 +1123,7 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
             list: a list of tracks in this playlist
         """
 
-        if not hasattr(self, "_tracks"):
+        if not hasattr(self, "_tracks") or self.updates_available:
             tracks = [
                 Track.from_json_response(
                     item["track"],
@@ -1108,7 +1138,21 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
 
             self._set_private_attr("_tracks", tracks)
 
+            if hasattr(self, "_live_snapshot_id"):
+                self.snapshot_id = self._live_snapshot_id
+            else:
+                self._set_private_attr("_live_snapshot_id", self.snapshot_id)
+
         return self._tracks
+
+    @property
+    def updates_available(self) -> bool:
+        """Check if the playlist has updates available.
+
+        Returns:
+            bool: whether the playlist has updates available
+        """
+        return self.live_snapshot_id != self.snapshot_id
 
     def __contains__(self, track: Track) -> bool:
         """Check if a track is in the playlist."""

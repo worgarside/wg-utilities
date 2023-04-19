@@ -131,7 +131,7 @@ def test_tracks_property_no_json(
     assert (
         mock_requests.last_request
         and mock_requests.last_request.url
-        == "https://api.spotify.com/v1/albums/7FvnTARvgjUyWnUT0flUN7/tracks?limit=50"
+        == f"{SpotifyClient.BASE_URL}/albums/7FvnTARvgjUyWnUT0flUN7/tracks?limit=50"
     )
 
 
@@ -156,7 +156,7 @@ def test_tracks_property_paginates(
         [
             # pylint: disable=line-too-long
             {
-                "url": "https://api.spotify.com/v1/albums/6tb9drnfh9z4sq0pexbbnd/tracks?offset=50&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/albums/6tb9drnfh9z4sq0pexbbnd/tracks?offset=50&limit=50",
                 "method": "GET",
                 "headers": {
                     "Authorization": f"Bearer {live_jwt_token}",
@@ -164,7 +164,7 @@ def test_tracks_property_paginates(
                 },
             },
             {
-                "url": "https://api.spotify.com/v1/albums/6tb9drnfh9z4sq0pexbbnd/tracks?offset=100&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/albums/6tb9drnfh9z4sq0pexbbnd/tracks?offset=100&limit=50",
                 "method": "GET",
                 "headers": {
                     "Authorization": f"Bearer {live_jwt_token}",

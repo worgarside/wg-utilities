@@ -34,7 +34,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
             "explicit_content": {"filter_enabled": False, "filter_locked": False},
             "external_urls": {"spotify": "https://open.spotify.com/user/worgarside"},
             "followers": {"href": None, "total": 13},
-            "href": "https://api.spotify.com/v1/users/worgarside",
+            "href": f"{SpotifyClient.BASE_URL}/users/worgarside",
             "id": "worgarside",
             "images": [
                 {
@@ -59,7 +59,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
         "explicit_content": {"filter_enabled": False, "filter_locked": False},
         "external_urls": {"spotify": "https://open.spotify.com/user/worgarside"},
         "followers": {"href": None, "total": 13},
-        "href": "https://api.spotify.com/v1/users/worgarside",
+        "href": f"{SpotifyClient.BASE_URL}/users/worgarside",
         "id": "worgarside",
         "images": [
             {
@@ -137,17 +137,17 @@ def test_get_recently_liked_tracks_track_limit(
         mock_requests.request_history,
         [
             {
-                "url": "https://api.spotify.com/v1/me/tracks?limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/tracks?limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/me/tracks?offset=50&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/tracks?offset=50&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/me/tracks?offset=100&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/tracks?offset=100&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
@@ -185,7 +185,7 @@ def test_get_recently_liked_tracks_day_limit(
         mock_requests.request_history,
         [
             {
-                "url": "https://api.spotify.com/v1/me/tracks?limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/tracks?limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
@@ -308,12 +308,12 @@ def test_albums_property(
         mock_requests.request_history,
         [
             {
-                "url": "https://api.spotify.com/v1/me/albums?limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/albums?limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/me/albums?offset=50&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/albums?offset=50&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
@@ -361,17 +361,17 @@ def test_artists_property(
         [
             # pylint: disable=line-too-long
             {
-                "url": "https://api.spotify.com/v1/me/following?type=artist&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/following?type=artist&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/me/following?type=artist&after=3iOvXCl6edW5Um0fXEBRXy&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/following?type=artist&after=3iOvXCl6edW5Um0fXEBRXy&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/me/following?type=artist&after=77BznF1Dr1k5KyEZ6Nn3jB&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/following?type=artist&after=77BznF1Dr1k5KyEZ6Nn3jB&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
@@ -399,7 +399,7 @@ def test_current_track_property(
         mock_requests.request_history,
         [
             {
-                "url": "https://api.spotify.com/v1/me/player/currently-playing",
+                "url": f"{SpotifyClient.BASE_URL}/me/player/currently-playing",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
@@ -414,7 +414,7 @@ def test_current_track_nothing_playing(
 ) -> None:
     """Test that `current_track` property returns None if nothing is playing."""
     mock_requests.get(
-        "https://api.spotify.com/v1/me/player/currently-playing",
+        f"{SpotifyClient.BASE_URL}/me/player/currently-playing",
         status_code=HTTPStatus.NO_CONTENT,
         reason=HTTPStatus.NO_CONTENT.phrase,
     )
@@ -444,12 +444,12 @@ def test_current_playlist_property(
         mock_requests.request_history,
         [
             {
-                "url": "https://api.spotify.com/v1/me/player/currently-playing",
+                "url": f"{SpotifyClient.BASE_URL}/me/player/currently-playing",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/playlists/2lMx8FU0SeQ7eA5kcMlNpX",
+                "url": f"{SpotifyClient.BASE_URL}/playlists/2lMx8FU0SeQ7eA5kcMlNpX",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
@@ -464,7 +464,7 @@ def test_current_playlist_nothing_playing(
 ) -> None:
     """Test that `current_playlist` property returns None if nothing is playing."""
     mock_requests.get(
-        "https://api.spotify.com/v1/me/player/currently-playing",
+        f"{SpotifyClient.BASE_URL}/me/player/currently-playing",
         status_code=HTTPStatus.NO_CONTENT,
         reason=HTTPStatus.NO_CONTENT.phrase,
     )
@@ -490,7 +490,7 @@ def test_devices_property(
         mock_requests.request_history,
         [
             {
-                "url": "https://api.spotify.com/v1/me/player/devices?limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/player/devices?limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
@@ -523,22 +523,22 @@ def test_playlist_property(
         [
             # pylint: disable=line-too-long
             {
-                "url": "https://api.spotify.com/v1/me/playlists?limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/playlists?limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/users/worgarside/playlists?offset=50&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/users/worgarside/playlists?offset=50&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/users/worgarside/playlists?offset=100&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/users/worgarside/playlists?offset=100&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/users/worgarside/playlists?offset=150&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/users/worgarside/playlists?offset=150&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
@@ -569,7 +569,7 @@ def test_top_artists_property(
         [
             {
                 # pylint: disable=line-too-long
-                "url": "https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/top/artists?time_range=short_term&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
@@ -596,7 +596,7 @@ def test_top_tracks_property(
         [
             {
                 # pylint: disable=line-too-long
-                "url": "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/top/tracks?time_range=short_term&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
@@ -622,27 +622,27 @@ def test_tracks_property(
         mock_requests.request_history,
         [
             {
-                "url": "https://api.spotify.com/v1/me/tracks?limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/tracks?limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/me/tracks?offset=50&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/tracks?offset=50&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/me/tracks?offset=100&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/tracks?offset=100&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/me/tracks?offset=150&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/tracks?offset=150&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },
             {
-                "url": "https://api.spotify.com/v1/me/tracks?offset=200&limit=50",
+                "url": f"{SpotifyClient.BASE_URL}/me/tracks?offset=200&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             },

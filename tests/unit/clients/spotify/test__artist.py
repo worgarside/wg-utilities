@@ -14,7 +14,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
         },
         "followers": {"href": None, "total": 147955},
         "genres": ["deep house", "electronica", "float house", "lo-fi house"],
-        "href": "https://api.spotify.com/v1/artists/1Ma3pJzPIrAyYPNRkp3SUF",
+        "href": f"{SpotifyClient.BASE_URL}/artists/1Ma3pJzPIrAyYPNRkp3SUF",
         "id": "1Ma3pJzPIrAyYPNRkp3SUF",
         "images": [
             # pylint: disable=line-too-long
