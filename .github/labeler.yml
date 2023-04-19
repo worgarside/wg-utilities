@@ -7,6 +7,9 @@ labels:
   - label: bug
     branch: ^bugfix\/
 
+  - label: chore
+    branch: ^chore\/
+
   - label: dependencies
     files:
       - ^poetry\.lock$
