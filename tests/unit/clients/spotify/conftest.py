@@ -1,6 +1,8 @@
+# pylint: disable=protected-access
 """Fixtures for the Spotify client tests."""
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from http import HTTPStatus
 from pathlib import Path
 from re import IGNORECASE
@@ -29,6 +31,16 @@ from wg_utilities.clients.spotify import (
     User,
 )
 from wg_utilities.functions.json import JSONObj
+
+
+def snapshot_id_request(playlist_id: str, jwt: str) -> dict[str, str | dict[str, str]]:
+    """Create a `mock_requests` request for assertions."""
+
+    return {
+        "method": "GET",
+        "url": f"https://api.spotify.com/v1/playlists/{playlist_id}?fields=snapshot_id",
+        "headers": {"Authorization": f"Bearer {jwt}"},
+    }
 
 
 def spotify_create_playlist_callback(
@@ -126,8 +138,33 @@ def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
     https://open.spotify.com/playlist/2lMx8FU0SeQ7eA5kcMlNpX
     """
 
-    return Playlist.from_json_response(
+    playlist = Playlist.from_json_response(
         read_json_file("v1/playlists/2lmx8fu0seq7ea5kcmlnpx.json", host_name="spotify"),
+        spotify_client=spotify_client,
+    )
+
+    playlist._set_private_attr(
+        "_live_snapshot_id",
+        playlist.snapshot_id,
+    )
+    playlist._set_private_attr(
+        "_live_snapshot_id_timestamp",
+        datetime.utcnow() + timedelta(hours=21),
+    )
+
+    return playlist
+
+
+@fixture(scope="function", name="spotify_playlist_alt")
+def _spotify_playlist_alt(spotify_client: SpotifyClient) -> Playlist:
+    """Fixture for creating an an alternate `Playlist` instance.
+
+    JAMBOX Jams
+    https://open.spotify.com/playlist/4Vv023MaZsc8NTWZ4WJvIL
+    """
+
+    return Playlist.from_json_response(
+        read_json_file("v1/playlists/4vv023mazsc8ntwz4wjvil.json", host_name="spotify"),
         spotify_client=spotify_client,
     )
 

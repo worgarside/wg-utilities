@@ -18,6 +18,7 @@ from tests.conftest import (
     assert_mock_requests_request_history,
     read_json_file,
 )
+from tests.unit.clients.spotify.conftest import snapshot_id_request
 from wg_utilities.clients import SpotifyClient
 from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson
 from wg_utilities.clients.oauth_client import OAuthCredentials
@@ -794,7 +795,7 @@ def test_add_tracks_to_playlist(
 
 
 def test_add_tracks_to_playlist_ignores_tracks_already_in_playlist(
-    spotify_client: SpotifyClient, mock_requests: Mocker
+    spotify_client: SpotifyClient, mock_requests: Mocker, live_jwt_token: str
 ) -> None:
     """Test that tracks which are already in the playlist are ignored."""
 
@@ -803,13 +804,23 @@ def test_add_tracks_to_playlist_ignores_tracks_already_in_playlist(
 
     mock_requests.reset()
 
+    # To avoid re-pulling all tracks
+    mock_requests.get(
+        # pylint: disable=line-too-long
+        "https://api.spotify.com/v1/playlists/4Vv023MaZsc8NTWZ4WJvIL?fields=snapshot_id",
+        json={"snapshot_id": playlist_to_add_to.snapshot_id},
+    )
+
     spotify_client.add_tracks_to_playlist(
         tracks_to_add,
         playlist_to_add_to,
         update_instance_tracklist=True,
     )
 
-    assert not mock_requests.request_history
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [snapshot_id_request("4Vv023MaZsc8NTWZ4WJvIL", live_jwt_token)],
+    )
 
 
 @mark.parametrize(

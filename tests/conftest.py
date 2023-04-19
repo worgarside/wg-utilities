@@ -290,7 +290,7 @@ def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
         access_token=live_jwt_token,
         client_id="test_client_id",
         client_secret="test_client_secret",
-        expiry_epoch=time() + 3600,
+        expiry_epoch=int(time()) + 3600,
         refresh_token="test_refresh_token",
         scope="test_scope,test_scope_two",
         token_type="Bearer",
