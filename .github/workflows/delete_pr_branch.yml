@@ -8,9 +8,33 @@ on:
 
 jobs:
   delete-branch:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
+      - name: Clone Repo
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Check if `bot:delete-on-merge` Label is set
+        id: check
+        run: |
+          echo "should-delete=$(
+            echo "${{ github.event.pull_request.labels }}" |
+              jq -r '.[].name' |
+              grep -q "bot:delete-on-merge" && echo "true" || echo "false"
+          )" >> $GITHUB_OUTPUT
+
       - name: Delete Branch
-        uses: SvanBoxel/delete-merged-branch@main
+        if: |
+          steps.check.outputs.should-delete == 'true' || !(
+            startsWith(github.head_ref, 'hotfix/') ||
+            startsWith(github.head_ref, 'release/') ||
+            github.head_ref == 'develop' ||
+            github.head_ref == 'main' ||
+            github.head_ref == 'master' ||
+            github.head_ref == 'homeassistant.local'
+          )
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN || secrets.GITHUB_TOKEN }}
+        run: git push origin --delete $GITHUB_HEAD_REF
