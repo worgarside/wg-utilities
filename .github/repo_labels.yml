@@ -9,6 +9,10 @@
     color: 8B4513
     description: Regular code maintenance
 
+  - name: bot:delete-on-merge
+    description: Delete this branch after merging (bot command)
+    color: 8B0000
+
   - name: dependencies
     description: Pull requests that update a dependency file
     color: 0366D6
