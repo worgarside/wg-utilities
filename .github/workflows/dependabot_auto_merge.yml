@@ -15,5 +15,5 @@ jobs:
       - name: Merge Dependabot PRs
         uses: ahmadnassri/action-dependabot-auto-merge@v2
         with:
-          target: major
+          target: minor
           github-token: ${{ secrets.GH_PAT }}
