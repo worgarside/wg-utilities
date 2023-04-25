@@ -79,7 +79,7 @@ repos:
           - --preserve-quotes
 
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.30.0
+    rev: v1.31.0
     hooks:
       - id: yamllint
         args:
@@ -156,6 +156,6 @@ repos:
           - tomli
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.261
+    rev: v0.0.262
     hooks:
       - id: ruff
