@@ -32,6 +32,7 @@ labels:
       - ^.+\.py$
 
   - label: release
+    base-branch: ^(main|homeassistant\.local)"
     branch: ^release\/
 
   - label: tests
