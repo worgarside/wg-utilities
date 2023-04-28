@@ -35,8 +35,7 @@ jobs:
             startsWith(github.head_ref, 'release/') ||
             github.head_ref == 'develop' ||
             github.head_ref == 'main' ||
-            github.head_ref == 'master' ||
-            github.head_ref == 'homeassistant.local'
+            github.head_ref == 'master'
           )
         env:
           GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}

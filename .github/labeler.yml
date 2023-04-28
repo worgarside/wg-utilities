@@ -5,10 +5,10 @@ appendOnly: true
 
 labels:
   - label: bug
-    branch: ^bugfix\/
+    branch: ^bugfix/.+$
 
   - label: chore
-    branch: ^chore\/
+    branch: ^chore/.+$
 
   - label: dependencies
     files:
@@ -21,7 +21,7 @@ labels:
       - ^.+\.md$
 
   - label: enhancement
-    branch: ^feature\/
+    branch: ^feature/.+$
 
   - label: github-actions
     files:
@@ -32,8 +32,8 @@ labels:
       - ^.+\.py$
 
   - label: release
-    base-branch: ^(main|homeassistant\.local)"
-    branch: ^release\/
+    base-branch: ^main$
+    branch: ^release/.+$
 
   - label: tests
     files:
