@@ -114,9 +114,10 @@ jobs:
           REQUIRED_LABELS_ANY: bug,dependencies,hasspi-sync,hotfix,major,minor,non-functional,patch,sync
 
   edit-keep-updated-label:
-    name: |
-      Edit `keep-updated` label
-    if: startsWith(github.event.action, 'auto_merge_')
+    name: Edit `keep-updated` label
+    if: |
+      startsWith(github.event.action, 'auto_merge_') &&
+      !startsWith(github.head_ref, 'release/')
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -133,6 +134,6 @@ jobs:
           gh pr edit ${{ github.event.pull_request.number }} \
             --${{
               github.event.action == 'auto_merge_enabled' && 'add' || 'remove'
-            }}-label "keep-updated" || :
+            }}-label "bot:keep-updated" || :
         env:
           GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN || secrets.GITHUB_TOKEN }}
