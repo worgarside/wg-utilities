@@ -19,18 +19,12 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
-      - name: Check if `bot:delete-on-merge` Label is set
-        id: check
-        run: |
-          echo "should-delete=$(
-            echo "${{ github.event.pull_request.labels }}" |
-              jq -r '.[].name' |
-              grep -q "bot:delete-on-merge" && echo "true" || echo "false"
-          )" >> $GITHUB_OUTPUT
-
       - name: Delete Branch
         if: |
-          steps.check.outputs.should-delete == 'true' || !(
+          contains(
+            toJson(github.event.pull_request.labels.*.name), 'bot:delete-on-merge'
+          ) ||
+          !(
             startsWith(github.head_ref, 'hotfix/') ||
             startsWith(github.head_ref, 'release/') ||
             github.head_ref == 'develop' ||
