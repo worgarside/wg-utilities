@@ -141,14 +141,14 @@ frozenlist = ">=1.1.0"
 
 [[package]]
 name = "astroid"
-version = "2.15.2"
+version = "2.15.4"
 description = "An abstract syntax tree for Python with inference support."
 category = "dev"
 optional = false
 python-versions = ">=3.7.2"
 files = [
-    {file = "astroid-2.15.2-py3-none-any.whl", hash = "sha256:dea89d9f99f491c66ac9c04ebddf91e4acf8bd711722175fe6245c0725cc19bb"},
-    {file = "astroid-2.15.2.tar.gz", hash = "sha256:6e61b85c891ec53b07471aec5878f4ac6446a41e590ede0f2ce095f39f7d49dd"},
+    {file = "astroid-2.15.4-py3-none-any.whl", hash = "sha256:a1b8543ef9d36ea777194bc9b17f5f8678d2c56ee6a45b2c2f17eec96f242347"},
+    {file = "astroid-2.15.4.tar.gz", hash = "sha256:c81e1c7fbac615037744d067a9bb5f9aeb655edf59b63ee8b59585475d6f80d8"},
 ]
 
 [package.dependencies]
@@ -1800,30 +1800,27 @@ reports = ["lxml"]
 
 [[package]]
 name = "mypy-boto3-lambda"
-version = "1.26.115"
-description = "Type annotations for boto3.Lambda 1.26.115 service generated with mypy-boto3-builder 7.14.5"
+version = "1.26.122"
+description = "Type annotations for boto3.Lambda 1.26.122 service generated with mypy-boto3-builder 7.14.5"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mypy-boto3-lambda-1.26.115.tar.gz", hash = "sha256:f612eca8f0e418e66d577b5609f0119c4934a7637ce1342d3c1cfc0d065cd42d"},
-    {file = "mypy_boto3_lambda-1.26.115-py3-none-any.whl", hash = "sha256:0d418bb0d6c16c6a83e159dae71f8c6dff663c50dab125bb1518bf6c29f2ed83"},
+    {file = "mypy-boto3-lambda-1.26.122.tar.gz", hash = "sha256:b46d153f69b407c76d17ba97390fad9285215fa3dcf484bb7d6ffa0880fca746"},
+    {file = "mypy_boto3_lambda-1.26.122-py3-none-any.whl", hash = "sha256:2839045d23b48f7a99ac3fdc71bcecde15998245c6e515b1cf2e8f589a9ae23e"},
 ]
 
 [[package]]
 name = "mypy-boto3-pinpoint"
-version = "1.26.0.post1"
-description = "Type annotations for boto3.Pinpoint 1.26.0 service generated with mypy-boto3-builder 7.11.10"
+version = "1.26.120"
+description = "Type annotations for boto3.Pinpoint 1.26.120 service generated with mypy-boto3-builder 7.14.5"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mypy-boto3-pinpoint-1.26.0.post1.tar.gz", hash = "sha256:e7a3ce2f054bbbd77e03e50a0c24bd4591295ceb6399d8fe56a377d1c3d72a1d"},
-    {file = "mypy_boto3_pinpoint-1.26.0.post1-py3-none-any.whl", hash = "sha256:0f6320115e757bddd25075bc27e17264a798d966b27493e2a13c5020221073a9"},
+    {file = "mypy-boto3-pinpoint-1.26.120.tar.gz", hash = "sha256:e1fc342edb98b6ac16a0e790ec7f6b69bed9f0459e14f7b662f44ab2d7aba68f"},
+    {file = "mypy_boto3_pinpoint-1.26.120-py3-none-any.whl", hash = "sha256:c270b5127d122c49a1fd53a4bab48b141ad73623cf9d0a5f9a26e213adb5e191"},
 ]
-
-[package.dependencies]
-typing-extensions = ">=4.1.0"
 
 [[package]]
 name = "mypy-boto3-s3"
@@ -2150,18 +2147,18 @@ tests = ["coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)"]
 
 [[package]]
 name = "pylint"
-version = "2.17.2"
+version = "2.17.3"
 description = "python code static checker"
 category = "dev"
 optional = false
 python-versions = ">=3.7.2"
 files = [
-    {file = "pylint-2.17.2-py3-none-any.whl", hash = "sha256:001cc91366a7df2970941d7e6bbefcbf98694e00102c1f121c531a814ddc2ea8"},
-    {file = "pylint-2.17.2.tar.gz", hash = "sha256:1b647da5249e7c279118f657ca28b6aaebb299f86bf92affc632acf199f7adbb"},
+    {file = "pylint-2.17.3-py3-none-any.whl", hash = "sha256:a6cbb4c6e96eab4a3c7de7c6383c512478f58f88d95764507d84c899d656a89a"},
+    {file = "pylint-2.17.3.tar.gz", hash = "sha256:761907349e699f8afdcd56c4fe02f3021ab5b3a0fc26d19a9bfdc66c7d0d5cd5"},
 ]
 
 [package.dependencies]
-astroid = ">=2.15.2,<=2.17.0-dev0"
+astroid = ">=2.15.4,<=2.17.0-dev0"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
 dill = [
     {version = ">=0.2", markers = "python_version < \"3.11\""},
