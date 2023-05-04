@@ -1,5 +1,5 @@
 ---
-name: Delete Branch on PR Merge
+name: PR Cleanup
 
 on:
   pull_request:
@@ -18,25 +18,38 @@ jobs:
     steps:
       - name: Clone Repo
         uses: actions/checkout@v3
+        # This is to stop false positives when the branch has already been deleted
+        continue-on-error: true
         with:
           ref: ${{ github.head_ref }}
 
       - name: Delete Branch
         if: |
-          contains(
-            toJson(github.event.pull_request.labels.*.name), 'bot:delete-on-merge'
-          ) ||
-          !(
-            startsWith(github.head_ref, 'hotfix/') ||
-            startsWith(github.head_ref, 'release/') ||
-            github.head_ref == 'develop' ||
-            github.head_ref == 'main' ||
-            github.head_ref == 'master'
+          success() &&
+          (
+            contains(
+              toJson(github.event.pull_request.labels.*.name), 'bot:delete-on-merge'
+            ) ||
+            !(
+              startsWith(github.head_ref, 'hotfix/') ||
+              startsWith(github.head_ref, 'release/') ||
+              github.head_ref == 'develop' ||
+              github.head_ref == 'main' ||
+              github.head_ref == 'master'
+            )
           )
         run: git push origin --delete $GITHUB_HEAD_REF
 
+  remove-bot-labels:
+    name: Remove Bot Command Labels on PR Merge
+    if: github.event.pull_request.merged == true
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
       - name: Remove Bot Labels
         env:
+          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
           PR_LABELS: ${{ join(github.event.pull_request.labels.*.name) }}
         run: |
           bot_labels=$(
@@ -48,5 +61,6 @@ jobs:
           )
           if [[ ! -z "$bot_labels" ]]; then
             gh pr edit "${{ github.event.pull_request.number }}" \
+              --repo "${{ github.repository }}" \
               --remove-label "$bot_labels"
           fi
