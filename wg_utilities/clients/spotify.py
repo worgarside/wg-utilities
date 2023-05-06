@@ -1208,6 +1208,8 @@ class User(SpotifyEntity[UserSummaryJson]):
     _top_tracks: tuple[Track, ...]
     _tracks: list[Track]
 
+    _playlist_refresh_time: datetime
+
     sj_type: ClassVar[type_[SpotifyEntityJson]] = UserSummaryJson
 
     @validator("display_name", pre=True)
@@ -1495,17 +1497,34 @@ class User(SpotifyEntity[UserSummaryJson]):
             list: a list of playlists owned by the current user
         """
 
+        if hasattr(self, "_playlist_refresh_time") and (
+            datetime.utcnow() - self._playlist_refresh_time
+        ) < timedelta(minutes=15):
+            return self._playlists
+
+        self._set_private_attr("_playlist_refresh_time", datetime.utcnow())
+
+        all_playlist_json = cast(
+            list[PlaylistSummaryJson], self.spotify_client.get_items("/me/playlists")
+        )
+
         if not hasattr(self, "_playlists"):
             playlists = [
                 Playlist.from_json_response(item, spotify_client=self.spotify_client)
-                for item in cast(
-                    list[PlaylistSummaryJson],
-                    self.spotify_client.get_items("/me/playlists"),
-                )
+                for item in all_playlist_json
                 if item["owner"]["id"] == self.id
             ]
 
             self._set_private_attr("_playlists", playlists)
+        else:
+            existing_ids = (p.id for p in self._playlists)
+            new_playlists = [
+                Playlist.from_json_response(item, spotify_client=self.spotify_client)
+                for item in all_playlist_json
+                if item["owner"]["id"] == self.id and item["id"] not in existing_ids
+            ]
+
+            self._playlists.extend(new_playlists)
 
         return self._playlists
 
@@ -1605,6 +1624,9 @@ class User(SpotifyEntity[UserSummaryJson]):
         for prop_name in property_names:
             if hasattr(self, attr_name := f"_{prop_name}"):
                 delattr(self, attr_name)
+
+        if "playlists" in property_names:
+            delattr(self, "_playlist_refresh_time")
 
 
 SpotifyEntity.update_forward_refs()
