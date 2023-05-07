@@ -1192,6 +1192,8 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
 class User(SpotifyEntity[UserSummaryJson]):
     """A Spotify user, usually just the current user."""
 
+    PLAYLIST_REFRESH_INTERVAL: ClassVar[timedelta] = timedelta(minutes=10)
+
     display_name: str
     country: str | None
     email: str | None
@@ -1497,9 +1499,11 @@ class User(SpotifyEntity[UserSummaryJson]):
             list: a list of playlists owned by the current user
         """
 
-        if hasattr(self, "_playlist_refresh_time") and (
-            datetime.utcnow() - self._playlist_refresh_time
-        ) < timedelta(minutes=15):
+        if (
+            hasattr(self, "_playlist_refresh_time")
+            and (datetime.utcnow() - self._playlist_refresh_time)
+            < self.PLAYLIST_REFRESH_INTERVAL
+        ):
             return self._playlists
 
         self._set_private_attr("_playlist_refresh_time", datetime.utcnow())

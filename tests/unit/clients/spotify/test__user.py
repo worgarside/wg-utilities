@@ -765,13 +765,13 @@ def test_playlist_refresh_time(spotify_user: User, mock_requests: Mocker) -> Non
     # There are 4 pages for the test Playlist response
     assert len(mock_requests.request_history) == 4
 
-    with freeze_time(frozen_time + timedelta(minutes=14, seconds=59)):
+    with freeze_time(frozen_time + timedelta(minutes=9, seconds=59)):
         _ = spotify_user.playlists
         assert spotify_user._playlist_refresh_time == frozen_time
 
     assert len(mock_requests.request_history) == 4
 
-    with freeze_time(new_frozen_time := frozen_time + timedelta(minutes=15, seconds=1)):
+    with freeze_time(new_frozen_time := frozen_time + timedelta(minutes=10, seconds=1)):
         _ = spotify_user.playlists
         assert spotify_user._playlist_refresh_time == new_frozen_time
 
