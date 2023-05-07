@@ -749,3 +749,30 @@ def test_reset_properties(
                 mock_requests.reset_mock()
                 getattr(spotify_user, prop_name)
                 assert mock_requests.call_count == 0
+
+
+def test_playlist_refresh_time(spotify_user: User, mock_requests: Mocker) -> None:
+    """Test that `playlist` property refreshes after 15 minutes."""
+
+    assert not mock_requests.request_history
+
+    with freeze_time(frozen_time := datetime.utcnow()):
+        assert not hasattr(spotify_user, "_playlist_refresh_time")
+        _ = spotify_user.playlists
+
+    assert spotify_user._playlist_refresh_time == frozen_time
+
+    # There are 4 pages for the test Playlist response
+    assert len(mock_requests.request_history) == 4
+
+    with freeze_time(frozen_time + timedelta(minutes=9, seconds=59)):
+        _ = spotify_user.playlists
+        assert spotify_user._playlist_refresh_time == frozen_time
+
+    assert len(mock_requests.request_history) == 4
+
+    with freeze_time(new_frozen_time := frozen_time + timedelta(minutes=10, seconds=1)):
+        _ = spotify_user.playlists
+        assert spotify_user._playlist_refresh_time == new_frozen_time
+
+    assert len(mock_requests.request_history) == 8

@@ -23,17 +23,17 @@ class _DataSourceDataTypeInfo(TypedDict):
 
 class _DataSourceDescriptionInfo(TypedDict):
     application: dict[str, str]
-    dataStreamId: str  # noqa: N815
-    dataStreamName: str  # noqa: N815
-    dataType: _DataSourceDataTypeInfo  # noqa: N815
+    dataStreamId: str
+    dataStreamName: str
+    dataType: _DataSourceDataTypeInfo
 
 
 class _GoogleFitDataPointInfo(TypedDict):
     id: str
-    startTimeNanos: str  # noqa: N815
-    endTimeNanos: str  # noqa: N815
-    dataTypeName: str  # noqa: N815
-    originDataSourceId: str  # noqa: N815
+    startTimeNanos: str
+    endTimeNanos: str
+    dataTypeName: str
+    originDataSourceId: str
     value: list[dict[str, int]]
 
 
@@ -57,7 +57,7 @@ class DataSource:
     class DataPointValueKeyLookupInfo(TypedDict):
         """Typing info for the Data Point lookup dict."""
 
-        floatPoint: Literal["fpVal"]  # noqa: N815
+        floatPoint: Literal["fpVal"]
         integer: Literal["intVal"]
 
     def __init__(self, data_source_id: str, *, google_client: GoogleFitClient):
