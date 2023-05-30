@@ -806,7 +806,6 @@ def test_add_tracks_to_playlist_ignores_tracks_already_in_playlist(
 
     # To avoid re-pulling all tracks
     mock_requests.get(
-        # pylint: disable=line-too-long
         f"{SpotifyClient.BASE_URL}/playlists/4Vv023MaZsc8NTWZ4WJvIL?fields=snapshot_id",
         json={"snapshot_id": playlist_to_add_to.snapshot_id},
     )
