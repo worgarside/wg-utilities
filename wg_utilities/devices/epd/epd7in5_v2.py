@@ -123,7 +123,7 @@ class EPD:  # noqa: D101
         buf = [0xFF] * (int(self.width / 8) * self.height)
         image_monocolor = image.convert("1")
         imwidth, imheight = image_monocolor.size
-        pixels = image_monocolor.load()  # type: ignore[func-returns-value]
+        pixels = image_monocolor.load()
         if imwidth == self.width and imheight == self.height:
             debug("Vertical")
             for y in range(imheight):
