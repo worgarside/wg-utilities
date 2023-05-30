@@ -657,14 +657,14 @@ xray = ["mypy-boto3-xray (>=1.26.0,<1.27.0)"]
 
 [[package]]
 name = "botocore"
-version = "1.29.129"
+version = "1.29.142"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "botocore-1.29.129-py3-none-any.whl", hash = "sha256:f44460236324727615c518c229690c3cc3ea3162a55a2ac242ba771e8fa41553"},
-    {file = "botocore-1.29.129.tar.gz", hash = "sha256:80370e835ccf12e0429d4c6cc0e9d03cf47b72c41ec5916b01fb9544765f314d"},
+    {file = "botocore-1.29.142-py3-none-any.whl", hash = "sha256:0677848bb8ef94d69c5d2f5c613dbab5b6710a8b7649f3fafca5172c464728b8"},
+    {file = "botocore-1.29.142.tar.gz", hash = "sha256:512d2f48fc1471f169bc210eede662f8da66be3cebc1515dfb5411a18b2aeabf"},
 ]
 
 [package.dependencies]
