@@ -114,6 +114,7 @@ def process_list(
                 target_processor_func=target_processor_func,
                 pass_on_fail=pass_on_fail,
                 log_op_func_failures=log_op_func_failures,
+                single_keys_to_remove=single_keys_to_remove,
             )
 
 
