@@ -16,7 +16,8 @@ on:
       - auto_merge_disabled
 
 concurrency:
-  group: manage-labels-${{ github.event.pull_request.number }}
+  # yamllint disable-line rule:line-length
+  group: manage-labels-${{ github.event.pull_request.number }}-${{ github.event.action }}
   cancel-in-progress: true
 
 jobs:
@@ -26,7 +27,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: srvaroa/labeler@v1.5.0
+      - uses: srvaroa/labeler@v1.6.0
         env:
           GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN || secrets.GITHUB_TOKEN }}
 
