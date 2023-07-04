@@ -50,7 +50,7 @@ def _send_fake_exception_to_home_assistant(
     expected_payload: PayloadInfo = {
         "client": str(gethostname()),
         "message": f"{type(expected_exc).__name__} in `{stack()[1].filename}`:"
-        f" {repr(expected_exc)}",
+        f" {expected_exc!r}",
         # `format_exc` doesn't seem to work in unit tests
         "traceback": ANY,
     }

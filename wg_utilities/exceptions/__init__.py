@@ -44,7 +44,7 @@ def send_exception_to_home_assistant(exc: Exception) -> None:
     """
     payload = {
         "client": gethostname(),
-        "message": f"{type(exc).__name__} in `{stack()[2].filename}`: {repr(exc)}",
+        "message": f"{type(exc).__name__} in `{stack()[2].filename}`: {exc!r}",
         "traceback": format_exc(),
     }
 

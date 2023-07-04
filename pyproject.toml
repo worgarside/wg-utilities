@@ -22,7 +22,7 @@ python = "^3.10"
 async-upnp-client = { version = "*", optional = true }
 botocore = { version = "*", optional = true }
 flask = { version = ">=2.0.2", optional = true }
-"jetson.gpio" = { version = "*", markers = "sys_platform == 'linux'", optional = true  }
+"jetson.gpio" = { version = "*", platform = "linux", optional = true }
 lxml = { version = "==4.9.2", optional = true }
 pigpio = { version = "*", optional = true }
 pillow = { version = "*", optional = true }
@@ -31,8 +31,8 @@ pyjwt = { version = ">=2.6,<2.8", optional = true }
 python-dotenv = { version = "*", optional = true }
 pytz = ">=2022.1"
 requests = { version = ">=2.26.0", optional = true }
-"rpi.gpio" = { version = "*", markers = "sys_platform == 'linux'",  optional = true }
-spidev = { version = "*", markers = "sys_platform == 'linux'", optional = true  }
+"rpi.gpio" = { version = "*", platform = "linux", optional = true }
+spidev = { version = "*", platform = "linux", optional = true }
 strenum = { version = "*", optional = true }
 tzlocal = { version = "*", optional = true }
 xmltodict = { version = "*", optional = true }
@@ -185,14 +185,15 @@ select = [
     "W",   # Pycodestyle warnings
 ]
 ignore = [
-    "D107",  # public-init
-    "D202",  # no-blank-line-after-function
-    "D203",  # one-blank-line-before-class
-    "D213",  # multi-line-summary-second-line
-    "D400",  # first-line-end-with-period
-    "D406",  # new-line-after-section-name
-    "D407",  # dashed-underline-after-section
-    "UP037", # quoted-annotation
+    "D107",   # public-init
+    "D202",   # no-blank-line-after-function
+    "D203",   # one-blank-line-before-class
+    "D213",   # multi-line-summary-second-line
+    "D400",   # first-line-end-with-period
+    "D406",   # new-line-after-section-name
+    "D407",   # dashed-underline-after-section
+    "UP037",  # quoted-annotation
+    "RUF012", # mutable-default-argument
 ]
 
 [tool.ruff.mccabe]

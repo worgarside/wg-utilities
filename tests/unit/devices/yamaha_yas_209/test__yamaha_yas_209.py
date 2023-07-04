@@ -433,7 +433,9 @@ def test_av_transport_state_change_updates_local_state(
 
     assert yamaha_yas_209.state == Yas209State.UNKNOWN
     yamaha_yas_209.on_event_wrapper(upnp_service_av_transport, [upnp_state_variable])
-    assert yamaha_yas_209.state == Yas209State.PLAYING
+    assert (
+        yamaha_yas_209.state == Yas209State.PLAYING  # type: ignore[comparison-overlap]
+    )
 
     mock_set_state.assert_called_once_with(
         Yas209State.PLAYING,
@@ -525,7 +527,9 @@ def test_av_transport_ctm_updates_current_track(
         upnp_service_av_transport, [new_upnp_state_variable]
     )
 
-    assert yamaha_yas_209.state == Yas209State.STOPPED
+    assert (
+        yamaha_yas_209.state == Yas209State.STOPPED  # type: ignore[comparison-overlap]
+    )
     assert yamaha_yas_209.current_track == current_track_null
 
     yamaha_yas_209.on_event_wrapper(upnp_service_av_transport, [upnp_state_variable])
@@ -854,7 +858,10 @@ def test_play_pause_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -
         mock_play.assert_called_once()
 
         yamaha_yas_209.set_state(Yas209State.PLAYING, local_only=True)
-        assert yamaha_yas_209.state == Yas209State.PLAYING
+        assert (
+            yamaha_yas_209.state
+            == Yas209State.PLAYING  # type: ignore[comparison-overlap]
+        )
 
         yamaha_yas_209.play_pause()
         mock_play.assert_called_once()
@@ -951,7 +958,10 @@ def test_set_state_sets_correct_state_property(yamaha_yas_209: YamahaYas209) -> 
 
         yamaha_yas_209.set_state(Yas209State.PAUSED_PLAYBACK, local_only=False)
 
-        assert yamaha_yas_209.state == Yas209State.PAUSED_PLAYBACK
+        assert (
+            yamaha_yas_209.state
+            == Yas209State.PAUSED_PLAYBACK  # type: ignore[comparison-overlap]
+        )
         mock_pause.assert_called_once()
 
         yamaha_yas_209.set_state(Yas209State.STOPPED, local_only=False)
@@ -1493,7 +1503,7 @@ def test_subscribe_creates_notify_server_logs_subscription_errors(
     assert (
         third_record.message
         == f"Unable to subscribe to {Yas209Service.RC.service_id}: "
-        f'UpnpCommunicationError("{repr(response_exception)}", None)'
+        f'UpnpCommunicationError("{response_exception!r}", None)'
     )
 
     assert mock_aiohttp.requests.pop(
@@ -1669,7 +1679,7 @@ def test_subscribe_keeps_retrying_failed_subscriptions(
     assert caplog.records[warning_log_index].levelno == expected_level
     assert caplog.records[warning_log_index].message == (
         f"Still unable to subscribe to {Yas209Service.RC.service_id}: "
-        f'UpnpCommunicationError("{repr(response_exception)}", None)'
+        f'UpnpCommunicationError("{response_exception!r}", None)'
     )
 
     assert call_count == 121
