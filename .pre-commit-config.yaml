@@ -109,7 +109,7 @@ repos:
           - types-Pillow
           - types-setuptools
           - types-tzlocal
-          - pydantic
+          - pydantic<2.0.0
           - types-PyYAML
           - types-python-dateutil
           - pytest
@@ -123,8 +123,6 @@ repos:
           - mypy_boto3_lambda
           - mypy_boto3_s3
           - voluptuous-stubs
-
-
 
   - repo: local
     hooks:
