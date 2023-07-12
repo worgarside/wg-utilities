@@ -1790,13 +1790,13 @@ files = [
 
 [[package]]
 name = "mypy-boto3-s3"
-version = "1.26.163"
-description = "Type annotations for boto3.S3 1.26.163 service generated with mypy-boto3-builder 7.14.5"
+version = "1.28.0"
+description = "Type annotations for boto3.S3 1.28.0 service generated with mypy-boto3-builder 7.14.5"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mypy-boto3-s3-1.26.163.tar.gz", hash = "sha256:47d3639cd097aa142dcaca43b431fa7a7eefb56e1596ebff625f571f16bd7623"},
-    {file = "mypy_boto3_s3-1.26.163-py3-none-any.whl", hash = "sha256:39417a3e4128c61e7b9353d080b93293f9ca9a4acf059a255d8357b9a4e12db2"},
+    {file = "mypy-boto3-s3-1.28.0.tar.gz", hash = "sha256:27867ca325a845700a008f3fca995006b32f2e0d18afe676352b49453f477d69"},
+    {file = "mypy_boto3_s3-1.28.0-py3-none-any.whl", hash = "sha256:789a32560ec1882e3a2c5bbb7aa97952b05e54507e2174eab6535ceaffb04cee"},
 ]
 
 [[package]]
