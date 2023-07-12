@@ -44,7 +44,7 @@ def send_exception_to_home_assistant(exc: Exception) -> None:
     """
     payload = {
         "client": gethostname(),
-        "message": f"{type(exc).__name__} in `{stack()[2].filename}`: {repr(exc)}",
+        "message": f"{type(exc).__name__} in `{stack()[2].filename}`: {exc!r}",
         "traceback": format_exc(),
     }
 
@@ -70,6 +70,7 @@ def on_exception(
     raise_after_callback: bool = True,
     logger: Logger | None = None,
     ignore_exception_types: Iterable[type[Exception]] | None = None,
+    default_return_value: Any | None = None,
     _suppress_ignorant_warnings: bool | None = None,
 ) -> Callable[[Any], Any]:
     # pylint: disable=useless-type-doc,useless-param-doc
@@ -81,12 +82,20 @@ def on_exception(
         logger (Logger): optional logger for logging the exception
         ignore_exception_types (Iterable[type[Exception]]): optional iterable of
             exception types to ignore
+        default_return_value (Any): optional default return value for the decorated
+            function
         _suppress_ignorant_warnings (bool): optional flag to suppress warnings about
             ignoring exception types
 
     Returns:
         Callable: the actual decorator
     """
+
+    if default_return_value is not None and raise_after_callback:
+        raise ValueError(
+            "The `default_return_value` parameter can only be set when"
+            " `raise_after_callback` is False."
+        )
 
     def _decorator(func: Callable[[Any], Any]) -> Callable[[Any, Any], Any]:
         """Allow simple cover-all exception handler callback behaviour.
@@ -144,7 +153,7 @@ def on_exception(
                     if raise_after_callback:
                         raise
 
-                return None
+                return default_return_value
 
         return worker
 
