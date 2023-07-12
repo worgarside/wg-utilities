@@ -1779,13 +1779,13 @@ reports = ["lxml"]
 
 [[package]]
 name = "mypy-boto3-lambda"
-version = "1.26.163"
-description = "Type annotations for boto3.Lambda 1.26.163 service generated with mypy-boto3-builder 7.14.5"
+version = "1.28.0"
+description = "Type annotations for boto3.Lambda 1.28.0 service generated with mypy-boto3-builder 7.14.5"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mypy-boto3-lambda-1.26.163.tar.gz", hash = "sha256:fd36cf8a3f5e733f6e80c755af19538ce0a50c3eafb1be7cf7de0c29c40788a0"},
-    {file = "mypy_boto3_lambda-1.26.163-py3-none-any.whl", hash = "sha256:f6ca7fd11c8e9c81218fdbeae163c343c6dc3b7df88a70c30c0c7b30c90163d9"},
+    {file = "mypy-boto3-lambda-1.28.0.tar.gz", hash = "sha256:a3abaf98e514f2cabed2cf0b1e77c94c81f0fbbba8a549b3c073577a9f9ac196"},
+    {file = "mypy_boto3_lambda-1.28.0-py3-none-any.whl", hash = "sha256:5fd38df6418829b2f3a184918fc8ad1d49b6738509f1832cdc71f33588efbdfb"},
 ]
 
 [[package]]
