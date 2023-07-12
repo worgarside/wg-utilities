@@ -281,8 +281,14 @@ def test_default_return_value() -> None:
 def test_default_return_value_with_raise_after_callback() -> None:
     """Test that the default return value is returned correctly."""
 
-    @on_exception(str, raise_after_callback=True, default_return_value="default")
-    def worker() -> None:
-        raise Exception("Test Exception")  # pylint: disable=broad-exception-raised
+    with raises(ValueError) as exc_info:
 
-    assert worker() == "default"
+        @on_exception(str, raise_after_callback=True, default_return_value="default")
+        def worker() -> None:
+            raise Exception("Test Exception")  # pylint: disable=broad-exception-raised
+
+    assert (
+        str(exc_info.value)
+        == "The `default_return_value` parameter can only be set when"
+        " `raise_after_callback` is False."
+    )
