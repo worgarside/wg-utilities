@@ -9,7 +9,7 @@ from unittest.mock import patch
 from pytest import LogCaptureFixture, mark, raises
 from requests_mock import Mocker
 
-from tests.conftest import EXCEPTION_GENERATORS
+from tests.conftest import EXCEPTION_GENERATORS, TEST_EXCEPTION
 from wg_utilities.exceptions import HA_LOG_ENDPOINT, on_exception
 
 
@@ -56,7 +56,7 @@ def test_exception_is_sent_to_ha_by_default(mock_requests_root: Mocker) -> None:
 
     @on_exception(raise_after_callback=False)
     def worker() -> None:
-        raise Exception("Test Exception")  # pylint: disable=broad-exception-raised
+        raise TEST_EXCEPTION
 
     assert worker() is None
 
@@ -273,7 +273,7 @@ def test_default_return_value() -> None:
 
     @on_exception(str, raise_after_callback=False, default_return_value="default")
     def worker() -> None:
-        raise Exception("Test Exception")  # pylint: disable=broad-exception-raised
+        raise TEST_EXCEPTION
 
     assert worker() == "default"
 
@@ -284,8 +284,8 @@ def test_default_return_value_with_raise_after_callback() -> None:
     with raises(ValueError) as exc_info:
 
         @on_exception(str, raise_after_callback=True, default_return_value="default")
-        def worker() -> None:
-            raise Exception("Test Exception")  # pylint: disable=broad-exception-raised
+        def _() -> None:
+            raise TEST_EXCEPTION
 
     assert (
         str(exc_info.value)
