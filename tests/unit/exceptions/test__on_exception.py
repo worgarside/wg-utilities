@@ -9,7 +9,7 @@ from unittest.mock import patch
 from pytest import LogCaptureFixture, mark, raises
 from requests_mock import Mocker
 
-from tests.conftest import EXCEPTION_GENERATORS
+from tests.conftest import EXCEPTION_GENERATORS, TEST_EXCEPTION
 from wg_utilities.exceptions import HA_LOG_ENDPOINT, on_exception
 
 
@@ -56,9 +56,9 @@ def test_exception_is_sent_to_ha_by_default(mock_requests_root: Mocker) -> None:
 
     @on_exception(raise_after_callback=False)
     def worker() -> None:
-        raise Exception("Test Exception")  # pylint: disable=broad-exception-raised
+        raise TEST_EXCEPTION
 
-    worker()
+    assert worker() is None
 
     assert (
         mock_requests_root.request_history[0].url
@@ -266,3 +266,29 @@ def test_ignorant_warning_suppression_via_env_var(
     worker()
 
     assert len(caplog.records) == 0
+
+
+def test_default_return_value() -> None:
+    """Test that the default return value is returned correctly."""
+
+    @on_exception(str, raise_after_callback=False, default_return_value="default")
+    def worker() -> None:
+        raise TEST_EXCEPTION
+
+    assert worker() == "default"
+
+
+def test_default_return_value_with_raise_after_callback() -> None:
+    """Test that the default return value is returned correctly."""
+
+    with raises(ValueError) as exc_info:
+
+        @on_exception(str, raise_after_callback=True, default_return_value="default")
+        def _() -> None:  # pragma: no cover
+            raise TEST_EXCEPTION
+
+    assert (
+        str(exc_info.value)
+        == "The `default_return_value` parameter can only be set when"
+        " `raise_after_callback` is False."
+    )

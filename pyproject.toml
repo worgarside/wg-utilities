@@ -26,7 +26,6 @@ flask = { version = ">=2.0.2", optional = true }
 lxml = { version = "==4.9.2", optional = true }
 pigpio = { version = "*", optional = true }
 pillow = { version = "*", optional = true }
-pydantic = { version = "*", optional = true }
 pyjwt = { version = ">=2.6,<2.8", optional = true }
 python-dotenv = { version = "*", optional = true }
 pytz = ">=2022.1"
@@ -36,6 +35,8 @@ spidev = { version = "*", platform = "linux", optional = true }
 strenum = { version = "*", optional = true }
 tzlocal = { version = "*", optional = true }
 xmltodict = { version = "*", optional = true }
+pydantic = "<2.0.0"
+
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
