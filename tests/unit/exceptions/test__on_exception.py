@@ -284,7 +284,7 @@ def test_default_return_value_with_raise_after_callback() -> None:
     with raises(ValueError) as exc_info:
 
         @on_exception(str, raise_after_callback=True, default_return_value="default")
-        def _() -> None:
+        def _() -> None:  # pragma: no cover
             raise TEST_EXCEPTION
 
     assert (
