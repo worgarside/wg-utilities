@@ -35,7 +35,7 @@ from pytest import LogCaptureFixture, mark, raises
 from xmltodict import parse as parse_xml
 from yarl import URL
 
-from tests.conftest import FLAT_FILES_DIR
+from tests.conftest import FLAT_FILES_DIR, TEST_EXCEPTION, TestError
 from wg_utilities.devices.yamaha_yas_209 import YamahaYas209
 from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import (
     CurrentTrack,
@@ -343,17 +343,17 @@ def test_listen_reraises_exception_from_subscribe_worker(
 
         assert self == yamaha_yas_209
 
-        raise Exception("Test")  # pylint: disable=broad-exception-raised
+        raise TEST_EXCEPTION
 
     with patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.YamahaYas209._subscribe",
         _mock_async_function,
-    ), raises(Exception) as exc_info:
+    ), raises(TestError) as exc_info:
         yamaha_yas_209.listen()
 
     assert call_count == 1
 
-    assert str(exc_info.value) == "Test"
+    assert exc_info.value == TEST_EXCEPTION
 
 
 @patch("wg_utilities.devices.yamaha_yas_209.YamahaYas209._parse_xml_dict")

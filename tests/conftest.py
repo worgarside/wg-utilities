@@ -37,7 +37,14 @@ from wg_utilities.functions.json import JSONObj
 T = TypeVar("T")
 YieldFixture = Generator[T, None, None]
 
-# <editor-fold desc="Constants">
+
+class TestError(Exception):
+    """Custom exception for testing."""
+
+
+TEST_EXCEPTION = TestError("Test Exception")
+
+# Constants
 
 EXCEPTION_GENERATORS: list[
     tuple[
@@ -70,8 +77,7 @@ EXCEPTION_GENERATORS: list[
 FLAT_FILES_DIR = Path(__file__).parent / "flat_files"
 
 
-# </editor-fold>
-# <editor-fold desc="Functions">
+# Functions
 
 
 class _XdistScheduler(LoadScopeScheduling):  # type: ignore[misc]
@@ -112,8 +118,7 @@ def assert_mock_requests_request_history(
     assert len(request_history) == len(expected)
 
 
-# </editor-fold>
-# <editor-fold desc="JSON Objects">
+# JSON Objects
 
 
 @overload
@@ -279,8 +284,7 @@ def get_flat_file_from_url(
         raise  # pragma: no cover
 
 
-# </editor-fold>
-# <editor-fold desc="Fixtures">
+# Fixtures
 
 
 @fixture(scope="function", name="fake_oauth_credentials")
@@ -372,6 +376,3 @@ def _temp_dir() -> YieldFixture[Path]:
         (temp_dir_path / "oauth_credentials").mkdir()
 
         yield temp_dir_path
-
-
-# </editor-fold>
