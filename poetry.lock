@@ -648,13 +648,13 @@ xray = ["mypy-boto3-xray (>=1.28.0,<1.29.0)"]
 
 [[package]]
 name = "botocore"
-version = "1.31.2"
+version = "1.31.3"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "botocore-1.31.2-py3-none-any.whl", hash = "sha256:d368ac0b58e2b9025b9c397e4a4f86d71788913ee619263506885a866a4f6811"},
-    {file = "botocore-1.31.2.tar.gz", hash = "sha256:67a475bec9e52d495a358b34e219ef7f62907e83b87e5bc712528f998bd46dab"},
+    {file = "botocore-1.31.3-py3-none-any.whl", hash = "sha256:2aa27c75e62bfcf7900cb85283228fcb7df0fa1bdc2ae76dcee90788dd444934"},
+    {file = "botocore-1.31.3.tar.gz", hash = "sha256:744ce853cadc7ae87ba42ef6828194ddec97d606dd4d08b4dfe3d96d5001eb0c"},
 ]
 
 [package.dependencies]
@@ -1802,13 +1802,13 @@ files = [
 
 [[package]]
 name = "mypy-boto3-s3"
-version = "1.28.0"
-description = "Type annotations for boto3.S3 1.28.0 service generated with mypy-boto3-builder 7.14.5"
+version = "1.28.3.post2"
+description = "Type annotations for boto3.S3 1.28.3 service generated with mypy-boto3-builder 7.15.0"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mypy-boto3-s3-1.28.0.tar.gz", hash = "sha256:27867ca325a845700a008f3fca995006b32f2e0d18afe676352b49453f477d69"},
-    {file = "mypy_boto3_s3-1.28.0-py3-none-any.whl", hash = "sha256:789a32560ec1882e3a2c5bbb7aa97952b05e54507e2174eab6535ceaffb04cee"},
+    {file = "mypy-boto3-s3-1.28.3.post2.tar.gz", hash = "sha256:c23b7802b80a0388a146d7e8025552f21d44e349026a18fb751d9c698ed714b1"},
+    {file = "mypy_boto3_s3-1.28.3.post2-py3-none-any.whl", hash = "sha256:02dc6b9edf799afa160be1e3a9b38a383af6fcd80a97abd75d09410b26621e70"},
 ]
 
 [[package]]
