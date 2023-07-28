@@ -168,12 +168,12 @@ files = [
 
 [[package]]
 name = "async-upnp-client"
-version = "0.34.0"
+version = "0.34.1"
 description = "Async UPnP Client"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "async_upnp_client-0.34.0.tar.gz", hash = "sha256:083b0fc34e218600989b403e42133b7abcd926e9943274bdc7c580fbebe46aa1"},
+    {file = "async_upnp_client-0.34.1.tar.gz", hash = "sha256:075d893530baace61da3c1820062b5329ac031101c80add5aed58a6c6b0b943d"},
 ]
 
 [package.dependencies]
