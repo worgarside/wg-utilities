@@ -6,7 +6,10 @@ from socket import gethostname
 
 from pytest import mark
 
-from wg_utilities.loggers import WarehouseHandler, add_warehouse_handler
+from wg_utilities.loggers.warehouse_handler import (
+    WarehouseHandler,
+    add_warehouse_handler,
+)
 
 
 def test_handler_is_applied_to_logger_correctly(logger: Logger) -> None:

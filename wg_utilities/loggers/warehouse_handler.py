@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from hashlib import md5
 from http import HTTPStatus
-from json import JSONDecodeError
+from json import JSONDecodeError, dumps
 from logging import (
     CRITICAL,
     DEBUG,
@@ -186,10 +186,13 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         else:
             LOGGER.info(
                 "Warehouse already exists - created at %s",
-                schema.pop("created_at"),  # type: ignore[misc]
+                schema.pop("created_at", None),  # type: ignore[misc]
             )
             if schema != self._WAREHOUSE_SCHEMA:  # type: ignore[comparison-overlap]
-                raise ValueError("Warehouse schema does not match expected schema.")
+                raise ValueError(
+                    "Warehouse schema does not match expected schema: "
+                    + dumps(schema, default=repr)
+                )
 
     @staticmethod
     def _get_log_hash(record: LogRecord) -> str:
@@ -246,7 +249,12 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             except (AttributeError, LookupError, JSONDecodeError):
                 pass
 
-            LOGGER.error("Error posting log to Warehouse: %s", error_detail)
+            LOGGER.error(
+                "Error posting log to Warehouse: %i %s; %r",
+                exc.response.status_code,
+                exc.response.reason,
+                error_detail,
+            )
 
     def _get_records(self, level: int | None = None) -> list[LogRecord]:
         """Get log records from the warehouse.
