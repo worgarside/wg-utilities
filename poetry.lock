@@ -2002,17 +2002,17 @@ virtualenv = ">=20.10.0"
 
 [[package]]
 name = "pycln"
-version = "2.1.5"
+version = "2.1.7"
 description = "A formatter for finding and removing unused import statements."
 optional = false
 python-versions = ">=3.6.2,<4"
 files = [
-    {file = "pycln-2.1.5-py3-none-any.whl", hash = "sha256:1e1f2542aabc8942fd945bbecd39b55ed5f25cd9a70fa116a554cceaab4fdc3b"},
-    {file = "pycln-2.1.5.tar.gz", hash = "sha256:5029007881d00b87bfc8831ef7cf59c90cc214fbbcc8773f0a9560ddef8d150a"},
+    {file = "pycln-2.1.7-py3-none-any.whl", hash = "sha256:9da51af133a406ce19b179646871cd96be6b04c323232d0d2cbb8d1ef4d0fa63"},
+    {file = "pycln-2.1.7.tar.gz", hash = "sha256:204be6151e305eecd87a282f2bb5555296e234067efc62a2b3d2d53fdb922553"},
 ]
 
 [package.dependencies]
-libcst = {version = ">=0.3.10,<0.5.0", markers = "python_version >= \"3.7\""}
+libcst = {version = ">=0.3.10,<1.1.0", markers = "python_version >= \"3.7\""}
 pathspec = ">=0.9.0,<0.12.0"
 pyyaml = ">=5.3.1,<7.0.0"
 tomlkit = ">=0.11.1,<0.12.0"
