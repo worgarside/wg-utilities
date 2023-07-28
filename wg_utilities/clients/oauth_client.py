@@ -25,11 +25,9 @@ from requests import Response, get, post
 from wg_utilities.api import TempAuthServer
 from wg_utilities.functions import user_data_dir
 from wg_utilities.functions.file_management import force_mkdir
-from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 
 class _ModelBase:
