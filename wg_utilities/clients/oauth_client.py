@@ -2,34 +2,30 @@
 """Generic OAuth client to allow for reusable authentication flows/checks etc."""
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Mapping
-from copy import deepcopy
+from collections.abc import Callable
 from datetime import datetime
-from http import HTTPStatus
-from json import JSONDecodeError, dumps
+from json import dumps
 from logging import DEBUG, getLogger
 from os import getenv
 from pathlib import Path
 from random import choice
 from string import ascii_letters
 from time import time
-from typing import Any, Generic, Literal, TypeAlias, TypeVar
+from typing import Any, Literal
 from urllib.parse import urlencode
 from webbrowser import open as open_browser
 
 from jwt import DecodeError, decode
 from pydantic import BaseModel, Extra, validate_model
 from pydantic.generics import GenericModel
-from requests import Response, get, post
 
 from wg_utilities.api import TempAuthServer
+from wg_utilities.clients.json_api_client import GetJsonResponse, JsonApiClient
 from wg_utilities.functions import user_data_dir
 from wg_utilities.functions.file_management import force_mkdir
-from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 
 class _ModelBase:
@@ -208,12 +204,7 @@ class OAuthCredentials(BaseModelWithConfig):
         return self.expiry_epoch < time()
 
 
-GetJsonResponse = TypeVar("GetJsonResponse", bound=Mapping[Any, Any])
-
-StrBytIntFlt: TypeAlias = str | bytes | int | float
-
-
-class OAuthClient(Generic[GetJsonResponse]):
+class OAuthClient(JsonApiClient[GetJsonResponse]):
     """Custom client for interacting with OAuth APIs.
 
     Includes all necessary/basic authentication functionality
@@ -221,7 +212,6 @@ class OAuthClient(Generic[GetJsonResponse]):
 
     ACCESS_TOKEN_ENDPOINT: str
     AUTH_LINK_BASE: str
-    BASE_URL: str
 
     ACCESS_TOKEN_EXPIRY_THRESHOLD = 150
 
@@ -229,9 +219,7 @@ class OAuthClient(Generic[GetJsonResponse]):
     DEFAULT_CACHE_DIR = getenv(
         "WG_UTILITIES_CACHE_DIR", getenv("WG_UTILITIES_CREDS_CACHE_DIR")
     )
-    DEFAULT_PARAMS: dict[
-        StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None
-    ] = {}
+
     DEFAULT_SCOPES: list[str] = []
 
     HEADLESS_MODE = getenv("WG_UTILITIES_HEADLESS_MODE", "0") == "1"
@@ -252,12 +240,12 @@ class OAuthClient(Generic[GetJsonResponse]):
         auth_link_base: str | None = None,
         base_url: str | None = None,
     ):
+        super().__init__(log_requests=log_requests, base_url=base_url)
+
         self._client_id = client_id
         self._client_secret = client_secret
-        self.base_url = base_url or self.BASE_URL
         self.access_token_endpoint = access_token_endpoint or self.ACCESS_TOKEN_ENDPOINT
         self.auth_link_base = auth_link_base or self.AUTH_LINK_BASE
-        self.log_requests = log_requests
         self._creds_cache_path = creds_cache_path
         self.oauth_login_redirect_host = oauth_login_redirect_host
         self.oauth_redirect_uri_override = oauth_redirect_uri_override
@@ -272,45 +260,6 @@ class OAuthClient(Generic[GetJsonResponse]):
         if self._creds_cache_path:
             self._load_local_credentials()
 
-    def _get(
-        self,
-        url: str,
-        *,
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
-        header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
-        json: Any | None = None,
-        data: Any | None = None,
-    ) -> Response:
-        """Wrap all GET requests to cover authentication, URL parsing, etc. etc.
-
-        Args:
-            url (str): the URL path to the endpoint (not necessarily including the
-                base URL)
-            params (dict): the parameters to be passed in the HTTP request
-            header_overrides (dict): any headers to override the default headers
-            timeout (float | tuple[float, float] | tuple[float, None] | None): the
-                timeout for the request
-            json (Any): the JSON to be passed in the HTTP request
-            data (Any): the data to be passed in the HTTP request
-
-        Returns:
-            Response: the response from the HTTP request
-        """
-        return self._request(
-            method=get,
-            url=url,
-            params=params,
-            header_overrides=header_overrides,
-            timeout=timeout,
-            json=json,
-            data=data,
-        )
-
     def _load_local_credentials(self) -> bool:
         """Load credentials from the local cache.
 
@@ -324,224 +273,9 @@ class OAuthClient(Generic[GetJsonResponse]):
 
         return True
 
-    def _post(
-        self,
-        url: str,
-        *,
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
-        header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
-        json: Any | None = None,
-        data: Any | None = None,
-    ) -> Response:
-        """Wrap all POST requests to cover authentication, URL parsing, etc. etc.
-
-        Args:
-            url (str): the URL path to the endpoint (not necessarily including the
-                base URL)
-            json (dict): the data to be passed in the HTTP request
-            params (dict): the parameters to be passed in the HTTP request
-            header_overrides (dict): any headers to override the default headers
-            timeout (float | tuple[float, float] | tuple[float, None] | None): the
-                timeout for the request
-            json (Any): the JSON to be passed in the HTTP request
-            data (Any): the data to be passed in the HTTP request
-
-        Returns:
-            Response: the response from the HTTP request
-        """
-        return self._request(
-            method=post,
-            url=url,
-            params=params,
-            header_overrides=header_overrides,
-            timeout=timeout,
-            json=json,
-            data=data,
-        )
-
-    def _request(
-        self,
-        *,
-        method: Callable[..., Response],
-        url: str,
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
-        header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
-        json: Any | None = None,
-        data: Any | None = None,
-    ) -> Response:
-        """Make a HTTP request.
-
-        Args:
-            method (Callable): the HTTP method to use
-            url (str): the URL path to the endpoint (not necessarily including the
-                base URL)
-            params (dict): the parameters to be passed in the HTTP request
-            header_overrides (dict): any headers to override the default headers
-            timeout (float | tuple[float, float] | tuple[float, None] | None): the
-                timeout for the request
-            json (dict): the data to be passed in the HTTP request
-            data (dict): the data to be passed in the HTTP request
-        """
-        if params is not None:
-            params.update(
-                {k: v for k, v in self.DEFAULT_PARAMS.items() if k not in params}
-            )
-        else:
-            params = deepcopy(self.DEFAULT_PARAMS)
-
-        params = {k: v for k, v in params.items() if v is not None}
-
-        if url.startswith("/"):
-            url = f"{self.base_url}{url}"
-
-        if self.log_requests:
-            LOGGER.debug(
-                "%s %s: %s", method.__name__.upper(), url, dumps(params, default=str)
-            )
-
-        res = method(
-            url,
-            headers=header_overrides
-            if header_overrides is not None
-            else self.request_headers,
-            params=params,
-            timeout=timeout,
-            json=json,
-            data=data,
-        )
-
-        res.raise_for_status()
-
-        return res
-
-    def _request_json_response(
-        self,
-        *,
-        method: Callable[..., Response],
-        url: str,
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
-        header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
-        json: Any | None = None,
-        data: Any | None = None,
-    ) -> GetJsonResponse:
-        res = self._request(
-            method=method,
-            url=url,
-            params=params,
-            header_overrides=header_overrides,
-            timeout=timeout,
-            json=json,
-            data=data,
-        )
-        if res.status_code == HTTPStatus.NO_CONTENT:
-            return {}  # type: ignore[return-value]
-
-        try:
-            return res.json()  # type: ignore[no-any-return]
-        except JSONDecodeError as exc:
-            if not res.content:
-                return {}  # type: ignore[return-value]
-
-            raise ValueError(res.text) from exc
-
     def delete_creds_file(self) -> None:
         """Delete the local creds file."""
         self.creds_cache_path.unlink(missing_ok=True)
-
-    def get_json_response(
-        self,
-        url: str,
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
-        header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: float | None = None,
-        json: Any | None = None,
-        data: Any | None = None,
-    ) -> GetJsonResponse:
-        """Get a simple JSON object from a URL.
-
-        Args:
-            url (str): the API endpoint to GET
-            params (dict): the parameters to be passed in the HTTP request
-            header_overrides (dict): headers to add to/overwrite the headers in
-                `self.request_headers`. Setting this to an empty dict will erase all
-                headers; `None` will use `self.request_headers`.
-            timeout (float): How many seconds to wait for the server to send data
-                before giving up
-            json (dict): a JSON payload to pass in the request
-            data (dict): a data payload to pass in the request
-
-        Returns:
-            dict: the JSON from the response
-        """
-
-        return self._request_json_response(
-            method=get,
-            url=url,
-            params=params,
-            header_overrides=header_overrides,
-            timeout=timeout,
-            json=json,
-            data=data,
-        )
-
-    def post_json_response(
-        self,
-        url: str,
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
-        header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
-        json: Any | None = None,
-        data: Any | None = None,
-    ) -> GetJsonResponse:
-        """Get a simple JSON object from a URL from a POST request.
-
-        Args:
-            url (str): the API endpoint to GET
-            params (dict): the parameters to be passed in the HTTP request
-            header_overrides (dict): headers to add to/overwrite the headers in
-                `self.request_headers`. Setting this to an empty dict will erase all
-                headers; `None` will use `self.request_headers`.
-            timeout (float): How many seconds to wait for the server to send data
-                before giving up
-            json (dict): a JSON payload to pass in the request
-            data (dict): a data payload to pass in the request
-
-        Returns:
-            dict: the JSON from the response
-        """
-
-        return self._request_json_response(
-            method=post,
-            url=url,
-            params=params,
-            header_overrides=header_overrides,
-            timeout=timeout,
-            json=json,
-            data=data,
-        )
 
     def refresh_access_token(self) -> None:
         """Refresh access token."""

@@ -133,6 +133,7 @@ filterwarnings = [
 markers = [
     "mocked_operation_lookup: allows setting the mocks in the `mb3c` fixture",
     "upnp_value_path: file with content to set as the value in a `upnp_state_variable` fixture",
+    "add_handler: allows adding a custom handler to the `logger` fixture",
 ]
 
 [tool.coverage.report]

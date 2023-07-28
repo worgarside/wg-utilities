@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 from freezegun import freeze_time
 from pytest import mark
 
-from wg_utilities.loggers import ListHandler
+from wg_utilities.loggers.list_handler import ListHandler
 
 BASE_TIME = datetime(2000, 1, 1)
 
@@ -78,7 +78,7 @@ def test_expire_records_does_nothing_if_ttl_is_none(list_handler: ListHandler) -
 
     list_handler.ttl = None
 
-    with patch("wg_utilities.loggers.utcnow") as mock_utcnow:
+    with patch("wg_utilities.loggers.list_handler.utcnow") as mock_utcnow:
         list_handler.expire_records()
 
         assert not mock_utcnow.called
@@ -86,14 +86,13 @@ def test_expire_records_does_nothing_if_ttl_is_none(list_handler: ListHandler) -
     assert list_handler._records_list == []
 
 
+@mark.add_handler("list_handler")
 def test_expire_records_remove_records_correctly(
     list_handler: ListHandler, logger: Logger
 ) -> None:
     """Test that `expire_records` only removes old records."""
 
     list_handler.ttl = 60
-
-    logger.addHandler(list_handler)
 
     for i in range(-1, 25):
         with freeze_time(BASE_TIME + timedelta(seconds=i * 5)):
@@ -178,15 +177,14 @@ def test_record_properties_call_expire_records(
         assert mock_expire.called
 
 
+@mark.add_handler("list_handler")
 @patch("wg_utilities.loggers.ListHandler.emit")
 def test_logging_with_logger_calls_emit_method(
     mock_emit: MagicMock,
     logger: Logger,
-    list_handler: ListHandler,
     sample_log_record_messages_with_level: list[tuple[int, str]],
 ) -> None:
     """Test that logging calls the `emit` method of the handler."""
-    logger.addHandler(list_handler)
 
     for level, message in sample_log_record_messages_with_level:
         logger.log(level, message)

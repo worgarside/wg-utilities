@@ -8,11 +8,8 @@ from unittest.mock import call, patch
 from requests import Response, post
 
 from wg_utilities.clients._google import GoogleClient
-from wg_utilities.clients.oauth_client import (
-    OAuthClient,
-    OAuthCredentials,
-    StrBytIntFlt,
-)
+from wg_utilities.clients.json_api_client import StrBytIntFlt
+from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
 
 
 def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
