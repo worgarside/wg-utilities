@@ -11,7 +11,7 @@ from freezegun import freeze_time
 from pytest import mark, raises
 
 from wg_utilities.functions.datetime_helpers import utcnow
-from wg_utilities.loggers import create_file_handler
+from wg_utilities.loggers.file_handler import create_file_handler
 
 
 def test_target_directory_is_created() -> None:

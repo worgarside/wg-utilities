@@ -17,7 +17,7 @@ from logging import (
 
 from pytest import mark
 
-from wg_utilities.loggers import ListHandler, add_list_handler
+from wg_utilities.loggers.list_handler import ListHandler, add_list_handler
 
 
 def test_handler_is_applied_to_logger_correctly(logger: Logger) -> None:
