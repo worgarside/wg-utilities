@@ -25,7 +25,7 @@ from typing import Final, Literal, TypedDict, cast
 
 from requests import HTTPError
 
-from wg_utilities.clients.oauth_client import OAuthClient
+from wg_utilities.clients.json_api_client import JsonApiClient
 
 FORMATTER = Formatter(
     fmt="%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s",
@@ -67,7 +67,7 @@ class WarehouseLog(TypedDict):
     thread: str
 
 
-class WarehouseHandler(Handler, OAuthClient[WarehouseLog | WarehouseLogPage]):
+class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
     """Custom handler to allow logging directly into an Item Warehouse.
 
     https://github.com/worgarside/addon-item-warehouse
@@ -167,7 +167,7 @@ class WarehouseHandler(Handler, OAuthClient[WarehouseLog | WarehouseLogPage]):
         """Initialize the handler and Log Warehouse."""
 
         Handler.__init__(self, level)
-        OAuthClient.__init__(self, access_token_endpoint="1", auth_link_base="1")
+        JsonApiClient.__init__(self)
 
         self._initialize_warehouse()
 
@@ -328,29 +328,6 @@ class WarehouseHandler(Handler, OAuthClient[WarehouseLog | WarehouseLogPage]):
             list: a list of log records with the level CRITICAL
         """
         return self._get_records(CRITICAL)
-
-    # Override OAuthClient's OAuth functionality
-
-    def _load_local_credentials(self) -> Literal[True]:
-        return True
-
-    def delete_creds_file(self) -> None:  # noqa: D102
-        raise NotImplementedError
-
-    def refresh_access_token(self) -> None:  # noqa: D102
-        raise NotImplementedError
-
-    @property
-    def request_headers(self) -> dict[str, str]:  # noqa: D102
-        return {
-            "Content-Type": "application/json",
-        }
-
-    @property
-    def temp_auth_server(self) -> None:  # type: ignore[override]  # noqa: D102
-        raise NotImplementedError
-
-    # End OAuthClient overrides
 
 
 def add_warehouse_handler(
