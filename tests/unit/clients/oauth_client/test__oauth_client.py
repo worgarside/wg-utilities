@@ -6,19 +6,18 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from http import HTTPStatus
 from json import loads
-from logging import DEBUG
 from pathlib import Path
 from re import fullmatch
 from threading import Thread
 from time import sleep, time
 from typing import Any
-from unittest.mock import ANY, MagicMock, call, patch
+from unittest.mock import ANY, MagicMock, patch
 from urllib.parse import urlencode
 
 from freezegun import freeze_time
 from pydantic import BaseModel, Extra
 from pytest import LogCaptureFixture, approx, mark, raises
-from requests import HTTPError, get, post
+from requests import get
 from requests_mock import Mocker
 
 from tests.conftest import assert_mock_requests_request_history
@@ -188,45 +187,6 @@ def test_instantiation(
     assert not client.DEFAULT_PARAMS and isinstance(client.DEFAULT_PARAMS, dict)
 
 
-def test_get_method_calls_request_correctly(
-    oauth_client: OAuthClient[dict[str, Any]],
-) -> None:
-    """Test the `_get` method calls `request` correctly."""
-
-    with patch.object(oauth_client, "_request") as mock_request:
-        oauth_client._get(
-            "test_endpoint",
-        )
-        oauth_client._get(
-            "test_endpoint",
-            params={"param_key": "param_value"},
-            header_overrides={"header_key": "header_value"},
-            timeout=10,
-            json={"json_key": "json_value"},
-        )
-
-    assert mock_request.call_args_list == [
-        call(
-            method=get,
-            url="test_endpoint",
-            params=None,
-            header_overrides=None,
-            timeout=None,
-            json=None,
-            data=None,
-        ),
-        call(
-            method=get,
-            url="test_endpoint",
-            params={"param_key": "param_value"},
-            header_overrides={"header_key": "header_value"},
-            timeout=10,
-            json={"json_key": "json_value"},
-            data=None,
-        ),
-    ]
-
-
 def test_load_local_credentials(
     oauth_client: OAuthClient[dict[str, Any]],
     fake_oauth_credentials: OAuthCredentials,
@@ -246,210 +206,6 @@ def test_load_local_credentials(
     assert not hasattr(oauth_client, "_credentials")
 
 
-def test_post_method_calls_request_correctly(
-    oauth_client: OAuthClient[dict[str, Any]],
-) -> None:
-    """Test the `_post` method calls `request` correctly."""
-
-    with patch.object(oauth_client, "_request") as mock_request:
-        oauth_client._post(
-            "test_endpoint",
-        )
-        oauth_client._post(
-            "test_endpoint",
-            params={"param_key": "param_value"},
-            header_overrides={"header_key": "header_value"},
-            timeout=10,
-            json={"json_key": "json_value"},
-        )
-
-    assert mock_request.call_args_list == [
-        call(
-            method=post,
-            url="test_endpoint",
-            params=None,
-            header_overrides=None,
-            timeout=None,
-            json=None,
-            data=None,
-        ),
-        call(
-            method=post,
-            url="test_endpoint",
-            params={"param_key": "param_value"},
-            header_overrides={"header_key": "header_value"},
-            timeout=10,
-            json={"json_key": "json_value"},
-            data=None,
-        ),
-    ]
-
-
-def test_request_method_sends_correct_request(
-    oauth_client: OAuthClient[dict[str, Any]],
-    mock_requests: Mocker,
-    caplog: LogCaptureFixture,
-) -> None:
-    """Test that the `_request`` method sends the correct request."""
-
-    mock_requests.post(
-        "https://api.example.com/test_endpoint",
-        status_code=HTTPStatus.OK,
-        reason=HTTPStatus.OK.phrase,
-        json={"key": "value"},
-    )
-
-    res = oauth_client._request(
-        method=post,
-        url="/test_endpoint",
-        params={"test_param": "test_value"},
-        json={"test_json_key": "test_json_value"},
-        header_overrides={"test_header": "test_value"},
-    )
-
-    assert res.json() == {"key": "value"}
-    assert res.status_code == HTTPStatus.OK
-    assert res.reason == HTTPStatus.OK.phrase
-
-    request = mock_requests.request_history.pop(0)
-
-    assert len(mock_requests.request_history) == 0
-
-    assert request.method == "POST"
-    assert request.url == "https://api.example.com/test_endpoint?test_param=test_value"
-    assert "Authorization" not in request.headers
-    assert request.headers["test_header"] == "test_value"
-    assert request.json() == {"test_json_key": "test_json_value"}
-    assert request.qs == {"test_param": ["test_value"]}
-
-    assert caplog.records[0].levelno == DEBUG
-    assert (
-        caplog.records[0].message
-        == 'POST https://api.example.com/test_endpoint: {"test_param": "test_value"}'
-    )
-
-
-def test_request_raises_exception_for_non_200_response(
-    oauth_client: OAuthClient[dict[str, Any]], mock_requests: Mocker
-) -> None:
-    """Test that the `_request`` method raises an exception for non-200 responses."""
-
-    mock_requests.post(
-        "https://api.example.com/test_endpoint",
-        status_code=HTTPStatus.NOT_FOUND,
-        reason=HTTPStatus.NOT_FOUND.phrase,
-    )
-
-    with raises(HTTPError) as exc_info:
-        oauth_client._request(
-            method=post,
-            url="/test_endpoint",
-        )
-
-    assert exc_info.value.response.status_code == HTTPStatus.NOT_FOUND
-    assert exc_info.value.response.reason == HTTPStatus.NOT_FOUND.phrase
-
-    assert (
-        str(exc_info.value) == "404 Client Error: Not Found for url: "
-        "https://api.example.com/test_endpoint"
-    )
-
-
-def test_request_json_response(
-    oauth_client: OAuthClient[dict[str, Any]], mock_requests: Mocker
-) -> None:
-    """Test that the request method returns a JSON response."""
-
-    mock_requests.get(
-        "https://api.example.com/test_endpoint",
-        status_code=HTTPStatus.OK,
-        reason=HTTPStatus.OK.phrase,
-        json={"key": "value"},
-    )
-    with patch.object(
-        oauth_client,
-        "_request_json_response",
-        wraps=oauth_client._request_json_response,
-    ) as mock_request:
-        res = oauth_client._request_json_response(
-            method=get,
-            url="/test_endpoint",
-            params={"test_param": "test_value"},
-            json={"test_key": "test_value"},
-            header_overrides={"test_header": "test_value"},
-        )
-
-    mock_request.assert_called_once_with(
-        method=get,
-        url="/test_endpoint",
-        params={"test_param": "test_value"},
-        json={"test_key": "test_value"},
-        header_overrides={"test_header": "test_value"},
-    )
-
-    assert res == {"key": "value"}
-
-
-def test_request_json_response_defaults_to_empty_dict_for_no_content(
-    oauth_client: OAuthClient[dict[str, Any]], mock_requests: Mocker
-) -> None:
-    """Test that the request method returns an empty dict for no content."""
-
-    mock_requests.get(
-        "https://api.example.com/test_endpoint",
-        status_code=HTTPStatus.NO_CONTENT,
-        reason=HTTPStatus.NO_CONTENT.phrase,
-    )
-
-    res = oauth_client._request_json_response(
-        method=get,
-        url="/test_endpoint",
-    )
-
-    assert res == {}
-
-
-def test_request_json_response_defaults_to_empty_dict_with_json_decode_error(
-    oauth_client: OAuthClient[dict[str, Any]], mock_requests: Mocker
-) -> None:
-    """Test that the request method returns an empty dict for JSON decode errors."""
-
-    mock_requests.get(
-        "https://api.example.com/test_endpoint",
-        status_code=HTTPStatus.OK,
-        reason=HTTPStatus.OK.phrase,
-        text="",
-    )
-
-    res = oauth_client._request_json_response(
-        method=get,
-        url="/test_endpoint",
-    )
-
-    assert res == {}
-
-
-def test_request_json_response_raises_exception_with_invalid_json(
-    oauth_client: OAuthClient[dict[str, Any]], mock_requests: Mocker
-) -> None:
-    """Test that the request method returns an empty dict for JSON decode errors."""
-
-    mock_requests.get(
-        "https://api.example.com/test_endpoint",
-        status_code=HTTPStatus.OK,
-        reason=HTTPStatus.OK.phrase,
-        text="invalid_json",
-    )
-
-    with raises(ValueError) as exc_info:
-        oauth_client._request_json_response(
-            method=get,
-            url="/test_endpoint",
-        )
-
-    assert str(exc_info.value) == "invalid_json"
-
-
 def test_delete_creds_file(oauth_client: OAuthClient[dict[str, Any]]) -> None:
     """Test that the `delete_creds_file` method deletes the credentials file."""
     assert oauth_client.creds_cache_path.exists()
@@ -457,60 +213,6 @@ def test_delete_creds_file(oauth_client: OAuthClient[dict[str, Any]]) -> None:
     assert not oauth_client.creds_cache_path.exists()
     oauth_client.delete_creds_file()
     assert not oauth_client.creds_cache_path.exists()
-
-
-def test_get_json_response_calls_request_json_response(
-    oauth_client: OAuthClient[dict[str, Any]],
-) -> None:
-    """Test the `get_json_response` method calls `_request_json_response` correctly."""
-
-    with patch.object(
-        oauth_client, "_request_json_response"
-    ) as mock_request_json_response:
-        oauth_client.get_json_response(
-            url="/test_endpoint",
-            params={"test_param": "test_value"},
-            header_overrides={"test_header": "test_value"},
-            timeout=10,
-            json={"test_key": "test_value"},
-        )
-
-    mock_request_json_response.assert_called_once_with(
-        method=get,
-        url="/test_endpoint",
-        params={"test_param": "test_value"},
-        header_overrides={"test_header": "test_value"},
-        timeout=10,
-        json={"test_key": "test_value"},
-        data=None,
-    )
-
-
-def test_post_json_response_calls_request_json_response(
-    oauth_client: OAuthClient[dict[str, Any]],
-) -> None:
-    """Test the `post_json_response` method calls `_request_json_response` correctly."""
-
-    with patch.object(
-        oauth_client, "_request_json_response"
-    ) as mock_request_json_response:
-        oauth_client.post_json_response(
-            url="/test_endpoint",
-            params={"test_param": "test_value"},
-            header_overrides={"test_header": "test_value"},
-            timeout=10,
-            json={"test_key": "test_value"},
-        )
-
-    mock_request_json_response.assert_called_once_with(
-        method=post,
-        url="/test_endpoint",
-        params={"test_param": "test_value"},
-        header_overrides={"test_header": "test_value"},
-        timeout=10,
-        json={"test_key": "test_value"},
-        data=None,
-    )
 
 
 def test_refresh_access_token(

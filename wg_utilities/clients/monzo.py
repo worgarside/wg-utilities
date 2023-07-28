@@ -10,11 +10,8 @@ from typing import Any, Literal, TypedDict, final
 from pydantic import Field
 from requests import put
 
-from wg_utilities.clients.oauth_client import (
-    BaseModelWithConfig,
-    OAuthClient,
-    StrBytIntFlt,
-)
+from wg_utilities.clients.json_api_client import StrBytIntFlt
+from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
 from wg_utilities.functions import DTU, cleanse_string, utcnow
 
 LOGGER = getLogger(__name__)
