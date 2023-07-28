@@ -33,10 +33,6 @@ FORMATTER = Formatter(
 )
 FORMATTER.converter = gmtime
 
-_ITEM_WAREHOUSE_HOST = getenv("ITEM_WAREHOUSE_HOST", "http://homeassistant.local")
-_ITEM_WAREHOUSE_PORT = int(getenv("ITEM_WAREHOUSE_PORT", "8002"))
-
-LUMBERYARD_BASE_URL = f"{_ITEM_WAREHOUSE_HOST}:{_ITEM_WAREHOUSE_PORT}/v1"
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(ERROR)
@@ -79,8 +75,6 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
 
     This means that the same log message from the same host will only be stored once.
     """
-
-    BASE_URL = LUMBERYARD_BASE_URL
 
     HOST_NAME = gethostname()
 
@@ -160,14 +154,26 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
 
     def __init__(
         self,
-        level: Literal[
-            10, 20, 30, 40, 50, "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
-        ] = "INFO",
+        *,
+        level: int | Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO",
+        warehouse_host: str | None = None,
+        warehouse_port: int | None = None,
     ) -> None:
         """Initialize the handler and Log Warehouse."""
 
         Handler.__init__(self, level)
-        JsonApiClient.__init__(self)
+
+        warehouse_host = warehouse_host or str(
+            getenv("ITEM_WAREHOUSE_HOST", "http://homeassistant.local")
+        )
+        warehouse_port = warehouse_port or int(getenv("ITEM_WAREHOUSE_PORT", "0"))
+
+        base_url = warehouse_host
+        if warehouse_port:
+            base_url += f":{warehouse_port}"
+        base_url += "/v1"
+
+        JsonApiClient.__init__(self, base_url=base_url)
 
         self._initialize_warehouse()
 
@@ -342,16 +348,23 @@ def add_warehouse_handler(
     logger: Logger,
     *,
     level: int = DEBUG,
+    warehouse_host: str | None = None,
+    warehouse_port: int | None = None,
 ) -> WarehouseHandler:
     """Add a ListHandler to an existing logger.
 
     Args:
         logger (Logger): the logger to add a file handler to
         level (int): the logging level to be used for the WarehouseHandler
+        warehouse_host (str): the hostname of the Item Warehouse
+        warehouse_port (int): the port of the Item Warehouse
     """
 
-    wh_handler = WarehouseHandler()
-    wh_handler.setLevel(level)
+    wh_handler = WarehouseHandler(
+        level=level,
+        warehouse_host=warehouse_host,
+        warehouse_port=warehouse_port,
+    )
 
     logger.addHandler(wh_handler)
 

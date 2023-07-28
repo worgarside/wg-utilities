@@ -19,11 +19,7 @@ from requests_mock import Mocker
 
 from tests.conftest import YieldFixture
 from wg_utilities.loggers import ListHandler
-from wg_utilities.loggers.warehouse_handler import (
-    _ITEM_WAREHOUSE_HOST,
-    _ITEM_WAREHOUSE_PORT,
-    WarehouseHandler,
-)
+from wg_utilities.loggers.warehouse_handler import WarehouseHandler
 
 
 @fixture(scope="function", name="list_handler")
@@ -195,29 +191,18 @@ def _warehouse_handler(
 ) -> YieldFixture[WarehouseHandler]:
     """Fixture for creating a WarehouseHandler instance."""
 
-    _warehouse_handler = WarehouseHandler("DEBUG")
-
-    yield _warehouse_handler
-
-    _warehouse_handler.close()
-
-
-@fixture(scope="function", name="mock_requests", autouse=True)
-def _mock_requests(
-    mock_requests_root: Mocker,
-) -> YieldFixture[Mocker]:
-    """Fixture for mocking sync HTTP requests."""
+    lumberyard_base_url = "https://item-warehouse.com"
 
     lumberyard_url = "/".join(
         [
-            f"{_ITEM_WAREHOUSE_HOST}:{_ITEM_WAREHOUSE_PORT}",
+            lumberyard_base_url,
             "v1",
             "warehouses",
             "lumberyard",
         ]
     )
 
-    mock_requests_root.get(
+    mock_requests.get(
         lumberyard_url,
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
@@ -225,7 +210,7 @@ def _mock_requests(
     )
 
     for level in LOG_LEVELS:
-        mock_requests_root.get(
+        mock_requests.get(
             f"{lumberyard_url}/items?level={level}",
             status_code=HTTPStatus.OK,
             reason=HTTPStatus.OK.phrase,
@@ -247,5 +232,20 @@ def _mock_requests(
                 ]
             },
         )
+
+    _warehouse_handler = WarehouseHandler(
+        level="DEBUG", warehouse_host=lumberyard_base_url, warehouse_port=None
+    )
+
+    yield _warehouse_handler
+
+    _warehouse_handler.close()
+
+
+@fixture(scope="function", name="mock_requests", autouse=True)
+def _mock_requests(
+    mock_requests_root: Mocker,
+) -> YieldFixture[Mocker]:
+    """Fixture for mocking sync HTTP requests."""
 
     yield mock_requests_root

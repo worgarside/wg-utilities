@@ -15,7 +15,7 @@ from wg_utilities.loggers.warehouse_handler import (
 def test_handler_is_applied_to_logger_correctly(logger: Logger) -> None:
     """Test that the handler is applied to the logger correctly."""
 
-    add_warehouse_handler(logger)
+    add_warehouse_handler(logger, warehouse_host="https://item-warehouse.com")
 
     assert len(logger.handlers) == 1
 
@@ -45,7 +45,9 @@ def test_handler_is_applied_to_logger_correctly(logger: Logger) -> None:
 def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
     """Test that the log level is set correctly."""
 
-    add_warehouse_handler(logger, level=level)
+    add_warehouse_handler(
+        logger, level=level, warehouse_host="https://item-warehouse.com"
+    )
 
     assert len(logger.handlers) == 1
 

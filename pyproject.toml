@@ -125,10 +125,7 @@ xfail_strict = true
 log_cli_level = "warning"
 pythonpath = ["wg_utilities"]
 testpaths = ["tests"]
-env = [
-    "ITEM_WAREHOUSE_HOST=https://item-warehouse.com",
-    "ITEM_WAREHOUSE_PORT=443",
-]
+env = []
 filterwarnings = [
     "ignore::DeprecationWarning:boto.*:",
     "ignore::DeprecationWarning:pkg_resources.*:",

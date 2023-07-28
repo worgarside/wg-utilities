@@ -19,11 +19,7 @@ from tests.unit.loggers.conftest import (
     WAREHOUSE_SCHEMA,
 )
 from wg_utilities.clients.json_api_client import JsonApiClient
-from wg_utilities.loggers.warehouse_handler import (
-    _ITEM_WAREHOUSE_HOST,
-    _ITEM_WAREHOUSE_PORT,
-    WarehouseHandler,
-)
+from wg_utilities.loggers.warehouse_handler import WarehouseHandler
 
 
 def test_instantiation() -> None:
@@ -45,7 +41,7 @@ def test_initialize_warehouse_new_warehouse(mock_requests: Mocker) -> None:
     """Test that the _initialize_warehouse method works correctly."""
 
     mock_requests.get(
-        f"{_ITEM_WAREHOUSE_HOST}:{_ITEM_WAREHOUSE_PORT}/v1/warehouses/lumberyard",
+        "https://item-warehouse.com/v1/warehouses/lumberyard",
         status_code=HTTPStatus.NOT_FOUND,
         reason=HTTPStatus.NOT_FOUND.phrase,
     )
@@ -53,7 +49,7 @@ def test_initialize_warehouse_new_warehouse(mock_requests: Mocker) -> None:
     with patch.object(
         WarehouseHandler, "post_json_response", return_value=WAREHOUSE_SCHEMA
     ) as mock_post_json_response:
-        _ = WarehouseHandler()
+        _ = WarehouseHandler(warehouse_host="https://item-warehouse.com")
 
     mock_post_json_response.assert_called_once_with(
         "/warehouses", json=WarehouseHandler._WAREHOUSE_SCHEMA, timeout=5
@@ -145,7 +141,7 @@ def test_emit(level: int, message: str, logger: Logger) -> None:
         "created_at": ANY,
         "file": __file__,
         "level": level,
-        "line": 142,
+        "line": 138,
         "log_hash": md5(message.encode()).hexdigest(),
         "log_host": gethostname(),
         "logger": logger.name,
@@ -171,7 +167,7 @@ def test_emit_duplicate_record(
     caplog.set_level(ERROR)
 
     mock_requests.post(
-        f"{_ITEM_WAREHOUSE_HOST}:{_ITEM_WAREHOUSE_PORT}/v1/warehouses/lumberyard/items",
+        "https://item-warehouse.com/v1/warehouses/lumberyard/items",
         status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
         reason=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
         json={"detail": {"type": "ItemExistsError"}},
@@ -197,7 +193,7 @@ def test_emit_http_error(
     caplog.set_level(ERROR)
 
     mock_requests.post(
-        f"{_ITEM_WAREHOUSE_HOST}:{_ITEM_WAREHOUSE_PORT}/v1/warehouses/lumberyard/items",
+        "https://item-warehouse.com/v1/warehouses/lumberyard/items",
         status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
         reason=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
         json={"detail": {"type": "OtherError"}},
