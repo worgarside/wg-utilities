@@ -7,99 +7,19 @@ on:
       - closed
     branches:
       - main
-      - master
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  cancel_if_not_merged:
-    name: Cancel Workflow if Pull Request is not merged
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == false
-    steps:
-      - name: Cancel Workflow Run
-        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  get-release-metadata:
-    name: Get Release Metadata
-    runs-on: ubuntu-latest
-    outputs:
-      release-tag: ${{ steps.get-release-metadata.outputs.release-tag }}
-    steps:
-      - name: Get Release Tag
-        id: get-release-metadata
-        run: |
-          release_tag=$(echo $GITHUB_HEAD_REF | cut -d '/' -f2)
-
-          if ! [[ $release_tag =~ ^[0-9]{1,2}\.[0-9]{1,4}\.[0-9]{1,4}$ ]]
-          then
-              echo "Release tag is invalid: \`$release_tag\`" >> $GITHUB_STEP_SUMMARY
-              exit 1
-          else
-            echo "release-tag=$release_tag" >> $GITHUB_OUTPUT
-            echo "RELEASE_TAG=$release_tag" >> $GITHUB_ENV
-          fi
-
-  test-and-scan:
-    name: Unit Tests
-    uses: ./.github/workflows/test_and_scan.yml
+  publish-release:
+    name: Publish Release
+    uses: worgarside/github-config-files/.github/workflows/__publish_release.yml@main
     with:
-      branch: ${{ github.base_ref }}
+      base-ref-name: main
+      head-ref-name: ${{ github.head_ref || github.ref_name }}
+      pr-merged: ${{ github.event.pull_request.merged }}
     secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  build-and-publish:
-    name: Build & Publish
-    needs:
-      - get-release-metadata
-    uses: ./.github/workflows/build_and_publish.yml
-    with:
-      build_branch: ${{ github.base_ref }}
-      environment: 'production'
-      release_tag: ${{ needs.get-release-metadata.outputs.release-tag }}
-    secrets:
-      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-
-  publish_release_notes:
-    name: Publish Release Notes
-    runs-on: ubuntu-latest
-    needs:
-      - build-and-publish
-      - get-release-metadata
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    permissions:
-      contents: write
-      deployments: write
-      pages: write
-    steps:
-      - name: Point Release at `${{ github.base_ref }}`
-        run: |
-          gh release edit ${{ needs.get-release-metadata.outputs.release-tag }} \
-           --target ${{ github.base_ref }} \
-           --repo ${{ github.repository }}
-
-      - name: Publish Release Notes
-        run: |
-          gh release edit ${{ needs.get-release-metadata.outputs.release-tag }} \
-            --draft=false \
-            --repo ${{ github.repository }}
-
-      - name: Clone Repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.base_ref }}
-          fetch-depth: 0
-
-      - name: Merge Release Branch into `develop`
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-          git checkout $GITHUB_HEAD_REF
-          git checkout develop
-          git merge $GITHUB_HEAD_REF --no-edit
-          git push origin develop --force
-
-      - name: Delete Release Branch
-        run: 'git push origin --delete $GITHUB_HEAD_REF || :'
+      gh-token: ${{ secrets.GITHUB_TOKEN}}
+      wg-dev-token: ${{ secrets.WORGARSIDE_DEV_TOKEN}}
