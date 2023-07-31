@@ -11,6 +11,9 @@ from socket import gethostname
 from unittest.mock import ANY, patch
 
 from pytest import LogCaptureFixture, mark, raises
+from requests.exceptions import ConnectionError as RequestsConnectionError
+from requests.exceptions import RequestException
+from requests_mock import ANY as REQUESTS_MOCK_ANY
 from requests_mock import Mocker
 
 from tests.unit.loggers.conftest import (
@@ -242,3 +245,49 @@ def test_records_properties(
     record = records[0]
     assert record.getMessage() == f"test message @ level {expected_level_arg}"
     assert record.levelno == expected_level_arg
+
+
+@mark.add_handler(
+    "warehouse_handler",
+)
+@mark.parametrize("allow_connection_errors", (True, False))
+def test_allow_connection_errors(
+    allow_connection_errors: bool,
+    mock_requests: Mocker,
+    warehouse_handler: WarehouseHandler,
+    logger: Logger,
+) -> None:
+    """Test that the allow_connection_errors property works correctly."""
+
+    mock_requests.reset_mock()
+
+    mock_requests.get(
+        REQUESTS_MOCK_ANY,
+        exc=RequestsConnectionError(connection_str := "Connection Error: ¯\\_(ツ)_/¯"),
+    )
+
+    mock_requests.post(
+        REQUESTS_MOCK_ANY,
+        exc=RequestException(request_exc_str := "Request Exception: ︵(ಥ_ಥ)︵"),
+    )
+
+    if allow_connection_errors:
+        wh_handler = WarehouseHandler(allow_connection_errors=allow_connection_errors)
+
+        assert wh_handler._allow_connection_errors is allow_connection_errors
+
+        warehouse_handler._allow_connection_errors = allow_connection_errors
+
+        logger.info("Info log")
+    else:
+        with raises(RequestsConnectionError) as conn_exc_info:
+            _ = WarehouseHandler(allow_connection_errors=allow_connection_errors)
+
+        assert str(conn_exc_info.value) == connection_str
+
+        warehouse_handler._allow_connection_errors = allow_connection_errors
+
+        with raises(RequestException) as req_exc_info:
+            logger.error("Info log")
+
+        assert str(req_exc_info.value) == request_exc_str
