@@ -6,7 +6,7 @@ repos:
       - id: poetry-check
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.9.0
+    rev: v3.10.1
     hooks:
       - id: pyupgrade
         args:
@@ -87,7 +87,7 @@ repos:
           - --strict
 
   - repo: https://github.com/hadialqattan/pycln
-    rev: v2.1.5
+    rev: v2.2.0
     hooks:
       - id: pycln
         args:
@@ -153,6 +153,6 @@ repos:
           - tomli
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.278
+    rev: v0.0.281
     hooks:
       - id: ruff
