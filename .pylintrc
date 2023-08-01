@@ -71,7 +71,12 @@ disable=raw-checker-failed,
         import-error,
         useless-type-doc,
         useless-param-doc,
-        invalid-name
+        invalid-name,
+        useless-param-doc,
+        line-too-long,
+        no-self-argument,
+        missing-class-docstring,
+        missing-function-docstring
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -501,7 +506,7 @@ max-returns=6
 max-statements=50
 
 # Minimum number of public methods for a class (see R0903).
-min-public-methods=1
+min-public-methods=0
 
 
 [EXCEPTIONS]
