@@ -1794,13 +1794,13 @@ files = [
 
 [[package]]
 name = "mypy-boto3-pinpoint"
-version = "1.28.0"
-description = "Type annotations for boto3.Pinpoint 1.28.0 service generated with mypy-boto3-builder 7.14.5"
+version = "1.28.16"
+description = "Type annotations for boto3.Pinpoint 1.28.16 service generated with mypy-boto3-builder 7.17.1"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mypy-boto3-pinpoint-1.28.0.tar.gz", hash = "sha256:37a66246bcf4122a1acda1121c8921cf37c66c3a90731474efc6c8e2112a28c8"},
-    {file = "mypy_boto3_pinpoint-1.28.0-py3-none-any.whl", hash = "sha256:7c2aa04a5c42bbfd13b8e7f9ca6cc8830a1a3fa56918114261f32b69e3ec3705"},
+    {file = "mypy-boto3-pinpoint-1.28.16.tar.gz", hash = "sha256:04719b7c5d633bbde5b4747ac4a422e03b93cf58d72a7f8e9cfbb2e97c78e1ad"},
+    {file = "mypy_boto3_pinpoint-1.28.16-py3-none-any.whl", hash = "sha256:283b47565aa9c1c7ce7b17e5a38f76d7d1c7b9d3a992a07d7f41ce5eb825f364"},
 ]
 
 [[package]]
