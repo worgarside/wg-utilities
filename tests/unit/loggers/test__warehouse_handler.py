@@ -144,7 +144,7 @@ def test_emit(level: int, message: str, logger: Logger) -> None:
         "created_at": ANY,
         "file": __file__,
         "level": level,
-        "line": 138,
+        "line": 141,
         "log_hash": md5(message.encode()).hexdigest(),
         "log_host": gethostname(),
         "logger": logger.name,
