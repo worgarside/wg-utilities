@@ -187,7 +187,7 @@ WAREHOUSE_SCHEMA = {
 
 @fixture(scope="function", name="warehouse_handler")
 def _warehouse_handler(
-    mock_requests: Mocker,  # pylint: disable=unused-argument
+    mock_requests: Mocker,
 ) -> YieldFixture[WarehouseHandler]:
     """Fixture for creating a WarehouseHandler instance."""
 
