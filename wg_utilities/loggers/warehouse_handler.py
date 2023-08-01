@@ -283,7 +283,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
 
             if not self._allow_connection_errors:
                 raise
-        except Exception as exc:  # pylint: disable=broad-except
+        except Exception as exc:  # pylint: disable=broad-except # pragma: no cover
             LOGGER.error(repr(exc))
 
     def _get_records(self, level: int | None = None) -> list[LogRecord]:
