@@ -24,8 +24,10 @@ from traceback import format_exception
 from typing import Final, Literal, TypedDict, cast
 
 from requests import HTTPError
+from requests.exceptions import RequestException
 
 from wg_utilities.clients.json_api_client import JsonApiClient
+from wg_utilities.loggers.stream_handler import add_stream_handler
 
 FORMATTER = Formatter(
     fmt="%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s",
@@ -36,6 +38,7 @@ FORMATTER.converter = gmtime
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(ERROR)
+add_stream_handler(LOGGER)
 
 
 class WarehouseLogPage(TypedDict):
@@ -158,10 +161,11 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         level: int | Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO",
         warehouse_host: str | None = None,
         warehouse_port: int | None = None,
+        allow_connection_errors: bool = False,
     ) -> None:
         """Initialize the handler and Log Warehouse."""
 
-        Handler.__init__(self, level)
+        Handler.__init__(self, level=level)
 
         warehouse_host = warehouse_host or str(
             getenv("ITEM_WAREHOUSE_HOST", "http://homeassistant.local")
@@ -174,6 +178,8 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         base_url += "/v1"
 
         JsonApiClient.__init__(self, base_url=base_url)
+
+        self._allow_connection_errors = allow_connection_errors
 
         self._initialize_warehouse()
 
@@ -189,6 +195,14 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                     "/warehouses", json=self._WAREHOUSE_SCHEMA, timeout=5
                 )
                 LOGGER.info("Created new Warehouse: %r", schema)
+        except (
+            ConnectionError,
+            RequestException,
+        ) as exc:
+            LOGGER.exception("Error creating Warehouse: %r", exc)
+
+            if not self._allow_connection_errors:
+                raise
         else:
             LOGGER.info(
                 "Warehouse already exists - created at %s",
@@ -261,6 +275,16 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 exc.response.reason,
                 error_detail,
             )
+        except (
+            ConnectionError,
+            RequestException,
+        ) as exc:
+            LOGGER.error("Error posting log to Warehouse: %r", exc)
+
+            if not self._allow_connection_errors:
+                raise
+        except Exception as exc:  # pylint: disable=broad-except # pragma: no cover
+            LOGGER.error(repr(exc))
 
     def _get_records(self, level: int | None = None) -> list[LogRecord]:
         """Get log records from the warehouse.
@@ -350,6 +374,7 @@ def add_warehouse_handler(
     level: int = DEBUG,
     warehouse_host: str | None = None,
     warehouse_port: int | None = None,
+    allow_connection_errors: bool = False,
 ) -> WarehouseHandler:
     """Add a ListHandler to an existing logger.
 
@@ -358,12 +383,17 @@ def add_warehouse_handler(
         level (int): the logging level to be used for the WarehouseHandler
         warehouse_host (str): the hostname of the Item Warehouse
         warehouse_port (int): the port of the Item Warehouse
+        allow_connection_errors (bool): whether to allow connection errors
+
+    Returns:
+        WarehouseHandler: the WarehouseHandler that was added to the logger
     """
 
     wh_handler = WarehouseHandler(
         level=level,
         warehouse_host=warehouse_host,
         warehouse_port=warehouse_port,
+        allow_connection_errors=allow_connection_errors,
     )
 
     logger.addHandler(wh_handler)
