@@ -1379,7 +1379,7 @@ def test_needs_device_decorator(
     assert yamaha_yas_209.device.device_url == yamaha_yas_209.description_url
     assert yamaha_yas_209.device.friendly_name == "Will's YAS-209"
 
-    assert list(mock_aiohttp.requests.keys())[0] == (
+    assert next(iter(mock_aiohttp.requests.keys())) == (
         "GET",
         URL("http://192.168.1.1:49152/description.xml"),
     )

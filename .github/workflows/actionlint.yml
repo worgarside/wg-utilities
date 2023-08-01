@@ -1,5 +1,5 @@
 ---
-name: Lint GitHub Actions workflows
+name: actionlint
 
 on:
   pull_request:
@@ -7,19 +7,8 @@ on:
       - opened
       - reopened
       - synchronize
-      - ready_for_review
 
 jobs:
   actionlint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone Repo
-        uses: actions/checkout@v3
-
-      - name: Download actionlint
-        id: get-actionlint
-        # yamllint disable-line rule:line-length
-        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
-
-      - name: Check Workflow Files
-        run: ${{ steps.get-actionlint.outputs.executable }} -color -shellcheck ""
+    name: Lint Workflows
+    uses: worgarside/github-config-files/.github/workflows/__actionlint.yml@main
