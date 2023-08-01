@@ -12,11 +12,13 @@ on:
 jobs:
   create-pr:
     name: Create PR
-    uses: worgarside/github-config-files/.github/workflows/create_pr.yml@main
+    # yamllint disable-line rule:line-length
+    uses: worgarside/github-config-files/.github/workflows/__create_pull_request.yml@main
     with:
       base-ref-name: ${{ github.event.repository.default_branch }}
       head-ref-name: ${{ github.ref_name }}
       pr-title: ${{ github.event.head_commit.message }}
       pr-draft: true
+      update-pr-body-if-exists: true
     secrets:
       gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
