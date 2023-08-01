@@ -101,7 +101,7 @@ jobs:
     needs: test
     uses: worgarside/github-config-files/.github/workflows/__sonarcloud.yml@main
     with:
-      branch: ${{ inputs.branch }}
+      branch: ${{ inputs.branch || github.ref }}
       coverage-artifact: coverage-report
     secrets:
       sonar-token: ${{ secrets.SONAR_TOKEN }}
