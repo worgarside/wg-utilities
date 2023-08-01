@@ -100,6 +100,7 @@ jobs:
     name: Run SonarCloud Scan
     needs: test
     uses: worgarside/github-config-files/.github/workflows/__sonarcloud.yml@main
-    secrets:
+    with:
       coverage-artifact: coverage-report
+    secrets:
       sonar-token: ${{ secrets.SONAR_TOKEN }}
