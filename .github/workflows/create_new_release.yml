@@ -20,10 +20,6 @@ jobs:
         github.base_ref == 'develop' &&
         !contains(
           github.event.pull_request.labels.*.name,
-          'sync'
-        ) &&
-        !contains(
-          github.event.pull_request.labels.*.name,
           'skip-changelog'
         ) &&
         !contains(
@@ -35,7 +31,7 @@ jobs:
     uses: worgarside/github-config-files/.github/workflows/__create_new_release.yml@main
     with:
       # yamllint disable-line rule:line-length
-      publish-to-test-pypi: ${{ github.event.action == 'workflow_dispatch' || github.event.pull_request.user.login == 'worgarside' || github.event.pull_request.user.login == 'worgarside-dev' }}
+      publish-to-test-pypi: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.user.login == 'worgarside' || github.event.pull_request.user.login == 'worgarside-dev' }}
     secrets:
       gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
       test-pypi-token: ${{ secrets.PYPI_API_TOKEN }}
