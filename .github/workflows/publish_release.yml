@@ -23,5 +23,5 @@ jobs:
       publish-to-pypi: true
     secrets:
       gh-token: ${{ secrets.GITHUB_TOKEN}}
-      pypi-token: ${{ secrets.PYPI_API_TOKEN }}
       wg-dev-token: ${{ secrets.WORGARSIDE_DEV_TOKEN}}
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
