@@ -35,4 +35,4 @@ jobs:
       publish-to-test-pypi: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.user.login == 'worgarside' || github.event.pull_request.user.login == 'worgarside-dev' }}
     secrets:
       gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
-      test-pypi-token: ${{ secrets.PYPI_API_TOKEN }}
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
