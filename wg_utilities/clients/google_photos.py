@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum, auto
+from enum import Enum
 from logging import DEBUG, getLogger
 from pathlib import Path
 from typing import Any, Literal, TypeAlias, TypedDict, TypeVar
@@ -67,7 +67,7 @@ class MediaType(Enum):
 
     IMAGE = "image"
     VIDEO = "video"
-    UNKNOWN = auto()
+    UNKNOWN = "unknown"
 
 
 FJR = TypeVar("FJR", bound="GooglePhotosEntity")

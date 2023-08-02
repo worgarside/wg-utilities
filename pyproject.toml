@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wg-utilities"
-version = "3.8.0"
+version = "3.9.0"
 description = "Loads of useful stuff for the things I do :)"
 
 authors = ["Will Garside <worgarside@gmail.com>"]
@@ -23,10 +23,10 @@ async-upnp-client = { version = "*", optional = true }
 botocore = { version = "*", optional = true }
 flask = { version = ">=2.0.2", optional = true }
 "jetson.gpio" = { version = "*", platform = "linux", optional = true }
-lxml = { version = "==4.9.2", optional = true }
+lxml = { version = "==4.9.3", optional = true }
 pigpio = { version = "*", optional = true }
 pillow = { version = "*", optional = true }
-pyjwt = { version = ">=2.6,<2.8", optional = true }
+pyjwt = { version = ">=2.6,<2.9", optional = true }
 python-dotenv = { version = "*", optional = true }
 pytz = ">=2022.1"
 requests = { version = ">=2.26.0", optional = true }
@@ -133,6 +133,7 @@ filterwarnings = [
 markers = [
     "mocked_operation_lookup: allows setting the mocks in the `mb3c` fixture",
     "upnp_value_path: file with content to set as the value in a `upnp_state_variable` fixture",
+    "add_handler: allows adding a custom handler to the `logger` fixture",
 ]
 
 [tool.coverage.report]

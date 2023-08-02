@@ -9,7 +9,8 @@ from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypedDict, T
 
 from requests import Response, get
 
-from wg_utilities.clients.oauth_client import OAuthClient, StrBytIntFlt
+from wg_utilities.clients.json_api_client import StrBytIntFlt
+from wg_utilities.clients.oauth_client import OAuthClient
 from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)

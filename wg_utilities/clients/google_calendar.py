@@ -15,10 +15,10 @@ from requests import delete
 from tzlocal import get_localzone
 
 from wg_utilities.clients._google import GoogleClient
+from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import (
     BaseModelWithConfig,
     GenericModelWithConfig,
-    StrBytIntFlt,
 )
 
 

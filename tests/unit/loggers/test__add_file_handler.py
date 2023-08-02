@@ -6,7 +6,7 @@ from logging import CRITICAL, getLogger
 from pathlib import Path
 from unittest.mock import patch
 
-from wg_utilities.loggers import add_file_handler, create_file_handler
+from wg_utilities.loggers.file_handler import add_file_handler, create_file_handler
 
 
 def test_file_handler_is_added_to_logger(temp_dir: Path) -> None:
@@ -16,7 +16,9 @@ def test_file_handler_is_added_to_logger(temp_dir: Path) -> None:
 
     logger = getLogger("test_file_handler_is_added_to_logger")
 
-    with patch("wg_utilities.loggers.create_file_handler") as mock_create_file_handler:
+    with patch(
+        "wg_utilities.loggers.file_handler.create_file_handler"
+    ) as mock_create_file_handler:
         mock_create_file_handler.return_value = file_handler
 
         add_file_handler(logger, logfile_path=log_path, level=CRITICAL)
@@ -32,7 +34,9 @@ def test_create_file_handler_is_called(temp_dir: Path) -> None:
 
     logger = getLogger("test_create_file_handler_is_called")
 
-    with patch("wg_utilities.loggers.create_file_handler") as mock_create_file_handler:
+    with patch(
+        "wg_utilities.loggers.file_handler.create_file_handler"
+    ) as mock_create_file_handler:
         mock_create_file_handler.return_value = file_handler
 
         add_file_handler(logger, logfile_path=log_path, level=CRITICAL)

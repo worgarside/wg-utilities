@@ -7,60 +7,16 @@ on:
       - closed
 
 jobs:
-  delete-branch:
-    name: Delete Branch on PR Merge
-    env:
-      GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
-    if: github.event.pull_request.merged == true
+  pr-cleanup:
+    name: PR Cleanup
+    uses: worgarside/github-config-files/.github/workflows/__pr_cleanup.yml@main
     permissions:
       contents: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone Repo
-        uses: actions/checkout@v3
-        # This is to stop false positives when the branch has already been deleted
-        continue-on-error: true
-        with:
-          ref: ${{ github.head_ref }}
-
-      - name: Delete Branch
-        if: |
-          success() &&
-          (
-            contains(
-              toJson(github.event.pull_request.labels.*.name), 'bot:delete-on-merge'
-            ) ||
-            !(
-              startsWith(github.head_ref, 'hotfix/') ||
-              startsWith(github.head_ref, 'release/') ||
-              github.head_ref == 'develop' ||
-              github.head_ref == 'main' ||
-              github.head_ref == 'master'
-            )
-          )
-        run: git push origin --delete $GITHUB_HEAD_REF
-
-  remove-bot-labels:
-    name: Remove Bot Command Labels on PR Merge
-    if: github.event.pull_request.merged == true
-    permissions:
       pull-requests: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Remove Bot Labels
-        env:
-          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
-          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name) }}
-        run: |
-          bot_labels=$(
-            echo "$PR_LABELS" |
-              tr ',' '\n' |
-              grep -o 'bot:.*' |
-              tr '\n' ',' |
-              sed 's/,$//'
-          )
-          if [[ ! -z "$bot_labels" ]]; then
-            gh pr edit "${{ github.event.pull_request.number }}" \
-              --repo "${{ github.repository }}" \
-              --remove-label "$bot_labels"
-          fi
+    with:
+      head-ref: ${{ github.head_ref }}
+      pr-label-names: ${{ join(github.event.pull_request.labels.*.name) }}
+      pr-merged: ${{ github.event.pull_request.merged }}
+      pr-number: ${{ github.event.pull_request.number }}
+    secrets:
+      gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}

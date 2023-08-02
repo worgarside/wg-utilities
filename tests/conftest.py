@@ -41,6 +41,8 @@ YieldFixture = Generator[T, None, None]
 class TestError(Exception):
     """Custom exception for testing."""
 
+    __test__ = False
+
 
 TEST_EXCEPTION = TestError("Test Exception")
 

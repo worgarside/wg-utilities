@@ -19,7 +19,7 @@ from sys import stdout
 
 from pytest import mark
 
-from wg_utilities.loggers import FORMATTER, add_stream_handler
+from wg_utilities.loggers.stream_handler import FORMATTER, add_stream_handler
 
 
 @mark.parametrize(

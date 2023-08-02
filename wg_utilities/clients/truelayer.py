@@ -14,11 +14,11 @@ from pydantic import Field, validator
 from requests import HTTPError
 from strenum import StrEnum  # type: ignore[import]
 
+from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import (
     BaseModelWithConfig,
     GenericModelWithConfig,
     OAuthClient,
-    StrBytIntFlt,
 )
 from wg_utilities.functions import user_data_dir
 from wg_utilities.functions.file_management import force_mkdir
