@@ -28,7 +28,7 @@ jobs:
 
       - name: Generate Sphinx Input
         run: |
-          sphinx-quickstart docs \
+          poetry run sphinx-quickstart docs \
             -q \
             -p "WG Utilities" \
             -a "Will Garside" \
@@ -45,7 +45,7 @@ jobs:
 
       - name: Generate Documentation
         run: |
-          sphinx-apidoc -e -o docs/source wg_utilities
+          poetry run sphinx-apidoc -e -o docs/source wg_utilities
           make -C docs html
 
       - name: Upload Pages Artifact
