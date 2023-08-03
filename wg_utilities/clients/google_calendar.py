@@ -1,4 +1,3 @@
-# pylint: disable=too-few-public-methods
 """Custom client for interacting with Google's Calendar API."""
 from __future__ import annotations
 
@@ -40,7 +39,7 @@ class EventType(str, Enum):
     OUT_OF_OFFICE = "outOfOffice"
 
 
-class _Attendee(BaseModelWithConfig):  # pylint: disable=too-few-public-methods
+class _Attendee(BaseModelWithConfig):
     additionalGuests: int | None  # noqa: N815
     comment: str | None
     display_name: str | None = Field(alias="displayName", default=None)
@@ -89,7 +88,7 @@ class _ConferenceData(TypedDict, total=False):
     parameters: dict[str, object] | None
 
 
-class _Creator(BaseModelWithConfig):  # pylint: disable=too-few-public-methods
+class _Creator(BaseModelWithConfig):
     display_name: str | None = Field(alias="displayName", default=None)
     email: str
     self: bool = False

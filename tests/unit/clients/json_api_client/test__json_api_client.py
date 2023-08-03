@@ -267,7 +267,7 @@ def test_get_json_response_calls_request_json_response(
         json_api_client, "_request_json_response"
     ) as mock_request_json_response:
         json_api_client.get_json_response(
-            url="/test_endpoint",
+            "/test_endpoint",
             params={"test_param": "test_value"},
             header_overrides={"test_header": "test_value"},
             timeout=10,
@@ -294,7 +294,7 @@ def test_post_json_response_calls_request_json_response(
         json_api_client, "_request_json_response"
     ) as mock_request_json_response:
         json_api_client.post_json_response(
-            url="/test_endpoint",
+            "/test_endpoint",
             params={"test_param": "test_value"},
             header_overrides={"test_header": "test_value"},
             timeout=10,
