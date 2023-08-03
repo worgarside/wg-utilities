@@ -3,25 +3,6 @@ name: Test & Scan
 
 # yamllint disable-line rule:truthy
 on:
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: Branch to run tests on
-        required: true
-        default: main
-  workflow_call:
-    inputs:
-      branch:
-        type: string
-        description: Branch to run tests on
-        required: true
-    secrets:
-      CODECOV_TOKEN:
-        description: CodeCov token
-        required: true
-      SONAR_TOKEN:
-        description: SonarCloud token
-        required: true
   pull_request:
     types:
       - opened
@@ -31,6 +12,7 @@ on:
   push:
     branches:
       - develop
+      - main
 
 concurrency:
   group: ${{ github.ref }}
@@ -56,7 +38,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
         with:
-          ref: ${{ inputs.branch || github.ref }}
+          ref: ${{ github.head_ref }}
 
       - name: Install poetry
         run: pipx install poetry
@@ -74,6 +56,26 @@ jobs:
         id: unit_tests
         run: poetry run pytest --cov=./ --cov-report=xml
         continue-on-error: true
+
+      - name: Generate and Commit Coverage Badge
+        env:
+          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+        # if: |
+        #   github.event_name == 'pull_request' &&
+        #   startsWith(github.head_ref, 'release/') &&
+        #   github.base_ref == 'main' &&
+        #   matrix.python-version == '3.10'
+        run: |
+          poetry run coverage-badge -o coverage-badge.svg
+
+          # git checkout ${{ github.head_ref }}
+
+          git config --global user.email "worgarside.dev@gmail.com"
+          git config --global user.name "worgarside-dev"
+
+          git add coverage-badge.svg
+          git commit -m "Generate coverage badge"
+          git push
 
       - name: Upload `coverage.xml` as Artifact
         if: matrix.python-version == '3.10'
