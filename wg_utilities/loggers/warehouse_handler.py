@@ -463,6 +463,10 @@ def add_warehouse_handler(
     warehouse_host: str | None = None,
     warehouse_port: int | None = None,
     allow_connection_errors: bool = False,
+    pyscript_task_executor: _PyscriptTaskExecutorProtocol[
+        WarehouseLog | WarehouseLogPage
+    ]
+    | None = None,
 ) -> WarehouseHandler:
     """Add a ListHandler to an existing logger.
 
@@ -472,6 +476,7 @@ def add_warehouse_handler(
         warehouse_host (str): the hostname of the Item Warehouse
         warehouse_port (int): the port of the Item Warehouse
         allow_connection_errors (bool): whether to allow connection errors
+        pyscript_task_executor (Callable): the Pyscript task executor (if applicable)
 
     Returns:
         WarehouseHandler: the WarehouseHandler that was added to the logger
@@ -482,6 +487,7 @@ def add_warehouse_handler(
         warehouse_host=warehouse_host,
         warehouse_port=warehouse_port,
         allow_connection_errors=allow_connection_errors,
+        pyscript_task_executor=pyscript_task_executor,
     )
 
     logger.addHandler(wh_handler)
