@@ -24,7 +24,7 @@ jobs:
           python-version: 3.11
 
       - name: Install CI-only Dependencies
-        run: poetry install --all-extras --sync
+        run: poetry install --extras ci --sync
 
       - name: Generate Sphinx Input
         run: |
@@ -46,7 +46,7 @@ jobs:
       - name: Generate Documentation
         run: |
           poetry run sphinx-apidoc -e -o docs/source wg_utilities
-          make -C docs html
+          poetry run make -C docs html
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v2
