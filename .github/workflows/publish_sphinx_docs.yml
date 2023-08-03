@@ -23,8 +23,8 @@ jobs:
           cache: poetry
           python-version: 3.11
 
-      - name: Install CI-only Dependencies
-        run: poetry install --extras ci --sync
+      - name: Install Dependencies
+        run: poetry install --sync
 
       - name: Generate Sphinx Input
         run: |
