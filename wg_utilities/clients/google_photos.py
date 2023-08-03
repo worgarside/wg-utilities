@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,no-self-argument
+# pylint: disable=no-self-argument
 """Custom client for interacting with Google's Photos API."""
 from __future__ import annotations
 

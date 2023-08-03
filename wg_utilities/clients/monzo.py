@@ -1,4 +1,3 @@
-# pylint: disable=too-few-public-methods
 """Custom client for interacting with Monzo's API."""
 from __future__ import annotations
 

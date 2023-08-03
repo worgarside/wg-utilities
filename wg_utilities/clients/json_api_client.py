@@ -216,6 +216,8 @@ class JsonApiClient(Generic[GetJsonResponse]):
     def get_json_response(
         self,
         url: str,
+        /,
+        *,
         params: dict[
             StrBytIntFlt,
             StrBytIntFlt | Iterable[StrBytIntFlt] | None,
@@ -256,6 +258,8 @@ class JsonApiClient(Generic[GetJsonResponse]):
     def post_json_response(
         self,
         url: str,
+        /,
+        *,
         params: dict[
             StrBytIntFlt,
             StrBytIntFlt | Iterable[StrBytIntFlt] | None,

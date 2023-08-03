@@ -8,8 +8,9 @@ from hashlib import md5
 from http import HTTPStatus
 from logging import ERROR, Handler, Logger, LogRecord
 from socket import gethostname
-from unittest.mock import ANY, patch
+from unittest.mock import ANY, Mock, call, patch
 
+from freezegun import freeze_time
 from pytest import LogCaptureFixture, mark, raises
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import RequestException
@@ -128,9 +129,7 @@ def test_get_log_hash(log_record: LogRecord, expected_hash: str) -> None:
     assert WarehouseHandler._get_log_hash(log_record) == expected_hash
 
 
-@mark.add_handler(
-    "warehouse_handler",
-)
+@mark.add_handler("warehouse_handler")
 @mark.parametrize(("level", "message"), SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL)
 def test_emit(level: int, message: str, logger: Logger) -> None:
     """Test that the emit method sends the correct payload to the warehouse."""
@@ -144,7 +143,7 @@ def test_emit(level: int, message: str, logger: Logger) -> None:
         "created_at": ANY,
         "file": __file__,
         "level": level,
-        "line": 141,
+        "line": 140,
         "log_hash": md5(message.encode()).hexdigest(),
         "log_host": gethostname(),
         "logger": logger.name,
@@ -159,9 +158,7 @@ def test_emit(level: int, message: str, logger: Logger) -> None:
     )
 
 
-@mark.add_handler(
-    "warehouse_handler",
-)
+@mark.add_handler("warehouse_handler")
 def test_emit_duplicate_record(
     caplog: LogCaptureFixture, logger: Logger, mock_requests: Mocker
 ) -> None:
@@ -185,9 +182,7 @@ def test_emit_duplicate_record(
     assert not caplog.records
 
 
-@mark.add_handler(
-    "warehouse_handler",
-)
+@mark.add_handler("warehouse_handler")
 def test_emit_http_error(
     caplog: LogCaptureFixture, logger: Logger, mock_requests: Mocker
 ) -> None:
@@ -211,9 +206,7 @@ def test_emit_http_error(
     )
 
 
-@mark.add_handler(
-    "warehouse_handler",
-)
+@mark.add_handler("warehouse_handler")
 def test_get_records_parsing(warehouse_handler: WarehouseHandler) -> None:
     """Test that the get_records method returns the correct records."""
 
@@ -247,9 +240,7 @@ def test_records_properties(
     assert record.levelno == expected_level_arg
 
 
-@mark.add_handler(
-    "warehouse_handler",
-)
+@mark.add_handler("warehouse_handler")
 @mark.parametrize("allow_connection_errors", (True, False))
 def test_allow_connection_errors(
     allow_connection_errors: bool,
@@ -291,3 +282,129 @@ def test_allow_connection_errors(
             logger.error("Info log")
 
         assert str(req_exc_info.value) == request_exc_str
+
+
+@freeze_time("2021-01-01 00:00:00")
+@mark.add_handler("warehouse_handler")
+def test_pyscript_task_executor(
+    logger: Logger, warehouse_handler: WarehouseHandler
+) -> None:
+    """Test that the pyscript_task_executor works correctly."""
+
+    mock_task_executor = Mock()
+
+    warehouse_handler._pyscript_task_executor = mock_task_executor
+
+    logger.debug("Debug log")
+    logger.info("Info log")
+    logger.warning("Warning log")
+    logger.error("Error log")
+    logger.critical("Critical log")
+
+    assert mock_task_executor.call_args_list == [
+        call(
+            super(WarehouseHandler, warehouse_handler).post_json_response,
+            "/warehouses/lumberyard/items",
+            params=None,
+            header_overrides=None,
+            timeout=None,
+            json={
+                "created_at": 1609459200.0,
+                "file": __file__,
+                "level": 10,
+                "line": ANY,
+                "log_hash": md5(b"Debug log").hexdigest(),
+                "log_host": gethostname(),
+                "logger": logger.name,
+                "message": "Debug log",
+                "module": "test__warehouse_handler",
+                "process": "MainProcess",
+                "thread": "MainThread",
+            },
+            data=None,
+        ),
+        call(
+            super(WarehouseHandler, warehouse_handler).post_json_response,
+            "/warehouses/lumberyard/items",
+            params=None,
+            header_overrides=None,
+            timeout=None,
+            json={
+                "created_at": 1609459200.0,
+                "file": __file__,
+                "level": 20,
+                "line": ANY,
+                "log_hash": md5(b"Info log").hexdigest(),
+                "log_host": gethostname(),
+                "logger": logger.name,
+                "message": "Info log",
+                "module": "test__warehouse_handler",
+                "process": "MainProcess",
+                "thread": "MainThread",
+            },
+            data=None,
+        ),
+        call(
+            super(WarehouseHandler, warehouse_handler).post_json_response,
+            "/warehouses/lumberyard/items",
+            params=None,
+            header_overrides=None,
+            timeout=None,
+            json={
+                "created_at": 1609459200.0,
+                "file": __file__,
+                "level": 30,
+                "line": ANY,
+                "log_hash": md5(b"Warning log").hexdigest(),
+                "log_host": gethostname(),
+                "logger": logger.name,
+                "message": "Warning log",
+                "module": "test__warehouse_handler",
+                "process": "MainProcess",
+                "thread": "MainThread",
+            },
+            data=None,
+        ),
+        call(
+            ANY,
+            "/warehouses/lumberyard/items",
+            params=None,
+            header_overrides=None,
+            timeout=None,
+            json={
+                "created_at": 1609459200.0,
+                "file": __file__,
+                "level": 40,
+                "line": ANY,
+                "log_hash": md5(b"Error log").hexdigest(),
+                "log_host": gethostname(),
+                "logger": logger.name,
+                "message": "Error log",
+                "module": "test__warehouse_handler",
+                "process": "MainProcess",
+                "thread": "MainThread",
+            },
+            data=None,
+        ),
+        call(
+            ANY,
+            "/warehouses/lumberyard/items",
+            params=None,
+            header_overrides=None,
+            timeout=None,
+            json={
+                "created_at": 1609459200.0,
+                "file": __file__,
+                "level": 50,
+                "line": ANY,
+                "log_hash": md5(b"Critical log").hexdigest(),
+                "log_host": gethostname(),
+                "logger": logger.name,
+                "message": "Critical log",
+                "module": "test__warehouse_handler",
+                "process": "MainProcess",
+                "thread": "MainThread",
+            },
+            data=None,
+        ),
+    ]

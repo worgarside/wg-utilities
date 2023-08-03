@@ -1,4 +1,4 @@
-# pylint: disable=too-many-lines,too-few-public-methods,no-self-argument
+# pylint: disable=too-many-lines,no-self-argument
 """Custom client for interacting with Spotify's Web API."""
 from __future__ import annotations
 

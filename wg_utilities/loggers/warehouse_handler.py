@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable, Mapping
 from hashlib import md5
 from http import HTTPStatus
 from json import JSONDecodeError, dumps
@@ -21,12 +22,12 @@ from os import getenv
 from socket import gethostname
 from time import gmtime
 from traceback import format_exception
-from typing import Final, Literal, TypedDict, cast
+from typing import Any, Final, Literal, Protocol, TypedDict, TypeVar, cast
 
 from requests import HTTPError
 from requests.exceptions import RequestException
 
-from wg_utilities.clients.json_api_client import JsonApiClient
+from wg_utilities.clients.json_api_client import JsonApiClient, StrBytIntFlt
 from wg_utilities.loggers.stream_handler import add_stream_handler
 
 FORMATTER = Formatter(
@@ -64,6 +65,14 @@ class WarehouseLog(TypedDict):
     module: str
     process: str
     thread: str
+
+
+T = TypeVar("T")
+
+
+class _PyscriptTaskExecutorProtocol(Protocol[T]):
+    def __call__(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+        ...
 
 
 class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
@@ -162,6 +171,10 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         warehouse_host: str | None = None,
         warehouse_port: int | None = None,
         allow_connection_errors: bool = False,
+        pyscript_task_executor: _PyscriptTaskExecutorProtocol[
+            WarehouseLog | WarehouseLogPage
+        ]
+        | None = None,
     ) -> None:
         """Initialize the handler and Log Warehouse."""
 
@@ -180,6 +193,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         JsonApiClient.__init__(self, base_url=base_url)
 
         self._allow_connection_errors = allow_connection_errors
+        self._pyscript_task_executor = pyscript_task_executor
 
         self._initialize_warehouse()
 
@@ -213,18 +227,6 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                     "Warehouse schema does not match expected schema: "
                     + dumps(schema, default=repr)
                 )
-
-    @staticmethod
-    def _get_log_hash(record: LogRecord) -> str:
-        """Get a hash of the log message.
-
-        Args:
-            record (LogRecord): the log record to hash
-
-        Returns:
-            str: the hexdigest of the hash
-        """
-        return md5(record.getMessage().encode()).hexdigest()
 
     def emit(self, record: LogRecord) -> None:
         """Add log record to the internal record store.
@@ -285,6 +287,80 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 raise
         except Exception as exc:  # pylint: disable=broad-except # pragma: no cover
             LOGGER.error(repr(exc))
+
+    def get_json_response(
+        self,
+        url: str,
+        /,
+        *,
+        params: dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None]
+        | None = None,
+        header_overrides: Mapping[str, str | bytes] | None = None,
+        timeout: float | None = None,
+        json: Any | None = None,
+        data: Any | None = None,
+    ) -> WarehouseLog | WarehouseLogPage:
+        """Get a JSON response from the warehouse.
+
+        This is overridden to allow compatibility with Pyscript.
+        https://hacs-pyscript.readthedocs.io/en/latest/reference.html#task-executor
+        """
+        if self._pyscript_task_executor is not None:
+            return self._pyscript_task_executor(
+                super().get_json_response,
+                url,
+                params=params,
+                header_overrides=header_overrides,
+                timeout=timeout,
+                json=json,
+                data=data,
+            )
+
+        return super().get_json_response(
+            url,
+            params=params,
+            header_overrides=header_overrides,
+            timeout=timeout,
+            json=json,
+            data=data,
+        )
+
+    def post_json_response(
+        self,
+        url: str,
+        /,
+        *,
+        params: dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None]
+        | None = None,
+        header_overrides: Mapping[str, str | bytes] | None = None,
+        timeout: float | tuple[float, float] | tuple[float, None] | None = None,
+        json: Any | None = None,
+        data: Any | None = None,
+    ) -> WarehouseLog | WarehouseLogPage:
+        """Post a JSON response to the warehouse.
+
+        This is overridden to allow compatibility with Pyscript.
+        https://hacs-pyscript.readthedocs.io/en/latest/reference.html#task-executor
+        """
+        if self._pyscript_task_executor is not None:
+            return self._pyscript_task_executor(
+                super().post_json_response,
+                url,
+                params=params,
+                header_overrides=header_overrides,
+                timeout=timeout,
+                json=json,
+                data=data,
+            )
+
+        return super().post_json_response(
+            url,
+            params=params,
+            header_overrides=header_overrides,
+            timeout=timeout,
+            json=json,
+            data=data,
+        )
 
     def _get_records(self, level: int | None = None) -> list[LogRecord]:
         """Get log records from the warehouse.
@@ -366,6 +442,18 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             list: a list of log records with the level CRITICAL
         """
         return self._get_records(CRITICAL)
+
+    @staticmethod
+    def _get_log_hash(record: LogRecord) -> str:
+        """Get a hash of the log message.
+
+        Args:
+            record (LogRecord): the log record to hash
+
+        Returns:
+            str: the hexdigest of the hash
+        """
+        return md5(record.getMessage().encode()).hexdigest()
 
 
 def add_warehouse_handler(
