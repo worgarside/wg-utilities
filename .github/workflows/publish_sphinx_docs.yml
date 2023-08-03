@@ -24,7 +24,7 @@ jobs:
           python-version: 3.11
 
       - name: Install Dependencies
-        run: poetry install --sync
+        run: poetry install --all-extras --sync
 
       - name: Generate Sphinx Input
         run: |
