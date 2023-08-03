@@ -408,3 +408,24 @@ def test_pyscript_task_executor(
             data=None,
         ),
     ]
+
+    mock_task_executor.reset_mock()
+
+    mock_task_executor.return_value = "response"
+
+    assert (
+        warehouse_handler.get_json_response(  # type: ignore[comparison-overlap]
+            "/warehouses/lumberyard/items"
+        )
+        == "response"
+    )
+
+    mock_task_executor.assert_called_once_with(
+        super(WarehouseHandler, warehouse_handler).get_json_response,
+        "/warehouses/lumberyard/items",
+        params=None,
+        header_overrides=None,
+        timeout=None,
+        json=None,
+        data=None,
+    )

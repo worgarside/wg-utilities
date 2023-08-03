@@ -72,7 +72,7 @@ T = TypeVar("T")
 
 class _PyscriptTaskExecutorProtocol(Protocol[T]):
     def __call__(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
-        ...
+        ...  # pragma: no cover
 
 
 class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
