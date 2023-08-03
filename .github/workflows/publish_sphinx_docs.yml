@@ -1,0 +1,69 @@
+---
+name: Build and Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          cache: poetry
+          python-version: 3.11
+
+      - name: Install CI-only Dependencies
+        run: poetry install --all-extras --sync
+
+      - name: Generate Sphinx Input
+        run: |
+          sphinx-quickstart docs \
+            -q \
+            -p "WG Utilities" \
+            -a "Will Garside" \
+            --ext-autodoc \
+            --ext-viewcode
+
+          echo "extensions += ['sphinx.ext.napoleon']" >> docs/conf.py
+          echo 'html_theme = "sphinx_rtd_theme"' >> docs/conf.py
+          echo "napoleon_google_docstring = True" >> docs/conf.py
+          echo "napoleon_use_param = False" >> docs/conf.py
+
+          mkdir -p docs/source/_static
+          cp coverage-badge.svg docs/source/_static/coverage.svg
+
+      - name: Generate Documentation
+        run: |
+          sphinx-apidoc -e -o docs/source wg_utilities
+          make -C docs html
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./docs/build/html
+
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   permissions:
+  #     pages: write
+  #     id-token: write
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v2
+  #       with:
+  #         token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
