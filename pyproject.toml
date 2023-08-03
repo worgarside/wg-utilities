@@ -71,6 +71,10 @@ tomli = "*"
 pytest-xdist = "*"
 
 
+
+[tool.poetry.group.ci.dependencies]
+coverage-badge = "^1.1.0"
+
 [tool.poetry.extras]
 clients = [
     "flask",
