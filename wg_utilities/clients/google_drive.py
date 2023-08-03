@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,too-many-lines,no-self-argument
+# pylint: disable=too-many-lines,no-self-argument
 """Custom client for interacting with Google's Drive API."""
 from __future__ import annotations
 
