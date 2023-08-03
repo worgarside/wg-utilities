@@ -1,4 +1,3 @@
-# pylint: disable=too-few-public-methods
 """Generic OAuth client to allow for reusable authentication flows/checks etc."""
 from __future__ import annotations
 

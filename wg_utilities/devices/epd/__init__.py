@@ -28,7 +28,6 @@ else:
     _LOGGER.warning("Unable to import E-Paper Driver, running in test mode")
     FRAME_DELAY = 0
 
-    # pylint: disable=too-few-public-methods
     class EPD:  # type: ignore[no-redef]
         """Mirror the functionality of the EPD on devices which don't support it."""
 

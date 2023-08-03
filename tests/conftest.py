@@ -83,7 +83,6 @@ FLAT_FILES_DIR = Path(__file__).parent / "flat_files"
 
 
 class _XdistScheduler(LoadScopeScheduling):  # type: ignore[misc]
-    # pylint: disable=too-few-public-methods
     """Custom scheduler to split tests into multiple scopes."""
 
     def _split_scope(self, nodeid: str) -> str:
