@@ -145,7 +145,7 @@ def test_initialize_warehouse_already_exists_but_wrong_schema() -> None:
 def test_get_log_hash(log_record: LogRecord, expected_hash: str) -> None:
     """Test that the get_log_hash method returns consistent results."""
 
-    assert WarehouseHandler._get_log_hash(log_record) == expected_hash
+    assert WarehouseHandler.get_log_hash(log_record) == expected_hash
 
 
 @mark.add_handler("warehouse_handler")
