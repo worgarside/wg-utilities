@@ -8,7 +8,7 @@ from hashlib import md5
 from http import HTTPStatus
 from logging import ERROR, Handler, Logger, LogRecord
 from socket import gethostname
-from unittest.mock import ANY, Mock, call, patch
+from unittest.mock import ANY, MagicMock, call, patch
 
 from freezegun import freeze_time
 from pytest import LogCaptureFixture, mark, raises
@@ -56,7 +56,12 @@ def test_initialize_warehouse_new_warehouse(mock_requests: Mocker) -> None:
         _ = WarehouseHandler(warehouse_host="https://item-warehouse.com")
 
     mock_post_json_response.assert_called_once_with(
-        "/warehouses", json=WarehouseHandler._WAREHOUSE_SCHEMA, timeout=5
+        "/warehouses",
+        params=None,
+        header_overrides=None,
+        timeout=5,
+        json=WarehouseHandler._WAREHOUSE_SCHEMA,
+        data=None,
     )
 
 
@@ -68,7 +73,14 @@ def test_initialize_warehouse_already_exists() -> None:
     ) as mock_get_json_response:
         _ = WarehouseHandler()
 
-    mock_get_json_response.assert_called_once_with("/warehouses/lumberyard", timeout=5)
+    mock_get_json_response.assert_called_once_with(
+        "/warehouses/lumberyard",
+        params=None,
+        header_overrides=None,
+        timeout=5,
+        json=None,
+        data=None,
+    )
 
 
 def test_initialize_warehouse_already_exists_but_wrong_schema() -> None:
@@ -79,7 +91,14 @@ def test_initialize_warehouse_already_exists_but_wrong_schema() -> None:
     ) as mock_get_json_response, raises(ValueError) as exc_info:
         _ = WarehouseHandler()
 
-    mock_get_json_response.assert_called_once_with("/warehouses/lumberyard", timeout=5)
+    mock_get_json_response.assert_called_once_with(
+        "/warehouses/lumberyard",
+        params=None,
+        header_overrides=None,
+        timeout=5,
+        json=None,
+        data=None,
+    )
 
     assert (
         str(exc_info.value)
@@ -143,7 +162,7 @@ def test_emit(level: int, message: str, logger: Logger) -> None:
         "created_at": ANY,
         "file": __file__,
         "level": level,
-        "line": 140,
+        "line": ANY,
         "log_hash": md5(message.encode()).hexdigest(),
         "log_host": gethostname(),
         "logger": logger.name,
@@ -154,7 +173,12 @@ def test_emit(level: int, message: str, logger: Logger) -> None:
     }
 
     mock_post_json_response.assert_called_once_with(
-        "/warehouses/lumberyard/items", json=expected_log_payload
+        "/warehouses/lumberyard/items",
+        params=None,
+        header_overrides=None,
+        timeout=5,
+        json=expected_log_payload,
+        data=None,
     )
 
 
@@ -291,7 +315,7 @@ def test_pyscript_task_executor(
 ) -> None:
     """Test that the pyscript_task_executor works correctly."""
 
-    mock_task_executor = Mock()
+    mock_task_executor = MagicMock()
 
     warehouse_handler._pyscript_task_executor = mock_task_executor
 
@@ -303,11 +327,11 @@ def test_pyscript_task_executor(
 
     assert mock_task_executor.call_args_list == [
         call(
-            super(WarehouseHandler, warehouse_handler).post_json_response,
+            warehouse_handler.post_json_response,
             "/warehouses/lumberyard/items",
             params=None,
             header_overrides=None,
-            timeout=None,
+            timeout=5,
             json={
                 "created_at": 1609459200.0,
                 "file": __file__,
@@ -324,11 +348,11 @@ def test_pyscript_task_executor(
             data=None,
         ),
         call(
-            super(WarehouseHandler, warehouse_handler).post_json_response,
+            warehouse_handler.post_json_response,
             "/warehouses/lumberyard/items",
             params=None,
             header_overrides=None,
-            timeout=None,
+            timeout=5,
             json={
                 "created_at": 1609459200.0,
                 "file": __file__,
@@ -345,11 +369,11 @@ def test_pyscript_task_executor(
             data=None,
         ),
         call(
-            super(WarehouseHandler, warehouse_handler).post_json_response,
+            warehouse_handler.post_json_response,
             "/warehouses/lumberyard/items",
             params=None,
             header_overrides=None,
-            timeout=None,
+            timeout=5,
             json={
                 "created_at": 1609459200.0,
                 "file": __file__,
@@ -366,11 +390,11 @@ def test_pyscript_task_executor(
             data=None,
         ),
         call(
-            ANY,
+            warehouse_handler.post_json_response,
             "/warehouses/lumberyard/items",
             params=None,
             header_overrides=None,
-            timeout=None,
+            timeout=5,
             json={
                 "created_at": 1609459200.0,
                 "file": __file__,
@@ -387,11 +411,11 @@ def test_pyscript_task_executor(
             data=None,
         ),
         call(
-            ANY,
+            warehouse_handler.post_json_response,
             "/warehouses/lumberyard/items",
             params=None,
             header_overrides=None,
-            timeout=None,
+            timeout=5,
             json={
                 "created_at": 1609459200.0,
                 "file": __file__,
@@ -411,18 +435,11 @@ def test_pyscript_task_executor(
 
     mock_task_executor.reset_mock()
 
-    mock_task_executor.return_value = "response"
-
-    assert (
-        warehouse_handler.get_json_response(  # type: ignore[comparison-overlap]
-            "/warehouses/lumberyard/items"
-        )
-        == "response"
-    )
+    _ = warehouse_handler.info_records
 
     mock_task_executor.assert_called_once_with(
-        super(WarehouseHandler, warehouse_handler).get_json_response,
-        "/warehouses/lumberyard/items",
+        warehouse_handler.get_json_response,
+        f"/warehouses/lumberyard/items?log_host={gethostname()}&level=20",
         params=None,
         header_overrides=None,
         timeout=None,
