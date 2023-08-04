@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from asyncio import get_event_loop
 from collections.abc import Callable, Iterable, Mapping
 from hashlib import md5
 from http import HTTPStatus
@@ -71,7 +72,7 @@ T = TypeVar("T")
 
 
 class _PyscriptTaskExecutorProtocol(Protocol[T]):
-    def __call__(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+    async def __call__(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
         ...  # pragma: no cover
 
 
@@ -297,14 +298,16 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         https://hacs-pyscript.readthedocs.io/en/latest/reference.html#task-executor
         """
         if self._pyscript_task_executor is not None:
-            return self._pyscript_task_executor(
-                self.get_json_response,
-                url,
-                params=params,
-                header_overrides=header_overrides,
-                timeout=timeout,
-                json=json,
-                data=data,
+            return get_event_loop().run_until_complete(
+                self._pyscript_task_executor(
+                    self.get_json_response,
+                    url,
+                    params=params,
+                    header_overrides=header_overrides,
+                    timeout=timeout,
+                    json=json,
+                    data=data,
+                )
             )
 
         return self.get_json_response(
@@ -334,14 +337,16 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         https://hacs-pyscript.readthedocs.io/en/latest/reference.html#task-executor
         """
         if self._pyscript_task_executor is not None:
-            return self._pyscript_task_executor(
-                self.post_json_response,
-                url,
-                params=params,
-                header_overrides=header_overrides,
-                timeout=timeout,
-                json=json,
-                data=data,
+            return get_event_loop().run_until_complete(
+                self._pyscript_task_executor(
+                    self.post_json_response,
+                    url,
+                    params=params,
+                    header_overrides=header_overrides,
+                    timeout=timeout,
+                    json=json,
+                    data=data,
+                )
             )
 
         return self.post_json_response(

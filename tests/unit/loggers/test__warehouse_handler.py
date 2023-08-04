@@ -4,11 +4,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from hashlib import md5
 from http import HTTPStatus
 from logging import ERROR, Handler, Logger, LogRecord
 from socket import gethostname
-from unittest.mock import ANY, MagicMock, call, patch
+from typing import Any
+from unittest.mock import ANY, Mock, call, patch
 
 from freezegun import freeze_time
 from pytest import LogCaptureFixture, mark, raises
@@ -315,7 +317,12 @@ def test_pyscript_task_executor(
 ) -> None:
     """Test that the pyscript_task_executor works correctly."""
 
-    mock_task_executor = MagicMock()
+    async def _pyscript_task_executor(
+        func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> Any:
+        return func(*args, **kwargs)
+
+    mock_task_executor = Mock(wraps=_pyscript_task_executor)
 
     warehouse_handler._pyscript_task_executor = mock_task_executor
 
