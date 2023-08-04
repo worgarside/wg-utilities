@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from asyncio import run
+from asyncio import ensure_future, get_running_loop, run
 from collections.abc import Callable, Iterable, Mapping
 from hashlib import md5
 from http import HTTPStatus
@@ -298,16 +298,14 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         https://hacs-pyscript.readthedocs.io/en/latest/reference.html#task-executor
         """
         if self._pyscript_task_executor is not None:
-            return run(
-                self._run_pyscript_task_executor(
-                    self.get_json_response,
-                    url,
-                    params=params,
-                    header_overrides=header_overrides,
-                    timeout=timeout,
-                    json=json,
-                    data=data,
-                )
+            return self._run_pyscript_task_executor(
+                self.get_json_response,
+                url,
+                params=params,
+                header_overrides=header_overrides,
+                timeout=timeout,
+                json=json,
+                data=data,
             )
 
         return self.get_json_response(
@@ -364,16 +362,14 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         https://hacs-pyscript.readthedocs.io/en/latest/reference.html#task-executor
         """
         if self._pyscript_task_executor is not None:
-            return run(
-                self._run_pyscript_task_executor(
-                    self.post_json_response,
-                    url,
-                    params=params,
-                    header_overrides=header_overrides,
-                    timeout=timeout,
-                    json=json,
-                    data=data,
-                )
+            return self._run_pyscript_task_executor(
+                self.post_json_response,
+                url,
+                params=params,
+                header_overrides=header_overrides,
+                timeout=timeout,
+                json=json,
+                data=data,
             )
 
         return self.post_json_response(
@@ -385,7 +381,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             data=data,
         )
 
-    async def _run_pyscript_task_executor(
+    async def _async_task_executor(
         self, func: Callable[..., Any], *args: Any, **kwargs: Any
     ) -> WarehouseLog | WarehouseLogPage:
         if (
@@ -395,6 +391,24 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             raise NotImplementedError("Pyscript task executor is not defined")
 
         return await self._pyscript_task_executor(func, *args, **kwargs)
+
+    async def _run_async_task_executor(
+        self, func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> WarehouseLog | WarehouseLogPage:
+        return await ensure_future(self._async_task_executor(func, *args, **kwargs))
+
+    def _run_pyscript_task_executor(
+        self, func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> WarehouseLog | WarehouseLogPage:
+        try:
+            loop = get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
+            return run(self._run_async_task_executor(func, *args, **kwargs))
+
+        return run(self._async_task_executor(func, *args, **kwargs))
 
     @property
     def records(self) -> list[LogRecord]:

@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-from asyncio import run
 from collections.abc import Callable
 from hashlib import md5
 from http import HTTPStatus
@@ -505,6 +504,6 @@ def test_run_pyscript_task_executor_not_implemented(
     assert warehouse_handler._pyscript_task_executor is None
 
     with raises(NotImplementedError) as exc_info:
-        run(warehouse_handler._run_pyscript_task_executor(lambda: None))
+        warehouse_handler._run_pyscript_task_executor(lambda: None)
 
     assert str(exc_info.value) == "Pyscript task executor is not defined"
