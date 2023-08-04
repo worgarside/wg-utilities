@@ -200,12 +200,12 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
     def _initialize_warehouse(self) -> None:
         schema: WarehouseLog
         try:
-            schema = self.get_json_response(  # type: ignore[assignment]
+            schema = self._get_json_response(  # type: ignore[assignment]
                 self.WAREHOUSE_ENDPOINT, timeout=5
             )
         except HTTPError as exc:
             if exc.response.status_code == HTTPStatus.NOT_FOUND:
-                schema = self.post_json_response(  # type: ignore[assignment]
+                schema = self._post_json_response(  # type: ignore[assignment]
                     "/warehouses", json=self._WAREHOUSE_SCHEMA, timeout=5
                 )
                 LOGGER.info("Created new Warehouse: %r", schema)
@@ -257,9 +257,8 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             )
 
         try:
-            self.post_json_response(
-                f"{self.WAREHOUSE_ENDPOINT}/items",
-                json=log_payload,
+            self._post_json_response(
+                f"{self.WAREHOUSE_ENDPOINT}/items", json=log_payload, timeout=5
             )
         except HTTPError as exc:
             error_detail = exc.response.text
@@ -288,7 +287,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         except Exception as exc:  # pylint: disable=broad-except # pragma: no cover
             LOGGER.error(repr(exc))
 
-    def get_json_response(
+    def _get_json_response(
         self,
         url: str,
         /,
@@ -307,7 +306,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         """
         if self._pyscript_task_executor is not None:
             return self._pyscript_task_executor(
-                super().get_json_response,
+                self.get_json_response,
                 url,
                 params=params,
                 header_overrides=header_overrides,
@@ -316,7 +315,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 data=data,
             )
 
-        return super().get_json_response(
+        return self.get_json_response(
             url,
             params=params,
             header_overrides=header_overrides,
@@ -325,7 +324,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             data=data,
         )
 
-    def post_json_response(
+    def _post_json_response(
         self,
         url: str,
         /,
@@ -344,7 +343,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         """
         if self._pyscript_task_executor is not None:
             return self._pyscript_task_executor(
-                super().post_json_response,
+                self.post_json_response,
                 url,
                 params=params,
                 header_overrides=header_overrides,
@@ -353,7 +352,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 data=data,
             )
 
-        return super().post_json_response(
+        return self.post_json_response(
             url,
             params=params,
             header_overrides=header_overrides,
@@ -386,7 +385,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 args=(),
                 exc_info=None,  # TODO: add exception info
             )
-            for record in cast(WarehouseLogPage, self.get_json_response(url))["items"]
+            for record in cast(WarehouseLogPage, self._get_json_response(url))["items"]
         ]
 
     @property
