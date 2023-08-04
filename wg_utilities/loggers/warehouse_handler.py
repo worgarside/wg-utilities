@@ -38,7 +38,7 @@ FORMATTER.converter = gmtime
 
 
 LOGGER = getLogger(__name__)
-LOGGER.setLevel(ERROR)
+LOGGER.setLevel(WARNING)
 add_stream_handler(LOGGER)
 
 
@@ -180,17 +180,9 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
 
         Handler.__init__(self, level=level)
 
-        warehouse_host = warehouse_host or str(
-            getenv("ITEM_WAREHOUSE_HOST", "http://homeassistant.local")
+        JsonApiClient.__init__(
+            self, base_url=self.get_base_url(warehouse_host, warehouse_port)
         )
-        warehouse_port = warehouse_port or int(getenv("ITEM_WAREHOUSE_PORT", "0"))
-
-        base_url = warehouse_host
-        if warehouse_port:
-            base_url += f":{warehouse_port}"
-        base_url += "/v1"
-
-        JsonApiClient.__init__(self, base_url=base_url)
 
         self._allow_connection_errors = allow_connection_errors
         self._pyscript_task_executor = pyscript_task_executor
@@ -240,7 +232,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             "file": record.pathname,
             "level": record.levelno,
             "line": record.lineno,
-            "log_hash": self._get_log_hash(record),
+            "log_hash": self.get_log_hash(record),
             "log_host": self.HOST_NAME,
             "logger": record.name,
             "message": record.getMessage(),
@@ -443,7 +435,29 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         return self._get_records(CRITICAL)
 
     @staticmethod
-    def _get_log_hash(record: LogRecord) -> str:
+    def get_base_url(host: str | None, port: int | None) -> str:
+        """Get the base URL for the Item Warehouse.
+
+        Args:
+            host (str): the hostname of the Item Warehouse
+            port (int): the port of the Item Warehouse
+
+        Returns:
+            str: the base URL for the Item Warehouse
+        """
+
+        host = host or str(getenv("ITEM_WAREHOUSE_HOST", "http://homeassistant.local"))
+        port = port or int(getenv("ITEM_WAREHOUSE_PORT", "0"))
+
+        if port:
+            host += f":{port}"
+
+        host += "/v1"
+
+        return host
+
+    @staticmethod
+    def get_log_hash(record: LogRecord) -> str:
         """Get a hash of the log message.
 
         Args:
@@ -480,6 +494,15 @@ def add_warehouse_handler(
     Returns:
         WarehouseHandler: the WarehouseHandler that was added to the logger
     """
+
+    for handler in logger.handlers:
+        if isinstance(
+            handler, WarehouseHandler
+        ) and handler.base_url == WarehouseHandler.get_base_url(
+            warehouse_host, warehouse_port
+        ):
+            LOGGER.warning("WarehouseHandler already exists for %s", handler.base_url)
+            return handler
 
     wh_handler = WarehouseHandler(
         level=level,

@@ -187,22 +187,35 @@ WAREHOUSE_SCHEMA = {
 
 @fixture(scope="function", name="warehouse_handler")
 def _warehouse_handler(
-    mock_requests: Mocker,
+    mock_requests: Mocker,  # pylint: disable=unused-argument
 ) -> YieldFixture[WarehouseHandler]:
     """Fixture for creating a WarehouseHandler instance."""
 
-    lumberyard_base_url = "https://item-warehouse.com"
+    _warehouse_handler = WarehouseHandler(
+        level="DEBUG", warehouse_host="https://item-warehouse.com", warehouse_port=None
+    )
+
+    yield _warehouse_handler
+
+    _warehouse_handler.close()
+
+
+@fixture(scope="function", name="mock_requests", autouse=True)
+def _mock_requests(
+    mock_requests_root: Mocker,
+) -> YieldFixture[Mocker]:
+    """Fixture for mocking sync HTTP requests."""
 
     lumberyard_url = "/".join(
         [
-            lumberyard_base_url,
+            "https://item-warehouse.com",
             "v1",
             "warehouses",
             "lumberyard",
         ]
     )
 
-    mock_requests.get(
+    mock_requests_root.get(
         lumberyard_url,
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
@@ -210,7 +223,7 @@ def _warehouse_handler(
     )
 
     for level in LOG_LEVELS:
-        mock_requests.get(
+        mock_requests_root.get(
             f"{lumberyard_url}/items?level={level}",
             status_code=HTTPStatus.OK,
             reason=HTTPStatus.OK.phrase,
@@ -232,20 +245,5 @@ def _warehouse_handler(
                 ]
             },
         )
-
-    _warehouse_handler = WarehouseHandler(
-        level="DEBUG", warehouse_host=lumberyard_base_url, warehouse_port=None
-    )
-
-    yield _warehouse_handler
-
-    _warehouse_handler.close()
-
-
-@fixture(scope="function", name="mock_requests", autouse=True)
-def _mock_requests(
-    mock_requests_root: Mocker,
-) -> YieldFixture[Mocker]:
-    """Fixture for mocking sync HTTP requests."""
 
     yield mock_requests_root
