@@ -4,11 +4,15 @@
 
 from __future__ import annotations
 
+from asyncio import run
+from collections.abc import Callable
 from hashlib import md5
 from http import HTTPStatus
 from logging import ERROR, Handler, Logger, LogRecord
 from socket import gethostname
-from unittest.mock import ANY, MagicMock, call, patch
+from traceback import format_exc
+from typing import Any
+from unittest.mock import ANY, Mock, call, patch
 
 from freezegun import freeze_time
 from pytest import LogCaptureFixture, mark, raises
@@ -17,6 +21,7 @@ from requests.exceptions import RequestException
 from requests_mock import ANY as REQUESTS_MOCK_ANY
 from requests_mock import Mocker
 
+from tests.conftest import TestError
 from tests.unit.loggers.conftest import (
     SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL,
     SAMPLE_LOG_RECORDS,
@@ -183,6 +188,45 @@ def test_emit(level: int, message: str, logger: Logger) -> None:
 
 
 @mark.add_handler("warehouse_handler")
+def test_emit_exception(logger: Logger) -> None:
+    """Test exception info is included for exceptions."""
+
+    tb = None
+    with patch.object(
+        WarehouseHandler, "post_json_response"
+    ) as mock_post_json_response:
+        try:
+            raise TestError("Test Error")
+        except TestError:
+            logger.exception(":(")
+            tb = format_exc()
+
+    mock_post_json_response.assert_called_once_with(
+        "/warehouses/lumberyard/items",
+        params=None,
+        header_overrides=None,
+        timeout=5,
+        json={
+            "created_at": ANY,
+            "file": __file__,
+            "level": ERROR,
+            "line": ANY,
+            "log_hash": md5(b":(").hexdigest(),
+            "log_host": gethostname(),
+            "logger": logger.name,
+            "message": ":(",
+            "module": "test__warehouse_handler",
+            "process": "MainProcess",
+            "thread": "MainThread",
+            "exception_type": "TestError",
+            "exception_message": "Test Error",
+            "exception_traceback": tb,
+        },
+        data=None,
+    )
+
+
+@mark.add_handler("warehouse_handler")
 def test_emit_duplicate_record(
     caplog: LogCaptureFixture, logger: Logger, mock_requests: Mocker
 ) -> None:
@@ -315,7 +359,12 @@ def test_pyscript_task_executor(
 ) -> None:
     """Test that the pyscript_task_executor works correctly."""
 
-    mock_task_executor = MagicMock()
+    async def _pyscript_task_executor(
+        func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> Any:
+        return func(*args, **kwargs)
+
+    mock_task_executor = Mock(wraps=_pyscript_task_executor)
 
     warehouse_handler._pyscript_task_executor = mock_task_executor
 
@@ -446,3 +495,16 @@ def test_pyscript_task_executor(
         json=None,
         data=None,
     )
+
+
+def test_run_pyscript_task_executor_not_implemented(
+    warehouse_handler: WarehouseHandler,
+) -> None:
+    """Test that `_run_pyscript_task_executor` raises a NotImplementedError."""
+
+    assert warehouse_handler._pyscript_task_executor is None
+
+    with raises(NotImplementedError) as exc_info:
+        run(warehouse_handler._run_pyscript_task_executor(lambda: None))
+
+    assert str(exc_info.value) == "Pyscript task executor is not defined"
