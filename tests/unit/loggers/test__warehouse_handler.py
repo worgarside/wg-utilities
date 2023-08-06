@@ -8,7 +8,7 @@ from asyncio import iscoroutine
 from collections.abc import Callable
 from hashlib import md5
 from http import HTTPStatus
-from logging import ERROR, Handler, Logger, LogRecord
+from logging import ERROR, INFO, Handler, Logger, LogRecord
 from socket import gethostname
 from traceback import format_exc
 from typing import Any
@@ -70,39 +70,68 @@ def test_initialize_warehouse_new_warehouse(mock_requests: Mocker) -> None:
     )
 
 
-def test_initialize_warehouse_already_exists() -> None:
+def test_initialize_warehouse_already_exists(
+    caplog: LogCaptureFixture, mock_requests: Mocker
+) -> None:
+    # pylint: disable=import-outside-toplevel
     """Test that the _initialize_warehouse method works correctly."""
+    from wg_utilities.loggers.warehouse_handler import LOGGER
 
-    with patch.object(
-        WarehouseHandler, "get_json_response", return_value=WAREHOUSE_SCHEMA
-    ) as mock_get_json_response:
-        _ = WarehouseHandler()
+    LOGGER.setLevel(INFO)
+    caplog.set_level(INFO)
 
-    mock_get_json_response.assert_called_once_with(
-        "/warehouses/lumberyard",
-        params=None,
-        header_overrides=None,
-        timeout=5,
-        json=None,
-        data=None,
+    mock_requests.get(
+        # Default URL
+        "http://homeassistant.local/v1/warehouses/lumberyard",
+        status_code=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        json=WAREHOUSE_SCHEMA,
+    )
+
+    _ = WarehouseHandler()
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": "http://homeassistant.local/v1/warehouses/lumberyard",
+                "method": "GET",
+                "headers": {},
+            }
+        ],
+    )
+
+    assert (
+        caplog.records[0].message
+        == "Warehouse lumberyard already exists - created at 2023-07-26T17:56:26.951515"
     )
 
 
-def test_initialize_warehouse_already_exists_but_wrong_schema() -> None:
+def test_initialize_warehouse_already_exists_but_wrong_schema(
+    mock_requests: Mocker,
+) -> None:
     """Test that the _initialize_warehouse method works correctly."""
 
-    with patch.object(
-        WarehouseHandler, "get_json_response", return_value={"invalid": "schema"}
-    ) as mock_get_json_response, raises(ValueError) as exc_info:
+    mock_requests.get(
+        # Default URL
+        "http://homeassistant.local/v1/warehouses/lumberyard",
+        status_code=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        json={"invalid": "schema"},
+    )
+
+    with raises(ValueError) as exc_info:
         _ = WarehouseHandler()
 
-    mock_get_json_response.assert_called_once_with(
-        "/warehouses/lumberyard",
-        params=None,
-        header_overrides=None,
-        timeout=5,
-        json=None,
-        data=None,
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": "http://homeassistant.local/v1/warehouses/lumberyard",
+                "method": "GET",
+                "headers": {},
+            }
+        ],
     )
 
     assert (

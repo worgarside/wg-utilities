@@ -207,7 +207,8 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 raise
         else:
             LOGGER.info(
-                "Warehouse already exists - created at %s",
+                "Warehouse %s already exists - created at %s",
+                schema.get("name", None),
                 schema.pop("created_at", None),  # type: ignore[misc]
             )
             if schema != self._WAREHOUSE_SCHEMA:  # type: ignore[comparison-overlap]
