@@ -4,7 +4,7 @@ from __future__ import annotations
 
 name = "wg_utilities"
 
-__version__ = "3.11.1"
+__version__ = "3.11.2"
 
 __all__ = [
     "api",
