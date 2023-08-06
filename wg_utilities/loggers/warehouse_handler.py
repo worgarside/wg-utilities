@@ -2,28 +2,17 @@
 
 from __future__ import annotations
 
-from asyncio import ensure_future, get_running_loop, run
+from asyncio import get_running_loop, run
 from collections.abc import Callable, Iterable, Mapping
 from hashlib import md5
 from http import HTTPStatus
 from json import JSONDecodeError, dumps
-from logging import (
-    CRITICAL,
-    DEBUG,
-    ERROR,
-    INFO,
-    WARNING,
-    Formatter,
-    Handler,
-    Logger,
-    LogRecord,
-    getLogger,
-)
+from logging import DEBUG, WARNING, Formatter, Handler, Logger, LogRecord, getLogger
 from os import getenv
 from socket import gethostname
 from time import gmtime
 from traceback import format_exception
-from typing import Any, Final, Literal, Protocol, TypedDict, TypeVar, cast
+from typing import Any, Final, Literal, Protocol, TypedDict, TypeVar
 
 from requests import HTTPError
 from requests.exceptions import RequestException
@@ -188,7 +177,13 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         self._allow_connection_errors = allow_connection_errors
         self._pyscript_task_executor = pyscript_task_executor
 
-        self._initialize_warehouse()
+        if self._pyscript_task_executor is not None:
+            # Workaround for ensuring the warehouse is still created from Pyscript
+            self._post_json_response(
+                "/warehouses", json=self._WAREHOUSE_SCHEMA, timeout=5
+            )
+        else:
+            self._initialize_warehouse()
 
     def _initialize_warehouse(self) -> None:
         schema: WarehouseLog
@@ -278,7 +273,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             if not self._allow_connection_errors:
                 raise
         except Exception as exc:  # pylint: disable=broad-except # pragma: no cover
-            LOGGER.error(repr(exc))
+            raise RuntimeError(f"Unhandled logging exception: {exc!r}") from exc
 
     def _get_json_response(
         self,
@@ -291,14 +286,14 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         timeout: float | None = None,
         json: Any | None = None,
         data: Any | None = None,
-    ) -> WarehouseLog | WarehouseLogPage:
+    ) -> WarehouseLog | WarehouseLogPage | None:
         """Get a JSON response from the warehouse.
 
         This is overridden to allow compatibility with Pyscript.
         https://hacs-pyscript.readthedocs.io/en/latest/reference.html#task-executor
         """
         if self._pyscript_task_executor is not None:
-            return self._run_pyscript_task_executor(
+            self._run_pyscript_task_executor(
                 self.get_json_response,
                 url,
                 params=params,
@@ -307,6 +302,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 json=json,
                 data=data,
             )
+            return None
 
         return self.get_json_response(
             url,
@@ -316,33 +312,6 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             json=json,
             data=data,
         )
-
-    def _get_records(self, level: int | None = None) -> list[LogRecord]:
-        """Get log records from the warehouse.
-
-        Args:
-            level (int): the logging level to filter by
-
-        Returns:
-            list: a list of log records
-        """
-        url = f"{self.WAREHOUSE_ENDPOINT}/items?log_host={self.HOST_NAME}"
-
-        if level is not None:
-            url += f"&level={level}"
-
-        return [
-            LogRecord(
-                name=record["logger"],
-                level=record["level"],
-                pathname=record["file"],
-                lineno=record["line"],
-                msg=record["message"],
-                args=(),
-                exc_info=None,  # TODO: add exception info
-            )
-            for record in cast(WarehouseLogPage, self._get_json_response(url))["items"]
-        ]
 
     def _post_json_response(
         self,
@@ -355,14 +324,14 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         timeout: float | tuple[float, float] | tuple[float, None] | None = None,
         json: Any | None = None,
         data: Any | None = None,
-    ) -> WarehouseLog | WarehouseLogPage:
+    ) -> WarehouseLog | WarehouseLogPage | None:
         """Post a JSON response to the warehouse.
 
         This is overridden to allow compatibility with Pyscript.
         https://hacs-pyscript.readthedocs.io/en/latest/reference.html#task-executor
         """
         if self._pyscript_task_executor is not None:
-            return self._run_pyscript_task_executor(
+            self._run_pyscript_task_executor(
                 self.post_json_response,
                 url,
                 params=params,
@@ -371,6 +340,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 json=json,
                 data=data,
             )
+            return None
 
         return self.post_json_response(
             url,
@@ -383,86 +353,28 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
 
     async def _async_task_executor(
         self, func: Callable[..., Any], *args: Any, **kwargs: Any
-    ) -> WarehouseLog | WarehouseLogPage:
+    ) -> None:
         if (
             not hasattr(self, "_pyscript_task_executor")
             or not self._pyscript_task_executor
         ):
             raise NotImplementedError("Pyscript task executor is not defined")
 
-        return await self._pyscript_task_executor(func, *args, **kwargs)
-
-    async def _run_async_task_executor(
-        self, func: Callable[..., Any], *args: Any, **kwargs: Any
-    ) -> WarehouseLog | WarehouseLogPage:
-        return await ensure_future(self._async_task_executor(func, *args, **kwargs))
+        await self._pyscript_task_executor(func, *args, **kwargs)
 
     def _run_pyscript_task_executor(
         self, func: Callable[..., Any], *args: Any, **kwargs: Any
-    ) -> WarehouseLog | WarehouseLogPage:
+    ) -> None:
         try:
             loop = get_running_loop()
         except RuntimeError:
             loop = None
 
         if loop and loop.is_running():
-            return run(self._run_async_task_executor(func, *args, **kwargs))
+            loop.create_task(self._async_task_executor(func, *args, **kwargs))
+            return
 
-        return run(self._async_task_executor(func, *args, **kwargs))
-
-    @property
-    def records(self) -> list[LogRecord]:
-        """All records.
-
-        Returns:
-            list: a list of all log records
-        """
-        return self._get_records()
-
-    @property
-    def debug_records(self) -> list[LogRecord]:
-        """Debug level records.
-
-        Returns:
-            list: a list of log records with the level DEBUG
-        """
-        return self._get_records(DEBUG)
-
-    @property
-    def info_records(self) -> list[LogRecord]:
-        """Info level records.
-
-        Returns:
-            list: a list of log records with the level INFO
-        """
-        return self._get_records(INFO)
-
-    @property
-    def warning_records(self) -> list[LogRecord]:
-        """Warning level records.
-
-        Returns:
-            list: a list of log records with the level WARNING
-        """
-        return self._get_records(WARNING)
-
-    @property
-    def error_records(self) -> list[LogRecord]:
-        """Error level records.
-
-        Returns:
-            list: a list of log records with the level ERROR
-        """
-        return self._get_records(ERROR)
-
-    @property
-    def critical_records(self) -> list[LogRecord]:
-        """Critical level records.
-
-        Returns:
-            list: a list of log records with the level CRITICAL
-        """
-        return self._get_records(CRITICAL)
+        run(self._async_task_executor(func, *args, **kwargs))
 
     @staticmethod
     def get_base_url(host: str | None, port: int | None) -> str:

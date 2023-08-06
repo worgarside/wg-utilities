@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from asyncio import iscoroutine
 from collections.abc import Callable
 from hashlib import md5
 from http import HTTPStatus
@@ -11,7 +12,7 @@ from logging import ERROR, Handler, Logger, LogRecord
 from socket import gethostname
 from traceback import format_exc
 from typing import Any
-from unittest.mock import ANY, Mock, call, patch
+from unittest.mock import ANY, AsyncMock, Mock, call, patch
 
 from freezegun import freeze_time
 from pytest import LogCaptureFixture, mark, raises
@@ -20,7 +21,7 @@ from requests.exceptions import RequestException
 from requests_mock import ANY as REQUESTS_MOCK_ANY
 from requests_mock import Mocker
 
-from tests.conftest import TestError
+from tests.conftest import TestError, assert_mock_requests_request_history
 from tests.unit.loggers.conftest import (
     SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL,
     SAMPLE_LOG_RECORDS,
@@ -274,40 +275,6 @@ def test_emit_http_error(
 
 
 @mark.add_handler("warehouse_handler")
-def test_get_records_parsing(warehouse_handler: WarehouseHandler) -> None:
-    """Test that the get_records method returns the correct records."""
-
-    assert len(warehouse_handler.debug_records) == 1
-
-    record = warehouse_handler.debug_records[0]
-    assert record.getMessage() == "test message @ level 10"
-    assert record.levelno == 10
-
-
-@mark.parametrize(
-    ("level_name", "expected_level_arg"),
-    (
-        ("critical", 50),
-        ("error", 40),
-        ("warning", 30),
-        ("info", 20),
-        ("debug", 10),
-    ),
-)
-def test_records_properties(
-    warehouse_handler: WarehouseHandler, level_name: str, expected_level_arg: int
-) -> None:
-    """Test that each of the record properties make the correct call."""
-
-    records = getattr(warehouse_handler, f"{level_name}_records")
-
-    assert len(records) == 1
-    record = records[0]
-    assert record.getMessage() == f"test message @ level {expected_level_arg}"
-    assert record.levelno == expected_level_arg
-
-
-@mark.add_handler("warehouse_handler")
 @mark.parametrize("allow_connection_errors", (True, False))
 def test_allow_connection_errors(
     allow_connection_errors: bool,
@@ -483,18 +450,6 @@ def test_pyscript_task_executor(
 
     mock_task_executor.reset_mock()
 
-    _ = warehouse_handler.info_records
-
-    mock_task_executor.assert_called_once_with(
-        warehouse_handler.get_json_response,
-        f"/warehouses/lumberyard/items?log_host={gethostname()}&level=20",
-        params=None,
-        header_overrides=None,
-        timeout=None,
-        json=None,
-        data=None,
-    )
-
 
 def test_run_pyscript_task_executor_not_implemented(
     warehouse_handler: WarehouseHandler,
@@ -507,3 +462,80 @@ def test_run_pyscript_task_executor_not_implemented(
         warehouse_handler._run_pyscript_task_executor(lambda: None)
 
     assert str(exc_info.value) == "Pyscript task executor is not defined"
+
+
+@mark.add_handler("warehouse_handler")
+@mark.asyncio
+async def test_emit_inside_event_loop(
+    logger: Logger, mock_requests: Mocker, warehouse_handler: WarehouseHandler
+) -> None:
+    """Test that the emit method works correctly when called inside an event loop."""
+
+    async def _pyscript_task_executor(
+        func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> Any:
+        thing = func(*args, **kwargs)
+        return thing
+
+    mock_task_executor = AsyncMock(side_effect=_pyscript_task_executor)
+
+    warehouse_handler._pyscript_task_executor = mock_task_executor
+
+    with patch(
+        "wg_utilities.loggers.warehouse_handler.get_running_loop",
+    ) as mock_get_running_loop:
+        mock_get_running_loop.is_running.return_value = True
+
+        logger.error("test message")
+
+    mock_get_running_loop.assert_called_once_with()
+    mock_get_running_loop.return_value.is_running.assert_called_once_with()
+    mock_get_running_loop.return_value.create_task.assert_called_once()
+
+    assert iscoroutine(
+        coro := mock_get_running_loop.return_value.create_task.call_args[0][0]
+    )
+
+    assert coro.cr_code == warehouse_handler._async_task_executor.__code__
+
+    assert not mock_requests.request_history
+
+    mock_task_executor.assert_not_awaited()
+
+    await coro
+
+    json_payload = {
+        "created_at": ANY,
+        "file": __file__,
+        "level": ERROR,
+        "line": ANY,
+        "log_hash": md5(b"test message").hexdigest(),
+        "log_host": gethostname(),
+        "logger": logger.name,
+        "message": "test message",
+        "module": "test__warehouse_handler",
+        "process": "MainProcess",
+        "thread": "MainThread",
+    }
+
+    mock_task_executor.assert_awaited_once_with(
+        warehouse_handler.post_json_response,
+        "/warehouses/lumberyard/items",
+        params=None,
+        header_overrides=None,
+        timeout=5,
+        json=json_payload,
+        data=None,
+    )
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": "https://item-warehouse.com/v1/warehouses/lumberyard/items",
+                "method": "POST",
+                "headers": {},
+                "json": json_payload,
+            }
+        ],
+    )
