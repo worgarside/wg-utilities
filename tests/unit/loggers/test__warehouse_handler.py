@@ -275,6 +275,30 @@ def test_emit_http_error(
 
 
 @mark.add_handler("warehouse_handler")
+def test_emit_bad_response_schema(
+    caplog: LogCaptureFixture, logger: Logger, mock_requests: Mocker
+) -> None:
+    """Test that the emit method logs other HTTP errors, even with an unknown schema."""
+
+    caplog.set_level(ERROR)
+
+    mock_requests.post(
+        "https://item-warehouse.com/v1/warehouses/lumberyard/items",
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+        reason=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
+        json={"detail": ["not", "a", "dict"]},
+    )
+
+    logger.info("Info log")
+
+    assert caplog.records[
+        0
+    ].message == "Error posting log to Warehouse: 500 Internal Server Error; " + str(
+        {"detail": ["not", "a", "dict"]}
+    )
+
+
+@mark.add_handler("warehouse_handler")
 @mark.parametrize("allow_connection_errors", (True, False))
 def test_allow_connection_errors(
     allow_connection_errors: bool,

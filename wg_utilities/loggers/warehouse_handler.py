@@ -188,7 +188,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
     def _initialize_warehouse(self) -> None:
         schema: WarehouseLog
         try:
-            schema = self._get_json_response(  # type: ignore[assignment]
+            schema = self.get_json_response(  # type: ignore[assignment]
                 self.WAREHOUSE_ENDPOINT, timeout=5
             )
         except HTTPError as exc:
@@ -274,44 +274,6 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 raise
         except Exception as exc:  # pylint: disable=broad-except # pragma: no cover
             raise RuntimeError(f"Unhandled logging exception: {exc!r}") from exc
-
-    def _get_json_response(
-        self,
-        url: str,
-        /,
-        *,
-        params: dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None]
-        | None = None,
-        header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: float | None = None,
-        json: Any | None = None,
-        data: Any | None = None,
-    ) -> WarehouseLog | WarehouseLogPage | None:
-        """Get a JSON response from the warehouse.
-
-        This is overridden to allow compatibility with Pyscript.
-        https://hacs-pyscript.readthedocs.io/en/latest/reference.html#task-executor
-        """
-        if self._pyscript_task_executor is not None:
-            self._run_pyscript_task_executor(
-                self.get_json_response,
-                url,
-                params=params,
-                header_overrides=header_overrides,
-                timeout=timeout,
-                json=json,
-                data=data,
-            )
-            return None
-
-        return self.get_json_response(
-            url,
-            params=params,
-            header_overrides=header_overrides,
-            timeout=timeout,
-            json=json,
-            data=data,
-        )
 
     def _post_json_response(
         self,
