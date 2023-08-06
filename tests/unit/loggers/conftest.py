@@ -15,6 +15,7 @@ from logging import (
 )
 
 from pytest import FixtureRequest, fixture
+from requests_mock import ANY as REQUESTS_MOCK_ANY
 from requests_mock import Mocker
 
 from tests.conftest import YieldFixture
@@ -187,13 +188,14 @@ WAREHOUSE_SCHEMA = {
 
 @fixture(scope="function", name="warehouse_handler")
 def _warehouse_handler(
-    mock_requests: Mocker,  # pylint: disable=unused-argument
+    mock_requests: Mocker,
 ) -> YieldFixture[WarehouseHandler]:
     """Fixture for creating a WarehouseHandler instance."""
 
     _warehouse_handler = WarehouseHandler(
         level="DEBUG", warehouse_host="https://item-warehouse.com", warehouse_port=None
     )
+    mock_requests.reset_mock()
 
     yield _warehouse_handler
 
@@ -245,5 +247,12 @@ def _mock_requests(
                 ]
             },
         )
+
+    mock_requests_root.post(
+        REQUESTS_MOCK_ANY,
+        status_code=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        json={},
+    )
 
     yield mock_requests_root

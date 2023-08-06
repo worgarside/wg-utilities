@@ -107,6 +107,8 @@ def assert_mock_requests_request_history(
 ) -> None:
     """Assert that the request history matches the expected data."""
 
+    assert len(request_history) == len(expected)
+
     for i, expected_values in enumerate(expected):
         assert request_history[i].method == expected_values["method"]
         assert (
@@ -115,8 +117,6 @@ def assert_mock_requests_request_history(
         )
         for k, v in expected_values["headers"].items():  # type: ignore[union-attr]
             assert request_history[i].headers[k] == v
-
-    assert len(request_history) == len(expected)
 
 
 # JSON Objects
