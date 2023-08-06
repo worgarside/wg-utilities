@@ -12,6 +12,7 @@ from os import getenv
 from socket import gethostname
 from time import gmtime
 from traceback import format_exception
+from types import TracebackType
 from typing import Any, Final, Literal, Protocol, TypedDict, TypeVar
 
 from requests import HTTPError
@@ -63,6 +64,51 @@ T = TypeVar("T")
 class _PyscriptTaskExecutorProtocol(Protocol[T]):
     async def __call__(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
         ...  # pragma: no cover
+
+
+class HttpErrorHandler:
+    def __init__(self, allow_connection_errors: bool):
+        self._allow_connection_errors = allow_connection_errors
+
+    def __enter__(self) -> HttpErrorHandler:
+        return self
+
+    def __exit__(
+        self,
+        _: type[type] | None,
+        exc: Exception | None,
+        __: TracebackType | None,
+    ) -> bool:
+        if isinstance(exc, HTTPError):
+            error_detail = exc.response.text
+            try:
+                if (error_detail := exc.response.json()).get("detail", {}).get(
+                    "type"
+                ) == "ItemExistsError":
+                    return True
+            except (AttributeError, LookupError, JSONDecodeError):
+                pass
+
+            LOGGER.error(
+                "Error posting log to Warehouse: %i %s; %r",
+                exc.response.status_code,
+                exc.response.reason,
+                error_detail,
+            )
+        elif isinstance(
+            exc,
+            (ConnectionError | RequestException),
+        ):
+            LOGGER.error("Error posting log to Warehouse: %r", exc)
+
+            return self._allow_connection_errors
+        elif exc is not None:  # pragma: no cover
+            raise RuntimeError(f"Unhandled logging exception: {exc!r}") from exc
+
+        return True
+
+
+http_error_handler = HttpErrorHandler
 
 
 class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
@@ -245,36 +291,9 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 format_exception(record.exc_info[1])
             )
 
-        try:
-            self._post_json_response(
-                f"{self.WAREHOUSE_ENDPOINT}/items", json=log_payload, timeout=5
-            )
-        except HTTPError as exc:
-            error_detail = exc.response.text
-            try:
-                if (error_detail := exc.response.json()).get("detail", {}).get(
-                    "type"
-                ) == "ItemExistsError":
-                    return
-            except (AttributeError, LookupError, JSONDecodeError):
-                pass
-
-            LOGGER.error(
-                "Error posting log to Warehouse: %i %s; %r",
-                exc.response.status_code,
-                exc.response.reason,
-                error_detail,
-            )
-        except (
-            ConnectionError,
-            RequestException,
-        ) as exc:
-            LOGGER.error("Error posting log to Warehouse: %r", exc)
-
-            if not self._allow_connection_errors:
-                raise
-        except Exception as exc:  # pylint: disable=broad-except # pragma: no cover
-            raise RuntimeError(f"Unhandled logging exception: {exc!r}") from exc
+        self._post_json_response(
+            f"{self.WAREHOUSE_ENDPOINT}/items", json=log_payload, timeout=5
+        )
 
     def _post_json_response(
         self,
@@ -305,14 +324,17 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             )
             return None
 
-        return self.post_json_response(
-            url,
-            params=params,
-            header_overrides=header_overrides,
-            timeout=timeout,
-            json=json,
-            data=data,
-        )
+        with http_error_handler(self._allow_connection_errors):
+            return self.post_json_response(
+                url,
+                params=params,
+                header_overrides=header_overrides,
+                timeout=timeout,
+                json=json,
+                data=data,
+            )
+
+        return None
 
     async def _async_task_executor(
         self, func: Callable[..., Any], *args: Any, **kwargs: Any
@@ -323,7 +345,8 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         ):
             raise NotImplementedError("Pyscript task executor is not defined")
 
-        await self._pyscript_task_executor(func, *args, **kwargs)
+        with http_error_handler(self._allow_connection_errors):
+            await self._pyscript_task_executor(func, *args, **kwargs)
 
     def _run_pyscript_task_executor(
         self, func: Callable[..., Any], *args: Any, **kwargs: Any
