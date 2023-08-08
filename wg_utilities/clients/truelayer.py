@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from datetime import date, datetime, timedelta
-from enum import Enum, auto
+from enum import Enum, StrEnum, auto
 from logging import DEBUG, getLogger
 from os.path import sep
 from pathlib import Path
@@ -11,7 +11,6 @@ from typing import Any, ClassVar, Literal, TypeAlias, TypedDict, TypeVar
 
 from pydantic import Field, validator
 from requests import HTTPError
-from strenum import StrEnum  # type: ignore[import]
 
 from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import (
@@ -26,7 +25,7 @@ LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
 
-class AccountType(StrEnum):  # type: ignore[misc]
+class AccountType(StrEnum):
     """Possible TrueLayer account types."""
 
     TRANSACTION = auto()
@@ -490,7 +489,7 @@ class Account(TrueLayerEntity):
         if value not in AccountType.__members__:  # pragma: no cover
             raise ValueError(f"Invalid account type: `{value}`")
 
-        return AccountType[value.upper()]  # type: ignore[no-any-return,misc]
+        return AccountType[value.upper()]
 
 
 class Card(TrueLayerEntity):
