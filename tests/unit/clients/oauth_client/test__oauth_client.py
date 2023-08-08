@@ -15,7 +15,6 @@ from unittest.mock import ANY, MagicMock, patch
 from urllib.parse import urlencode
 
 from freezegun import freeze_time
-from pydantic import BaseModel, Extra
 from pytest import LogCaptureFixture, approx, mark, raises
 from requests import get
 from requests_mock import Mocker
@@ -25,56 +24,18 @@ from tests.unit.clients.oauth_client.conftest import get_jwt_expiry
 from wg_utilities.api import TempAuthServer
 from wg_utilities.clients.oauth_client import (
     BaseModelWithConfig,
-    GenericModelWithConfig,
     OAuthClient,
     OAuthCredentials,
 )
 from wg_utilities.functions import user_data_dir
 
 
-@mark.parametrize("model_class", (BaseModelWithConfig, GenericModelWithConfig))
-def test_x_model_with_config_has_correct_config(model_class: BaseModel) -> None:
-    """Check the `Config` options for `Base/GenericModelWithConfig` are correct."""
+def test_x_model_with_config_has_correct_config() -> None:
+    """Check the `Config` options for `BaseModelWithConfig` are correct."""
 
-    assert model_class.__config__.arbitrary_types_allowed is True
-    assert model_class.__config__.extra == Extra.forbid
-    assert model_class.__config__.validate_assignment is True
-
-
-@mark.parametrize(
-    "attribute_value",
-    (
-        0,
-        -1,
-        2,
-        False,
-        True,
-        "a",
-        "abc",
-        ["a", "b", 1, 2],
-        {"a", "b", 1, 2},
-        {"a": "b", 1: 2},
-    ),
-)
-@mark.parametrize("model_class", (BaseModelWithConfig, GenericModelWithConfig))
-def test_x_model_with_config_set_private_attr_method(
-    model_class: type[BaseModelWithConfig | GenericModelWithConfig],
-    attribute_value: int | bool | str | list[Any] | set[Any] | dict[str, Any],
-) -> None:
-    """Check the `Config` options for `Base/GenericModelWithConfig` are correct."""
-
-    instance = model_class()
-
-    assert not hasattr(instance, "_attribute")
-
-    instance._set_private_attr("_attribute", attribute_value)
-
-    assert instance._attribute == attribute_value  # type: ignore[union-attr]
-
-    with raises(ValueError) as exc_info:
-        instance._set_private_attr("attribute", attribute_value)
-
-    assert str(exc_info.value) == "Only private attributes can be set via this method."
+    assert BaseModelWithConfig.model_config["arbitrary_types_allowed"] is True
+    assert BaseModelWithConfig.model_config["extra"] == "forbid"
+    assert BaseModelWithConfig.model_config["validate_assignment"] is True
 
 
 def test_oauth_credentials_parse_first_time_login_attributes(
@@ -229,7 +190,7 @@ def test_refresh_access_token(
 
     assert (
         loads(oauth_client.creds_cache_path.read_text())
-        == oauth_client.credentials.dict(exclude_none=True)
+        == oauth_client.credentials.model_dump(exclude_none=True)
         == {
             "access_token": live_jwt_token_alt,
             "client_id": "test_client_id",
@@ -313,7 +274,7 @@ def test_run_first_time_login(
         ],
     )
 
-    assert oauth_client.credentials.dict(exclude_none=True) == {
+    assert oauth_client.credentials.model_dump(exclude_none=True) == {
         "access_token": live_jwt_token_alt,
         "client_id": "test_client_id",
         "client_secret": "test_client_secret",
@@ -472,8 +433,8 @@ def test_credentials_setter_writes_local_cache(
 ) -> None:
     """Test that setting the `credentials` property writes the local cache."""
     assert (
-        oauth_client.credentials.dict(exclude_none=True)
-        == fake_oauth_credentials.dict(exclude_none=True)
+        oauth_client.credentials.model_dump(exclude_none=True)
+        == fake_oauth_credentials.model_dump(exclude_none=True)
         == loads(oauth_client.creds_cache_path.read_text())
     )
 
@@ -488,10 +449,10 @@ def test_credentials_setter_writes_local_cache(
     )
 
     oauth_client.credentials = new_oauth_credentials
-    assert fake_oauth_credentials.dict(exclude_none=True) != loads(
+    assert fake_oauth_credentials.model_dump(exclude_none=True) != loads(
         oauth_client.creds_cache_path.read_text()
     )
-    assert new_oauth_credentials.dict(exclude_none=True) == loads(
+    assert new_oauth_credentials.model_dump(exclude_none=True) == loads(
         oauth_client.creds_cache_path.read_text()
     )
 
@@ -682,7 +643,7 @@ def test_headless_mode_first_time_login(
         ],
     )
 
-    assert oauth_client.credentials.dict(exclude_none=True) == {
+    assert oauth_client.credentials.model_dump(exclude_none=True) == {
         "access_token": live_jwt_token_alt,
         "client_id": "test_client_id",
         "client_secret": "test_client_secret",

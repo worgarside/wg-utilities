@@ -101,7 +101,7 @@ def test_from_get_media_info(
     """Test that `from_get_media_info` returns the expected values."""
 
     current_track = CurrentTrack.from_get_media_info(
-        GetMediaInfoResponse.parse_obj(media_info_dict)
+        GetMediaInfoResponse.model_validate(media_info_dict)
     )
 
     assert current_track.json == json_values

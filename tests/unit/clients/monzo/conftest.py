@@ -40,7 +40,7 @@ def _monzo_client(
 
     (
         creds_cache_path := temp_dir / "oauth_credentials/monzo_credentials.json"
-    ).write_text(fake_oauth_credentials.json())
+    ).write_text(fake_oauth_credentials.model_dump_json())
 
     return MonzoClient(
         client_id="test_client_id",

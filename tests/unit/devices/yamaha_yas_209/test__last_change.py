@@ -4,7 +4,6 @@ from __future__ import annotations
 from json import loads
 from typing import Literal
 
-from pydantic import ValidationError
 from pytest import mark, raises
 
 from tests.unit.devices.yamaha_yas_209.conftest import (
@@ -28,7 +27,7 @@ def test_last_change_rendering_control_parsing(
     """Test that `from_last_change` returns the expected values (RenderingControl)."""
     last_change = LastChangeRenderingControl.parse(last_change_dict)
 
-    assert last_change.dict() == last_change_dict
+    assert last_change.model_dump() == last_change_dict
 
 
 @mark.parametrize(
@@ -45,10 +44,10 @@ def test_last_change_keeps_extra_data_av_transport(
     last_change = LastChangeAVTransport.parse(last_change_dict)
 
     assert (
-        fix_colon_keys(last_change.dict())
+        fix_colon_keys(last_change.model_dump())
         == last_change_dict
         # You can never be too safe... :)
-        == fix_colon_keys(loads(last_change.json()))
+        == fix_colon_keys(loads(last_change.model_dump_json()))
     )
 
 
@@ -64,10 +63,10 @@ def test_last_change_keeps_extra_data_rendering_control(
     last_change = LastChangeRenderingControl.parse(last_change_dict)
 
     assert (
-        fix_colon_keys(last_change.dict())
+        fix_colon_keys(last_change.model_dump())
         == last_change_dict
         # You can never be too safe... :)
-        == fix_colon_keys(loads(last_change.json()))
+        == fix_colon_keys(loads(last_change.model_dump_json()))
     )
 
 
@@ -80,18 +79,7 @@ def test_last_change_throws_error_with_two_keys() -> None:
         "spam": "eggs",
     }
 
-    with raises(ValidationError) as exc_info:
+    with raises(ValueError) as exc_info:
         LastChangeAVTransport.parse(last_change_dict)  # type: ignore[arg-type]
 
-    assert exc_info.value.errors() == [
-        {
-            "loc": ("baz",),
-            "msg": "extra fields not permitted",
-            "type": "value_error",
-        },
-        {
-            "loc": ("spam",),
-            "msg": "extra fields not permitted",
-            "type": "value_error",
-        },
-    ]
+    assert exc_info.value.args[0] == "Extra fields not permitted: ['baz', 'spam']"

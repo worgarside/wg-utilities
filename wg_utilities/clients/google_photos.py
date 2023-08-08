@@ -6,16 +6,14 @@ from datetime import datetime
 from enum import Enum
 from logging import DEBUG, getLogger
 from pathlib import Path
-from typing import Any, Literal, TypeAlias, TypedDict, TypeVar
+from typing import Any, Literal, Self, TypeAlias
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 from requests import post
+from typing_extensions import TypedDict
 
 from wg_utilities.clients._google import GoogleClient
-from wg_utilities.clients.oauth_client import (
-    BaseModelWithConfig,
-    GenericModelWithConfig,
-)
+from wg_utilities.clients.oauth_client import BaseModelWithConfig
 from wg_utilities.functions import force_mkdir
 from wg_utilities.loggers import add_stream_handler
 
@@ -39,27 +37,27 @@ class _ShareInfoInfo(TypedDict):
 
 
 class _MediaItemMetadataPhoto(BaseModelWithConfig):
-    camera_make: str | None = Field(alias="cameraMake")
-    camera_model: str | None = Field(alias="cameraModel")
-    focal_length: float | None = Field(alias="focalLength")
-    aperture_f_number: float | None = Field(alias="apertureFNumber")
-    iso_equivalent: int | None = Field(alias="isoEquivalent")
-    exposure_time: str | None = Field(alias="exposureTime")
+    camera_make: str | None = Field(None, alias="cameraMake")
+    camera_model: str | None = Field(None, alias="cameraModel")
+    focal_length: float | None = Field(None, alias="focalLength")
+    aperture_f_number: float | None = Field(None, alias="apertureFNumber")
+    iso_equivalent: int | None = Field(None, alias="isoEquivalent")
+    exposure_time: str | None = Field(None, alias="exposureTime")
 
 
 class _MediaItemMetadataVideo(BaseModelWithConfig):
-    camera_make: str | None = Field(alias="cameraMake")
-    camera_model: str | None = Field(alias="cameraModel")
-    status: Literal["READY"] | None
-    fps: float | None
+    camera_make: str | None = Field(None, alias="cameraMake")
+    camera_model: str | None = Field(None, alias="cameraModel")
+    status: Literal["READY"] | None = None
+    fps: float | None = None
 
 
 class _MediaItemMetadata(BaseModelWithConfig):
     creation_time: datetime = Field(alias="creationTime")
     height: int
     width: int
-    photo: _MediaItemMetadataPhoto | None
-    video: _MediaItemMetadataVideo | None
+    photo: _MediaItemMetadataPhoto | None = Field(default=None)
+    video: _MediaItemMetadataVideo | None = Field(default=None)
 
 
 class MediaType(Enum):
@@ -70,11 +68,15 @@ class MediaType(Enum):
     UNKNOWN = "unknown"
 
 
-FJR = TypeVar("FJR", bound="GooglePhotosEntity")
+class _GooglePhotosEntityJson(TypedDict):
+    """JSON representation of a Google Photos entity."""
+
+    id: str
+    productUrl: str
 
 
-class GooglePhotosEntity(GenericModelWithConfig):
-    """Base class for Google Photos entities."""
+class GooglePhotosEntity(BaseModelWithConfig):
+    """Generic base class for Google Photos entities."""
 
     id: str
     product_url: str = Field(alias="productUrl")
@@ -83,12 +85,11 @@ class GooglePhotosEntity(GenericModelWithConfig):
 
     @classmethod
     def from_json_response(
-        cls: type[FJR],
+        cls,
         value: GooglePhotosEntityJson,
         *,
         google_client: GooglePhotosClient,
-        _waive_validation: bool = False,
-    ) -> FJR:
+    ) -> Self:
         """Create an entity from a JSON response."""
 
         value_data: dict[str, Any] = {
@@ -96,25 +97,17 @@ class GooglePhotosEntity(GenericModelWithConfig):
             **value,
         }
 
-        instance = cls.parse_obj(value_data)
-
-        if not _waive_validation:
-            instance._validate()  # pylint: disable=protected-access
-
-        return instance
+        return cls.model_validate(value_data)
 
 
-class AlbumJson(TypedDict):
+class AlbumJson(_GooglePhotosEntityJson):
     """JSON representation of an Album."""
 
-    id: str
-    productUrl: str
-
-    coverPhotoBaseUrl: str
-    coverPhotoMediaItemId: str
-    isWriteable: bool | None
-    mediaItemsCount: int
-    shareInfo: _ShareInfoInfo | None
+    coverPhotoBaseUrl: str  # noqa: N815
+    coverPhotoMediaItemId: str  # noqa: N815
+    isWriteable: bool | None  # noqa: N815
+    mediaItemsCount: int  # noqa: N815
+    shareInfo: _ShareInfoInfo | None  # noqa: N815
     title: str
 
 
@@ -123,14 +116,14 @@ class Album(GooglePhotosEntity):
 
     cover_photo_base_url: str = Field(alias="coverPhotoBaseUrl")
     cover_photo_media_item_id: str = Field(alias="coverPhotoMediaItemId")
-    is_writeable: bool | None = Field(alias="isWriteable")
+    is_writeable: bool | None = Field(None, alias="isWriteable")
     media_items_count: int = Field(alias="mediaItemsCount")
-    share_info: _ShareInfoInfo | None = Field(alias="shareInfo")
+    share_info: _ShareInfoInfo | None = Field(None, alias="shareInfo")
     title: str
 
     _media_items: list[MediaItem]
 
-    @validator("title")
+    @field_validator("title")
     def _validate_title(cls, value: str) -> str:  # noqa: N805
         """Validate the title of the album."""
 
@@ -149,18 +142,15 @@ class Album(GooglePhotosEntity):
         """
 
         if not hasattr(self, "_media_items"):
-            self._set_private_attr(
-                "_media_items",
-                [
-                    MediaItem.from_json_response(item, google_client=self.google_client)
-                    for item in self.google_client.get_items(
-                        "/mediaItems:search",
-                        method_override=post,
-                        list_key="mediaItems",
-                        params={"albumId": self.id, "pageSize": 100},
-                    )
-                ],
-            )
+            self._media_items = [
+                MediaItem.from_json_response(item, google_client=self.google_client)
+                for item in self.google_client.get_items(
+                    "/mediaItems:search",
+                    method_override=post,
+                    list_key="mediaItems",
+                    params={"albumId": self.id, "pageSize": 100},
+                )
+            ]
 
         return self._media_items
 
@@ -170,26 +160,25 @@ class Album(GooglePhotosEntity):
         return item.id in [media_item.id for media_item in self.media_items]
 
 
-class MediaItemJson(TypedDict):
+class MediaItemJson(_GooglePhotosEntityJson):
     """JSON representation of a Media Item (photo or video)."""
 
-    id: str
-    productUrl: str
-
-    baseUrl: str
-    contributorInfo: dict[str, str] | None
+    baseUrl: str  # noqa: N815
+    contributorInfo: dict[str, str] | None  # noqa: N815
     description: str | None
     filename: str
-    mediaMetadata: _MediaItemMetadata
-    mimeType: str
+    mediaMetadata: _MediaItemMetadata  # noqa: N815
+    mimeType: str  # noqa: N815
 
 
 class MediaItem(GooglePhotosEntity):
     """Class for representing a MediaItem and its metadata/content."""
 
     base_url: str = Field(alias="baseUrl")
-    contributor_info: dict[str, str] | None = Field(alias="contributorInfo")
-    description: str | None
+    contributor_info: dict[str, str] | None = Field(
+        alias="contributorInfo", default=None
+    )
+    description: str | None = Field(default=None)
     filename: str
     media_metadata: _MediaItemMetadata = Field(alias="mediaMetadata")
     mime_type: str = Field(alias="mimeType")
@@ -228,13 +217,10 @@ class MediaItem(GooglePhotosEntity):
                 Path.cwd() if target_directory == "" else Path(target_directory)
             )
 
-        self._set_private_attr(
-            "_local_path",
-            (
-                target_directory
-                / self.creation_datetime.strftime("%Y/%m/%d")
-                / (file_name_override or self.filename)
-            ),
+        self._local_path = (
+            target_directory
+            / self.creation_datetime.strftime("%Y/%m/%d")
+            / (file_name_override or self.filename)
         )
 
         if self.local_path.is_file() and not force_download:
@@ -438,5 +424,5 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
         return self._albums
 
 
-Album.update_forward_refs()
-MediaItem.update_forward_refs()
+Album.model_rebuild()
+MediaItem.model_rebuild()
