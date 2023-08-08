@@ -5,9 +5,10 @@ from collections.abc import Callable, Iterable, Mapping
 from copy import deepcopy
 from json import dumps
 from logging import DEBUG, getLogger
-from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypedDict, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypeVar
 
 from requests import Response, get
+from typing_extensions import TypedDict
 
 from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import OAuthClient
@@ -84,7 +85,9 @@ class GoogleClient(
         self,
         url: str,
         *,
-        list_key: Literal["albums", "drives", "files", "items", "point"] = "items",
+        list_key: Literal[
+            "albums", "drives", "files", "items", "mediaItems", "point"
+        ] = "items",
         params: dict[
             StrBytIntFlt,
             StrBytIntFlt | Iterable[StrBytIntFlt] | None,

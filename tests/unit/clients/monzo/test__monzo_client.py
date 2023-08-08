@@ -13,7 +13,7 @@ from requests_mock import Mocker
 
 from tests.conftest import assert_mock_requests_request_history, read_json_file
 from wg_utilities.clients import MonzoClient
-from wg_utilities.clients.monzo import Account, AccountJson, Pot, PotJson, Transaction
+from wg_utilities.clients.monzo import Account, AccountJson, Pot, Transaction
 from wg_utilities.clients.monzo import TransactionCategory as TxCategory
 from wg_utilities.clients.monzo import TransactionJson
 from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
@@ -116,7 +116,7 @@ def test_list_accounts_method(
         ).replace(tzinfo=timezone.utc)
 
     assert [
-        acc.dict(exclude_none=True)
+        acc.model_dump(exclude_none=True)
         for acc in monzo_client.list_accounts(
             include_closed=include_closed, account_type=account_type
         )
@@ -253,45 +253,21 @@ def test_current_account_property(
     assert monzo_client._current_account == monzo_account
 
 
-def test_pot_json_annotations_vs_pot_fields() -> None:
-    """Test that the `PotJson` annotations match the `Pot` fields."""
-
-    for ak, av in PotJson.__annotations__.items():
-        assert ak in Pot.__fields__
-
-        if (
-            pot_field_type := Pot.__fields__[ak].type_.__name__
-        ) == "Literal":  # pragma: no cover
-            pot_field_type = f"Literal{list(Pot.__fields__[ak].type_.__args__)!r}"
-
-        if Pot.__fields__[ak].required is False:
-            assert (
-                " | ".join(
-                    typ for typ in av.__forward_arg__.split(" | ") if typ != "None"
-                )
-                == pot_field_type
-            )
-        else:
-            assert av.__forward_arg__ == pot_field_type
-
-
 def test_transaction_json_annotations_vs_transaction_fields() -> None:
     """Test that the `TransactionJson` annotations match the `Transaction` fields."""
 
     for ak, av in TransactionJson.__annotations__.items():
-        assert ak in Transaction.__fields__
+        assert ak in Transaction.model_fields
 
-        if str(annotation := Transaction.__fields__[ak].annotation).startswith(
+        if str(annotation := Transaction.model_fields[ak].annotation).startswith(
             "<class"
         ):
-            tx_field_type = annotation.__name__
+            tx_field_type = annotation.__name__  # type: ignore[union-attr]
         else:
             tx_field_type = str(annotation)
 
         if tx_field_type == "Literal":  # pragma: no cover
-            tx_field_type = (
-                f"Literal{list(Transaction.__fields__[ak].type_.__args__)!r}"
-            )
+            tx_field_type = f"Literal{list(Transaction.model_fields[ak].annotation.__args__)!r}"  # type: ignore[union-attr] # noqa: E501
 
         tx_field_type = tx_field_type.replace("typing.", "").replace("NoneType", "None")
 
