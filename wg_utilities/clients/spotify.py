@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from builtins import dict as dict_
 from builtins import type as type_
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence, Set
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from datetime import date, datetime, timedelta
 from enum import Enum
 from http import HTTPStatus
@@ -16,20 +16,19 @@ from typing import (
     ClassVar,
     Generic,
     Literal,
+    Self,
     TypeAlias,
-    TypedDict,
     TypeVar,
     cast,
     overload,
 )
 from urllib.parse import urlencode
 
-from pydantic import Field, root_validator, validator
+from pydantic import Field, FieldValidationInfo, field_validator, model_validator
 from requests import HTTPError, delete, put
-from typing_extensions import NotRequired
+from typing_extensions import NotRequired, TypedDict
 
 from wg_utilities.clients._spotify_types import (
-    AlbumFullJson,
     AlbumSummaryJson,
     AnyPaginatedResponse,
     ArtistSummaryJson,
@@ -52,11 +51,7 @@ from wg_utilities.clients._spotify_types import (
     TrackFullJson,
     UserSummaryJson,
 )
-from wg_utilities.clients.oauth_client import (
-    BaseModelWithConfig,
-    GenericModelWithConfig,
-    OAuthClient,
-)
+from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
 from wg_utilities.functions import chunk_list
 
 LOGGER = getLogger(__name__)
@@ -115,7 +110,6 @@ class TrackAudioFeatures(BaseModelWithConfig):
     valence: float
 
 
-FJR = TypeVar("FJR", bound="SpotifyEntity[Any]")
 SJ = TypeVar("SJ", bound=SpotifyBaseEntityJson)
 
 
@@ -552,7 +546,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         return self._current_user
 
 
-class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
+class SpotifyEntity(BaseModelWithConfig, Generic[SJ]):
     """Base model for Spotify entities."""
 
     description: str = ""
@@ -566,89 +560,11 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
     spotify_client: SpotifyClient = Field(exclude=True)
 
     summary_json: SJ = Field(
-        default_factory=dict, allow_mutation=False, exclude=True
+        default_factory=dict, frozen=True, exclude=True
     )  # type: ignore[assignment]
     sj_type: ClassVar[TypeAlias] = SpotifyBaseEntityJson
 
-    def dict(
-        self,
-        *,
-        include: Set[int | str] | Mapping[int | str, Any] | None = None,
-        exclude: Set[int | str] | Mapping[int | str, Any] | None = None,
-        by_alias: bool = True,
-        skip_defaults: bool | None = None,
-        exclude_unset: bool = True,
-        exclude_defaults: bool = False,
-        exclude_none: bool = False,
-    ) -> dict[str, Any]:
-        # pylint: disable=useless-parent-delegation
-        """Create a dictionary representation of the model.
-
-        Overrides the standard `BaseModel.dict` method, so we can always return the
-        dict with the same field names it came in with, and exclude any null values
-        that have been added when parsing
-
-        Original documentation is here:
-          - https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeldict
-
-        Overridden Parameters:
-            by_alias: False -> True
-            exclude_unset: False -> True
-        """
-
-        return super().dict(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            skip_defaults=skip_defaults,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-        )
-
-    def json(
-        self,
-        *,
-        include: Set[int | str] | Mapping[int | str, Any] | None = None,
-        exclude: Set[int | str] | Mapping[int | str, Any] | None = None,
-        by_alias: bool = True,
-        skip_defaults: bool | None = None,
-        exclude_unset: bool = True,
-        exclude_defaults: bool = False,
-        exclude_none: bool = False,
-        encoder: Callable[[Any], Any] | None = None,
-        models_as_dict: bool = True,
-        **dumps_kwargs: Any,
-    ) -> str:
-        # pylint: disable=useless-parent-delegation
-        """Create a JSON string representation of the model.
-
-        Overrides the standard `BaseModel.json` method, so we can always return the
-        dict with the same field names it came in with, and exclude any null values
-        that have been added when parsing
-
-        Original documentation is here:
-          - https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeljson
-
-        Overridden Parameters:
-            by_alias: False -> True
-            exclude_unset: False -> True
-        """
-
-        return super().json(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            skip_defaults=skip_defaults,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            encoder=encoder,
-            models_as_dict=models_as_dict,
-            **dumps_kwargs,
-        )
-
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def _set_summary_json(cls, values: dict_[str, Any]) -> Any:  # noqa: N805
         values["summary_json"] = {
             k: v for k, v in values.items() if k in cls.sj_type.__annotations__
@@ -670,13 +586,12 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
 
     @classmethod
     def from_json_response(
-        cls: type[FJR],
+        cls,
         value: SpotifyEntityJson,
         spotify_client: SpotifyClient,
         additional_fields: dict_[str, Any] | None = None,
         metadata: dict_[str, object] | None = None,
-        _waive_validation: bool = False,
-    ) -> FJR:
+    ) -> Self:
         """Parse a JSON response from the API into the given entity type model.
 
         Args:
@@ -699,12 +614,7 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
         if metadata:
             value_data["metadata"] = metadata
 
-        instance = cls.parse_obj(value_data)
-
-        if not _waive_validation:
-            instance._validate()  # pylint: disable=protected-access
-
-        return instance
+        return cls.model_validate(value_data)
 
     @property
     def url(self) -> str:
@@ -752,22 +662,22 @@ class SpotifyEntity(GenericModelWithConfig, Generic[SJ]):
 class Album(SpotifyEntity[AlbumSummaryJson]):
     """An album on Spotify."""
 
-    album_group: Literal["album", "single", "compilation", "appears_on"] | None
+    album_group: Literal["album", "single", "compilation", "appears_on"] | None = None
     album_type_str: Literal["album", "single", "compilation"] = Field(
         alias="album_type"
     )
     artists_json: list[ArtistSummaryJson] = Field(alias="artists")
     available_markets: list[str]
-    copyrights: list[dict[str, str]] | None
-    external_ids: dict[str, str] | None
-    genres: list[str] | None
+    copyrights: list[dict[str, str]] | None = None
+    external_ids: dict[str, str] | None = None
+    genres: list[str] | None = None
     images: list[Image]
-    is_playable: bool | None
-    label: str | None
-    popularity: int | None
-    release_date_precision: Literal["year", "month", "day"] | None
+    is_playable: bool | None = None
+    label: str | None = None
+    popularity: int | None = None
+    release_date_precision: Literal["year", "month", "day"] | None = None
     release_date: date
-    restrictions: dict[str, str] | None
+    restrictions: dict[str, str] | None = None
     total_tracks: int
     tracks_json: PaginatedResponseTracks = Field(
         alias="tracks", default_factory=dict
@@ -779,16 +689,16 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
 
     sj_type: ClassVar[type_[SpotifyEntityJson]] = AlbumSummaryJson
 
-    @validator("release_date", pre=True)
+    @field_validator("release_date", mode="before")
     def validate_release_date(
-        cls, value: str | date, values: AlbumFullJson  # noqa: N805
+        cls, value: str | date, info: FieldValidationInfo  # noqa: N805
     ) -> date:
         """Convert the release date string to a date object."""
 
         if isinstance(value, date):
             return value
 
-        rdp = (values.get("release_date_precision") or "day").lower()
+        rdp = (info.data.get("release_date_precision") or "day").lower()
 
         exception = ValueError(
             f"Incompatible release_date and release_date_precision values: {value!r}"
@@ -834,7 +744,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
                 for item in self.artists_json
             ]
 
-            self._set_private_attr("_artists", artists)
+            self._artists = artists
 
         return self._artists
 
@@ -882,7 +792,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
                     )
                 ]
 
-            self._set_private_attr("_tracks", tracks)
+            self._tracks = tracks
 
         return self._tracks
 
@@ -890,10 +800,10 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
 class Artist(SpotifyEntity[ArtistSummaryJson]):
     """An artist on Spotify."""
 
-    followers: Followers | None
-    genres: list[str] | None
-    images: list[Image] | None
-    popularity: int | None
+    followers: Followers | None = None
+    genres: list[str] | None = None
+    images: list[Image] | None = None
+    popularity: int | None = None
     type: Literal["artist"]
 
     _albums: list[Album]
@@ -913,7 +823,7 @@ class Artist(SpotifyEntity[ArtistSummaryJson]):
                 for item in self.spotify_client.get_items(f"/artists/{self.id}/albums")
             ]
 
-            self._set_private_attr("_albums", albums)
+            self._albums = albums
 
         return self._albums
 
@@ -923,20 +833,22 @@ class Track(SpotifyEntity[TrackFullJson]):
 
     album_json: AlbumSummaryJson = Field(alias="album")
     artists_json: list[ArtistSummaryJson] = Field(alias="artists")
-    audio_features_json: TrackAudioFeaturesJson | None = Field(alias="audio_features")
+    audio_features_json: TrackAudioFeaturesJson | None = Field(
+        None, alias="audio_features"
+    )
     available_markets: list[str]
     disc_number: int
     duration_ms: int
-    episode: bool | None
+    episode: bool | None = None
     explicit: bool
-    external_ids: dict[str, str] | None
+    external_ids: dict[str, str] | None = None
     is_local: bool
-    is_playable: bool | None
-    linked_from: TrackFullJson | None
-    popularity: int | None
-    preview_url: str | None
-    restrictions: str | None
-    track: bool | None
+    is_playable: bool | None = None
+    linked_from: TrackFullJson | None = None
+    popularity: int | None = None
+    preview_url: str | None = None
+    restrictions: str | None = None
+    track: bool | None = None
     track_number: int
     type: Literal["track"]
 
@@ -955,11 +867,8 @@ class Track(SpotifyEntity[TrackFullJson]):
         """
 
         if not hasattr(self, "_album"):
-            self._set_private_attr(
-                "_album",
-                Album.from_json_response(
-                    self.album_json, spotify_client=self.spotify_client
-                ),
+            self._album = Album.from_json_response(
+                self.album_json, spotify_client=self.spotify_client
             )
 
         return self._album
@@ -991,7 +900,7 @@ class Track(SpotifyEntity[TrackFullJson]):
                 for item in self.artists_json
             ]
 
-            self._set_private_attr("_artists", artists)
+            self._artists = artists
 
         return self._artists
 
@@ -1016,10 +925,7 @@ class Track(SpotifyEntity[TrackFullJson]):
                     return None
                 raise
 
-            self._set_private_attr(
-                "_audio_features",
-                TrackAudioFeatures(**audio_features),
-            )
+            self._audio_features = TrackAudioFeatures(**audio_features)
 
         return self._audio_features
 
@@ -1049,13 +955,13 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
     """A Spotify playlist."""
 
     collaborative: bool
-    followers: Followers | None
+    followers: Followers | None = None
     images: list[Image]
     owner_json: UserSummaryJson = Field(alias="owner")
-    primary_color: str | None
+    primary_color: str | None = None
     # TODO: the `None` cases here can be handled by defaulting `public` to
     #  `self.owner.id == <user ID>`
-    public: bool | None
+    public: bool | None = None
     snapshot_id: str
     tracks_json: PaginatedResponsePlaylistTracks | PlaylistSummaryJsonTracks = Field(
         alias="tracks"
@@ -1068,6 +974,19 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
     sj_type: ClassVar[type_[SpotifyEntityJson]] = PlaylistSummaryJson
     _live_snapshot_id_timestamp: datetime
     _live_snapshot_id: str
+
+    @field_validator("tracks_json", mode="before")
+    def remove_local_tracks(
+        cls, tracks_json: PaginatedResponsePlaylistTracks  # noqa: N805
+    ) -> PaginatedResponsePlaylistTracks:
+        """Remove local tracks from the playlist's tracklist."""
+
+        if "items" in tracks_json:
+            tracks_json["items"] = [
+                item for item in tracks_json["items"] if not item["is_local"]
+            ]
+
+        return tracks_json
 
     @property
     def live_snapshot_id(self) -> str:
@@ -1082,18 +1001,13 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
             or datetime.utcnow() - self._live_snapshot_id_timestamp
             > timedelta(minutes=1)
         ):
-            self._set_private_attr(
-                "_live_snapshot_id",
-                self.spotify_client.get_json_response(
-                    f"/playlists/{self.id}", params={"fields": "snapshot_id"}
-                )[
-                    "snapshot_id"  # type: ignore[typeddict-item]
-                ],
-            )
-            self._set_private_attr(
-                "_live_snapshot_id_timestamp",
-                datetime.utcnow(),
-            )
+            self._live_snapshot_id = self.spotify_client.get_json_response(
+                f"/playlists/{self.id}", params={"fields": "snapshot_id"}
+            )[
+                "snapshot_id"  # type: ignore[typeddict-item]
+            ]
+
+            self._live_snapshot_id_timestamp = datetime.utcnow()
 
         return self._live_snapshot_id
 
@@ -1106,11 +1020,8 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
         """
 
         if not hasattr(self, "_owner"):
-            self._set_private_attr(
-                "_owner",
-                User.from_json_response(
-                    self.owner_json, spotify_client=self.spotify_client
-                ),
+            self._owner = User.from_json_response(
+                self.owner_json, spotify_client=self.spotify_client
             )
 
         return self._owner
@@ -1136,12 +1047,12 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
                 if "track" in item.keys() and item["is_local"] is False
             ]
 
-            self._set_private_attr("_tracks", tracks)
+            self._tracks = tracks
 
             if hasattr(self, "_live_snapshot_id"):
                 self.snapshot_id = self._live_snapshot_id
             else:
-                self._set_private_attr("_live_snapshot_id", self.snapshot_id)
+                self._live_snapshot_id = self.snapshot_id
 
         return self._tracks
 
@@ -1195,12 +1106,12 @@ class User(SpotifyEntity[UserSummaryJson]):
     PLAYLIST_REFRESH_INTERVAL: ClassVar[timedelta] = timedelta(minutes=10)
 
     display_name: str
-    country: str | None
-    email: str | None
-    explicit_content: dict[str, bool] | None
-    followers: Followers | None
-    images: list[Image] | None
-    product: str | None
+    country: str | None = None
+    email: str | None = None
+    explicit_content: dict[str, bool] | None = None
+    followers: Followers | None = None
+    images: list[Image] | None = None
+    product: str | None = None
     type: Literal["user"]
 
     _albums: list[Album]
@@ -1214,22 +1125,22 @@ class User(SpotifyEntity[UserSummaryJson]):
 
     sj_type: ClassVar[type_[SpotifyEntityJson]] = UserSummaryJson
 
-    @validator("display_name", pre=True)
+    @field_validator("display_name", mode="before")
     def set_user_name_value(
-        cls, value: str, values: dict[str, Any]  # noqa: N805
+        cls, value: str, info: FieldValidationInfo  # noqa: N805
     ) -> str:
         """Set the user's `name` field to the display name if it is not set.
 
         Args:
-            value: the display name
-            values: the values of the other fields
+            value (str): the display name
+            info (FieldValidationInfo): Object for extra validation information/data.
 
         Returns:
             str: the display name
         """
 
-        if not values["name"]:
-            values["name"] = value
+        if not info.data.get("name"):
+            info.data["name"] = value
 
         return value
 
@@ -1409,7 +1320,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                 )
             ]
 
-            self._set_private_attr("_albums", albums)
+            self._albums = albums
 
         return self._albums
 
@@ -1436,7 +1347,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                 )
             ]
 
-            self._set_private_attr("_artists", artists)
+            self._artists = artists
 
         return self._artists
 
@@ -1485,7 +1396,7 @@ class User(SpotifyEntity[UserSummaryJson]):
             list[Device]: a list of devices available to the user
         """
         return [
-            Device.parse_obj(device_json)
+            Device.model_validate(device_json)
             for device_json in self.spotify_client.get_items(
                 "/me/player/devices", list_key="devices"
             )
@@ -1506,7 +1417,7 @@ class User(SpotifyEntity[UserSummaryJson]):
         ):
             return self._playlists
 
-        self._set_private_attr("_playlist_refresh_time", datetime.utcnow())
+        self._playlist_refresh_time = datetime.utcnow()
 
         all_playlist_json = cast(
             list[PlaylistSummaryJson], self.spotify_client.get_items("/me/playlists")
@@ -1519,7 +1430,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                 if item["owner"]["id"] == self.id
             ]
 
-            self._set_private_attr("_playlists", playlists)
+            self._playlists = playlists
         else:
             existing_ids = (p.id for p in self._playlists)
             new_playlists = [
@@ -1550,7 +1461,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                     "/me/top/artists", params={"time_range": "short_term"}
                 )
             )
-            self._set_private_attr("_top_artists", top_artists)
+            self._top_artists = top_artists
 
         return self._top_artists
 
@@ -1572,7 +1483,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                 )
             )
 
-            self._set_private_attr("_top_tracks", top_tracks)
+            self._top_tracks = top_tracks
 
         return self._top_tracks
 
@@ -1596,7 +1507,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                 )
             ]
 
-            self._set_private_attr("_tracks", tracks)
+            self._tracks = tracks
 
         return self._tracks
 
@@ -1633,7 +1544,7 @@ class User(SpotifyEntity[UserSummaryJson]):
             delattr(self, "_playlist_refresh_time")
 
 
-SpotifyEntity.update_forward_refs()
-Album.update_forward_refs()
-Artist.update_forward_refs()
-Track.update_forward_refs()
+SpotifyEntity.model_rebuild()
+Album.model_rebuild()
+Artist.model_rebuild()
+Track.model_rebuild()

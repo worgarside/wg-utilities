@@ -1,6 +1,7 @@
 """Unit Tests for `wg_utilities.clients.spotify.SpotifyEntity`."""
 from __future__ import annotations
 
+from pydantic import ValidationError
 from pytest import raises
 
 from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson
@@ -11,13 +12,10 @@ def test_summary_json_is_immutable(
     spotify_entity: SpotifyEntity[SpotifyBaseEntityJson],
 ) -> None:
     """Test that the summary_json property is immutable."""
-    with raises(TypeError) as exc_info:
+    with raises(ValidationError) as exc_info:
         spotify_entity.summary_json = {}  # type: ignore[typeddict-item]
 
-    assert (
-        str(exc_info.value)
-        == '"summary_json" has allow_mutation set to False and cannot be assigned'
-    )
+    assert "Field is frozen" in str(exc_info.value)
 
 
 def test_summary_json_is_correct(
@@ -34,7 +32,7 @@ def test_summary_json_is_correct(
     }
 
     # There's nothing exclude-able for a SpotifyEntity's summary JSON
-    assert spotify_entity.dict() == spotify_entity.summary_json
+    assert spotify_entity.model_dump() == spotify_entity.summary_json
 
 
 def test_from_json_response_instantiation(spotify_client: SpotifyClient) -> None:
@@ -54,7 +52,7 @@ def test_from_json_response_instantiation(spotify_client: SpotifyClient) -> None
 
     assert isinstance(spotify_entity, SpotifyEntity)
 
-    assert spotify_entity.dict() == {
+    assert spotify_entity.model_dump() == {
         "external_urls": {
             "spotify": "https://www.example.com",
         },
@@ -94,9 +92,9 @@ def test_eq(
     """Test the __eq__ method of the SpotifyEntity class."""
 
     assert spotify_entity == spotify_entity  # pylint: disable=comparison-with-itself
-    assert spotify_entity == SpotifyEntity[SpotifyBaseEntityJson].parse_obj(
+    assert spotify_entity == SpotifyEntity[SpotifyBaseEntityJson].model_validate(
         {
-            **spotify_entity.dict(exclude_none=True),
+            **spotify_entity.model_dump(exclude_none=True),
             "spotify_client": spotify_client,
         }
     )
