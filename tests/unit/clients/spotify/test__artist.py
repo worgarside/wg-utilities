@@ -47,7 +47,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
 
     assert isinstance(artist, Artist)
     assert artist.spotify_client == spotify_client
-    assert artist.dict() == artist_json
+    assert artist.model_dump() == artist_json
 
 
 def test_albums_property(spotify_artist: Artist) -> None:

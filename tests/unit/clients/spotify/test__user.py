@@ -52,7 +52,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
 
     assert isinstance(user, User)
     assert user.spotify_client == spotify_client
-    assert user.dict(exclude_none=True, exclude_unset=True) == {
+    assert user.model_dump() == {
         "country": "GB",
         "display_name": "Will Garside",
         "email": "test_email_address@gmail.com",
@@ -102,7 +102,7 @@ def test_get_playlists_by_name_duplicate_names(
     """
 
     user_playlists = spotify_user.playlists
-    spotify_user._set_private_attr("_playlists", user_playlists + user_playlists)
+    spotify_user._playlists = user_playlists + user_playlists
 
     result = spotify_user.get_playlists_by_name("Chill Electronica", return_all=True)
 
@@ -267,7 +267,7 @@ def test_save_unsave_methods(
 def test_save_unsave_methods_with_invalid_type(spotify_user: User) -> None:
     """Test that `save` method raises an error if an invalid entity type is passed."""
 
-    device = Device.parse_obj(
+    device = Device.model_validate(
         read_json_file("spotify/v1/me/player/devices/limit=50.json")["devices"][
             0  # type: ignore[index]
         ]
@@ -478,7 +478,7 @@ def test_devices_property(
     """Test that `devices` property makes the expected request."""
 
     assert spotify_user.devices == [
-        Device.parse_obj(device_json)
+        Device.model_validate(device_json)
         for device_json in read_json_file(
             "spotify/v1/me/player/devices/limit=50.json"
         )[  # type: ignore[union-attr]
