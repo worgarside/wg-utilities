@@ -101,7 +101,7 @@ def _spotify_client(
 
     (
         creds_cache_path := temp_dir / "oauth_credentials/oauth_credentials.json"
-    ).write_text(fake_oauth_credentials.json(exclude_none=True))
+    ).write_text(fake_oauth_credentials.model_dump_json(exclude_none=True))
 
     return SpotifyClient(
         client_id=fake_oauth_credentials.client_id,
@@ -143,14 +143,8 @@ def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
         spotify_client=spotify_client,
     )
 
-    playlist._set_private_attr(
-        "_live_snapshot_id",
-        playlist.snapshot_id,
-    )
-    playlist._set_private_attr(
-        "_live_snapshot_id_timestamp",
-        datetime.utcnow() + timedelta(hours=21),
-    )
+    playlist._live_snapshot_id = playlist.snapshot_id
+    playlist._live_snapshot_id_timestamp = datetime.utcnow() + timedelta(hours=21)
 
     return playlist
 

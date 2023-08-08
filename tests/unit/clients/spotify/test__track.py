@@ -153,7 +153,10 @@ def test_audio_features_property(
         "time_signature": 4,
     }
 
-    assert spotify_track.audio_features == expected
+    assert (
+        spotify_track.audio_features
+        and spotify_track.audio_features.model_dump() == expected
+    )
 
     assert_mock_requests_request_history(
         mock_requests.request_history,
@@ -173,7 +176,10 @@ def test_audio_features_property(
     assert mock_requests.call_count == 1
 
     # Check subsequent calls don't make a new request
-    assert spotify_track.audio_features == expected
+    assert (
+        spotify_track.audio_features
+        and spotify_track.audio_features.model_dump() == expected
+    )
     assert mock_requests.call_count == 1
 
 

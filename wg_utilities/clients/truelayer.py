@@ -7,17 +7,14 @@ from enum import Enum, StrEnum, auto
 from logging import DEBUG, getLogger
 from os.path import sep
 from pathlib import Path
-from typing import Any, ClassVar, Literal, TypeAlias, TypedDict, TypeVar
+from typing import Any, ClassVar, Literal, Self, TypeAlias, TypeVar
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 from requests import HTTPError
+from typing_extensions import NotRequired, TypedDict
 
 from wg_utilities.clients.json_api_client import StrBytIntFlt
-from wg_utilities.clients.oauth_client import (
-    BaseModelWithConfig,
-    GenericModelWithConfig,
-    OAuthClient,
-)
+from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
 from wg_utilities.functions import user_data_dir
 from wg_utilities.functions.file_management import force_mkdir
 
@@ -129,9 +126,9 @@ class TransactionCategory(Enum):
 
 
 class _AccountNumber(BaseModelWithConfig):
-    iban: str | None
-    number: str | None
-    sort_code: str | None
+    iban: str | None = None
+    number: str | None = None
+    sort_code: str | None = None
     swift_bic: str
 
 
@@ -157,8 +154,8 @@ class CardJson(_TrueLayerBaseEntityJson):
     card_type: str
     partial_card_number: str
     name_on_card: str
-    valid_from: date | None
-    valid_to: date | None
+    valid_from: NotRequired[date]
+    valid_to: NotRequired[date]
 
 
 class BalanceVariables(BaseModelWithConfig):
@@ -182,10 +179,8 @@ class _TrueLayerEntityProvider(BaseModelWithConfig):
 
 TrueLayerEntityJson: TypeAlias = AccountJson | CardJson
 
-FJR = TypeVar("FJR", bound="TrueLayerEntity")
 
-
-class TrueLayerEntity(GenericModelWithConfig):
+class TrueLayerEntity(BaseModelWithConfig):
     """Parent class for all TrueLayer entities (accounts, cards, etc.)."""
 
     BALANCE_FIELDS: ClassVar[Iterable[str]] = ()
@@ -212,8 +207,8 @@ class TrueLayerEntity(GenericModelWithConfig):
 
     @classmethod
     def from_json_response(
-        cls: type[FJR], value: TrueLayerEntityJson, *, truelayer_client: TrueLayerClient
-    ) -> FJR:
+        cls, value: TrueLayerEntityJson, *, truelayer_client: TrueLayerClient
+    ) -> Self:
         """Create an account from a JSON response."""
 
         value_data: dict[str, Any] = {
@@ -221,11 +216,7 @@ class TrueLayerEntity(GenericModelWithConfig):
             **value,
         }
 
-        instance = cls.parse_obj(value_data)
-
-        instance._validate()  # pylint: disable=protected-access
-
-        return instance
+        return cls.model_validate(value_data)
 
     def get_transactions(
         self,
@@ -261,7 +252,7 @@ class TrueLayerEntity(GenericModelWithConfig):
             params = None
 
         return [
-            Transaction.parse_obj(result)
+            Transaction.model_validate(result)
             for result in self.truelayer_client.get_json_response(
                 f"/data/v1/{self.__class__.__name__.lower()}s/{self.id}/transactions",
                 params=params,
@@ -307,7 +298,8 @@ class TrueLayerEntity(GenericModelWithConfig):
                 continue
 
             LOGGER.info("Updating %s with value %s", attr_name, v)
-            self._set_private_attr(attr_name, v)
+
+            setattr(self, attr_name, v)
 
         self.last_balance_update = datetime.utcnow()
 
@@ -435,17 +427,17 @@ class Transaction(BaseModelWithConfig):
     currency: str
     description: str
     id: str = Field(alias="transaction_id")
-    merchant_name: str | None
+    merchant_name: str | None = None
     meta: dict[str, str]
-    normalised_provider_transaction_id: str | None
+    normalised_provider_transaction_id: str | None = None
     provider_transaction_id: str | None
-    running_balance: dict[str, str | float] | None
+    running_balance: dict[str, str | float] | None = None
     timestamp: datetime
     transaction_category: TransactionCategory
     transaction_classification: list[str]
     transaction_type: str
 
-    @validator("transaction_category", pre=True)
+    @field_validator("transaction_category", mode="before")
     def validate_transaction_category(  # pylint: disable=no-self-argument
         cls, v: str  # noqa: N805
     ) -> TransactionCategory:
@@ -478,7 +470,7 @@ class Account(TrueLayerEntity):
     account_number: _AccountNumber
     account_type: AccountType
 
-    @validator("account_type", pre=True)
+    @field_validator("account_type", mode="before")
     def validate_account_type(  # pylint: disable=no-self-argument
         cls, value: str  # noqa: N805
     ) -> AccountType:
@@ -509,8 +501,8 @@ class Card(TrueLayerEntity):
     card_type: str
     partial_card_number: str
     name_on_card: str
-    valid_from: date | None
-    valid_to: date | None
+    valid_from: date | None = None
+    valid_to: date | None = None
 
 
 AccountOrCard = TypeVar("AccountOrCard", Account, Card)
@@ -697,6 +689,6 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         return self._list_entities(Card)
 
 
-Account.update_forward_refs()
-Card.update_forward_refs()
-TrueLayerEntity.update_forward_refs()
+Account.model_rebuild()
+Card.model_rebuild()
+TrueLayerEntity.model_rebuild()

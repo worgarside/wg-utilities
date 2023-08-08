@@ -34,7 +34,7 @@ requests = { version = ">=2.26.0", optional = true }
 spidev = { version = "*", platform = "linux", optional = true }
 tzlocal = { version = "*", optional = true }
 xmltodict = { version = "*", optional = true }
-pydantic = "<2.0.0"
+pydantic = "<3.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
