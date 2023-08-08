@@ -4,10 +4,11 @@ from __future__ import annotations
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 from logging import DEBUG, getLogger
-from typing import Any, Literal, TypedDict, final
+from typing import Any, Literal, final
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from requests import put
+from typing_extensions import TypedDict
 
 from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
@@ -144,8 +145,8 @@ class Transaction(BaseModelWithConfig):
     account_id: str
     amount: int
     amount_is_pending: bool
-    atm_fees_detailed: dict[str, int | str | None] | None
-    attachments: None
+    atm_fees_detailed: dict[str, int | str | None] | None = None
+    attachments: None = None
     can_add_to_tab: bool
     can_be_excluded_from_breakdown: bool
     can_be_made_subscription: bool
@@ -159,15 +160,15 @@ class Transaction(BaseModelWithConfig):
     counterparty: dict[str, str]
     created: str
     currency: str
-    decline_reason: str | None
+    decline_reason: str | None = None
     dedupe_id: str
     description: str
-    fees: dict[str, Any] | None
+    fees: dict[str, Any] | None = None
     id: str
     include_in_spending: bool
-    international: bool | None
+    international: bool | None = None
     is_load: bool
-    labels: list[str] | None
+    labels: list[str] | None = None
     local_amount: int
     local_currency: str
     merchant: str | None
@@ -177,7 +178,7 @@ class Transaction(BaseModelWithConfig):
     parent_account_id: str
     scheme: str
     settled: str
-    tab: dict[str, object] | None
+    tab: dict[str, object] | None = None
     updated: str
     user_id: str
 
@@ -206,22 +207,22 @@ class AccountOwner(TypedDict):
 class Account(BaseModelWithConfig):
     """Class for managing individual bank accounts."""
 
-    account_number: str | None
+    account_number: str
     closed: bool
     country_code: str
     created: datetime
     currency: Literal["GBP"]
     description: str
     id: str
-    initial_balance: int | None = Field(alias="balance")
+    initial_balance: int | None = Field(None, validation_alias="balance")
     initial_balance_including_flexible_savings: int | None = Field(
-        alias="balance_including_flexible_savings"
+        None, validation_alias="balance_including_flexible_savings"
     )
-    initial_spend_today: int | None = Field(alias="spend_today")
-    initial_total_balance: int | None = Field(alias="total_balance")
+    initial_spend_today: int | None = Field(None, validation_alias="spend_today")
+    initial_total_balance: int | None = Field(None, validation_alias="total_balance")
     owners: list[AccountOwner]
-    payment_details: dict[str, dict[str, str]] | None
-    sort_code: str | None
+    payment_details: dict[str, dict[str, str]] | None = None
+    sort_code: str = Field(min_length=6, max_length=6)
     type: Literal["uk_monzo_flex", "uk_retail", "uk_retail_joint"]
 
     monzo_client: MonzoClient = Field(exclude=True)
@@ -229,12 +230,29 @@ class Account(BaseModelWithConfig):
     last_balance_update: datetime = Field(datetime(1970, 1, 1), exclude=True)
     _balance_variables: BalanceVariables
 
+    @field_validator("sort_code", mode="before")
+    def validate_sort_code(cls, sort_code: str | int) -> str:  # noqa: N805
+        """Ensure that the sort code is a 6-digit integer.
+
+        Represented as a string so leading zeroes aren't lost.
+        """
+
+        if isinstance(sort_code, int):
+            sort_code = str(sort_code)
+
+        if len(sort_code) != 6:
+            sort_code.ljust(6, "0")
+
+        if not sort_code.isdigit():
+            raise ValueError("Sort code must be a 6-digit integer")
+
+        return sort_code
+
     @classmethod
     def from_json_response(
         cls,
         value: AccountJson,
         monzo_client: MonzoClient,
-        _waive_validation: bool = False,
     ) -> Account:
         """Create an account from a JSON response."""
 
@@ -243,12 +261,7 @@ class Account(BaseModelWithConfig):
             **value,
         }
 
-        instance = cls.parse_obj(value_data)
-
-        if not _waive_validation:
-            instance._validate()  # pylint: disable=protected-access
-
-        return instance
+        return cls.model_validate(value_data)
 
     def list_transactions(
         self,
@@ -302,14 +315,8 @@ class Account(BaseModelWithConfig):
                 "Balance variable update threshold crossed, getting new values"
             )
 
-            object.__setattr__(
-                self,
-                "_balance_variables",
-                BalanceVariables.parse_obj(
-                    self.monzo_client.get_json_response(
-                        f"/balance?account_id={self.id}"
-                    )
-                ),
+            self._balance_variables = BalanceVariables.model_validate(
+                self.monzo_client.get_json_response(f"/balance?account_id={self.id}")
             )
 
             self.last_balance_update = datetime.utcnow()
@@ -381,24 +388,24 @@ class Pot(BaseModelWithConfig):
 
     available_for_bills: bool
     balance: float
-    charity_id: str | None
+    charity_id: str | None = None
     cover_image_url: str
     created: datetime
     currency: str
     current_account_id: str
     deleted: bool
-    goal_amount: float | None
+    goal_amount: float | None = None
     has_virtual_cards: bool
     id: str
     is_tax_pot: bool
     isa_wrapper: str
-    lock_type: Literal["until_date"] | None
+    lock_type: Literal["until_date"] | None = None
     locked: bool
-    locked_until: datetime | None
+    locked_until: datetime | None = None
     name: str
     product_id: str
     round_up: bool
-    round_up_multiplier: float | None
+    round_up_multiplier: float | None = None
     style: str
     type: str
     updated: datetime
@@ -558,4 +565,4 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         }
 
 
-Account.update_forward_refs()
+Account.model_rebuild()

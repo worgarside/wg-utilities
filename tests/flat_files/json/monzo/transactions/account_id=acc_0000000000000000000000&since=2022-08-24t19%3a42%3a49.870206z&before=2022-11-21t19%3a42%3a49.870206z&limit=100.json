@@ -490,7 +490,7 @@
         "account_number": "84740618",
         "name": "XYCA6148885-5",
         "service_user_number": "170606",
-        "sort_code": 76365,
+        "sort_code": "076365",
         "user_id": "anonuser_0000000000000000000004"
       },
       "created": "2022-08-31T02:02:20.521Z",
@@ -4717,7 +4717,7 @@
         "account_number": "94637561",
         "name": "AOKYP/KPNNPWOQ",
         "service_user_number": "792539",
-        "sort_code": 76365,
+        "sort_code": "076365",
         "user_id": "anonuser_0000000000000000000025"
       },
       "created": "2022-09-14T16:15:46.74Z",

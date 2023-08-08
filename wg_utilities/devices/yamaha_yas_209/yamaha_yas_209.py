@@ -12,15 +12,15 @@ from re import compile as re_compile
 from textwrap import dedent
 from threading import Thread
 from time import sleep, strptime
-from typing import Any, Literal, TypedDict, TypeVar
+from typing import Any, Literal, TypeVar
 
 from async_upnp_client.aiohttp import AiohttpNotifyServer, AiohttpRequester
 from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable
 from async_upnp_client.client_factory import UpnpFactory
 from async_upnp_client.exceptions import UpnpCommunicationError
 from async_upnp_client.utils import get_local_ip
-from pydantic import BaseModel, Extra, Field, ValidationError
-from pydantic.error_wrappers import ErrorWrapper
+from pydantic import BaseModel, Field
+from typing_extensions import TypedDict
 from xmltodict import parse as parse_xml
 
 from wg_utilities.functions import traverse_dict
@@ -31,110 +31,106 @@ LOGGER.setLevel(DEBUG)
 add_stream_handler(LOGGER)
 
 
-# pylint: disable=too-few-public-methods
-class StateVariable(BaseModel, extra=Extra.allow):
+class StateVariable(BaseModel, extra="allow"):
     """BaseModel for state variables in DLNA payload."""
 
     channel: str
     val: str
 
 
-# pylint: disable=too-few-public-methods
-class CurrentTrackMetaDataItemRes(BaseModel, extra=Extra.allow):
+class CurrentTrackMetaDataItemRes(BaseModel, extra="allow"):
     """BaseModel for part of the DLNA payload."""
 
     protocolInfo: str  # noqa: N815
     duration: str
-    text: str | None
+    text: str | None = None
 
 
-# pylint: disable=too-few-public-methods
-class TrackMetaDataItem(BaseModel, extra=Extra.allow):
+class TrackMetaDataItem(BaseModel, extra="allow"):
     """BaseModel for part of the DLNA payload."""
 
     id: str
-    song_subid: str | None = Field("", alias="song:subid")
-    song_description: str | None = Field("", alias="song:description")
-    song_skiplimit: str = Field("", alias="song:skiplimit")
-    song_id: str | None = Field("", alias="song:id")
-    song_like: str = Field("", alias="song:like")
-    song_singerid: str = Field("", alias="song:singerid")
-    song_albumid: str = Field("", alias="song:albumid")
+    song_subid: str | None = Field(None, alias="song:subid")
+    song_description: str | None = Field(None, alias="song:description")
+    song_skiplimit: str | None = Field(None, alias="song:skiplimit")
+    song_id: str | None = Field(None, alias="song:id")
+    song_like: str | None = Field(None, alias="song:like")
+    song_singerid: str | None = Field(None, alias="song:singerid")
+    song_albumid: str | None = Field(None, alias="song:albumid")
     res: CurrentTrackMetaDataItemRes
-    dc_title: str | None = Field(..., alias="dc:title")
-    dc_creator: str | None = Field("", alias="dc:creator")
-    upnp_artist: str | None = Field(..., alias="upnp:artist")
-    upnp_album: str | None = Field(..., alias="upnp:album")
-    upnp_albumArtURI: str = Field(..., alias="upnp:albumArtURI")  # noqa: N815
+    dc_title: str | None = Field(None, alias="dc:title")
+    dc_creator: str | None = Field(None, alias="dc:creator")
+    upnp_artist: str | None = Field(None, alias="upnp:artist")
+    upnp_album: str | None = Field(None, alias="upnp:album")
+    upnp_albumArtURI: str | None = Field(None, alias="upnp:albumArtURI")  # noqa: N815
 
 
-# pylint: disable=too-few-public-methods
-class TrackMetaData(BaseModel, extra=Extra.allow):
+class TrackMetaData(BaseModel, extra="allow"):
     """BaseModel for part of the DLNA payload."""
 
     item: TrackMetaDataItem
 
 
-class InstanceIDAVTransport(BaseModel, extra=Extra.allow):
+class InstanceIDAVTransport(BaseModel, extra="allow"):
     """BaseModel for part of the DLNA payload."""
 
     val: str
     TransportState: str
-    TransportStatus: str | None
-    NumberOfTracks: str | None
-    CurrentTrack: str | None
-    CurrentTrackDuration: str | None
-    CurrentMediaDuration: str | None
-    CurrentTrackURI: str | None
-    AVTransportURI: str | None
-    TrackSource: str | None
-    CurrentTrackMetaData: TrackMetaData | None
-    AVTransportURIMetaData: TrackMetaData | None
-    PlaybackStorageMedium: str | None
-    PossiblePlaybackStorageMedia: str | None
-    PossibleRecordStorageMedia: str | None
-    RecordStorageMedium: str | None
-    CurrentPlayMode: str | None
-    TransportPlaySpeed: str | None
-    RecordMediumWriteStatus: str | None
-    CurrentRecordQualityMode: str | None
-    PossibleRecordQualityModes: str | None
-    RelativeTimePosition: str | None
-    AbsoluteTimePosition: str | None
-    RelativeCounterPosition: str | None
-    AbsoluteCounterPosition: str | None
-    CurrentTransportActions: str | None
+    TransportStatus: str | None = None
+    NumberOfTracks: str | None = None
+    CurrentTrack: str | None = None
+    CurrentTrackDuration: str | None = None
+    CurrentMediaDuration: str | None = None
+    CurrentTrackURI: str | None = None
+    AVTransportURI: str | None = None
+    TrackSource: str | None = None
+    CurrentTrackMetaData: TrackMetaData | None = None
+    AVTransportURIMetaData: TrackMetaData | None = None
+    PlaybackStorageMedium: str | None = None
+    PossiblePlaybackStorageMedia: str | None = None
+    PossibleRecordStorageMedia: str | None = None
+    RecordStorageMedium: str | None = None
+    CurrentPlayMode: str | None = None
+    TransportPlaySpeed: str | None = None
+    RecordMediumWriteStatus: str | None = None
+    CurrentRecordQualityMode: str | None = None
+    PossibleRecordQualityModes: str | None = None
+    RelativeTimePosition: str | None = None
+    AbsoluteTimePosition: str | None = None
+    RelativeCounterPosition: str | None = None
+    AbsoluteCounterPosition: str | None = None
+    CurrentTransportActions: str | None = None
 
 
-class InstanceIDRenderingControl(BaseModel, extra=Extra.allow):
+class InstanceIDRenderingControl(BaseModel, extra="allow"):
     """BaseModel for part of the DLNA payload."""
 
     val: str
     Mute: StateVariable
-    Channel: StateVariable | None
-    Equalizer: StateVariable | None
+    Channel: StateVariable | None = None
+    Equalizer: StateVariable | None = None
     # There's a typo in the schema, this is correct for some payloads -.-
-    Equaluzer: StateVariable | None
+    Equaluzer: StateVariable | None = None
     Volume: StateVariable
-    PresetNameList: str | None
-    TimeStamp: str | None
+    PresetNameList: str | None = None
+    TimeStamp: str | None = None
 
 
-class EventAVTransport(BaseModel, extra=Extra.allow):
+class EventAVTransport(BaseModel, extra="allow"):
     """BaseModel for part of the DLNA payload."""
 
     xmlns: Literal["urn:schemas-upnp-org:metadata-1-0/AVT/"]
     InstanceID: InstanceIDAVTransport
 
 
-class EventRenderingControl(BaseModel, extra=Extra.allow):
+class EventRenderingControl(BaseModel, extra="allow"):
     """BaseModel for part of the DLNA payload."""
 
     xmlns: Literal["urn:schemas-upnp-org:metadata-1-0/RCS/"]
     InstanceID: InstanceIDRenderingControl
 
 
-class LastChange(BaseModel, extra=Extra.allow):
+class LastChange(BaseModel, extra="allow"):
     """BaseModel for the DLNA payload."""
 
     Event: Any
@@ -151,9 +147,7 @@ class LastChange(BaseModel, extra=Extra.allow):
 
         Raises:
             TypeError: if the payload isn't a dict
-            ValidationError: If any of the specified model fields are empty or of the
-             wrong type.
-            ValidationError: if more than just "Event" is in the payload
+            ValueError: if more than just "Event" is in the payload
         """
         if not isinstance(payload, dict):
             raise TypeError("Expected a dict")
@@ -163,12 +157,8 @@ class LastChange(BaseModel, extra=Extra.allow):
         event = payload.pop("Event")
 
         if payload:
-            raise ValidationError(
-                [
-                    ErrorWrapper(ValueError("extra fields not permitted"), loc=key)
-                    for key in payload.keys()
-                ],
-                model=cls,
+            raise ValueError(
+                f"Extra fields not permitted: {list(payload.keys())!r}",
             )
 
         return cls(Event=event)
@@ -1028,7 +1018,7 @@ class YamahaYas209:
         if not hasattr(self, "_current_track"):
             media_info = self.get_media_info()
             self._current_track = CurrentTrack.from_get_media_info(
-                GetMediaInfoResponse.parse_obj(media_info)
+                GetMediaInfoResponse.model_validate(media_info)
             )
 
         return self._current_track

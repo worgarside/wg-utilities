@@ -19,7 +19,7 @@ def test_instantiation(monzo_client: MonzoClient) -> None:
     """Test that the class can be instantiated."""
     account = Account(
         account_number="12345678",
-        balance=10000,
+        balance=10000,  # type: ignore[call-arg]
         balance_including_flexible_savings=50000,
         closed=False,
         country_code="GB",
@@ -36,7 +36,7 @@ def test_instantiation(monzo_client: MonzoClient) -> None:
     )
 
     assert isinstance(account, Account)
-    assert account.dict() == {
+    assert account.model_dump() == {
         "account_number": "12345678",
         "closed": False,
         "country_code": "GB",
@@ -49,7 +49,6 @@ def test_instantiation(monzo_client: MonzoClient) -> None:
         "initial_spend_today": -115,
         "initial_total_balance": 50000,
         "owners": [],
-        "payment_details": None,
         "sort_code": "123456",
         "type": "uk_retail",
     }
@@ -170,7 +169,7 @@ def test_update_balance_variables(
 
         assert monzo_account.last_balance_update == datetime.utcnow()
 
-    assert monzo_account.balance_variables.dict() == {
+    assert monzo_account.balance_variables.model_dump() == {
         "balance": 177009,
         "balance_including_flexible_savings": 41472,
         "currency": "GBP",

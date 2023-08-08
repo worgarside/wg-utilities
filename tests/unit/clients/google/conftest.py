@@ -62,13 +62,11 @@ def _directory(drive: Drive, google_drive_client: GoogleDriveClient) -> Director
         _block_describe_call=True,
     )
 
-    drive._set_private_attr("_all_files", Field(exclude=True, default_factory=list))
-    drive._set_private_attr("_files", Field(exclude=True, default_factory=list))
+    drive._all_files = Field(exclude=True, default_factory=list)
+    drive._files = Field(exclude=True, default_factory=list)
 
-    drive._set_private_attr(
-        "_all_directories", Field(exclude=True, default_factory=list)
-    )
-    drive._set_private_attr("_directories", Field(exclude=True, default_factory=list))
+    drive._all_directories = Field(exclude=True, default_factory=list)
+    drive._directories = Field(exclude=True, default_factory=list)
 
     return diry
 
@@ -145,11 +143,8 @@ def _file(
     )
 
     # Don't "dirty" the `directory` fixture
-    directory._set_private_attr(  # pylint: disable=protected-access
-        "_files", Field(exclude=True, default_factory=list)
-    )
-
-    drive._set_private_attr("_all_files", Field(exclude=True, default_factory=list))
+    directory._files = Field(exclude=True, default_factory=list)
+    drive._all_files = Field(exclude=True, default_factory=list)
 
     return file
 
@@ -165,7 +160,7 @@ def _google_calendar_client(
     (
         creds_cache_path := temp_dir
         / "oauth_credentials/google_calendar_credentials.json"
-    ).write_text(fake_oauth_credentials.json())
+    ).write_text(fake_oauth_credentials.model_dump_json())
 
     return GoogleCalendarClient(
         client_id="test-client-id.apps.googleusercontent.com",
@@ -184,7 +179,7 @@ def _google_drive_client(
 
     (
         creds_cache_path := temp_dir / "oauth_credentials/google_drive_credentials.json"
-    ).write_text(fake_oauth_credentials.json())
+    ).write_text(fake_oauth_credentials.model_dump_json())
 
     return GoogleDriveClient(
         client_id="test-client-id.apps.googleusercontent.com",
@@ -204,7 +199,7 @@ def _google_fit_client(
 
     (
         creds_cache_path := temp_dir / "oauth_credentials/google_fit_credentials.json"
-    ).write_text(fake_oauth_credentials.json())
+    ).write_text(fake_oauth_credentials.model_dump_json())
 
     return GoogleFitClient(
         client_id="test-client-id.apps.googleusercontent.com",
@@ -238,7 +233,7 @@ def _google_photos_client(
     (
         creds_cache_path := temp_dir
         / "oauth_credentials/google_photos_credentials.json"
-    ).write_text(fake_oauth_credentials.json())
+    ).write_text(fake_oauth_credentials.model_dump_json())
 
     return GooglePhotosClient(
         client_id="test-client-id.apps.googleusercontent.com",
@@ -319,9 +314,10 @@ def _simple_file(
     )
 
     # Don't "dirty" the `directory` fixture
-    directory._set_private_attr(  # pylint: disable=protected-access
-        "_files", Field(exclude=True, default_factory=list)
+    directory._files = Field(  # pylint: disable=protected-access
+        exclude=True, default_factory=list
     )
+
     return simple_file
 
 

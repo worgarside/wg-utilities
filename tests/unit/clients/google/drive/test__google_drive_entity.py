@@ -1,7 +1,7 @@
 """Unit tests for `wg_utilities.clients.google_drive._GoogleDriveEntity`."""
 from __future__ import annotations
 
-from json import dumps
+from json import loads
 
 from pytest import raises
 
@@ -9,11 +9,11 @@ from wg_utilities.clients import GoogleDriveClient
 from wg_utilities.clients.google_drive import _GoogleDriveEntity
 
 
-def test_dict_method(
+def test_model_dump_method(
     google_drive_client: GoogleDriveClient,
 ) -> None:
-    """Test the `dict` method."""
-    google_drive_entity = _GoogleDriveEntity.parse_obj(
+    """Test the `model_dump` method."""
+    google_drive_entity = _GoogleDriveEntity.model_validate(
         {
             "id": "test-id",
             "name": "Entity Name",
@@ -22,18 +22,18 @@ def test_dict_method(
         },
     )
 
-    assert google_drive_entity.dict() == {
+    assert google_drive_entity.model_dump() == {
         "id": "test-id",
         "name": "Entity Name",
         "mimeType": "application/vnd.google-apps.file",
     }
 
 
-def test_json_method(
+def test_model_dump_json_method(
     google_drive_client: GoogleDriveClient,
 ) -> None:
-    """Test the `json` method."""
-    google_drive_entity = _GoogleDriveEntity.parse_obj(
+    """Test the `model_dump_json` method."""
+    google_drive_entity = _GoogleDriveEntity.model_validate(
         {
             "id": "test-id",
             "name": "Entity Name",
@@ -42,20 +42,18 @@ def test_json_method(
         },
     )
 
-    assert google_drive_entity.json() == dumps(
-        {
-            "id": "test-id",
-            "name": "Entity Name",
-            "mimeType": "application/vnd.google-apps.file",
-        }
-    )
+    assert loads(google_drive_entity.model_dump_json()) == {
+        "id": "test-id",
+        "name": "Entity Name",
+        "mimeType": "application/vnd.google-apps.file",
+    }
 
 
 def test_host_drive_property_raises_error(
     google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test the `host_drive` property raises an error (due to invalid class)."""
-    google_drive_entity = _GoogleDriveEntity.parse_obj(
+    google_drive_entity = _GoogleDriveEntity.model_validate(
         {
             "id": "test-id",
             "name": "Entity Name",

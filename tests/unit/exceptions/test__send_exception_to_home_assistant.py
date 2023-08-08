@@ -8,13 +8,14 @@ from __future__ import annotations
 from collections.abc import Callable
 from inspect import stack
 from socket import gethostname
-from typing import Any, TypedDict
+from typing import Any
 from unittest.mock import ANY
 
 from pytest import mark, raises
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import HTTPError
 from requests_mock import Mocker
+from typing_extensions import TypedDict
 
 from tests.conftest import EXCEPTION_GENERATORS
 from wg_utilities.exceptions import HA_LOG_ENDPOINT, send_exception_to_home_assistant
