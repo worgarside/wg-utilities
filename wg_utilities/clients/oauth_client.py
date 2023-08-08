@@ -10,7 +10,7 @@ from pathlib import Path
 from random import choice
 from string import ascii_letters
 from time import time
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 from urllib.parse import urlencode
 from webbrowser import open as open_browser
 
@@ -22,7 +22,7 @@ from wg_utilities.clients.json_api_client import GetJsonResponse, JsonApiClient
 from wg_utilities.functions import user_data_dir
 from wg_utilities.functions.file_management import force_mkdir
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from pydantic.main import IncEx
 
 else:
@@ -120,9 +120,6 @@ class BaseModelWithConfig(BaseModel):
             round_trip=round_trip,
             warnings=warnings,
         )
-
-
-T = TypeVar("T")  # TODO bind?
 
 
 class OAuthCredentials(BaseModelWithConfig):
