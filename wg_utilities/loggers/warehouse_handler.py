@@ -2,27 +2,18 @@
 
 from __future__ import annotations
 
+from asyncio import get_running_loop, run
 from collections.abc import Callable, Iterable, Mapping
 from hashlib import md5
 from http import HTTPStatus
 from json import JSONDecodeError, dumps
-from logging import (
-    CRITICAL,
-    DEBUG,
-    ERROR,
-    INFO,
-    WARNING,
-    Formatter,
-    Handler,
-    Logger,
-    LogRecord,
-    getLogger,
-)
+from logging import DEBUG, WARNING, Formatter, Handler, Logger, LogRecord, getLogger
 from os import getenv
 from socket import gethostname
 from time import gmtime
 from traceback import format_exception
-from typing import Any, Final, Literal, Protocol, TypeVar, cast
+from types import TracebackType
+from typing import Any, Final, Literal, Protocol, TypeVar
 
 from requests import HTTPError
 from requests.exceptions import RequestException
@@ -72,8 +63,53 @@ T = TypeVar("T")
 
 
 class _PyscriptTaskExecutorProtocol(Protocol[T]):
-    def __call__(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+    async def __call__(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
         ...  # pragma: no cover
+
+
+class HttpErrorHandler:
+    def __init__(self, allow_connection_errors: bool):
+        self._allow_connection_errors = allow_connection_errors
+
+    def __enter__(self) -> HttpErrorHandler:
+        return self
+
+    def __exit__(
+        self,
+        _: type[type] | None,
+        exc: Exception | None,
+        __: TracebackType | None,
+    ) -> bool:
+        if isinstance(exc, HTTPError):
+            error_detail = exc.response.text
+            try:
+                if (error_detail := exc.response.json()).get("detail", {}).get(
+                    "type"
+                ) == "ItemExistsError":
+                    return True
+            except (AttributeError, LookupError, JSONDecodeError):
+                pass
+
+            LOGGER.error(
+                "Error posting log to Warehouse: %i %s; %r",
+                exc.response.status_code,
+                exc.response.reason,
+                error_detail,
+            )
+        elif isinstance(
+            exc,
+            (ConnectionError | RequestException),
+        ):
+            LOGGER.error("Error posting log to Warehouse: %r", exc)
+
+            return self._allow_connection_errors
+        elif exc is not None:  # pragma: no cover
+            raise RuntimeError(f"Unhandled logging exception: {exc!r}") from exc
+
+        return True
+
+
+http_error_handler = HttpErrorHandler
 
 
 class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
@@ -188,12 +224,18 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         self._allow_connection_errors = allow_connection_errors
         self._pyscript_task_executor = pyscript_task_executor
 
-        self._initialize_warehouse()
+        if self._pyscript_task_executor is not None:
+            # Workaround for ensuring the warehouse is still created from Pyscript
+            self._post_json_response(
+                "/warehouses", json=self._WAREHOUSE_SCHEMA, timeout=5
+            )
+        else:
+            self._initialize_warehouse()
 
     def _initialize_warehouse(self) -> None:
         schema: WarehouseLog
         try:
-            schema = self._get_json_response(  # type: ignore[assignment]
+            schema = self.get_json_response(  # type: ignore[assignment]
                 self.WAREHOUSE_ENDPOINT, timeout=5
             )
         except HTTPError as exc:
@@ -212,7 +254,8 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 raise
         else:
             LOGGER.info(
-                "Warehouse already exists - created at %s",
+                "Warehouse %s already exists - created at %s",
+                schema.get("name", None),
                 schema.pop("created_at", None),  # type: ignore[misc]
             )
             if schema != self._WAREHOUSE_SCHEMA:  # type: ignore[comparison-overlap]
@@ -249,72 +292,8 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 format_exception(record.exc_info[1])
             )
 
-        try:
-            self._post_json_response(
-                f"{self.WAREHOUSE_ENDPOINT}/items", json=log_payload, timeout=5
-            )
-        except HTTPError as exc:
-            error_detail = exc.response.text
-            try:
-                if (error_detail := exc.response.json()).get("detail", {}).get(
-                    "type"
-                ) == "ItemExistsError":
-                    return
-            except (AttributeError, LookupError, JSONDecodeError):
-                pass
-
-            LOGGER.error(
-                "Error posting log to Warehouse: %i %s; %r",
-                exc.response.status_code,
-                exc.response.reason,
-                error_detail,
-            )
-        except (
-            ConnectionError,
-            RequestException,
-        ) as exc:
-            LOGGER.error("Error posting log to Warehouse: %r", exc)
-
-            if not self._allow_connection_errors:
-                raise
-        except Exception as exc:  # pylint: disable=broad-except # pragma: no cover
-            LOGGER.error(repr(exc))
-
-    def _get_json_response(
-        self,
-        url: str,
-        /,
-        *,
-        params: dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None]
-        | None = None,
-        header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: float | None = None,
-        json: Any | None = None,
-        data: Any | None = None,
-    ) -> WarehouseLog | WarehouseLogPage:
-        """Get a JSON response from the warehouse.
-
-        This is overridden to allow compatibility with Pyscript.
-        https://hacs-pyscript.readthedocs.io/en/latest/reference.html#task-executor
-        """
-        if self._pyscript_task_executor is not None:
-            return self._pyscript_task_executor(
-                self.get_json_response,
-                url,
-                params=params,
-                header_overrides=header_overrides,
-                timeout=timeout,
-                json=json,
-                data=data,
-            )
-
-        return self.get_json_response(
-            url,
-            params=params,
-            header_overrides=header_overrides,
-            timeout=timeout,
-            json=json,
-            data=data,
+        self._post_json_response(
+            f"{self.WAREHOUSE_ENDPOINT}/items", json=log_payload, timeout=5
         )
 
     def _post_json_response(
@@ -328,14 +307,14 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         timeout: float | tuple[float, float] | tuple[float, None] | None = None,
         json: Any | None = None,
         data: Any | None = None,
-    ) -> WarehouseLog | WarehouseLogPage:
+    ) -> WarehouseLog | WarehouseLogPage | None:
         """Post a JSON response to the warehouse.
 
         This is overridden to allow compatibility with Pyscript.
         https://hacs-pyscript.readthedocs.io/en/latest/reference.html#task-executor
         """
         if self._pyscript_task_executor is not None:
-            return self._pyscript_task_executor(
+            self._run_pyscript_task_executor(
                 self.post_json_response,
                 url,
                 params=params,
@@ -344,96 +323,45 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 json=json,
                 data=data,
             )
+            return None
 
-        return self.post_json_response(
-            url,
-            params=params,
-            header_overrides=header_overrides,
-            timeout=timeout,
-            json=json,
-            data=data,
-        )
-
-    def _get_records(self, level: int | None = None) -> list[LogRecord]:
-        """Get log records from the warehouse.
-
-        Args:
-            level (int): the logging level to filter by
-
-        Returns:
-            list: a list of log records
-        """
-        url = f"{self.WAREHOUSE_ENDPOINT}/items?log_host={self.HOST_NAME}"
-
-        if level is not None:
-            url += f"&level={level}"
-
-        return [
-            LogRecord(
-                name=record["logger"],
-                level=record["level"],
-                pathname=record["file"],
-                lineno=record["line"],
-                msg=record["message"],
-                args=(),
-                exc_info=None,  # TODO: add exception info
+        with http_error_handler(self._allow_connection_errors):
+            return self.post_json_response(
+                url,
+                params=params,
+                header_overrides=header_overrides,
+                timeout=timeout,
+                json=json,
+                data=data,
             )
-            for record in cast(WarehouseLogPage, self._get_json_response(url))["items"]
-        ]
 
-    @property
-    def records(self) -> list[LogRecord]:
-        """All records.
+        return None
 
-        Returns:
-            list: a list of all log records
-        """
-        return self._get_records()
+    async def _async_task_executor(
+        self, func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> None:
+        if (
+            not hasattr(self, "_pyscript_task_executor")
+            or not self._pyscript_task_executor
+        ):
+            raise NotImplementedError("Pyscript task executor is not defined")
 
-    @property
-    def debug_records(self) -> list[LogRecord]:
-        """Debug level records.
+        with http_error_handler(self._allow_connection_errors):
+            await self._pyscript_task_executor(func, *args, **kwargs)
 
-        Returns:
-            list: a list of log records with the level DEBUG
-        """
-        return self._get_records(DEBUG)
+    def _run_pyscript_task_executor(
+        self, func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> None:
+        try:
+            loop = get_running_loop()
+        except RuntimeError:
+            loop = None
 
-    @property
-    def info_records(self) -> list[LogRecord]:
-        """Info level records.
+        if loop and loop.is_running():
+            loop.create_task(self._async_task_executor(func, *args, **kwargs))
+            return
 
-        Returns:
-            list: a list of log records with the level INFO
-        """
-        return self._get_records(INFO)
-
-    @property
-    def warning_records(self) -> list[LogRecord]:
-        """Warning level records.
-
-        Returns:
-            list: a list of log records with the level WARNING
-        """
-        return self._get_records(WARNING)
-
-    @property
-    def error_records(self) -> list[LogRecord]:
-        """Error level records.
-
-        Returns:
-            list: a list of log records with the level ERROR
-        """
-        return self._get_records(ERROR)
-
-    @property
-    def critical_records(self) -> list[LogRecord]:
-        """Critical level records.
-
-        Returns:
-            list: a list of log records with the level CRITICAL
-        """
-        return self._get_records(CRITICAL)
+        run(self._async_task_executor(func, *args, **kwargs))
 
     @staticmethod
     def get_base_url(host: str | None, port: int | None) -> str:

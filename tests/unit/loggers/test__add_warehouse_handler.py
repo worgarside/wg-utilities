@@ -21,7 +21,7 @@ from wg_utilities.loggers.warehouse_handler import (
 def test_handler_is_applied_to_logger_correctly(logger: Logger) -> None:
     """Test that the handler is applied to the logger correctly."""
 
-    def _pyscript_task_executor(
+    async def _pyscript_task_executor(
         func: Callable[..., Any], *args: Any, **kwargs: Any
     ) -> Any:
         return func(*args, **kwargs)

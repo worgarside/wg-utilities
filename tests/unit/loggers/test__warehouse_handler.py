@@ -4,11 +4,15 @@
 
 from __future__ import annotations
 
+from asyncio import iscoroutine
+from collections.abc import Callable
 from hashlib import md5
 from http import HTTPStatus
-from logging import ERROR, Handler, Logger, LogRecord
+from logging import ERROR, INFO, Handler, Logger, LogRecord
 from socket import gethostname
-from unittest.mock import ANY, MagicMock, call, patch
+from traceback import format_exc
+from typing import Any
+from unittest.mock import ANY, AsyncMock, Mock, call, patch
 
 from freezegun import freeze_time
 from pytest import LogCaptureFixture, mark, raises
@@ -17,6 +21,7 @@ from requests.exceptions import RequestException
 from requests_mock import ANY as REQUESTS_MOCK_ANY
 from requests_mock import Mocker
 
+from tests.conftest import TestError, assert_mock_requests_request_history
 from tests.unit.loggers.conftest import (
     SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL,
     SAMPLE_LOG_RECORDS,
@@ -65,39 +70,68 @@ def test_initialize_warehouse_new_warehouse(mock_requests: Mocker) -> None:
     )
 
 
-def test_initialize_warehouse_already_exists() -> None:
+def test_initialize_warehouse_already_exists(
+    caplog: LogCaptureFixture, mock_requests: Mocker
+) -> None:
+    # pylint: disable=import-outside-toplevel
     """Test that the _initialize_warehouse method works correctly."""
+    from wg_utilities.loggers.warehouse_handler import LOGGER
 
-    with patch.object(
-        WarehouseHandler, "get_json_response", return_value=WAREHOUSE_SCHEMA
-    ) as mock_get_json_response:
-        _ = WarehouseHandler()
+    LOGGER.setLevel(INFO)
+    caplog.set_level(INFO)
 
-    mock_get_json_response.assert_called_once_with(
-        "/warehouses/lumberyard",
-        params=None,
-        header_overrides=None,
-        timeout=5,
-        json=None,
-        data=None,
+    mock_requests.get(
+        # Default URL
+        "http://homeassistant.local/v1/warehouses/lumberyard",
+        status_code=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        json=WAREHOUSE_SCHEMA,
+    )
+
+    _ = WarehouseHandler()
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": "http://homeassistant.local/v1/warehouses/lumberyard",
+                "method": "GET",
+                "headers": {},
+            }
+        ],
+    )
+
+    assert (
+        caplog.records[0].message
+        == "Warehouse lumberyard already exists - created at 2023-07-26T17:56:26.951515"
     )
 
 
-def test_initialize_warehouse_already_exists_but_wrong_schema() -> None:
+def test_initialize_warehouse_already_exists_but_wrong_schema(
+    mock_requests: Mocker,
+) -> None:
     """Test that the _initialize_warehouse method works correctly."""
 
-    with patch.object(
-        WarehouseHandler, "get_json_response", return_value={"invalid": "schema"}
-    ) as mock_get_json_response, raises(ValueError) as exc_info:
+    mock_requests.get(
+        # Default URL
+        "http://homeassistant.local/v1/warehouses/lumberyard",
+        status_code=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        json={"invalid": "schema"},
+    )
+
+    with raises(ValueError) as exc_info:
         _ = WarehouseHandler()
 
-    mock_get_json_response.assert_called_once_with(
-        "/warehouses/lumberyard",
-        params=None,
-        header_overrides=None,
-        timeout=5,
-        json=None,
-        data=None,
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": "http://homeassistant.local/v1/warehouses/lumberyard",
+                "method": "GET",
+                "headers": {},
+            }
+        ],
     )
 
     assert (
@@ -183,6 +217,45 @@ def test_emit(level: int, message: str, logger: Logger) -> None:
 
 
 @mark.add_handler("warehouse_handler")
+def test_emit_exception(logger: Logger) -> None:
+    """Test exception info is included for exceptions."""
+
+    tb = None
+    with patch.object(
+        WarehouseHandler, "post_json_response"
+    ) as mock_post_json_response:
+        try:
+            raise TestError("Test Error")
+        except TestError:
+            logger.exception(":(")
+            tb = format_exc()
+
+    mock_post_json_response.assert_called_once_with(
+        "/warehouses/lumberyard/items",
+        params=None,
+        header_overrides=None,
+        timeout=5,
+        json={
+            "created_at": ANY,
+            "file": __file__,
+            "level": ERROR,
+            "line": ANY,
+            "log_hash": md5(b":(").hexdigest(),
+            "log_host": gethostname(),
+            "logger": logger.name,
+            "message": ":(",
+            "module": "test__warehouse_handler",
+            "process": "MainProcess",
+            "thread": "MainThread",
+            "exception_type": "TestError",
+            "exception_message": "Test Error",
+            "exception_traceback": tb,
+        },
+        data=None,
+    )
+
+
+@mark.add_handler("warehouse_handler")
 def test_emit_duplicate_record(
     caplog: LogCaptureFixture, logger: Logger, mock_requests: Mocker
 ) -> None:
@@ -231,37 +304,27 @@ def test_emit_http_error(
 
 
 @mark.add_handler("warehouse_handler")
-def test_get_records_parsing(warehouse_handler: WarehouseHandler) -> None:
-    """Test that the get_records method returns the correct records."""
-
-    assert len(warehouse_handler.debug_records) == 1
-
-    record = warehouse_handler.debug_records[0]
-    assert record.getMessage() == "test message @ level 10"
-    assert record.levelno == 10
-
-
-@mark.parametrize(
-    ("level_name", "expected_level_arg"),
-    (
-        ("critical", 50),
-        ("error", 40),
-        ("warning", 30),
-        ("info", 20),
-        ("debug", 10),
-    ),
-)
-def test_records_properties(
-    warehouse_handler: WarehouseHandler, level_name: str, expected_level_arg: int
+def test_emit_bad_response_schema(
+    caplog: LogCaptureFixture, logger: Logger, mock_requests: Mocker
 ) -> None:
-    """Test that each of the record properties make the correct call."""
+    """Test that the emit method logs other HTTP errors, even with an unknown schema."""
 
-    records = getattr(warehouse_handler, f"{level_name}_records")
+    caplog.set_level(ERROR)
 
-    assert len(records) == 1
-    record = records[0]
-    assert record.getMessage() == f"test message @ level {expected_level_arg}"
-    assert record.levelno == expected_level_arg
+    mock_requests.post(
+        "https://item-warehouse.com/v1/warehouses/lumberyard/items",
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+        reason=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
+        json={"detail": ["not", "a", "dict"]},
+    )
+
+    logger.info("Info log")
+
+    assert caplog.records[
+        0
+    ].message == "Error posting log to Warehouse: 500 Internal Server Error; " + str(
+        {"detail": ["not", "a", "dict"]}
+    )
 
 
 @mark.add_handler("warehouse_handler")
@@ -315,7 +378,12 @@ def test_pyscript_task_executor(
 ) -> None:
     """Test that the pyscript_task_executor works correctly."""
 
-    mock_task_executor = MagicMock()
+    async def _pyscript_task_executor(
+        func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> Any:
+        return func(*args, **kwargs)
+
+    mock_task_executor = Mock(wraps=_pyscript_task_executor)
 
     warehouse_handler._pyscript_task_executor = mock_task_executor
 
@@ -435,14 +503,92 @@ def test_pyscript_task_executor(
 
     mock_task_executor.reset_mock()
 
-    _ = warehouse_handler.info_records
 
-    mock_task_executor.assert_called_once_with(
-        warehouse_handler.get_json_response,
-        f"/warehouses/lumberyard/items?log_host={gethostname()}&level=20",
+def test_run_pyscript_task_executor_not_implemented(
+    warehouse_handler: WarehouseHandler,
+) -> None:
+    """Test that `_run_pyscript_task_executor` raises a NotImplementedError."""
+
+    assert warehouse_handler._pyscript_task_executor is None
+
+    with raises(NotImplementedError) as exc_info:
+        warehouse_handler._run_pyscript_task_executor(lambda: None)
+
+    assert str(exc_info.value) == "Pyscript task executor is not defined"
+
+
+@mark.add_handler("warehouse_handler")
+@mark.asyncio
+async def test_emit_inside_event_loop(
+    logger: Logger, mock_requests: Mocker, warehouse_handler: WarehouseHandler
+) -> None:
+    """Test that the emit method works correctly when called inside an event loop."""
+
+    async def _pyscript_task_executor(
+        func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> Any:
+        thing = func(*args, **kwargs)
+        return thing
+
+    mock_task_executor = AsyncMock(side_effect=_pyscript_task_executor)
+
+    warehouse_handler._pyscript_task_executor = mock_task_executor
+
+    with patch(
+        "wg_utilities.loggers.warehouse_handler.get_running_loop",
+    ) as mock_get_running_loop:
+        mock_get_running_loop.is_running.return_value = True
+
+        logger.error("test message")
+
+    mock_get_running_loop.assert_called_once_with()
+    mock_get_running_loop.return_value.is_running.assert_called_once_with()
+    mock_get_running_loop.return_value.create_task.assert_called_once()
+
+    assert iscoroutine(
+        coro := mock_get_running_loop.return_value.create_task.call_args[0][0]
+    )
+
+    assert coro.cr_code == warehouse_handler._async_task_executor.__code__
+
+    assert not mock_requests.request_history
+
+    mock_task_executor.assert_not_awaited()
+
+    await coro
+
+    json_payload = {
+        "created_at": ANY,
+        "file": __file__,
+        "level": ERROR,
+        "line": ANY,
+        "log_hash": md5(b"test message").hexdigest(),
+        "log_host": gethostname(),
+        "logger": logger.name,
+        "message": "test message",
+        "module": "test__warehouse_handler",
+        "process": "MainProcess",
+        "thread": "MainThread",
+    }
+
+    mock_task_executor.assert_awaited_once_with(
+        warehouse_handler.post_json_response,
+        "/warehouses/lumberyard/items",
         params=None,
         header_overrides=None,
-        timeout=None,
-        json=None,
+        timeout=5,
+        json=json_payload,
         data=None,
+    )
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": "https://item-warehouse.com/v1/warehouses/lumberyard/items",
+                "method": "POST",
+                "headers": {},
+                "json": json_payload,
+            }
+        ],
     )
