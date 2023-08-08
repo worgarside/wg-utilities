@@ -87,7 +87,7 @@ repos:
           - --strict
 
   - repo: https://github.com/hadialqattan/pycln
-    rev: v2.2.0
+    rev: v2.2.1
     hooks:
       - id: pycln
         args:
@@ -153,6 +153,6 @@ repos:
           - tomli
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.281
+    rev: v0.0.282
     hooks:
       - id: ruff
