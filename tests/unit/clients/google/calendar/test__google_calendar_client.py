@@ -72,7 +72,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
             date(2021, 1, 2),
             date(2021, 1, 2),
             timezone("Africa/Johannesburg"),
-            Calendar.parse_obj(
+            Calendar.model_validate(
                 {
                     "id": "test-calendar-id",
                     "etag": "",
@@ -92,7 +92,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
             date(2021, 1, 2),
             date(2021, 1, 2),
             timezone("Africa/Johannesburg"),
-            Calendar.parse_obj(
+            Calendar.model_validate(
                 {
                     "id": "test-calendar-id",
                     "etag": "",
@@ -154,7 +154,7 @@ def test_create_event_request(
     with patch.object(
         google_calendar_client, "post_json_response"
     ) as mock_post_json_response:
-        mock_post_json_response.return_value = loads(event.json())
+        mock_post_json_response.return_value = loads(event.model_dump_json())
 
         google_calendar_client.create_event(
             summary=summary,
@@ -223,7 +223,7 @@ def test_create_event_request(
             date(2021, 1, 2),
             date(2021, 1, 2),
             timezone("Africa/Johannesburg"),
-            Calendar.parse_obj(
+            Calendar.model_validate(
                 {
                     "id": "test-calendar-id",
                     "etag": "",
@@ -243,7 +243,7 @@ def test_create_event_request(
             date(2021, 1, 2),
             date(2021, 1, 2),
             timezone("Africa/Johannesburg"),
-            Calendar.parse_obj(
+            Calendar.model_validate(
                 {
                     "id": "test-calendar-id",
                     "etag": "",
@@ -278,7 +278,7 @@ def test_create_event_response(
     """Test the `create_event` method returns an Event instance."""
 
     if isinstance(start_datetime, datetime):
-        start = _StartEndDatetime.parse_obj(
+        start = _StartEndDatetime.model_validate(
             {
                 "timeZone": tz.tzname(None),
                 "dateTime": start_datetime.replace(tzinfo=tz).strftime(
@@ -287,7 +287,7 @@ def test_create_event_response(
             }
         )
     else:
-        start = _StartEndDatetime.parse_obj(
+        start = _StartEndDatetime.model_validate(
             {
                 "timeZone": tz.tzname(None),
                 "date": start_datetime.isoformat(),
@@ -295,7 +295,7 @@ def test_create_event_response(
         )
 
     if isinstance(end_datetime, datetime):
-        end = _StartEndDatetime.parse_obj(
+        end = _StartEndDatetime.model_validate(
             {
                 "timeZone": tz.tzname(None),
                 "dateTime": end_datetime.replace(tzinfo=tz).strftime(
@@ -304,14 +304,14 @@ def test_create_event_response(
             }
         )
     else:
-        end = _StartEndDatetime.parse_obj(
+        end = _StartEndDatetime.model_validate(
             {
                 "timeZone": tz.tzname(None),
                 "date": end_datetime.isoformat(),
             }
         )
 
-    expected_event = event.copy(
+    expected_event = event.model_copy(
         update={
             "summary": summary,
             "start": start,
@@ -331,7 +331,7 @@ def test_create_event_response(
         ),
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
-        json=loads(expected_event.json()),
+        json=loads(expected_event.model_dump_json()),
     )
 
     assert (
@@ -377,7 +377,7 @@ def test_create_event_type_validation(
     with patch.object(
         google_calendar_client, "post_json_response"
     ) as mock_post_json_response:
-        mock_post_json_response.return_value = loads(event.json())
+        mock_post_json_response.return_value = loads(event.model_dump_json())
 
         if expected_exception_message:
             with raises(TypeError, match=expected_exception_message):

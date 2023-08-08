@@ -51,7 +51,7 @@ def _truelayer_client(
 
     (
         creds_cache_path := temp_dir / "oauth_credentials/truelayer_credentials.json"
-    ).write_text(fake_oauth_credentials.json())
+    ).write_text(fake_oauth_credentials.model_dump_json())
 
     return TrueLayerClient(
         client_id=fake_oauth_credentials.client_id,

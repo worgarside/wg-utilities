@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from datetime import date
 from logging import DEBUG, getLogger
-from typing import Literal, TypeAlias, TypedDict, final
+from typing import Literal, TypeAlias, final
 
-from typing_extensions import NotRequired
+from typing_extensions import NotRequired, TypedDict
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -39,8 +39,7 @@ class Image(TypedDict):
     width: int | None
 
 
-# </editor-fold>
-# <editor-fold desc="Generic Objects">
+# Generic Objects
 
 
 class SpotifyBaseEntityJson(TypedDict):
@@ -56,16 +55,6 @@ class SpotifyNamedEntityJson(SpotifyBaseEntityJson):
     """The base JSON object for a Spotify entity with a name."""
 
     name: str
-
-
-class SpotifyLocalEntityJson(TypedDict):
-    """The base JSON object for a local-only Spotify entity."""
-
-    external_urls: dict[None, None]
-    href: None
-    id: None
-    name: str
-    uri: None | str
 
 
 # </editor-fold>
@@ -99,18 +88,6 @@ class AlbumSummaryJson(SpotifyNamedEntityJson, total=False):
     type: Literal["album"]
 
 
-class AlbumLocalJson(SpotifyLocalEntityJson):
-    """Type info for a local-only Spotify album."""
-
-    album_type: None
-    artists: list[None]
-    available_markets: list[None]
-    images: list[None]
-    release_date: None
-    release_date_precision: None
-    type: Literal["album"]
-
-
 class AlbumFullJson(AlbumSummaryJson):
     """Response from `/albums/{id}`."""
 
@@ -132,12 +109,6 @@ class ArtistSummaryJson(SpotifyNamedEntityJson):
     See Also:
         ArtistFullJson
     """
-
-    type: Literal["artist"]
-
-
-class ArtistLocalJson(SpotifyLocalEntityJson):
-    """Type info for a local-only Spotify artist."""
 
     type: Literal["artist"]
 
@@ -194,9 +165,9 @@ class PlaylistFullJsonTracks(TypedDict):
 
     added_at: str
     added_by: UserSummaryJson
-    is_local: bool
+    is_local: Literal[False]
     primary_color: None  # Not implemented yet
-    track: TrackFullJson | TrackLocalJson
+    track: TrackFullJson
     video_thumbnail: NotRequired[_TrackVideoThumbnail]
 
 
@@ -244,26 +215,6 @@ class _TrackVideoThumbnail(TypedDict, total=False):
     width: NotRequired[int]
 
 
-class TrackLocalJson(SpotifyLocalEntityJson, total=False):
-    """Response from `/tracks/{id}`."""
-
-    album: AlbumLocalJson
-    artists: list[ArtistLocalJson]
-    available_markets: list[None]
-    disc_number: int
-    duration_ms: int
-    episode: NotRequired[bool]
-    explicit: bool
-    external_ids: dict[None, None]
-    is_local: Literal[True]
-    is_playable: NotRequired[bool]
-    linked_from: NotRequired[_LinkedFromInTrack]
-    popularity: int
-    preview_url: None
-    track_number: int
-    type: Literal["track"]
-
-
 class TrackFullJson(SpotifyNamedEntityJson, total=False):
     """Response from `/tracks/{id}`."""
 
@@ -279,7 +230,7 @@ class TrackFullJson(SpotifyNamedEntityJson, total=False):
     is_playable: NotRequired[bool]
     linked_from: NotRequired[_LinkedFromInTrack]
     popularity: int
-    preview_url: str
+    preview_url: str | None
     restrictions: NotRequired[
         dict[Literal["reason"], Literal["explicit", "market", "product"]]
     ]
@@ -348,7 +299,7 @@ class _PaginatedResponseBase(TypedDict, total=False):
     limit: int
     next: str | None
     offset: int
-    previous: NotRequired[str]
+    previous: str | None
     total: int
 
 
@@ -452,7 +403,6 @@ SpotifyEntityJson: TypeAlias = (
     | DeviceJson
     | PlaylistSummaryJson
     | TrackFullJson
-    | TrackLocalJson
     | UserSummaryJson
     | UserFullJson
 )

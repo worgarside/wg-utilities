@@ -81,7 +81,7 @@ def test_album_title_validation(
             google_client=google_photos_client,
         ).title
     except ValidationError as exc:
-        assert repr(exc.raw_errors[0].exc) == repr(expected)  # type: ignore[union-attr]
+        assert repr(exc.errors()[0]["ctx"]["error"]) == repr(expected)
     else:
         assert actual == expected
 
