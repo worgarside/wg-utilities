@@ -162,7 +162,7 @@ def test_response_status_property(
     if creator:
         updates["creator"] = creator
 
-    new_event = event.copy(update=updates)
+    new_event = event.model_copy(update=updates)
 
     assert new_event.response_status == expected_response_status
 
@@ -171,15 +171,15 @@ def test_gt_method(event: Event) -> None:
     """Test that the `__gt__` method returns the correct value."""
 
     # Starts and ends a day later
-    before_first = event.copy(
+    before_first = event.model_copy(
         update={
-            "start": _StartEndDatetime.parse_obj(
+            "start": _StartEndDatetime.model_validate(
                 {
                     "dateTime": (event.start.datetime + timedelta(days=1)).isoformat(),
                     "timeZone": "Europe/London",
                 }
             ),
-            "end": _StartEndDatetime.parse_obj(
+            "end": _StartEndDatetime.model_validate(
                 {
                     "dateTime": (event.end.datetime + timedelta(days=1)).isoformat(),
                     "timeZone": "Europe/London",
@@ -189,9 +189,9 @@ def test_gt_method(event: Event) -> None:
     )
 
     # Ends 5 minutes later
-    before_second = event.copy(
+    before_second = event.model_copy(
         update={
-            "end": _StartEndDatetime.parse_obj(
+            "end": _StartEndDatetime.model_validate(
                 {
                     "dateTime": (event.end.datetime + timedelta(minutes=5)).isoformat(),
                     "timeZone": "Europe/London",
@@ -201,7 +201,7 @@ def test_gt_method(event: Event) -> None:
     )
 
     # Starts and ends at same time, but starts with a letter earlier in the alphabet
-    before_third = event.copy(
+    before_third = event.model_copy(
         update={
             "summary": "Z test event",
         }
@@ -217,9 +217,9 @@ def test_lt_method(event: Event) -> None:
     """Test that the `__lt__` method returns the correct value."""
 
     # Starts a day earlier
-    before_first = event.copy(
+    before_first = event.model_copy(
         update={
-            "start": _StartEndDatetime.parse_obj(
+            "start": _StartEndDatetime.model_validate(
                 {
                     "dateTime": (event.start.datetime - timedelta(days=1)).isoformat(),
                     "timeZone": "Europe/London",
@@ -229,9 +229,9 @@ def test_lt_method(event: Event) -> None:
     )
 
     # Ends 5 minutes earlier
-    before_second = event.copy(
+    before_second = event.model_copy(
         update={
-            "end": _StartEndDatetime.parse_obj(
+            "end": _StartEndDatetime.model_validate(
                 {
                     "dateTime": (event.end.datetime - timedelta(minutes=5)).isoformat(),
                     "timeZone": "Europe/London",
@@ -241,7 +241,7 @@ def test_lt_method(event: Event) -> None:
     )
 
     # Starts and ends at same time, but starts with a letter earlier in the alphabet
-    before_third = event.copy(
+    before_third = event.model_copy(
         update={
             "summary": "A test event",
         }

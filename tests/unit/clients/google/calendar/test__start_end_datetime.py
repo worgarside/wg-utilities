@@ -31,7 +31,7 @@ from wg_utilities.clients.google_calendar import _StartEndDatetime
 def test_instantiation(obj_json: dict[str, str], expected_datetime: datetime) -> None:
     """Test `StartEndDatetime` can be instantiated with a date and timezone."""
 
-    sed = _StartEndDatetime.parse_obj(obj_json)
+    sed = _StartEndDatetime.model_validate(obj_json)
 
     assert sed.date == date(2021, 1, 1)
     assert sed.datetime == expected_datetime

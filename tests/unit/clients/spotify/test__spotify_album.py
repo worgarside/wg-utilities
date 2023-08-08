@@ -22,7 +22,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
 
     assert isinstance(album, Album)
     # the `loads` is to convert datetimes to strings
-    assert loads(album.json()) == album_json
+    assert loads(album.model_dump_json()) == album_json
     assert album.spotify_client == spotify_client
 
 

@@ -23,7 +23,6 @@
       ],
       "console": "internalConsole",
       "stopOnEntry": true,
-      "module": "pytest",
       "justMyCode": false,
       "env": {
         "PYTHONPATH": "${workspaceFolder}"

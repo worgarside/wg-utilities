@@ -13,10 +13,11 @@ from socket import gethostname
 from time import gmtime
 from traceback import format_exception
 from types import TracebackType
-from typing import Any, Final, Literal, Protocol, TypedDict, TypeVar
+from typing import Any, Final, Literal, Protocol, TypeVar
 
 from requests import HTTPError
 from requests.exceptions import RequestException
+from typing_extensions import TypedDict
 
 from wg_utilities.clients.json_api_client import JsonApiClient, StrBytIntFlt
 from wg_utilities.loggers.stream_handler import add_stream_handler

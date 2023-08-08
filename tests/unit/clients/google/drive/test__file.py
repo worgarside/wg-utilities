@@ -6,7 +6,6 @@ from datetime import datetime
 from http import HTTPStatus
 from unittest.mock import patch
 
-from pydantic.fields import FieldInfo
 from pytest import mark, param, raises
 from pytz import utc
 from requests_mock import Mocker
@@ -194,7 +193,7 @@ def test_parent_instance_validation(
 def test_describe(simple_file: File) -> None:
     """Test that the `describe` method gets all available data."""
 
-    assert isinstance(simple_file._description, FieldInfo)
+    assert not simple_file._description
 
     with patch.object(
         simple_file.google_client,
@@ -232,7 +231,7 @@ def test_describe(simple_file: File) -> None:
 def test_describe_force_update(simple_file: File) -> None:
     """Test that `describe` method refreshes all available data with `force_update`."""
 
-    assert isinstance(simple_file._description, FieldInfo)
+    assert not simple_file._description
 
     with patch.object(
         simple_file.google_client,
@@ -312,7 +311,7 @@ def test_parent_property(simple_file: File, directory: Directory, drive: Drive) 
     # fine :)
 
     directory.parent_ = None
-    drive._set_private_attr("_directories", [])
+    drive._directories = []
 
     assert drive.all_known_children == []
     assert directory.parent == drive
