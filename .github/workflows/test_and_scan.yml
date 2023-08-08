@@ -32,6 +32,9 @@ on:
     branches:
       - develop
 
+env:
+  LTS_PYTHON_VERSION: 3.11
+
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
@@ -49,8 +52,8 @@ jobs:
           # I'm developing on macOS, so this should be covered
           # - macos-latest
         python-version:
-          - '3.10'
           - '3.11'
+          # - '3.12'
 
     steps:
       - name: Checkout Code
@@ -76,14 +79,14 @@ jobs:
         continue-on-error: true
 
       - name: Upload `coverage.xml` as Artifact
-        if: matrix.python-version == '3.10'
+        if: matrix.python-version == env.LTS_PYTHON_VERSION
         uses: actions/upload-artifact@v3
         with:
           name: coverage-report
           path: ./coverage.xml
 
       - name: Upload coverage to Codecov
-        if: matrix.python-version == '3.10'
+        if: matrix.python-version == env.LTS_PYTHON_VERSION
         uses: codecov/codecov-action@v3
         with:
           flags: unittests
