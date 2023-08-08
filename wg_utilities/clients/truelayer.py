@@ -7,12 +7,12 @@ from enum import Enum, auto
 from logging import DEBUG, getLogger
 from os.path import sep
 from pathlib import Path
-from typing import Any, ClassVar, Literal, NotRequired, Self, TypeAlias, TypeVar
+from typing import Any, ClassVar, Literal, Self, TypeAlias, TypeVar
 
 from pydantic import Field, field_validator
 from requests import HTTPError
 from strenum import StrEnum  # type: ignore[import]
-from typing_extensions import TypedDict
+from typing_extensions import NotRequired, TypedDict
 
 from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient

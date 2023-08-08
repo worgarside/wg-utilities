@@ -6,12 +6,12 @@ from datetime import date as date_
 from datetime import datetime as datetime_
 from datetime import timedelta, tzinfo
 from enum import Enum
-from typing import Any, Literal, NotRequired, Self, TypeAlias
+from typing import Any, Literal, Self, TypeAlias
 
 from pydantic import Field, field_serializer, field_validator, model_validator
 from pytz import UTC, timezone
 from requests import delete
-from typing_extensions import TypedDict
+from typing_extensions import NotRequired, TypedDict
 from tzlocal import get_localzone
 
 from wg_utilities.clients._google import GoogleClient
