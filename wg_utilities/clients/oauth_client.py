@@ -10,93 +10,119 @@ from pathlib import Path
 from random import choice
 from string import ascii_letters
 from time import time
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, TypeVar
 from urllib.parse import urlencode
 from webbrowser import open as open_browser
 
 from jwt import DecodeError, decode
-from pydantic import BaseModel, Extra, validate_model
-from pydantic.generics import GenericModel
+from pydantic import BaseModel, ConfigDict
 
 from wg_utilities.api import TempAuthServer
 from wg_utilities.clients.json_api_client import GetJsonResponse, JsonApiClient
 from wg_utilities.functions import user_data_dir
 from wg_utilities.functions.file_management import force_mkdir
 
+if TYPE_CHECKING:
+    from pydantic.main import IncEx
+
+else:
+    IncEx = set[int] | set[str] | dict[int, Any] | dict[str, Any] | None
+
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
 
-class _ModelBase:
-    """Base class for `BaseModelWithConfig` and `GenericModelWithConfig`.
-
-    This is just to prevent duplicating the methods in both classes.
-    """
-
-    __fields__: dict[str, Any]
-
-    def _set_private_attr(self, attr_name: str, attr_value: Any) -> None:
-        """Set private attribute on the instance.
-
-        Args:
-            attr_name (str): the name of the attribute to set
-            attr_value (Any): the value to set the attribute to
-
-        Raises:
-            ValueError: if the attribute isn't private (i.e. the name doesn't start
-                with an underscore)
-        """
-        if not attr_name.startswith("_"):
-            raise ValueError("Only private attributes can be set via this method.")
-
-        object.__setattr__(self, attr_name, attr_value)
-
-    def _validate(self) -> None:
-        """Validate the model.
-
-        Any fields which have been renamed via `alias` will be renamed in the
-        validation dict before being passed to `validate_model`. Private attributes,
-        functions, and excluded fields are also ignored.
-
-        Raises:
-            ValidationError: if the model is invalid
-        """
-
-        model_dict = {
-            self.__fields__[k].alias if k in self.__fields__ else k: v
-            for k, v in self.__dict__.items()
-            if not k.startswith("_") and not callable(v)
-        }
-
-        *_, validation_error = validate_model(
-            self.__class__, model_dict, self.__class__  # type: ignore[arg-type]
-        )
-
-        if validation_error:  # pragma: no cover
-            LOGGER.error(repr(validation_error))
-            raise validation_error
-
-
-class BaseModelWithConfig(_ModelBase, BaseModel):
+class BaseModelWithConfig(BaseModel):
     """Reusable `BaseModel` with Config to apply to all subclasses."""
 
-    class Config:
-        """Pydantic config."""
+    model_config: ClassVar[ConfigDict] = {
+        "arbitrary_types_allowed": True,
+        "extra": "forbid",
+        "validate_assignment": True,
+    }
 
-        arbitrary_types_allowed = True
-        extra = Extra.forbid
-        validate_assignment = True
+    def model_dump(
+        self,
+        *,
+        mode: Literal["json", "python"] | str = "python",
+        include: IncEx = None,
+        exclude: IncEx = None,
+        by_alias: bool = True,
+        exclude_unset: bool = True,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+        round_trip: bool = False,
+        warnings: bool = True,
+    ) -> dict[str, Any]:
+        # pylint: disable=useless-parent-delegation
+        """Create a dictionary representation of the model.
+
+        Overrides the standard `BaseModel.dict` method, so we can always return the
+        dict with the same field names it came in with, and exclude any null values
+        that have been added when parsing
+
+        Original documentation is here:
+          - https://docs.pydantic.dev/latest/usage/serialization/#modelmodel_dump
+
+        Overridden Parameters:
+            by_alias: False -> True
+            exclude_unset: False -> True
+        """
+
+        return super().model_dump(
+            mode=mode,
+            include=include,
+            exclude=exclude,
+            by_alias=by_alias,
+            exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults,
+            exclude_none=exclude_none,
+            round_trip=round_trip,
+            warnings=warnings,
+        )
+
+    def model_dump_json(
+        self,
+        *,
+        indent: int | None = None,
+        include: IncEx = None,
+        exclude: IncEx = None,
+        by_alias: bool = True,
+        exclude_unset: bool = True,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+        round_trip: bool = False,
+        warnings: bool = True,
+    ) -> str:
+        # pylint: disable=useless-parent-delegation
+        """Create a JSON string representation of the model.
+
+        Overrides the standard `BaseModel.json` method, so we can always return the
+        dict with the same field names it came in with, and exclude any null values
+        that have been added when parsing
+
+        Original documentation is here:
+          - https://docs.pydantic.dev/latest/usage/serialization/#modelmodel_dump_json
+
+        Overridden Parameters:
+            by_alias: False -> True
+            exclude_unset: False -> True
+        """
+
+        return super().model_dump_json(
+            indent=indent,
+            include=include,
+            exclude=exclude,
+            by_alias=by_alias,
+            exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults,
+            exclude_none=exclude_none,
+            round_trip=round_trip,
+            warnings=warnings,
+        )
 
 
-class GenericModelWithConfig(_ModelBase, GenericModel):
-    """Reusable `GenericModel` with Config to apply to all subclasses."""
-
-    class Config:
-        """Pydantic config."""
-
-        arbitrary_types_allowed = True
-        extra = Extra.forbid
-        validate_assignment = True
+T = TypeVar("T")  # TODO bind?
 
 
 class OAuthCredentials(BaseModelWithConfig):
@@ -111,12 +137,12 @@ class OAuthCredentials(BaseModelWithConfig):
     client_secret: str
 
     # Monzo
-    user_id: str | None
+    user_id: str | None = None
 
     # Google
-    token: str | None
-    token_uri: str | None
-    scopes: list[str] | None
+    token: str | None = None
+    token_uri: str | None = None
+    scopes: list[str] | None = None
 
     @classmethod
     def parse_first_time_login(cls, value: dict[str, Any]) -> OAuthCredentials:
@@ -266,7 +292,9 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
             bool: True if the credentials were loaded successfully, False otherwise
         """
         try:
-            self._credentials = OAuthCredentials.parse_file(self.creds_cache_path)
+            self._credentials = OAuthCredentials.model_validate_json(
+                self.creds_cache_path.read_text()
+            )
         except FileNotFoundError:
             return False
 
@@ -307,7 +335,9 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
             refresh_token=new_creds.get("refresh_token"),
         )
 
-        self.creds_cache_path.write_text(self.credentials.json(exclude_none=True))
+        self.creds_cache_path.write_text(
+            self.credentials.model_dump_json(exclude_none=True)
+        )
 
     def run_first_time_login(self) -> None:
         """Run the first time login process.
@@ -480,7 +510,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         self._credentials = value
 
         self.creds_cache_path.write_text(
-            dumps(self._credentials.dict(exclude_none=True))
+            dumps(self._credentials.model_dump(exclude_none=True))
         )
 
     @property

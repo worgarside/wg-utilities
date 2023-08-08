@@ -66,6 +66,4 @@ def test_mime_type_validation(
             directory_json, google_client=google_drive_client, host_drive=drive
         )
 
-    assert "unexpected value; permitted: 'application/vnd.google-apps.folder'" in str(
-        exc_info.value
-    )
+    assert "Input should be 'application/vnd.google-apps.folder'" in str(exc_info.value)

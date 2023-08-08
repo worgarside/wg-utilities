@@ -34,7 +34,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
     )
 
     assert isinstance(playlist, Playlist)
-    assert playlist.dict() == playlist_json
+    assert playlist.model_dump() == playlist_json
 
 
 def test_owner_property(
