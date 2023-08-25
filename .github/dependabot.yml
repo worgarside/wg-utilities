@@ -15,3 +15,10 @@ updates:
       interval: weekly
     reviewers:
       - worgarside
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    reviewers:
+      - worgarside
