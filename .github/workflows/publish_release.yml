@@ -18,6 +18,7 @@ jobs:
     uses: worgarside/github-config-files/.github/workflows/__publish_release.yml@main
     with:
       base-ref-name: main
+      build-type: python
       head-ref-name: ${{ github.head_ref || github.ref_name }}
       pr-merged: ${{ github.event.pull_request.merged }}
       publish-to-pypi: true
