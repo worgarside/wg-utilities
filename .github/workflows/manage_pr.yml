@@ -1,0 +1,47 @@
+---
+name: Manage PR
+
+on:
+  pull_request:
+    types:
+      - labeled
+      - unlabeled
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - auto_merge_enabled
+      - auto_merge_disabled
+
+concurrency:
+  # yamllint disable-line rule:line-length
+  group: manage-pr-${{ github.event.pull_request.number }}-${{ github.event.action }}
+  cancel-in-progress: true
+
+jobs:
+  manage-pr-labels:
+    name: Manage PR Labels
+    uses: worgarside/github-config-files/.github/workflows/__manage_pr_labels.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
+    with:
+      base-ref: ${{ github.base_ref }}
+      event-action: ${{ github.event.action }}
+      head-ref: ${{ github.head_ref }}
+      pr-author: ${{ github.event.pull_request.user.login }}
+      pr-number: ${{ github.event.pull_request.number }}
+    secrets:
+      gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+
+  close-empty-pr:
+    name: Close Empty PR
+    uses: worgarside/github-config-files/.github/workflows/__close_empty_pr.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
+    with:
+      head-ref: ${{ github.head_ref }}
+      pr-number: ${{ github.event.pull_request.number }}
+    secrets:
+      gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
