@@ -125,7 +125,7 @@ jobs:
     uses: ./.github/workflows/build_and_publish.yml
     with:
       build_branch: ${{ github.head_ref || github.ref_name }}
-      environment: 'development'
+      environment: development
       release_tag: ${{ needs.create-pr.outputs.release-tag }}
     secrets:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
