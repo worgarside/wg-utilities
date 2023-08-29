@@ -476,14 +476,8 @@ def test_get_json_response_returns_json(
         text="",
     )
 
-    assert (
-        spotify_client.get_json_response("/foo")
-        == {}  # type: ignore[comparison-overlap]
-    )
-    assert (
-        spotify_client.get_json_response("/bar")
-        == {}  # type: ignore[comparison-overlap]
-    )
+    assert spotify_client.get_json_response("/foo") == {}
+    assert spotify_client.get_json_response("/bar") == {}
 
     # Test a 204 No Content response
     mock_requests.get(
@@ -492,10 +486,7 @@ def test_get_json_response_returns_json(
         reason=HTTPStatus.NO_CONTENT.phrase,
     )
 
-    assert (
-        spotify_client.get_json_response("/baz")  # type: ignore[comparison-overlap]
-        == {}
-    )
+    assert spotify_client.get_json_response("/baz") == {}
 
 
 @mark.parametrize(
