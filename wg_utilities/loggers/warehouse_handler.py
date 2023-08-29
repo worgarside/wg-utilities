@@ -258,7 +258,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
                 schema.get("name", None),
                 schema.pop("created_at", None),  # type: ignore[misc]
             )
-            if schema != self._WAREHOUSE_SCHEMA:  # type: ignore[comparison-overlap]
+            if schema != self._WAREHOUSE_SCHEMA:
                 raise ValueError(
                     "Warehouse schema does not match expected schema: "
                     + dumps(schema, default=repr)
