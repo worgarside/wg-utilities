@@ -214,13 +214,9 @@ def test_boto3_calls_get_correct_responses(
         list_functions = lambda_client.list_functions()
         create_function = lambda_client.create_function()  # type: ignore[call-arg]
 
-    assert list_bucket_res == {  # type: ignore[comparison-overlap]
-        "Buckets": ["barry", "paul", "jimmy", "brian"]
-    }
+    assert list_bucket_res == {"Buckets": ["barry", "paul", "jimmy", "brian"]}
     assert create_bucket_res == "done"  # type: ignore[comparison-overlap]
-    assert list_functions == {  # type: ignore[comparison-overlap]
-        "Functions": ["foo", "bar", "baz"]
-    }
+    assert list_functions == {"Functions": ["foo", "bar", "baz"]}
     assert create_function == "done"  # type: ignore[comparison-overlap]
 
 
@@ -335,7 +331,7 @@ def test_nested_callable_override(
             )
 
             assert counter == i + 1
-            assert res == {"value": counter}  # type: ignore[comparison-overlap]
+            assert res == {"value": counter}
 
 
 @mock_s3  # type: ignore[misc]
@@ -388,7 +384,7 @@ def test_lookup_overrides_in_api_call_builder(
     """Test `lookup_overrides` work as expected when passed to `build_api_call`."""
 
     with patch(MockBoto3Client.PATCH_METHOD, mb3c.build_api_call()):
-        assert s3_client.list_buckets() == {  # type: ignore[comparison-overlap]
+        assert s3_client.list_buckets() == {
             "Buckets": ["barry", "paul", "jimmy", "brian"]
         }
 
@@ -396,9 +392,7 @@ def test_lookup_overrides_in_api_call_builder(
         MockBoto3Client.PATCH_METHOD,
         mb3c.build_api_call(lookup_overrides={"ListBuckets": {"Buckets": ["foo"]}}),
     ):
-        assert s3_client.list_buckets() == {  # type: ignore[comparison-overlap]
-            "Buckets": ["foo"]
-        }
+        assert s3_client.list_buckets() == {"Buckets": ["foo"]}
 
 
 # This is a test I tried to write to test the `except KeyError` block in the `api_call`
