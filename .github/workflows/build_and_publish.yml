@@ -5,20 +5,20 @@ on:
   workflow_call:
     inputs:
       build_branch:
-        description: 'The branch to build from'
+        description: The branch to build from
         required: true
         type: string
       environment:
-        description: 'The environment to deploy to'
+        description: The environment to deploy to
         required: true
         type: string
       release_tag:
-        description: 'The tag of the release to add the artifacts to'
+        description: The tag of the release to add the artifacts to
         required: false
         type: string
     secrets:
       PYPI_API_TOKEN:
-        description: 'The PyPi API token'
+        description: The PyPi API token
         required: true
 
 env:
@@ -121,5 +121,5 @@ jobs:
         continue-on-error: ${{ inputs.environment == 'development' }}
         with:
           # yamllint disable-line rule:line-length
-          password: "${{ secrets.PYPI_API_TOKEN }}"
-          repository-url: "${{ vars.REPOSITORY_URL }}"
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          repository-url: ${{ vars.REPOSITORY_URL }}
