@@ -71,7 +71,7 @@ jobs:
 
       - name: Clone Repo
         if: steps.check-if-pr-exists.outputs.create-pr == 'true'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Validate `pyproject.toml` version
         # yamllint disable rule:line-length
@@ -125,7 +125,7 @@ jobs:
     uses: ./.github/workflows/build_and_publish.yml
     with:
       build_branch: ${{ github.head_ref || github.ref_name }}
-      environment: 'development'
+      environment: development
       release_tag: ${{ needs.create-pr.outputs.release-tag }}
     secrets:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}

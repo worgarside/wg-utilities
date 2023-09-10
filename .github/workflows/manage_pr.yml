@@ -1,5 +1,5 @@
 ---
-name: Manage PR Labels
+name: Manage PR
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ on:
 
 concurrency:
   # yamllint disable-line rule:line-length
-  group: manage-labels-${{ github.event.pull_request.number }}-${{ github.event.action }}
+  group: manage-pr-${{ github.event.pull_request.number }}-${{ github.event.action }}
   cancel-in-progress: true
 
 jobs:
@@ -30,6 +30,18 @@ jobs:
       event-action: ${{ github.event.action }}
       head-ref: ${{ github.head_ref }}
       pr-author: ${{ github.event.pull_request.user.login }}
+      pr-number: ${{ github.event.pull_request.number }}
+    secrets:
+      gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+
+  close-empty-pr:
+    name: Close Empty PR
+    uses: worgarside/github-config-files/.github/workflows/__close_empty_pr.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
+    with:
+      head-ref: ${{ github.head_ref }}
       pr-number: ${{ github.event.pull_request.number }}
     secrets:
       gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
