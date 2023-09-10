@@ -35,6 +35,7 @@ spidev = { version = "*", platform = "linux", optional = true }
 tzlocal = { version = "*", optional = true }
 xmltodict = { version = "*", optional = true }
 pydantic = "<3.0.0"
+deepdiff = "^6.4.1"
 
 
 [tool.poetry.group.dev.dependencies]

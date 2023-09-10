@@ -1044,7 +1044,7 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
                     list[PlaylistFullJsonTracks],
                     self.spotify_client.get_items(f"/playlists/{self.id}/tracks"),
                 )
-                if "track" in item.keys() and item["is_local"] is False
+                if item.get("track") is not None and item["is_local"] is False
             ]
 
             self._tracks = tracks
@@ -1500,6 +1500,12 @@ class User(SpotifyEntity[UserSummaryJson]):
                 Track.from_json_response(
                     item["track"],
                     spotify_client=self.spotify_client,
+                    metadata={
+                        "saved_at": datetime.strptime(
+                            item["added_at"],
+                            self.spotify_client.DATETIME_FORMAT,
+                        )
+                    },
                 )
                 for item in cast(
                     list[SavedItem],
