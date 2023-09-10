@@ -33,4 +33,3 @@ jobs:
       path-to-__version__-file: wg_utilities/__init__.py
     secrets:
       gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
-      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
