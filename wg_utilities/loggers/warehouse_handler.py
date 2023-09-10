@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from asyncio import get_running_loop, run
 from collections.abc import Callable, Iterable, Mapping
+from datetime import date, datetime
 from hashlib import md5
 from http import HTTPStatus
 from json import JSONDecodeError, dumps
@@ -13,8 +14,9 @@ from socket import gethostname
 from time import gmtime
 from traceback import format_exception
 from types import TracebackType
-from typing import Any, Final, Literal, Protocol, TypeVar
+from typing import Any, Final, Literal, NotRequired, Protocol, TypeVar, cast
 
+from deepdiff import DeepDiff  # type: ignore[import]
 from requests import HTTPError
 from requests.exceptions import RequestException
 from typing_extensions import TypedDict
@@ -57,6 +59,32 @@ class WarehouseLog(TypedDict):
     module: str
     process: str
     thread: str
+
+
+PythonType = int | str | datetime | date | bool | dict | float | None
+
+
+class FieldDefinition(TypedDict):
+    autoincrement: NotRequired[bool | Literal["auto", "ignore_fk"]]
+    default: NotRequired[PythonType]
+    index: NotRequired[bool | None]
+    key: NotRequired[str | None]
+    nullable: bool
+    primary_key: NotRequired[bool]
+    type_kwargs: NotRequired[dict[str, PythonType]]
+    type: str
+    unique: NotRequired[bool | None]
+
+    display_as: NotRequired[str]
+
+
+class WarehouseSchema(TypedDict):
+    """Type for a Warehouse schema."""
+
+    created_at: NotRequired[str]
+    item_name: str
+    item_schema: dict[str, FieldDefinition]
+    name: str
 
 
 T = TypeVar("T")
@@ -132,7 +160,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
 
     WAREHOUSE_ENDPOINT: Final = "/warehouses/lumberyard"
 
-    _WAREHOUSE_SCHEMA = {
+    _WAREHOUSE_SCHEMA: WarehouseSchema = {
         "name": WAREHOUSE_NAME,
         "item_name": ITEM_NAME,
         "item_schema": {
@@ -149,8 +177,8 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             },
             "exception_traceback": {
                 "nullable": True,
-                "type": "string",
-                "type_kwargs": {"length": 2048},
+                "type": "text",
+                "type_kwargs": {"length": 16383},
             },
             "file": {
                 "nullable": False,
@@ -256,12 +284,21 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             LOGGER.info(
                 "Warehouse %s already exists - created at %s",
                 schema.get("name", None),
-                schema.pop("created_at", None),  # type: ignore[misc]
+                schema.get("created_at", None),
             )
-            if schema != self._WAREHOUSE_SCHEMA:
+
+            temp_schema = cast(
+                WarehouseSchema,
+                {key: value for key, value in schema.items() if key != "created_at"},
+            )
+
+            for item_value in temp_schema.get("item_schema", {}).values():
+                item_value.pop("display_as", None)
+
+            if diff := DeepDiff(self._WAREHOUSE_SCHEMA, temp_schema):
                 raise ValueError(
                     "Warehouse schema does not match expected schema: "
-                    + dumps(schema, default=repr)
+                    + dumps(diff, default=repr)
                 )
 
     def emit(self, record: LogRecord) -> None:

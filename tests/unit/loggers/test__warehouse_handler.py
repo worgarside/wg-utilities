@@ -8,6 +8,7 @@ from asyncio import iscoroutine
 from collections.abc import Callable
 from hashlib import md5
 from http import HTTPStatus
+from json import dumps
 from logging import ERROR, INFO, Handler, Logger, LogRecord
 from socket import gethostname
 from traceback import format_exc
@@ -134,9 +135,14 @@ def test_initialize_warehouse_already_exists_but_wrong_schema(
         ],
     )
 
+    expected_diff = {
+        "dictionary_item_added": "[root['invalid']]",
+        "dictionary_item_removed": "[root['name'], root['item_name'], root['item_schema']]",
+    }
+
     assert (
         str(exc_info.value)
-        == 'Warehouse schema does not match expected schema: {"invalid": "schema"}'
+        == f"Warehouse schema does not match expected schema: {dumps(expected_diff)}"
     )
 
 
