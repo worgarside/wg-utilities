@@ -5,7 +5,7 @@ from os import environ
 from pathlib import Path
 from unittest.mock import patch
 
-from pytest import mark
+import pytest
 
 from wg_utilities.functions import user_data_dir
 
@@ -17,8 +17,8 @@ from wg_utilities.functions import user_data_dir
         "XDG_DATA_HOME": "/home/will/.local/share",
     },
 )
-@mark.parametrize(
-    "platform,expected",
+@pytest.mark.parametrize(
+    ("platform", "expected"),
     [
         ("windows", "C:/Users/test/AppData/Local/WgUtilities"),
         ("darwin", "Library/Application Support/WgUtilities"),
@@ -37,8 +37,8 @@ def test_correct_value_returned_per_system(platform: str, expected: str) -> None
         "XDG_DATA_HOME": "/home/will/.local/share",
     },
 )
-@mark.parametrize(
-    "platform,project_name,expected",
+@pytest.mark.parametrize(
+    ("platform", "project_name", "expected"),
     [
         (
             "windows",
@@ -71,8 +71,8 @@ def test_project_name_processed_correctly(
         "XDG_DATA_HOME": "/home/will/.local/share",
     },
 )
-@mark.parametrize(
-    "platform,file_name,expected",
+@pytest.mark.parametrize(
+    ("platform", "file_name", "expected"),
     [
         (
             "windows",
@@ -94,7 +94,7 @@ def test_file_name_processed_correctly(
 
     with patch(
         "wg_utilities.functions.file_management.force_mkdir",
-        lambda target_path, path_is_file: target_path,
+        lambda target_path, **_: target_path,
     ):
         actual = user_data_dir(
             file_name=file_name,

@@ -190,7 +190,7 @@ class OAuthCredentials(BaseModelWithConfig):
             # Verify it against the expiry time string
             if expiry_time_str := value.get("expiry"):
                 expiry_time = datetime.fromisoformat(expiry_time_str)
-                if abs(expiry_epoch - expiry_time.timestamp()) > 60:
+                if abs(expiry_epoch - expiry_time.timestamp()) > 60:  # noqa: PLR2004
                     raise ValueError(
                         "`expiry` and `expires_in` are not consistent with each other:"
                         f" expiry: {expiry_time_str}, expires_in: {expiry_epoch}"
@@ -242,11 +242,11 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         "WG_UTILITIES_CACHE_DIR", getenv("WG_UTILITIES_CREDS_CACHE_DIR")
     )
 
-    DEFAULT_SCOPES: list[str] = []
+    DEFAULT_SCOPES: ClassVar[list[str]] = []
 
     HEADLESS_MODE = getenv("WG_UTILITIES_HEADLESS_MODE", "0") == "1"
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         *,
         client_id: str | None = None,
@@ -356,7 +356,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
 
         LOGGER.info("Performing first time login")
 
-        state_token = "".join(choice(ascii_letters) for _ in range(32))
+        state_token = "".join(choice(ascii_letters) for _ in range(32))  # noqa: S311
 
         self.temp_auth_server.start_server()
 
@@ -455,9 +455,8 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         Returns:
             bool: has the access token expired?
         """
-        if not hasattr(self, "_credentials"):
-            if not self._load_local_credentials():
-                return True
+        if not hasattr(self, "_credentials") and not self._load_local_credentials():
+            return True
 
         return (
             self.credentials.expiry_epoch

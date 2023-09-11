@@ -120,9 +120,7 @@ class MockBoto3Client:
                         mocked_operation,
                         target_type=Callable,  # type: ignore[arg-type]
                         # pylint: disable=line-too-long
-                        target_processor_func=lambda value, dict_key=None, list_key=None: value(  # type: ignore[arg-type]  # noqa: E501
-                            **kwargs
-                        ),
+                        target_processor_func=lambda value, **_: value(**kwargs),
                         pass_on_fail=False,
                     )
                 elif callable(mocked_operation):

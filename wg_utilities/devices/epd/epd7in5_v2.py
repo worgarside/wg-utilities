@@ -1,3 +1,4 @@
+# ruff: noqa
 """EPD class.
 
 * | File        :	  epd7in5.py

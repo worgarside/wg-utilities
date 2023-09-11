@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
+import pytest
 from pydantic import ValidationError
-from pytest import mark
 from requests import post
 
 from tests.conftest import read_json_file
@@ -42,9 +42,9 @@ def test_from_json_response_instantiation(
     assert album.title == "Projects"
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("title", "expected"),
-    (
+    [
         (
             "Title ",
             "Title",
@@ -58,7 +58,7 @@ def test_from_json_response_instantiation(
             "Title",
         ),
         ("", ValueError("Album title cannot be empty.")),
-    ),
+    ],
 )
 def test_album_title_validation(
     google_photos_client: GooglePhotosClient,
@@ -81,7 +81,7 @@ def test_album_title_validation(
             google_client=google_photos_client,
         ).title
     except ValidationError as exc:
-        assert repr(exc.errors()[0]["ctx"]["error"]) == repr(expected)
+        assert repr(exc.errors()[0]["ctx"]["error"]) == repr(expected)  # noqa: PT017
     else:
         assert actual == expected
 

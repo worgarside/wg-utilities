@@ -4,11 +4,13 @@ from __future__ import annotations
 from http import HTTPStatus
 from json import dumps, loads
 from os import listdir
+from pathlib import Path
 from textwrap import dedent
 from time import sleep
 from typing import cast
 from xml.etree import ElementTree
 
+import pytest
 from aioresponses import aioresponses
 from async_upnp_client.client import UpnpRequester, UpnpService, UpnpStateVariable
 from async_upnp_client.const import (
@@ -16,7 +18,6 @@ from async_upnp_client.const import (
     StateVariableInfo,
     StateVariableTypeInfo,
 )
-from pytest import FixtureRequest, fixture
 from voluptuous import All, Schema
 
 from tests.conftest import FLAT_FILES_DIR, YieldFixture, read_json_file
@@ -155,8 +156,8 @@ def yamaha_yas_209_last_change_rendering_control_events() -> YieldFixture[JSONOb
         yield json_obj
 
 
-@fixture(scope="function", name="current_track_null")
-def _current_track_null() -> CurrentTrack:
+@pytest.fixture(name="current_track_null")
+def current_track_null_() -> CurrentTrack:
     """Return a CurrentTrack object with null values."""
     return CurrentTrack(
         album_art_uri=None,
@@ -167,8 +168,8 @@ def _current_track_null() -> CurrentTrack:
     )
 
 
-@fixture(scope="function", name="mock_aiohttp")
-def _mock_aiohttp() -> YieldFixture[aioresponses]:
+@pytest.fixture(name="mock_aiohttp")
+def mock_aiohttp_() -> YieldFixture[aioresponses]:
     """Fixture for mocking async HTTP requests."""
 
     with aioresponses() as mock_aiohttp:
@@ -191,8 +192,8 @@ def _mock_aiohttp() -> YieldFixture[aioresponses]:
         yield mock_aiohttp
 
 
-@fixture(scope="function", name="upnp_service_av_transport")
-def _upnp_service_av_transport() -> UpnpService:
+@pytest.fixture(name="upnp_service_av_transport")
+def upnp_service_av_transport_() -> UpnpService:
     """Fixture for creating an UpnpService instance."""
     return UpnpService(
         UpnpRequester(),
@@ -223,8 +224,8 @@ def _upnp_service_av_transport() -> UpnpService:
     )
 
 
-@fixture(scope="function", name="upnp_service_rendering_control")
-def _upnp_service_rendering_control() -> UpnpService:
+@pytest.fixture(name="upnp_service_rendering_control")
+def upnp_service_rendering_control_() -> UpnpService:
     """Fixture for creating an UpnpService instance."""
     return UpnpService(
         UpnpRequester(),
@@ -254,8 +255,8 @@ def _upnp_service_rendering_control() -> UpnpService:
     )
 
 
-@fixture(scope="function", name="upnp_state_variable")
-def _upnp_state_variable(request: FixtureRequest) -> UpnpStateVariable[str]:
+@pytest.fixture(name="upnp_state_variable")
+def upnp_state_variable_(request: pytest.FixtureRequest) -> UpnpStateVariable[str]:
     """Fixture for creating an UpnpStateVariable instance."""
     state_var = UpnpStateVariable[str](
         StateVariableInfo(
@@ -289,14 +290,13 @@ def _upnp_state_variable(request: FixtureRequest) -> UpnpStateVariable[str]:
     )
 
     if name_marker := request.node.get_closest_marker("upnp_value_path"):
-        with open(name_marker.args[0], encoding="utf-8") as fin:
-            state_var.upnp_value = fin.read()
+        state_var.upnp_value = Path(name_marker.args[0]).read_text(encoding="utf-8")
 
     return state_var
 
 
-@fixture(scope="function", name="yamaha_yas_209")
-def _yamaha_yas_209() -> YieldFixture[YamahaYas209]:
+@pytest.fixture(name="yamaha_yas_209")
+def yamaha_yas_209_() -> YieldFixture[YamahaYas209]:
     """Fixture for creating a YamahaYAS209 instance."""
 
     yas_209 = YamahaYas209(

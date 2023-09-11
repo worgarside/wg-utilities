@@ -1,4 +1,4 @@
-# pylint: disable=too-many-lines,no-self-argument
+# pylint: disable=too-many-lines
 """Custom client for interacting with Spotify's Web API."""
 from __future__ import annotations
 
@@ -78,12 +78,12 @@ class AlbumType(str, Enum):
 class Device(BaseModelWithConfig):
     """Model for a Spotify device."""
 
-    id: str
+    id: str  # noqa: A003
     is_active: bool
     is_private_session: bool
     is_restricted: bool
     name: str
-    type: str
+    type: str  # noqa: A003
     volume_percent: int
 
 
@@ -95,7 +95,7 @@ class TrackAudioFeatures(BaseModelWithConfig):
     danceability: float
     duration_ms: int
     energy: float
-    id: str
+    id: str  # noqa: A003
     instrumentalness: float
     key: int
     liveness: float
@@ -105,7 +105,7 @@ class TrackAudioFeatures(BaseModelWithConfig):
     tempo: float
     time_signature: int
     track_href: str
-    type: Literal["audio_features"]
+    type: Literal["audio_features"]  # noqa: A003
     uri: str
     valence: float
 
@@ -127,12 +127,12 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
     """
 
     AUTH_LINK_BASE = "https://accounts.spotify.com/authorize"
-    ACCESS_TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token"
+    ACCESS_TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token"  # noqa: S105
     BASE_URL = "https://api.spotify.com/v1"
 
     DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
-    DEFAULT_SCOPES = [
+    DEFAULT_SCOPES: ClassVar[list[str]] = [
         "ugc-image-upload",
         "user-read-recently-played",
         "user-top-read",
@@ -552,7 +552,7 @@ class SpotifyEntity(BaseModelWithConfig, Generic[SJ]):
     description: str = ""
     external_urls: dict_[Literal["spotify"], str]
     href: str
-    id: str
+    id: str  # noqa: A003
     name: str = ""
     uri: str
 
@@ -565,7 +565,8 @@ class SpotifyEntity(BaseModelWithConfig, Generic[SJ]):
     sj_type: ClassVar[TypeAlias] = SpotifyBaseEntityJson
 
     @model_validator(mode="before")
-    def _set_summary_json(cls, values: dict_[str, Any]) -> Any:  # noqa: N805
+    @classmethod
+    def _set_summary_json(cls, values: dict_[str, Any]) -> Any:
         values["summary_json"] = {
             k: v for k, v in values.items() if k in cls.sj_type.__annotations__
         }
@@ -682,7 +683,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
     tracks_json: PaginatedResponseTracks = Field(
         alias="tracks", default_factory=dict
     )  # type: ignore[assignment]
-    type: Literal["album"]
+    type: Literal["album"]  # noqa: A003
 
     _artists: list[Artist]
     _tracks: list[Track]
@@ -690,8 +691,9 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
     sj_type: ClassVar[type_[SpotifyEntityJson]] = AlbumSummaryJson
 
     @field_validator("release_date", mode="before")
+    @classmethod
     def validate_release_date(
-        cls, value: str | date, info: FieldValidationInfo  # noqa: N805
+        cls, value: str | date, info: FieldValidationInfo
     ) -> date:
         """Convert the release date string to a date object."""
 
@@ -804,7 +806,7 @@ class Artist(SpotifyEntity[ArtistSummaryJson]):
     genres: list[str] | None = None
     images: list[Image] | None = None
     popularity: int | None = None
-    type: Literal["artist"]
+    type: Literal["artist"]  # noqa: A003
 
     _albums: list[Album]
 
@@ -850,7 +852,7 @@ class Track(SpotifyEntity[TrackFullJson]):
     restrictions: str | None = None
     track: bool | None = None
     track_number: int
-    type: Literal["track"]
+    type: Literal["track"]  # noqa: A003
 
     _artists: list[Artist]
     _album: Album
@@ -966,7 +968,7 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
     tracks_json: PaginatedResponsePlaylistTracks | PlaylistSummaryJsonTracks = Field(
         alias="tracks"
     )
-    type: Literal["playlist"]
+    type: Literal["playlist"]  # noqa: A003
 
     _tracks: list[Track]
     _owner: User
@@ -976,8 +978,9 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
     _live_snapshot_id: str
 
     @field_validator("tracks_json", mode="before")
+    @classmethod
     def remove_local_tracks(
-        cls, tracks_json: PaginatedResponsePlaylistTracks  # noqa: N805
+        cls, tracks_json: PaginatedResponsePlaylistTracks
     ) -> PaginatedResponsePlaylistTracks:
         """Remove local tracks from the playlist's tracklist."""
 
@@ -1112,7 +1115,7 @@ class User(SpotifyEntity[UserSummaryJson]):
     followers: Followers | None = None
     images: list[Image] | None = None
     product: str | None = None
-    type: Literal["user"]
+    type: Literal["user"]  # noqa: A003
 
     _albums: list[Album]
     _artists: list[Artist]
@@ -1126,9 +1129,8 @@ class User(SpotifyEntity[UserSummaryJson]):
     sj_type: ClassVar[type_[SpotifyEntityJson]] = UserSummaryJson
 
     @field_validator("display_name", mode="before")
-    def set_user_name_value(
-        cls, value: str, info: FieldValidationInfo  # noqa: N805
-    ) -> str:
+    @classmethod
+    def set_user_name_value(cls, value: str, info: FieldValidationInfo) -> str:
         """Set the user's `name` field to the display name if it is not set.
 
         Args:
@@ -1145,16 +1147,16 @@ class User(SpotifyEntity[UserSummaryJson]):
         return value
 
     def get_playlists_by_name(
-        self, name: str, return_all: bool = False
+        self, name: str, *, return_all: bool = False
     ) -> list[Playlist] | Playlist | None:
         """Get Playlist instance(s) which have the given name.
 
         Args:
             name (str): the name of the target playlist(s)
             return_all (bool): playlist names aren't unique - but most people keep them
-             unique within their own Sequence of playlists. This boolean can be used
-             to return either a list of all matching playlists, or just the single
-             found playlist
+                unique within their own Sequence of playlists. This boolean can be used
+                to return either a list of all matching playlists, or just the single
+                found playlist
 
         Returns:
             Union([list, Playlist]): the matched playlist(s)
@@ -1257,6 +1259,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                 "Authorization": f"Bearer {self.spotify_client.access_token}",
                 "Host": "api.spotify.com",
             },
+            timeout=10,
         )
         res.raise_for_status()
 
@@ -1296,6 +1299,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                 "Authorization": f"Bearer {self.spotify_client.access_token}",
                 "Host": "api.spotify.com",
             },
+            timeout=10,
         )
         if res.status_code != HTTPStatus.BAD_REQUEST:
             res.raise_for_status()

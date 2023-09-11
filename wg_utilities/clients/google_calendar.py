@@ -6,7 +6,7 @@ from datetime import date as date_
 from datetime import datetime as datetime_
 from datetime import timedelta, tzinfo
 from enum import Enum
-from typing import Any, Literal, Self, TypeAlias
+from typing import Any, ClassVar, Literal, Self, TypeAlias
 
 from pydantic import Field, field_serializer, field_validator, model_validator
 from pytz import UTC, timezone
@@ -42,7 +42,7 @@ class _Attendee(BaseModelWithConfig):
     comment: str | None = None
     display_name: str | None = Field(None, alias="displayName")
     email: str
-    id: str | None = None
+    id: str | None = None  # noqa: A003
     optional: bool = False
     organizer: bool = False
     resource: bool = False
@@ -100,8 +100,9 @@ class _StartEndDatetime(BaseModelWithConfig):
     timezone: tzinfo = Field(alias="timeZone", default_factory=get_localzone)
 
     @model_validator(mode="before")
-    def validate_datetime_or_date(  # pylint: disable=no-self-argument
-        cls,  # noqa: N805
+    @classmethod
+    def validate_datetime_or_date(
+        cls,
         values: dict[str, Any],
     ) -> dict[str, Any]:
         """Validate that either `datetime` or `date` is provided."""
@@ -159,7 +160,7 @@ class GoogleCalendarEntity(BaseModelWithConfig):
 
     description: str | None = None
     etag: str
-    id: str
+    id: str  # noqa: A003
     location: str | None = None
     summary: str
 
@@ -203,7 +204,7 @@ class _Notification(BaseModelWithConfig):
     """Base class for Event notifications."""
 
     method: Literal["email", "sms"]
-    type: Literal[
+    type: Literal[  # noqa: A003
         "eventCreation", "eventChange", "eventCancellation", "eventResponse", "agenda"
     ]
 
@@ -242,9 +243,8 @@ class Calendar(GoogleCalendarEntity):
     google_client: GoogleCalendarClient = Field(exclude=True)
 
     @field_validator("timezone", mode="before")
-    def validate_timezone(  # pylint: disable=no-self-argument
-        cls, value: str  # noqa: N805
-    ) -> tzinfo:
+    @classmethod
+    def validate_timezone(cls, value: str) -> tzinfo:
         """Convert the timezone string into a tzinfo object."""
         if isinstance(value, tzinfo):
             return value
@@ -267,9 +267,7 @@ class Calendar(GoogleCalendarEntity):
             Event: Event object
         """
 
-        event = self.google_client.get_event_by_id(event_id, calendar=self)
-
-        return event
+        return self.google_client.get_event_by_id(event_id, calendar=self)
 
     def get_events(
         self,
@@ -277,8 +275,9 @@ class Calendar(GoogleCalendarEntity):
         order_by: Literal["updated", "startTime"] = "updated",
         from_datetime: datetime_ | None = None,
         to_datetime: datetime_ | None = None,
-        combine_recurring_events: bool = False,
         day_limit: int | None = None,
+        *,
+        combine_recurring_events: bool = False,
     ) -> list[Event]:
         """Retrieve events from the calendar according to a set of criteria.
 
@@ -496,11 +495,13 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
 
     BASE_URL = "https://www.googleapis.com/calendar/v3"
 
-    DEFAULT_PARAMS: dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None] = {
+    DEFAULT_PARAMS: ClassVar[
+        dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None]
+    ] = {
         "maxResults": "250",
     }
 
-    DEFAULT_SCOPES = [
+    DEFAULT_SCOPES: ClassVar[list[str]] = [
         "https://www.googleapis.com/auth/calendar",
         "https://www.googleapis.com/auth/calendar.events",
     ]
@@ -587,6 +588,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         res = delete(
             f"{self.base_url}/calendars/{calendar.id}/events/{event_id}",
             headers=self.request_headers,
+            timeout=10,
         )
 
         res.raise_for_status()

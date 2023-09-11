@@ -17,12 +17,12 @@ from logging import (
 )
 from sys import stdout
 
-from pytest import mark
+import pytest
 
 from wg_utilities.loggers.stream_handler import FORMATTER, add_stream_handler
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "level",
     [
         CRITICAL,
@@ -48,7 +48,7 @@ def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
     assert s_handler.level == level
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "formatter",
     [
         None,

@@ -1,8 +1,8 @@
 """Unit Tests for `wg_utilities.clients.spotify.SpotifyEntity`."""
 from __future__ import annotations
 
+import pytest
 from pydantic import ValidationError
-from pytest import raises
 
 from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson
 from wg_utilities.clients.spotify import SpotifyClient, SpotifyEntity
@@ -12,7 +12,7 @@ def test_summary_json_is_immutable(
     spotify_entity: SpotifyEntity[SpotifyBaseEntityJson],
 ) -> None:
     """Test that the summary_json property is immutable."""
-    with raises(ValidationError) as exc_info:
+    with pytest.raises(ValidationError) as exc_info:
         spotify_entity.summary_json = {}  # type: ignore[typeddict-item]
 
     assert "Field is frozen" in str(exc_info.value)
@@ -128,7 +128,7 @@ def test_gt(
     assert new_entity > spotify_entity
     assert not spotify_entity > new_entity
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         assert spotify_entity > "not a SpotifyEntity"
 
     assert (
@@ -159,7 +159,7 @@ def test_lt(spotify_entity: SpotifyEntity[SpotifyBaseEntityJson]) -> None:
     assert spotify_entity < new_entity
     assert not new_entity < spotify_entity
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         assert spotify_entity < "not a SpotifyEntity"  # type: ignore[operator]
 
     assert (

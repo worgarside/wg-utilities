@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from os.path import exists, isdir
 from pathlib import Path
 from shutil import rmtree
 
@@ -14,18 +13,18 @@ def test_directories_created_correctly() -> None:
 
     target_path = (remove_me := Path(__file__).parent / "one") / "two" / "three"
 
-    assert not exists(remove_me)
-    assert not exists(target_path)
+    assert not remove_me.exists()
+    assert not target_path.exists()
 
     return_value = force_mkdir(target_path)
 
     assert return_value == target_path
-    assert isdir(target_path)
+    assert target_path.is_dir()
 
     rmtree(remove_me)
 
-    assert not exists(remove_me)
-    assert not exists(target_path)
+    assert not remove_me.exists()
+    assert not target_path.exists()
 
 
 def test_directories_created_correctly_with_path_is_file() -> None:
@@ -35,16 +34,16 @@ def test_directories_created_correctly_with_path_is_file() -> None:
         (remove_me := Path(__file__).parent / "one") / "two" / "three" / "four.txt"
     )
 
-    assert not exists(remove_me)
-    assert not exists(target_path)
+    assert not remove_me.exists()
+    assert not target_path.exists()
 
     return_value = force_mkdir(target_path, path_is_file=True)
 
     assert return_value == target_path
-    assert not exists(target_path)
-    assert isdir(target_path.parent)
+    assert not target_path.exists()
+    assert target_path.parent.is_dir()
 
     rmtree(remove_me)
 
-    assert not exists(remove_me)
-    assert not exists(target_path)
+    assert not remove_me.exists()
+    assert not target_path.exists()

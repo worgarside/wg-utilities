@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
+import pytest
 from freezegun import freeze_time
-from pytest import mark
 from pytz import utc
 
 from wg_utilities.functions import DTU, utcnow
@@ -18,8 +18,8 @@ def test_utcnow_no_unit() -> None:
         assert utcnow() == datetime(2021, 1, 1, 0, 0, 0, tzinfo=utc)
 
 
-@mark.parametrize(
-    "unit,expected",
+@pytest.mark.parametrize(
+    ("unit", "expected"),
     [
         (DTU.WEEK, datetime(2021, 1, 1).timestamp() / (60 * 60 * 24 * 7)),
         (DTU.DAY, datetime(2021, 1, 1).timestamp() / (60 * 60 * 24)),

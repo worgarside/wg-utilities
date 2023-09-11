@@ -6,8 +6,8 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from os import listdir
 
+import pytest
 from freezegun import freeze_time
-from pytest import mark, raises
 from requests_mock import Mocker
 
 from tests.conftest import (
@@ -96,8 +96,8 @@ def test_tracks_property(
     assert mock_requests.call_count == 11
 
 
-@mark.parametrize(
-    ["track_response_filename", "in_playlist"],
+@pytest.mark.parametrize(
+    ("track_response_filename", "in_playlist"),
     zip(
         sorted(listdir(FLAT_FILES_DIR / "json" / "spotify" / "v1" / "tracks")),
         (
@@ -165,7 +165,7 @@ def test_gt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) ->
         > another_third_party_playlist
     )
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         assert spotify_playlist > "not a Playlist"
 
     assert (
@@ -216,7 +216,7 @@ def test_lt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) ->
         < spotify_owned_playlist
     )
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         assert spotify_playlist < "not a Playlist"
 
     assert (

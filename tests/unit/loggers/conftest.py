@@ -14,7 +14,7 @@ from logging import (
     getLogger,
 )
 
-from pytest import FixtureRequest, fixture
+import pytest
 from requests_mock import ANY as REQUESTS_MOCK_ANY
 from requests_mock import Mocker
 
@@ -23,16 +23,16 @@ from wg_utilities.loggers import ListHandler
 from wg_utilities.loggers.warehouse_handler import WarehouseHandler
 
 
-@fixture(scope="function", name="list_handler")
-def _list_handler() -> ListHandler:
+@pytest.fixture(name="list_handler")
+def list_handler_() -> ListHandler:
     """Fixture for creating a ListHandler instance."""
     l_handler = ListHandler(log_ttl=None)
     l_handler.setLevel(DEBUG)
     return l_handler
 
 
-@fixture(scope="function", name="list_handler_prepopulated")
-def _list_handler_prepopulated(
+@pytest.fixture(name="list_handler_prepopulated")
+def list_handler_prepopulated_(
     logger: Logger,
     list_handler: ListHandler,
     sample_log_record_messages_with_level: list[tuple[int, str]],
@@ -47,9 +47,9 @@ def _list_handler_prepopulated(
     return list_handler
 
 
-@fixture(scope="function", name="logger")
-def _logger(
-    request: FixtureRequest,
+@pytest.fixture(name="logger")
+def logger_(
+    request: pytest.FixtureRequest,
     warehouse_handler: WarehouseHandler,
     list_handler: ListHandler,
 ) -> YieldFixture[Logger]:
@@ -73,8 +73,8 @@ def _logger(
     _logger.handlers.clear()
 
 
-@fixture(scope="function", name="sample_log_record")
-def _sample_log_record() -> LogRecord:
+@pytest.fixture(name="sample_log_record")
+def sample_log_record_() -> LogRecord:
     """Fixture for creating a sample log record."""
     return LogRecord(
         name="test_logger",
@@ -109,8 +109,8 @@ SAMPLE_LOG_RECORDS = [
 ]
 
 
-@fixture(scope="function", name="sample_log_record_messages_with_level")
-def _sample_log_record_messages_with_level() -> list[tuple[int, str]]:
+@pytest.fixture(name="sample_log_record_messages_with_level")
+def sample_log_record_messages_with_level_() -> list[tuple[int, str]]:
     """Fixture for creating a list of sample log records."""
     return SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL
 
@@ -197,8 +197,8 @@ WAREHOUSE_SCHEMA = {
 }
 
 
-@fixture(scope="function", name="warehouse_handler")
-def _warehouse_handler(
+@pytest.fixture(name="warehouse_handler")
+def warehouse_handler_(
     mock_requests: Mocker,
 ) -> YieldFixture[WarehouseHandler]:
     """Fixture for creating a WarehouseHandler instance."""
@@ -213,10 +213,10 @@ def _warehouse_handler(
     _warehouse_handler.close()
 
 
-@fixture(scope="function", name="mock_requests", autouse=True)
-def _mock_requests(
+@pytest.fixture(name="mock_requests", autouse=True)
+def mock_requests_(
     mock_requests_root: Mocker,
-) -> YieldFixture[Mocker]:
+) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
 
     lumberyard_url = "/".join(
@@ -266,4 +266,4 @@ def _mock_requests(
         json={},
     )
 
-    yield mock_requests_root
+    return mock_requests_root

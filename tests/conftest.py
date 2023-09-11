@@ -14,8 +14,8 @@ from typing import Literal, TypeVar, cast, overload
 from unittest.mock import MagicMock, patch
 from urllib.parse import quote, unquote
 
+import pytest
 from jwt import encode
-from pytest import fixture
 from requests import get
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import MissingSchema
@@ -288,8 +288,8 @@ def get_flat_file_from_url(
 # Fixtures
 
 
-@fixture(scope="function", name="fake_oauth_credentials")
-def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
+@pytest.fixture()
+def fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
     """Fixture for fake OAuth credentials."""
     return OAuthCredentials(
         access_token=live_jwt_token,
@@ -302,8 +302,8 @@ def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
     )
 
 
-@fixture(scope="module", name="live_jwt_token")
-def _live_jwt_token() -> str:
+@pytest.fixture(scope="module", name="live_jwt_token")
+def live_jwt_token_() -> str:
     """Fixture for a live JWT token."""
     return str(
         encode(
@@ -318,8 +318,8 @@ def _live_jwt_token() -> str:
     )
 
 
-@fixture(scope="module", name="live_jwt_token_alt")
-def _live_jwt_token_alt() -> str:
+@pytest.fixture(scope="module")
+def live_jwt_token_alt() -> str:
     """Another fixture for a live JWT token."""
     return str(
         encode(
@@ -334,8 +334,8 @@ def _live_jwt_token_alt() -> str:
     )
 
 
-@fixture(scope="function", name="mock_requests_root", autouse=True)
-def _mock_requests_root() -> YieldFixture[Mocker]:
+@pytest.fixture(autouse=True)
+def mock_requests_root() -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 
     with Mocker(real_http=False, case_sensitive=False) as mock_requests:
@@ -360,14 +360,15 @@ def _mock_requests_root() -> YieldFixture[Mocker]:
         yield mock_requests
 
 
-@fixture(scope="function", name="mock_open_browser")
-def _mock_open_browser() -> YieldFixture[MagicMock]:
+@pytest.fixture(name="mock_open_browser")
+def mock_open_browser_() -> YieldFixture[MagicMock]:
+    """Fixture for mocking opening the user's browser."""
     with patch("wg_utilities.clients.oauth_client.open_browser") as mock_open_browser:
         yield mock_open_browser
 
 
-@fixture(scope="function", name="temp_dir")
-def _temp_dir() -> YieldFixture[Path]:
+@pytest.fixture(name="temp_dir")
+def temp_dir_() -> YieldFixture[Path]:
     """Fixture for creating a temporary directory."""
 
     with TemporaryDirectory() as temp_dir:

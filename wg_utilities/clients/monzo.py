@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 from logging import DEBUG, getLogger
-from typing import Any, Literal, final
+from typing import Any, ClassVar, Literal, final
 
 from pydantic import Field, field_validator
 from requests import put
@@ -164,7 +164,7 @@ class Transaction(BaseModelWithConfig):
     dedupe_id: str
     description: str
     fees: dict[str, Any] | None = None
-    id: str
+    id: str  # noqa: A003
     include_in_spending: bool
     international: bool | None = None
     is_load: bool
@@ -204,6 +204,9 @@ class AccountOwner(TypedDict):
     user_id: str
 
 
+SORT_CODE_LEN = 6
+
+
 class Account(BaseModelWithConfig):
     """Class for managing individual bank accounts."""
 
@@ -213,7 +216,7 @@ class Account(BaseModelWithConfig):
     created: datetime
     currency: Literal["GBP"]
     description: str
-    id: str
+    id: str  # noqa: A003
     initial_balance: int | None = Field(None, validation_alias="balance")
     initial_balance_including_flexible_savings: int | None = Field(
         None, validation_alias="balance_including_flexible_savings"
@@ -223,7 +226,7 @@ class Account(BaseModelWithConfig):
     owners: list[AccountOwner]
     payment_details: dict[str, dict[str, str]] | None = None
     sort_code: str = Field(min_length=6, max_length=6)
-    type: Literal["uk_monzo_flex", "uk_retail", "uk_retail_joint"]
+    type: Literal["uk_monzo_flex", "uk_retail", "uk_retail_joint"]  # noqa: A003
 
     monzo_client: MonzoClient = Field(exclude=True)
     balance_update_threshold: int = Field(15, exclude=True)
@@ -231,7 +234,8 @@ class Account(BaseModelWithConfig):
     _balance_variables: BalanceVariables
 
     @field_validator("sort_code", mode="before")
-    def validate_sort_code(cls, sort_code: str | int) -> str:  # noqa: N805
+    @classmethod
+    def validate_sort_code(cls, sort_code: str | int) -> str:
         """Ensure that the sort code is a 6-digit integer.
 
         Represented as a string so leading zeroes aren't lost.
@@ -240,8 +244,8 @@ class Account(BaseModelWithConfig):
         if isinstance(sort_code, int):
             sort_code = str(sort_code)
 
-        if len(sort_code) != 6:
-            sort_code.ljust(6, "0")
+        if len(sort_code) != SORT_CODE_LEN:
+            sort_code.ljust(SORT_CODE_LEN, "0")
 
         if not sort_code.isdigit():
             raise ValueError("Sort code must be a 6-digit integer")
@@ -357,7 +361,7 @@ class Account(BaseModelWithConfig):
 
         Returns:
             int: the amount spent from this account today (considered from approx
-             4am onwards)
+                4am onwards)
         """
         return self.balance_variables.spend_today
 
@@ -396,7 +400,7 @@ class Pot(BaseModelWithConfig):
     deleted: bool
     goal_amount: float | None = None
     has_virtual_cards: bool
-    id: str
+    id: str  # noqa: A003
     is_tax_pot: bool
     isa_wrapper: str
     lock_type: Literal["until_date"] | None = None
@@ -407,7 +411,7 @@ class Pot(BaseModelWithConfig):
     round_up: bool
     round_up_multiplier: float | None = None
     style: str
-    type: str
+    type: str  # noqa: A003
     updated: datetime
 
 
@@ -422,12 +426,12 @@ class MonzoGJR(TypedDict):
 class MonzoClient(OAuthClient[MonzoGJR]):
     """Custom client for interacting with Monzo's API."""
 
-    ACCESS_TOKEN_ENDPOINT = "https://api.monzo.com/oauth2/token"
+    ACCESS_TOKEN_ENDPOINT = "https://api.monzo.com/oauth2/token"  # noqa: S105
     AUTH_LINK_BASE = "https://auth.monzo.com"
     BASE_URL = "https://api.monzo.com"
 
-    DEFAULT_PARAMS: dict[
-        StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None
+    DEFAULT_PARAMS: ClassVar[
+        dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None]
     ] = {}
 
     _current_account: Account
@@ -456,6 +460,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
                 "amount": amount_pence,
                 "dedupe_id": dedupe_id,
             },
+            timeout=10,
         )
         res.raise_for_status()
 
@@ -518,7 +523,9 @@ class MonzoClient(OAuthClient[MonzoGJR]):
 
         return None
 
-    def get_pot_by_name(self, pot_name: str, exact_match: bool = False) -> Pot | None:
+    def get_pot_by_name(
+        self, pot_name: str, *, exact_match: bool = False
+    ) -> Pot | None:
         """Get a pot from its name.
 
         Args:

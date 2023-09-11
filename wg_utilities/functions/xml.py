@@ -35,7 +35,7 @@ def get_nsmap(
         if xml_doc is None:
             raise ValueError("One of `root` or `xml_doc` should be non-null")
 
-        root = etree.fromstring(xml_doc.encode())
+        root = etree.fromstring(xml_doc.encode())  # noqa: S320
 
     nsmap = {}
     default_count = 0
@@ -49,15 +49,20 @@ def get_nsmap(
         if url in processed_urls:
             continue
 
-        if prefix is None:
-            prefix = f"default_{default_count}"
+        if prefix:
+            nsmap[prefix] = url
+        else:
+            default_prefix = f"default_{default_count}"
             default_count += 1
             if warn_on_defaults:
                 LOGGER.warning(
-                    "Adding namespace url `%s` with prefix key `%s`", url, prefix
+                    "Adding namespace url `%s` with prefix key `%s`",
+                    url,
+                    default_prefix,
                 )
 
-        nsmap[prefix] = url
+            nsmap[default_prefix] = url
+
         processed_urls.add(url)
 
     return nsmap

@@ -13,7 +13,7 @@ COMMAND_PATTERN = compile_regex(r"""((?:[^\s"']|"[^"]*"|'[^']*')+)""")
 
 
 def run_cmd(
-    cmd: str, exit_on_error: bool = True, shell: bool = False
+    cmd: str, *, exit_on_error: bool = True, shell: bool = False
 ) -> tuple[str, str]:
     """Run commands on the command line.
 
@@ -34,7 +34,9 @@ def run_cmd(
 
     popen_input = cmd if shell else COMMAND_PATTERN.split(cmd)[1::2]
 
-    with Popen(popen_input, stdout=PIPE, stderr=PIPE, shell=shell) as process:
+    with Popen(
+        popen_input, stdout=PIPE, stderr=PIPE, shell=shell  # noqa: S603
+    ) as process:
         output, error = process.communicate()
 
         error_str = error.decode("utf-8").strip()
