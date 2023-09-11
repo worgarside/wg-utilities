@@ -17,6 +17,7 @@ jobs:
     with:
       branch-name: ${{ github.ref }}
       get-from-current-commit: true
+    secrets: inherit
 
   run-production-build:
     name: Run Production Build
