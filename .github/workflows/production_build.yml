@@ -1,10 +1,10 @@
 ---
-name: Development Build/Deploy
+name: Production Build/Deploy
 
 on:
   push:
-    branches:
-      - release/*
+    tags:
+      - '*'
 
 permissions:
   contents: write
@@ -16,18 +16,17 @@ jobs:
     uses: worgarside/github-config-files/.github/workflows/__get_release_tag.yml@main
     with:
       branch-name: ${{ github.ref }}
-    secrets: inherit
 
-  run-development-build:
-    name: Run Development Build
+  run-production-build:
+    name: Run Production Build
     needs:
       - get-release-tag
     uses: worgarside/github-config-files/.github/workflows/__build_and_publish.yml@main
     with:
-      build-branch: ${{ github.ref }}
+      build-branch: main
       build-type: python
       commit-build-directory: false
-      environment: development
+      environment: production
       python-version: '3.11'
       release-tag: ${{ needs.get-release-tag.outputs.release-tag }}
     secrets: inherit
