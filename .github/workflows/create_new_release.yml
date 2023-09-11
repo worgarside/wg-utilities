@@ -31,5 +31,4 @@ jobs:
     uses: worgarside/github-config-files/.github/workflows/__create_new_release.yml@main
     with:
       path-to-__version__-file: wg_utilities/__init__.py
-    secrets:
-      gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+    secrets: inherit

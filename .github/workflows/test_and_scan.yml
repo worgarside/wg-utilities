@@ -15,13 +15,6 @@ on:
         type: string
         description: Branch to run tests on
         required: true
-    secrets:
-      CODECOV_TOKEN:
-        description: CodeCov token
-        required: true
-      SONAR_TOKEN:
-        description: SonarCloud token
-        required: true
   pull_request:
     types:
       - opened
@@ -106,5 +99,4 @@ jobs:
     with:
       branch: ${{ inputs.branch || github.ref }}
       coverage-artifact: coverage-report
-    secrets:
-      sonar-token: ${{ secrets.SONAR_TOKEN }}
+    secrets: inherit

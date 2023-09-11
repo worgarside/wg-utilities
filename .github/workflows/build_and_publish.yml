@@ -16,10 +16,6 @@ on:
         description: The tag of the release to add the artifacts to
         required: false
         type: string
-    secrets:
-      PYPI_API_TOKEN:
-        description: The PyPi API token
-        required: true
 
 env:
   BUILD_PYTHON_VERSION: '3.11'
@@ -72,7 +68,7 @@ jobs:
           --clobber \
           --repo ${{ github.repository }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
 
       - name: Check Release PR is not Draft
         id: is-pr-draft

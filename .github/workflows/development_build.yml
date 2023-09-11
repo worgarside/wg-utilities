@@ -16,8 +16,7 @@ jobs:
     uses: worgarside/github-config-files/.github/workflows/__get_release_tag.yml@main
     with:
       branch-name: ${{ github.ref }}
-    secrets:
-      gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+    secrets: inherit
 
   run-development-build:
     name: Run Development Build
@@ -32,6 +31,4 @@ jobs:
       publish-to-pypi: true
       python-version: '3.11'
       release-tag: ${{ needs.get-release-tag.outputs.release-tag }}
-    secrets:
-      gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
-      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+    secrets: inherit
