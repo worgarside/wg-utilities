@@ -21,5 +21,4 @@ jobs:
       build-type: python
       head-ref-name: ${{ github.head_ref || github.ref_name }}
       pr-merged: ${{ github.event.pull_request.merged }}
-      publish-to-pypi: true
     secrets: inherit

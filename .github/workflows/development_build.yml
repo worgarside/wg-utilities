@@ -28,7 +28,6 @@ jobs:
       build-type: python
       commit-build-directory: false
       environment: development
-      publish-to-pypi: true
       python-version: '3.11'
       release-tag: ${{ needs.get-release-tag.outputs.release-tag }}
     secrets: inherit
