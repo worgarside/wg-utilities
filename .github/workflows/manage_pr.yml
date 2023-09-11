@@ -31,8 +31,7 @@ jobs:
       head-ref: ${{ github.head_ref }}
       pr-author: ${{ github.event.pull_request.user.login }}
       pr-number: ${{ github.event.pull_request.number }}
-    secrets:
-      gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+    secrets: inherit
 
   close-empty-pr:
     name: Close Empty PR
@@ -43,5 +42,4 @@ jobs:
     with:
       head-ref: ${{ github.head_ref }}
       pr-number: ${{ github.event.pull_request.number }}
-    secrets:
-      gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+    secrets: inherit
