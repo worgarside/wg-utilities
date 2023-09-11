@@ -8,17 +8,12 @@ from pathlib import Path
 from re import IGNORECASE
 from re import compile as compile_regex
 
-from pytest import fixture
+import pytest
 from requests_mock import Mocker
 from requests_mock.request import _RequestObjectProxy
 from requests_mock.response import _Context
 
-from tests.conftest import (
-    FLAT_FILES_DIR,
-    YieldFixture,
-    get_flat_file_from_url,
-    read_json_file,
-)
+from tests.conftest import FLAT_FILES_DIR, get_flat_file_from_url, read_json_file
 from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson
 from wg_utilities.clients.oauth_client import OAuthCredentials
 from wg_utilities.clients.spotify import Album as SpotifyAlbum
@@ -63,8 +58,8 @@ def spotify_create_playlist_callback(
     return res
 
 
-@fixture(scope="function", name="spotify_album")
-def _spotify_album(spotify_client: SpotifyClient) -> SpotifyAlbum:
+@pytest.fixture(name="spotify_album")
+def spotify_album_(spotify_client: SpotifyClient) -> SpotifyAlbum:
     """Fixture for creating a Spotify `Album` instance.
 
     3210 (Ross from Friends Remix)
@@ -77,8 +72,8 @@ def _spotify_album(spotify_client: SpotifyClient) -> SpotifyAlbum:
     )
 
 
-@fixture(scope="function", name="spotify_artist")
-def _spotify_artist(spotify_client: SpotifyClient) -> Artist:
+@pytest.fixture(name="spotify_artist")
+def spotify_artist_(spotify_client: SpotifyClient) -> Artist:
     """Fixture for creating a Spotify `Artist` instance.
 
     Ross from Friends
@@ -91,11 +86,11 @@ def _spotify_artist(spotify_client: SpotifyClient) -> Artist:
     )
 
 
-@fixture(scope="function", name="spotify_client")
-def _spotify_client(
+@pytest.fixture(name="spotify_client")
+def spotify_client_(
     fake_oauth_credentials: OAuthCredentials,
     temp_dir: Path,
-    mock_requests: Mocker,  # pylint: disable=unused-argument
+    mock_requests: Mocker,  # noqa: ARG001
 ) -> SpotifyClient:
     """Fixture for creating a `SpotifyClient` instance."""
 
@@ -111,8 +106,8 @@ def _spotify_client(
     )
 
 
-@fixture(scope="function", name="spotify_entity")
-def _spotify_entity(
+@pytest.fixture(name="spotify_entity")
+def spotify_entity_(
     spotify_client: SpotifyClient,
 ) -> SpotifyEntity[SpotifyBaseEntityJson]:
     """Fixture for creating a `SpotifyEntity` instance."""
@@ -130,8 +125,8 @@ def _spotify_entity(
     )
 
 
-@fixture(scope="function", name="spotify_playlist")
-def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
+@pytest.fixture(name="spotify_playlist")
+def spotify_playlist_(spotify_client: SpotifyClient) -> Playlist:
     """Fixture for creating a `Playlist` instance.
 
     Chill Electronica
@@ -149,8 +144,8 @@ def _spotify_playlist(spotify_client: SpotifyClient) -> Playlist:
     return playlist
 
 
-@fixture(scope="function", name="spotify_playlist_alt")
-def _spotify_playlist_alt(spotify_client: SpotifyClient) -> Playlist:
+@pytest.fixture(name="spotify_playlist_alt")
+def spotify_playlist_alt_(spotify_client: SpotifyClient) -> Playlist:
     """Fixture for creating an an alternate `Playlist` instance.
 
     JAMBOX Jams
@@ -163,8 +158,8 @@ def _spotify_playlist_alt(spotify_client: SpotifyClient) -> Playlist:
     )
 
 
-@fixture(scope="function", name="spotify_track")
-def _spotify_track(spotify_client: SpotifyClient) -> Track:
+@pytest.fixture(name="spotify_track")
+def spotify_track_(spotify_client: SpotifyClient) -> Track:
     """Fixture for creating a `Track` instance."""
 
     return Track.from_json_response(
@@ -173,8 +168,8 @@ def _spotify_track(spotify_client: SpotifyClient) -> Track:
     )
 
 
-@fixture(scope="function", name="spotify_user")
-def _spotify_user(spotify_client: SpotifyClient) -> User:
+@pytest.fixture(name="spotify_user")
+def spotify_user_(spotify_client: SpotifyClient) -> User:
     """Fixture for creating a Spotify User instance."""
 
     return User.from_json_response(
@@ -183,8 +178,8 @@ def _spotify_user(spotify_client: SpotifyClient) -> User:
     )
 
 
-@fixture(scope="function", name="mock_requests", autouse=True)
-def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
+@pytest.fixture(name="mock_requests", autouse=True)
+def mock_requests_(mock_requests_root: Mocker) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
 
     for path_object in (
@@ -262,4 +257,4 @@ def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
         json=spotify_create_playlist_callback,
     )
 
-    yield mock_requests_root
+    return mock_requests_root

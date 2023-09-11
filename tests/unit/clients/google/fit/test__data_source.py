@@ -4,8 +4,8 @@ from __future__ import annotations
 from datetime import datetime
 from unittest.mock import patch
 
+import pytest
 from freezegun import freeze_time
-from pytest import mark, raises
 
 from wg_utilities.clients import GoogleFitClient
 from wg_utilities.clients.google_fit import DataSource
@@ -56,7 +56,7 @@ def test_description_property(data_source: DataSource) -> None:
     }
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("from_datetime", "to_datetime", "expected_url_range", "expected_count"),
     [
         (
@@ -144,7 +144,7 @@ def test_test_data_type_field_format_property_invalid_description(
                 "name": "com.google.step_count.delta",
             },
         }
-        with raises(
+        with pytest.raises(
             ValueError,
             match=r"Unexpected number of dataType fields \(2\): intSteps, stringSteps",
         ):

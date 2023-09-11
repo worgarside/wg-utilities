@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pytest import raises
+import pytest
 
 from wg_utilities.functions import run_cmd
 
@@ -17,8 +17,8 @@ def test__run_cmd_no_error() -> None:
 def test_command_throws_exception_on_error() -> None:
     """Test that the run_cmd function throws an exception if the command errors."""
 
-    with raises(RuntimeError) as exc_info:
-        run_cmd("qwertyuiop", shell=True)
+    with pytest.raises(RuntimeError) as exc_info:
+        run_cmd("qwertyuiop", shell=True)  # noqa: S604
 
     assert "not found" in str(exc_info.value)
     assert "qwertyuiop" in str(exc_info.value)

@@ -3,21 +3,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pytest import fixture
+import pytest
 from requests_mock import Mocker
 
-from tests.conftest import (
-    FLAT_FILES_DIR,
-    YieldFixture,
-    get_flat_file_from_url,
-    read_json_file,
-)
+from tests.conftest import FLAT_FILES_DIR, get_flat_file_from_url, read_json_file
 from wg_utilities.clients.oauth_client import OAuthCredentials
 from wg_utilities.clients.truelayer import Account, Bank, Card, TrueLayerClient
 
 
-@fixture(scope="function", name="account")
-def _account(truelayer_client: TrueLayerClient) -> Account:
+@pytest.fixture(name="account")
+def account_(truelayer_client: TrueLayerClient) -> Account:
     """Fixture for creating a `Account` instance."""
 
     return Account.from_json_response(
@@ -29,8 +24,8 @@ def _account(truelayer_client: TrueLayerClient) -> Account:
     )
 
 
-@fixture(scope="function", name="card")
-def _card(truelayer_client: TrueLayerClient) -> Card:
+@pytest.fixture(name="card")
+def card_(truelayer_client: TrueLayerClient) -> Card:
     """Fixture for creating a `Card` instance."""
 
     return Card.from_json_response(
@@ -42,8 +37,8 @@ def _card(truelayer_client: TrueLayerClient) -> Card:
     )
 
 
-@fixture(scope="function", name="truelayer_client")
-def _truelayer_client(
+@pytest.fixture(name="truelayer_client")
+def truelayer_client_(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
 ) -> TrueLayerClient:
@@ -62,8 +57,8 @@ def _truelayer_client(
     )
 
 
-@fixture(scope="function", name="mock_requests", autouse=True)
-def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
+@pytest.fixture(name="mock_requests", autouse=True)
+def mock_requests_(mock_requests_root: Mocker) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
 
     for path_object in (truelayer_dir := FLAT_FILES_DIR / "json/truelayer/").rglob("*"):
@@ -77,4 +72,4 @@ def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
                 json=get_flat_file_from_url,
             )
 
-    yield mock_requests_root
+    return mock_requests_root

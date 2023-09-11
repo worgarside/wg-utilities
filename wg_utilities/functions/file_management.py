@@ -48,7 +48,7 @@ def user_data_dir(
     return path.expanduser()
 
 
-def force_mkdir(target_path: Path, path_is_file: bool = False) -> Path:
+def force_mkdir(target_path: Path, *, path_is_file: bool = False) -> Path:
     """Create all directories needed for the given path.
 
     Args:

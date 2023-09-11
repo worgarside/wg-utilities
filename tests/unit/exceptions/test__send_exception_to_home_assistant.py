@@ -11,7 +11,7 @@ from socket import gethostname
 from typing import Any
 from unittest.mock import ANY
 
-from pytest import mark, raises
+import pytest
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import HTTPError
 from requests_mock import Mocker
@@ -61,7 +61,9 @@ def _send_fake_exception_to_home_assistant(
     return expected_payload
 
 
-@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
+@pytest.mark.parametrize(
+    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+)
 def test_url_is_correct(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
@@ -86,7 +88,9 @@ def test_url_is_correct(
     )
 
 
-@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
+@pytest.mark.parametrize(
+    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+)
 def test_https_url_is_used_on_error(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
@@ -118,7 +122,9 @@ def test_https_url_is_used_on_error(
     )
 
 
-@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
+@pytest.mark.parametrize(
+    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+)
 def test_payload_is_correctly_formed(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
@@ -136,7 +142,9 @@ def test_payload_is_correctly_formed(
     assert mock_requests_root.request_history[0].json() == expected_payload
 
 
-@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
+@pytest.mark.parametrize(
+    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+)
 def test_send_failure_raises_exception(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
@@ -151,7 +159,7 @@ def test_send_failure_raises_exception(
         reason="Internal Server Error",
     )
 
-    with raises(HTTPError) as exc_info:
+    with pytest.raises(HTTPError) as exc_info:
         _send_fake_exception_to_home_assistant(
             exception_type, raise_func, raise_args, mock_requests_root
         )
@@ -162,7 +170,9 @@ def test_send_failure_raises_exception(
     )
 
 
-@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
+@pytest.mark.parametrize(
+    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+)
 def test_unexpected_connection_error_exception_is_raised(
     exception_type: type[Exception],
     raise_func: Callable[[], object],
@@ -178,7 +188,7 @@ def test_unexpected_connection_error_exception_is_raised(
         exc=unexpected_exc,
     )
 
-    with raises(RequestsConnectionError) as exc_info:
+    with pytest.raises(RequestsConnectionError) as exc_info:
         _send_fake_exception_to_home_assistant(
             exception_type, raise_func, raise_args, mock_requests_root
         )

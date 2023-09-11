@@ -20,8 +20,4 @@ jobs:
       base-ref-name: main
       head-ref-name: ${{ github.head_ref || github.ref_name }}
       pr-merged: ${{ github.event.pull_request.merged }}
-      publish-to-pypi: true
-    secrets:
-      gh-token: ${{ secrets.GITHUB_TOKEN}}
-      wg-dev-token: ${{ secrets.WORGARSIDE_DEV_TOKEN}}
-      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+    secrets: inherit

@@ -85,7 +85,7 @@ class AlbumSummaryJson(SpotifyNamedEntityJson, total=False):
     release_date_precision: str
     total_tracks: int
     restrictions: NotRequired[dict[str, str]]
-    type: Literal["album"]
+    type: Literal["album"]  # noqa: A003
 
 
 class AlbumFullJson(AlbumSummaryJson):
@@ -110,7 +110,7 @@ class ArtistSummaryJson(SpotifyNamedEntityJson):
         ArtistFullJson
     """
 
-    type: Literal["artist"]
+    type: Literal["artist"]  # noqa: A003
 
 
 class ArtistFullJson(ArtistSummaryJson):
@@ -157,7 +157,7 @@ class _PlaylistBaseJson(SpotifyNamedEntityJson):
     primary_color: None  # Not implemented yet
     public: bool | None
     snapshot_id: str
-    type: Literal["playlist"]
+    type: Literal["playlist"]  # noqa: A003
 
 
 class PlaylistFullJsonTracks(TypedDict):
@@ -236,7 +236,7 @@ class TrackFullJson(SpotifyNamedEntityJson, total=False):
     ]
     track: NotRequired[bool]
     track_number: int
-    type: Literal["track"]
+    type: Literal["track"]  # noqa: A003
 
 
 class TrackAudioFeaturesJson(TypedDict):
@@ -274,7 +274,7 @@ class UserSummaryJson(SpotifyBaseEntityJson, total=False):
     """
 
     display_name: NotRequired[str | None]
-    type: Literal["user"]
+    type: Literal["user"]  # noqa: A003
 
 
 class UserFullJson(UserSummaryJson):

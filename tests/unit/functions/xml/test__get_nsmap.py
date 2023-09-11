@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from pytest import LogCaptureFixture, raises
+import pytest
 
 from wg_utilities.functions.xml import get_nsmap
 
@@ -85,7 +85,7 @@ def test_xml_doc_is_parsed_when_root_is_none(mock_fromstring: MagicMock) -> None
 
 def test_value_error_is_thrown_when_root_and_xml_doc_are_none() -> None:
     """Test that a ValueError is thrown when both root and xml_doc are None."""
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         get_nsmap()
 
     assert str(exc_info.value) == "One of `root` or `xml_doc` should be non-null"
@@ -103,7 +103,7 @@ def test_xml_doc_nsmap_extraction() -> None:
     }
 
 
-def test_xml_doc_nsmap_extraction_defaults(caplog: LogCaptureFixture) -> None:
+def test_xml_doc_nsmap_extraction_defaults(caplog: pytest.LogCaptureFixture) -> None:
     """Test that namespaces with no prefix are given default values.
 
     If a namespace has no prefix, it is given a default value of `default_{n}`. This

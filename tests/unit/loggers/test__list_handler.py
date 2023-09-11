@@ -7,8 +7,8 @@ from datetime import datetime, timedelta
 from logging import Logger, LogRecord, getLevelName
 from unittest.mock import MagicMock, patch
 
+import pytest
 from freezegun import freeze_time
-from pytest import mark
 
 from wg_utilities.loggers.list_handler import ListHandler
 
@@ -86,7 +86,7 @@ def test_expire_records_does_nothing_if_ttl_is_none(list_handler: ListHandler) -
     assert list_handler._records_list == []
 
 
-@mark.add_handler("list_handler")
+@pytest.mark.add_handler("list_handler")
 def test_expire_records_remove_records_correctly(
     list_handler: ListHandler, logger: Logger
 ) -> None:
@@ -129,7 +129,7 @@ def test_expire_records_calls_on_expiry(list_handler_prepopulated: ListHandler) 
     assert list(map(repr, expired_records)) == list(map(repr, recorded_logs))
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "level_name",
     ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", None],  # Used for "all records"
 )
@@ -158,7 +158,7 @@ def test_record_properties_return_correct_items(
         assert level_specific_logs is list_handler_prepopulated._records_list
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "level_name",
     ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", None],  # Used for "all records"
 )
@@ -177,7 +177,7 @@ def test_record_properties_call_expire_records(
         assert mock_expire.called
 
 
-@mark.add_handler("list_handler")
+@pytest.mark.add_handler("list_handler")
 @patch("wg_utilities.loggers.ListHandler.emit")
 def test_logging_with_logger_calls_emit_method(
     mock_emit: MagicMock,

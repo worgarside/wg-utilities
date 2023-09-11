@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
-from pytest import FixtureRequest, mark, raises
+import pytest
 from requests import HTTPError
 from requests_mock import Mocker
 
@@ -18,12 +18,12 @@ from wg_utilities.clients.truelayer import Account, Bank, Card, TrueLayerClient
 from wg_utilities.functions.file_management import user_data_dir
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "default_cache_dir",
-    (
+    [
         None,
         str(Path(__file__).parent / ".wg-utilities" / "oauth_credentials"),
-    ),
+    ],
 )
 def test_instantiation(
     fake_oauth_credentials: OAuthCredentials, default_cache_dir: str | None
@@ -60,7 +60,7 @@ def test_instantiation(
         )
         print(truelayer_client.creds_cache_path)
         if default_cache_dir:
-            assert truelayer_client.DEFAULT_CACHE_DIR == default_cache_dir
+            assert default_cache_dir == truelayer_client.DEFAULT_CACHE_DIR
             assert truelayer_client.creds_cache_path == Path(
                 default_cache_dir
             ).joinpath(
@@ -77,17 +77,17 @@ def test_instantiation(
             )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "entity",
-    (
+    [
         "account",
         "card",
-    ),
+    ],
 )
 def test_get_entity_by_id(
     truelayer_client: TrueLayerClient,
     entity: str,
-    request: FixtureRequest,
+    request: pytest.FixtureRequest,
     mock_requests: Mocker,
 ) -> None:
     """Test that `_get_entity_by_id` returns the correct entity."""
@@ -114,13 +114,13 @@ def test_get_entity_by_id(
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     (
         "response_json",
         "response_status",
         "expected_outcome",
     ),
-    (
+    [
         (
             {
                 "results": [
@@ -148,7 +148,7 @@ def test_get_entity_by_id(
                 "https://api.truelayer.com/data/v1/accounts/gabbagool"
             ),
         ),
-    ),
+    ],
 )
 def test_get_entity_by_id_exception_handling(
     truelayer_client: TrueLayerClient,
@@ -167,7 +167,7 @@ def test_get_entity_by_id_exception_handling(
     )
 
     if isinstance(expected_outcome, Exception):
-        with raises(expected_outcome.__class__) as exc_info:
+        with pytest.raises(expected_outcome.__class__) as exc_info:
             truelayer_client._get_entity_by_id("gabbagool", Account)
 
         assert exc_info.value.args == expected_outcome.args
@@ -239,13 +239,13 @@ def test_list_cards(truelayer_client: TrueLayerClient, mock_requests: Mocker) ->
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     (
         "response_json",
         "response_status",
         "expected_outcome",
     ),
-    (
+    [
         ({"error": "endpoint_not_supported"}, HTTPStatus.NOT_IMPLEMENTED, []),
         (
             {"error": "internal_server_error"},
@@ -255,7 +255,7 @@ def test_list_cards(truelayer_client: TrueLayerClient, mock_requests: Mocker) ->
                 "https://api.truelayer.com/data/v1/accounts"
             ),
         ),
-    ),
+    ],
 )
 def test_list_entity_exception_handling(
     truelayer_client: TrueLayerClient,
@@ -274,7 +274,7 @@ def test_list_entity_exception_handling(
     )
 
     if isinstance(expected_outcome, Exception):
-        with raises(expected_outcome.__class__) as exc_info:
+        with pytest.raises(expected_outcome.__class__) as exc_info:
             truelayer_client.list_accounts()
 
         assert exc_info.value.args == expected_outcome.args
