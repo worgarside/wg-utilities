@@ -6,8 +6,8 @@ from textwrap import dedent
 from unittest.mock import patch
 from urllib.parse import urlencode
 
+import pytest
 from pydantic.fields import FieldInfo
-from pytest import mark, raises
 from requests_mock import Mocker
 
 from tests.conftest import FLAT_FILES_DIR, assert_mock_requests_request_history
@@ -66,7 +66,7 @@ def test_add_directory_raises_type_error_for_wrong_type(
 ) -> None:
     """Test that `_add_directory` raises a `TypeError` if the wrong type is passed."""
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         directory._add_directory(file)  # type: ignore[arg-type]
 
     assert str(exc_info.value) == "Cannot add `File` instance to `self.directories`."
@@ -109,7 +109,7 @@ def test_add_file_ignores_known_file(directory: Directory, file: File) -> None:
 def test_add_file_raises_type_error_for_wrong_type(directory: Directory) -> None:
     """Test that `_add_file` raises a `TypeError` if the wrong type is passed."""
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         directory._add_file(directory)
 
     assert str(exc_info.value) == "Cannot add `Directory` instance to `self.files`."
@@ -147,15 +147,15 @@ def test_add_child_method_directory(drive: Drive, directory: Directory) -> None:
 def test_add_child_invalid_type(drive: Drive) -> None:
     """Test that `add_child` raises a `TypeError` if the wrong type is passed."""
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         drive.add_child("not a file or directory")  # type: ignore[arg-type]
 
     assert str(exc_info.value) == "Cannot add `str` instance to My Drive's children."
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("navigate_path", "instance_path"),
-    (
+    [
         # pylint: disable=line-too-long
         (
             ".",
@@ -237,7 +237,7 @@ def test_add_child_invalid_type(drive: Drive) -> None:
             "~/Archives/Old Documents/School Reports.zip",
             "/My Drive/Archives/Old Documents/School Reports.zip",
         ),
-    ),
+    ],
 )
 def test_navigate_method(
     directory: Directory,
@@ -269,9 +269,9 @@ def test_navigate_method(
     assert actual == expected
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("navigate_path", "exception_message"),
-    (
+    [
         (
             "MacBook Clones//128GB SD Card - Old MacBook.zip",
             "Path cannot contain `//`.",
@@ -279,14 +279,14 @@ def test_navigate_method(
         ("../../../..", "Cannot navigate to parent of Drive."),
         ("/..", "Cannot navigate to Drive '..' from `My Drive`."),
         ("/Another Drive", "Cannot navigate to Drive 'Another Drive' from `My Drive`."),
-    ),
+    ],
 )
 def test_navigate_method_raises_value_error_for_invalid_path(
     directory: Directory, navigate_path: str, exception_message: str
 ) -> None:
     """Test that `navigate` raises a `ValueError` if an invalid path is passed."""
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         directory.navigate(navigate_path)
 
     assert str(exc_info.value) == exception_message
@@ -303,7 +303,7 @@ def test_navigate_method_no_results_found(
         json={"files": []},
     )
 
-    with raises(ValueError, match="^Invalid path: 'path/to/nowhere.jpg'$"):
+    with pytest.raises(ValueError, match="^Invalid path: 'path/to/nowhere.jpg'$"):
         directory.navigate("path/to/nowhere.jpg")
 
 
@@ -326,14 +326,14 @@ def test_reset_known_children(directory: Directory) -> None:
     assert directory._files_loaded is False
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     (
         "include_files",
         "archive_files_only_tree",
         "archive_directories_tree",
         "complete_tree",
     ),
-    (
+    [
         (
             True,
             "My Drive\n└─── Archives\n     └──> Archive Log",
@@ -380,7 +380,7 @@ def test_reset_known_children(directory: Directory) -> None:
                 """
             ).strip(),
         ),
-    ),
+    ],
 )
 def test_tree_method_local_only(
     drive: Drive,
@@ -423,9 +423,9 @@ def test_tree_not_local_only(drive: Drive) -> None:
     assert drive.tree(include_files=True, local_only=False) == expected
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("preload_paths", "expected"),
-    (
+    [
         (
             [],
             [],
@@ -450,7 +450,7 @@ def test_tree_not_local_only(drive: Drive) -> None:
             ["Old Documents/Harvard Transcripts.zip"],
             ["Old Documents"],
         ),
-    ),
+    ],
 )
 def test_all_known_children_property(
     directory: Directory,

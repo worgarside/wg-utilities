@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pytest import LogCaptureFixture, fixture, mark
+import pytest
 
 from tests.conftest import YieldFixture, read_json_file
 from wg_utilities.clients.google_photos import GooglePhotosClient, MediaItem, MediaType
 
 
-@fixture(scope="function", name="temp_dir_cleanup")
+@pytest.fixture(name="temp_dir_cleanup")
 def _temp_dir_cleanup(temp_dir: Path) -> YieldFixture[None]:
     """Fixture for cleaning up the temporary directory.
 
@@ -25,10 +25,10 @@ def _temp_dir_cleanup(temp_dir: Path) -> YieldFixture[None]:
         item.unlink()
 
 
+@pytest.mark.usefixtures("temp_dir_cleanup")
 def test_download_method_image(
     media_item_image: MediaItem,
     temp_dir: Path,
-    temp_dir_cleanup: None,  # pylint: disable=unused-argument
 ) -> None:
     """Test the download method."""
 
@@ -44,14 +44,13 @@ def test_download_method_image(
     )
 
     # Prove that the image was downloaded, and is actually a JPEG image
-    with open(media_item_image.local_path, "rb") as image_file:
-        assert image_file.read(3) == b"\xff\xd8\xff"
+    assert media_item_image.local_path.read_bytes()[:3] == b"\xff\xd8\xff"
 
 
+@pytest.mark.usefixtures("temp_dir_cleanup")
 def test_download_method_video(
     media_item_video: MediaItem,
     temp_dir: Path,
-    temp_dir_cleanup: None,  # pylint: disable=unused-argument
 ) -> None:
     """Test the download method."""
 
@@ -67,15 +66,14 @@ def test_download_method_video(
     )
 
     # Prove that the video was downloaded, and is actually a MP4 video
-    with open(media_item_video.local_path, "rb") as video_file:
-        assert video_file.read(4) == b"\x00\x00\x00\x1c"
+    assert media_item_video.local_path.read_bytes()[:4] == b"\x00\x00\x00\x1c"
 
 
+@pytest.mark.usefixtures("temp_dir_cleanup")
 def test_download_method_no_force(
     media_item_image: MediaItem,
     temp_dir: Path,
-    caplog: LogCaptureFixture,
-    temp_dir_cleanup: None,  # pylint: disable=unused-argument
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test `download` behaves as expected with the `force_download` argument."""
 
@@ -105,24 +103,24 @@ def test_download_method_no_force(
     )
 
 
-def test_bytes_property(
+@pytest.mark.usefixtures("temp_dir_cleanup")
+def test_binary_content_property(
     media_item_image: MediaItem,
-    temp_dir_cleanup: None,  # pylint: disable=unused-argument
 ) -> None:
-    """Test the bytes property."""
+    """Test the binary_content property."""
 
     assert media_item_image.local_path == Path("undefined")
 
-    # The bytes property downloads the file if it doesn't exist, causing the
+    # The binary_content property downloads the file if it doesn't exist, causing the
     # `_local_path` attribute to be set by the time the second half of the
     # assertion is evaluated
-    assert media_item_image.bytes == media_item_image.local_path.read_bytes()
+    assert media_item_image.binary_content == media_item_image.local_path.read_bytes()
 
 
+@pytest.mark.usefixtures("temp_dir_cleanup")
 def test_is_downloaded_property(
     media_item_image: MediaItem,
     temp_dir: Path,
-    temp_dir_cleanup: None,  # pylint: disable=unused-argument
 ) -> None:
     """Test the is_downloaded property."""
 
@@ -134,9 +132,9 @@ def test_is_downloaded_property(
     assert media_item_image.is_downloaded
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("mime_type", "expected_media_type"),
-    (
+    [
         (
             "audio/aac",
             MediaType.UNKNOWN,
@@ -245,7 +243,7 @@ def test_is_downloaded_property(
             "application/zip",
             MediaType.UNKNOWN,
         ),
-    ),
+    ],
 )
 def test_media_type_property(
     mime_type: str,

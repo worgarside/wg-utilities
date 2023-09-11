@@ -6,7 +6,7 @@ from logging import ERROR
 from re import sub
 from unittest.mock import ANY
 
-from pytest import LogCaptureFixture, mark, raises
+import pytest
 
 from tests.unit.functions import (
     random_nested_json,
@@ -67,15 +67,15 @@ def test_empty_dict_doesnt_raise_exception() -> None:
     traverse_dict(
         in_dict,
         target_type=str,
-        target_processor_func=lambda value, dict_key=None, list_index=None: value,
+        target_processor_func=lambda value, **_: value,
     )
 
     # pylint: disable=use-implicit-booleaness-not-comparison
     assert in_dict == {}
 
 
-@mark.parametrize(
-    "in_dict,target_type,target_processor_func,expected",
+@pytest.mark.parametrize(
+    ("in_dict", "target_type", "target_processor_func", "expected"),
     [
         (
             {
@@ -84,7 +84,7 @@ def test_empty_dict_doesnt_raise_exception() -> None:
                 "key3": 3,
             },
             str,
-            lambda value, dict_key=None, list_index=None: value.upper(),
+            lambda value, **_: value.upper(),
             {
                 "key": "VALUE",
                 "key2": "VALUE2",
@@ -98,7 +98,7 @@ def test_empty_dict_doesnt_raise_exception() -> None:
                 "key3": 3,
             },
             bytes,
-            lambda value, dict_key=None, list_index=None: value.decode().upper(),
+            lambda value, **_: value.decode().upper(),
             {
                 "key": "value",
                 "key2": "VALUE2",
@@ -112,7 +112,7 @@ def test_empty_dict_doesnt_raise_exception() -> None:
                 "key3": 3,
             },
             (str, bytes),
-            lambda value, dict_key=None, list_index=None: (
+            lambda value, **_: (
                 value.decode() if isinstance(value, bytes) else value
             ).upper(),
             {
@@ -132,7 +132,7 @@ def test_empty_dict_doesnt_raise_exception() -> None:
                 },
             },
             (str, bytes),
-            lambda value, dict_key=None, list_index=None: (
+            lambda value, **_: (
                 value.decode() if isinstance(value, bytes) else value
             ).upper(),
             {
@@ -148,7 +148,7 @@ def test_empty_dict_doesnt_raise_exception() -> None:
         (
             random_nested_json(),
             bool,
-            lambda value, dict_key=None, list_index=None: str(value)[::-1].upper(),
+            lambda value, **_: str(value)[::-1].upper(),
             loads(
                 dumps(random_nested_json())
                 .replace("true", '"EURT"')
@@ -174,7 +174,7 @@ def test_varying_inputs_processed_as_expected(
     assert in_dict == expected
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ",".join(
         [
             "in_dict",
@@ -189,7 +189,7 @@ def test_varying_inputs_processed_as_expected(
         (
             {"a": "b", "c": 1, 2: 3, "d": "e", "f": "g"},
             (str, int),
-            lambda value, dict_key=None, list_index=None: value.upper(),
+            lambda value, **_: value.upper(),
             AttributeError,
             "'int' object has no attribute 'upper'",
             {"a": "B", "c": 1, 2: 3, "d": "e", "f": "g"},
@@ -197,7 +197,7 @@ def test_varying_inputs_processed_as_expected(
         (
             {"a": 3, "b": 2, "c": 1, "d": 0, "e": 3, "f": 2, "g": 1, "h": 0},
             int,
-            lambda value, dict_key=None, list_index=None: 1 / value,
+            lambda value, **_: 1 / value,
             ZeroDivisionError,
             "division by zero",
             {"a": 1 / 3, "b": 1 / 2, "c": 1, "d": 0, "e": 3, "f": 2, "g": 1, "h": 0},
@@ -211,7 +211,7 @@ def test_varying_inputs_processed_as_expected(
                 "e": [9, 10],
             },
             list,
-            lambda value, dict_key=None, list_index=None: [
+            lambda value, **_: [
                 value[0],
                 value[1],
                 value[2] + 1,
@@ -229,7 +229,7 @@ def test_varying_inputs_processed_as_expected(
         (
             random_nested_json(),
             str,
-            lambda value, dict_key=None, list_index=None: value[3],
+            lambda value, **_: value[3],
             IndexError,
             "string index out of range",
             ANY,  # not worth calculating the expected value
@@ -246,7 +246,7 @@ def test_exceptions_are_raised_correctly(
 ) -> None:
     """Test that exceptions are raised correctly for varying inputs."""
 
-    with raises(exception_type) as exc_info:
+    with pytest.raises(exception_type) as exc_info:
         traverse_dict(
             in_dict,
             target_type=target_type,
@@ -258,14 +258,12 @@ def test_exceptions_are_raised_correctly(
     assert in_dict == expected
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ",".join(
         [
             "in_dict",
             "target_type",
             "target_processor_func",
-            "exception_type",
-            "exception_message",
             "exception_keys",
             "expected",
         ]
@@ -274,18 +272,14 @@ def test_exceptions_are_raised_correctly(
         (
             {"a": "b", "c": 1, 2: 3, "d": "e", "f": "g"},
             (str, int),
-            lambda value, dict_key=None, list_index=None: value.upper(),
-            AttributeError,
-            "'int' object has no attribute 'upper'",
+            lambda value, **_: value.upper(),
             ["c", 2],
             {"a": "B", "c": 1, 2: 3, "d": "E", "f": "G"},
         ),
         (
             {"a": 3, "b": 2, "c": 1, "d": 0, "e": 3, "f": 2, "g": 1, "h": 0},
             int,
-            lambda value, dict_key=None, list_index=None: 1 / value,
-            ZeroDivisionError,
-            "division by zero",
+            lambda value, **_: 1 / value,
             ["d", "h"],
             {
                 "a": 1 / 3,
@@ -307,13 +301,11 @@ def test_exceptions_are_raised_correctly(
                 "e": [9, 10],
             },
             list,
-            lambda value, dict_key=None, list_index=None: [
+            lambda value, **_: [
                 value[0],
                 value[1],
                 value[2] + 1,
             ],
-            IndexError,
-            "list index out of range",
             ["c", "e"],
             {
                 "a": ("a", "b", "c"),
@@ -326,9 +318,7 @@ def test_exceptions_are_raised_correctly(
         (
             random_nested_json(),
             str,
-            lambda value, dict_key=None, list_index=None: value[3],
-            IndexError,
-            "string index out of range",
+            lambda value, **_: value[3],
             [
                 "cage",
                 "pick",
@@ -356,11 +346,9 @@ def test_exceptions_are_logged_correctly(
     in_dict: JSONObj,
     target_type: type[JSONVal] | tuple[type[JSONVal], ...],
     target_processor_func: TargetProcessorFunc,
-    exception_type: type[Exception],
-    exception_message: str,
     exception_keys: list[str],
     expected: JSONObj,
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that exceptions are logged correctly for varying inputs."""
 
@@ -375,11 +363,9 @@ def test_exceptions_are_logged_correctly(
     assert all(r.levelno == ERROR for r in caplog.records)
 
     log_records = [r.message for r in caplog.records]
-    expected_exc_instance = exception_type(exception_message)
+
     for k in exception_keys:
-        expected_message = (
-            f"Unable to process item with key {k}: " f"{expected_exc_instance!r}"
-        )
+        expected_message = f"Unable to process item with key {k}"
         assert expected_message in log_records
         log_records.remove(expected_message)
 
@@ -398,7 +384,7 @@ def test_single_keys_are_removed_as_expected_one_key() -> None:
     traverse_dict(
         in_dict,
         target_type=str,
-        target_processor_func=lambda v, dict_key=None, list_index=None: v.upper(),
+        target_processor_func=lambda v, **_: v.upper(),  # type: ignore[arg-type]
         single_keys_to_remove=["innerKey"],
         log_op_func_failures=True,
     )
@@ -407,18 +393,17 @@ def test_single_keys_are_removed_as_expected_one_key() -> None:
         for k, v in test_dict.items():
             if isinstance(v, dict):
                 _traverse(v, _parent_key=k)
-            else:
+            elif _parent_key is not None and v is not None:
                 # Avoid the start/end cases for simplicity
-                if _parent_key is not None and v is not None:
-                    assert (
-                        _parent_key == "niblingKey"
-                        and k == "outerKey"
-                        and v == "INNERVALUE"
-                    ) or (
-                        _parent_key == "adjacentKey"
-                        and k == "innerKey"
-                        and v == "ADJACENTINNERVALUE"
-                    )
+                assert (
+                    _parent_key == "niblingKey"
+                    and k == "outerKey"
+                    and v == "INNERVALUE"
+                ) or (
+                    _parent_key == "adjacentKey"
+                    and k == "innerKey"
+                    and v == "ADJACENTINNERVALUE"
+                )
 
     _traverse(in_dict)
 
@@ -438,7 +423,7 @@ def test_single_keys_are_removed_as_expected_two_keys() -> None:
     traverse_dict(
         in_dict,
         target_type=str,
-        target_processor_func=lambda v, dict_key=None, list_index=None: v.upper(),
+        target_processor_func=lambda v, **_: v.upper(),  # type: ignore[arg-type]
         single_keys_to_remove=["innerKey", "niblingKey"],
         log_op_func_failures=True,
     )
@@ -447,28 +432,27 @@ def test_single_keys_are_removed_as_expected_two_keys() -> None:
         for k, v in test_dict.items():
             if isinstance(v, dict):
                 _traverse(v, _parent_key=k)
-            else:
+            elif _parent_key is not None and v is not None:
                 # Avoid the start/end cases for simplicity
-                if _parent_key is not None and v is not None:
-                    assert (
-                        (
-                            _parent_key == "niblingKey"
-                            and k == "outerKey"
-                            and v == "INNERVALUE"
-                        )
-                        or (
-                            # This has added from the previous test, as `niblingKey`
-                            # has been removed
-                            _parent_key == "siblingKey"
-                            and k == "outerKey"
-                            and v == "INNERVALUE"
-                        )
-                        or (
-                            _parent_key == "adjacentKey"
-                            and k == "innerKey"
-                            and v == "ADJACENTINNERVALUE"
-                        )
+                assert (
+                    (
+                        _parent_key == "niblingKey"
+                        and k == "outerKey"
+                        and v == "INNERVALUE"
                     )
+                    or (
+                        # This has added from the previous test, as `niblingKey`
+                        # has been removed
+                        _parent_key == "siblingKey"
+                        and k == "outerKey"
+                        and v == "INNERVALUE"
+                    )
+                    or (
+                        _parent_key == "adjacentKey"
+                        and k == "innerKey"
+                        and v == "ADJACENTINNERVALUE"
+                    )
+                )
 
     _traverse(in_dict)
 
@@ -490,7 +474,7 @@ def test_nested_lists_processed_correctly() -> None:
     traverse_dict(
         in_dict,
         target_type=list,
-        target_processor_func=lambda value, dict_key=None, list_index=None: value[::-1],
+        target_processor_func=lambda value, **_: value[::-1],
         log_op_func_failures=True,
     )
 
@@ -511,9 +495,7 @@ def test_complex_object() -> None:
     traverse_dict(
         in_dict,
         target_type=bool,
-        target_processor_func=lambda value, dict_key=None, list_index=None: "YES"
-        if value
-        else "NO",
+        target_processor_func=lambda value, **_: "YES" if value else "NO",
         log_op_func_failures=True,
     )
 
@@ -536,9 +518,7 @@ def test_that_new_dicts_are_handled_correctly() -> None:
     traverse_dict(
         in_dict,
         target_type=str,
-        target_processor_func=lambda value, dict_key=None, list_index=None: loads(
-            value
-        ),
+        target_processor_func=lambda value, **_: loads(value),
         log_op_func_failures=True,
     )
 
@@ -548,9 +528,7 @@ def test_that_new_dicts_are_handled_correctly() -> None:
     traverse_dict(
         in_dict,
         target_type=bool,
-        target_processor_func=lambda value, dict_key=None, list_index=None: "YES"
-        if value
-        else "NO",
+        target_processor_func=lambda value, **_: "YES" if value else "NO",
         log_op_func_failures=True,
     )
 
@@ -564,7 +542,7 @@ def test_that_new_dicts_are_handled_correctly() -> None:
 
 
 def test_single_keys_of_target_type_have_exceptions_logged(
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that exceptions are logged for the target func.
 
@@ -588,7 +566,7 @@ def test_single_keys_of_target_type_have_exceptions_logged(
     traverse_dict(
         in_dict,
         target_type=str,
-        target_processor_func=lambda value, dict_key=None, list_index=None: value[9],
+        target_processor_func=lambda value, **_: value[9],
         log_op_func_failures=True,
         single_keys_to_remove=["key"],
     )
@@ -596,11 +574,9 @@ def test_single_keys_of_target_type_have_exceptions_logged(
     assert in_dict == {"a": "e", "b": "bad value", "c": "too short", "d": "g"}
 
     log_records = [r.message for r in caplog.records]
-    expected_exc_instance = IndexError("string index out of range")
+
     for k in ["b", "c"]:
-        expected_message = (
-            f"Unable to process item with key {k}: " f"{expected_exc_instance!r}"
-        )
+        expected_message = f"Unable to process item with key {k}"
         assert expected_message in log_records
         log_records.remove(expected_message)
 
@@ -609,7 +585,7 @@ def test_single_keys_of_target_type_have_exceptions_logged(
 
 
 def test_single_keys_of_target_type_have_exceptions_raised(
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that exceptions are raised for the target func.
 
@@ -630,11 +606,11 @@ def test_single_keys_of_target_type_have_exceptions_raised(
         "d": {"key": "long enough"},
     }
 
-    with raises(IndexError) as exc_info:
+    with pytest.raises(IndexError) as exc_info:
         traverse_dict(
             in_dict,
             target_type=str,
-            target_processor_func=lambda v, dict_key=None, list_index=None: v[9],
+            target_processor_func=lambda v, **_: v[9],  # type: ignore[arg-type]
             log_op_func_failures=True,
             pass_on_fail=False,
             single_keys_to_remove=["key"],
@@ -651,13 +627,11 @@ def test_single_keys_of_target_type_have_exceptions_raised(
     }
 
     assert len(caplog.records) == 1
-    assert caplog.records[0].message == (
-        f"Unable to process item with key b: " f"{exc_info.value!r}"
-    )
+    assert caplog.records[0].message == ("Unable to process item with key b")
 
 
-@mark.parametrize(
-    "in_dict,target_type,target_processor_func,expected",
+@pytest.mark.parametrize(
+    ("in_dict", "target_type", "target_processor_func", "expected"),
     [
         (
             {
@@ -666,7 +640,7 @@ def test_single_keys_of_target_type_have_exceptions_raised(
                 "key3": 3,
             },
             str,
-            lambda value, dict_key=None, list_index=None: value.upper()
+            lambda value, dict_key=None, **_: value.upper()
             if dict_key == "key"
             else value,
             {
@@ -683,7 +657,7 @@ def test_single_keys_of_target_type_have_exceptions_raised(
                 "key4": b"value4",
             },
             bytes,
-            lambda value, dict_key=None, list_index=None: value.decode().upper()
+            lambda value, dict_key=None, **_: value.decode().upper()
             if dict_key == "key4"
             else value,
             {
@@ -696,7 +670,7 @@ def test_single_keys_of_target_type_have_exceptions_raised(
         (
             random_nested_json(),
             bool,
-            lambda value, dict_key=None, list_index=None: str(value)[::-1].upper()
+            lambda value, dict_key=None, **_: str(value)[::-1].upper()
             if dict_key in ("pretty", "effort")
             else value,
             loads(

@@ -174,7 +174,7 @@ class BalanceVariables(BaseModelWithConfig):
 class _TrueLayerEntityProvider(BaseModelWithConfig):
     display_name: str
     logo_uri: str
-    id: str = Field(alias="provider_id")
+    id: str = Field(alias="provider_id")  # noqa: A003
 
 
 TrueLayerEntityJson: TypeAlias = AccountJson | CardJson
@@ -185,7 +185,7 @@ class TrueLayerEntity(BaseModelWithConfig):
 
     BALANCE_FIELDS: ClassVar[Iterable[str]] = ()
 
-    id: str = Field(alias="account_id")
+    id: str = Field(alias="account_id")  # noqa: A003
     currency: str
     display_name: str
     provider: _TrueLayerEntityProvider
@@ -289,7 +289,9 @@ class TrueLayerEntity(BaseModelWithConfig):
             elif k.endswith("_date"):
                 attr_name = f"_{k}"
                 if isinstance(v, str):
-                    v = datetime.strptime(v, "%Y-%m-%dT%H:%M:%SZ").date()
+                    v = datetime.strptime(  # noqa: PLW2901
+                        v, "%Y-%m-%dT%H:%M:%SZ"
+                    ).date()
             else:
                 attr_name = f"_{k}"
 
@@ -426,7 +428,7 @@ class Transaction(BaseModelWithConfig):
     amount: float
     currency: str
     description: str
-    id: str = Field(alias="transaction_id")
+    id: str = Field(alias="transaction_id")  # noqa: A003
     merchant_name: str | None = None
     meta: dict[str, str]
     normalised_provider_transaction_id: str | None = None
@@ -438,9 +440,8 @@ class Transaction(BaseModelWithConfig):
     transaction_type: str
 
     @field_validator("transaction_category", mode="before")
-    def validate_transaction_category(  # pylint: disable=no-self-argument
-        cls, v: str  # noqa: N805
-    ) -> TransactionCategory:
+    @classmethod
+    def validate_transaction_category(cls, v: str) -> TransactionCategory:
         """Validate the transaction category.
 
         The default Enum assignment doesn't work for some reason, so we have to do it
@@ -471,9 +472,8 @@ class Account(TrueLayerEntity):
     account_type: AccountType
 
     @field_validator("account_type", mode="before")
-    def validate_account_type(  # pylint: disable=no-self-argument
-        cls, value: str  # noqa: N805
-    ) -> AccountType:
+    @classmethod
+    def validate_account_type(cls, value: str) -> AccountType:
         """Validate `account_type` and parse it into an `AccountType` instance."""
         if isinstance(value, AccountType):
             return value
@@ -512,10 +512,10 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
     """Custom client for interacting with TrueLayer's APIs."""
 
     AUTH_LINK_BASE = "https://auth.truelayer.com/"
-    ACCESS_TOKEN_ENDPOINT = "https://auth.truelayer.com/connect/token"
+    ACCESS_TOKEN_ENDPOINT = "https://auth.truelayer.com/connect/token"  # noqa: S105
     BASE_URL = "https://api.truelayer.com"
 
-    DEFAULT_SCOPES = [
+    DEFAULT_SCOPES: ClassVar[list[str]] = [
         "info",
         "accounts",
         "balance",
@@ -526,7 +526,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         "offline_access",
     ]
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         *,
         client_id: str,

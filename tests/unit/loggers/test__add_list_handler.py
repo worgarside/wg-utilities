@@ -15,7 +15,7 @@ from logging import (
     LogRecord,
 )
 
-from pytest import mark
+import pytest
 
 from wg_utilities.loggers.list_handler import ListHandler, add_list_handler
 
@@ -36,7 +36,7 @@ def test_handler_is_applied_to_logger_correctly(logger: Logger) -> None:
     assert l_handler.on_expiry is None
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "level",
     [
         CRITICAL,

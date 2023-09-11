@@ -5,21 +5,17 @@ on:
   workflow_call:
     inputs:
       build_branch:
-        description: 'The branch to build from'
+        description: The branch to build from
         required: true
         type: string
       environment:
-        description: 'The environment to deploy to'
+        description: The environment to deploy to
         required: true
         type: string
       release_tag:
-        description: 'The tag of the release to add the artifacts to'
+        description: The tag of the release to add the artifacts to
         required: false
         type: string
-    secrets:
-      PYPI_API_TOKEN:
-        description: 'The PyPi API token'
-        required: true
 
 env:
   BUILD_PYTHON_VERSION: '3.11'
@@ -30,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ inputs.build_branch }}
 
@@ -72,7 +68,7 @@ jobs:
           --clobber \
           --repo ${{ github.repository }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
 
       - name: Check Release PR is not Draft
         id: is-pr-draft
@@ -121,5 +117,5 @@ jobs:
         continue-on-error: ${{ inputs.environment == 'development' }}
         with:
           # yamllint disable-line rule:line-length
-          password: "${{ secrets.PYPI_API_TOKEN }}"
-          repository-url: "${{ vars.REPOSITORY_URL }}"
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          repository-url: ${{ vars.REPOSITORY_URL }}

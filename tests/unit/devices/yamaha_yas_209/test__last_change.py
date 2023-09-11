@@ -4,7 +4,7 @@ from __future__ import annotations
 from json import loads
 from typing import Literal
 
-from pytest import mark, raises
+import pytest
 
 from tests.unit.devices.yamaha_yas_209.conftest import (
     fix_colon_keys,
@@ -17,7 +17,7 @@ from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import (
 )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "last_change_dict",
     yamaha_yas_209_last_change_rendering_control_events(),
 )
@@ -30,11 +30,9 @@ def test_last_change_rendering_control_parsing(
     assert last_change.model_dump() == last_change_dict
 
 
-@mark.parametrize(
-    [
-        "last_change_dict",
-    ],
-    yamaha_yas_209_last_change_av_transport_events(),
+@pytest.mark.parametrize(
+    "last_change_dict",
+    [event[0] for event in yamaha_yas_209_last_change_av_transport_events()],  # type: ignore[index]
 )
 def test_last_change_keeps_extra_data_av_transport(
     last_change_dict: dict[Literal["Event"], object]
@@ -51,7 +49,7 @@ def test_last_change_keeps_extra_data_av_transport(
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "last_change_dict",
     yamaha_yas_209_last_change_rendering_control_events(),
 )
@@ -79,7 +77,7 @@ def test_last_change_throws_error_with_two_keys() -> None:
         "spam": "eggs",
     }
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         LastChangeAVTransport.parse(last_change_dict)  # type: ignore[arg-type]
 
     assert exc_info.value.args[0] == "Extra fields not permitted: ['baz', 'spam']"

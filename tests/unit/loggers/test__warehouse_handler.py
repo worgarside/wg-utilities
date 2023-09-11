@@ -8,14 +8,15 @@ from asyncio import iscoroutine
 from collections.abc import Callable
 from hashlib import md5
 from http import HTTPStatus
+from json import dumps
 from logging import ERROR, INFO, Handler, Logger, LogRecord
 from socket import gethostname
 from traceback import format_exc
 from typing import Any
 from unittest.mock import ANY, AsyncMock, Mock, call, patch
 
+import pytest
 from freezegun import freeze_time
-from pytest import LogCaptureFixture, mark, raises
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import RequestException
 from requests_mock import ANY as REQUESTS_MOCK_ANY
@@ -71,7 +72,7 @@ def test_initialize_warehouse_new_warehouse(mock_requests: Mocker) -> None:
 
 
 def test_initialize_warehouse_already_exists(
-    caplog: LogCaptureFixture, mock_requests: Mocker
+    caplog: pytest.LogCaptureFixture, mock_requests: Mocker
 ) -> None:
     # pylint: disable=import-outside-toplevel
     """Test that the _initialize_warehouse method works correctly."""
@@ -120,7 +121,7 @@ def test_initialize_warehouse_already_exists_but_wrong_schema(
         json={"invalid": "schema"},
     )
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         _ = WarehouseHandler()
 
     assert_mock_requests_request_history(
@@ -134,13 +135,18 @@ def test_initialize_warehouse_already_exists_but_wrong_schema(
         ],
     )
 
+    expected_diff = {
+        "dictionary_item_added": "[root['invalid']]",
+        "dictionary_item_removed": "[root['name'], root['item_name'], root['item_schema']]",
+    }
+
     assert (
         str(exc_info.value)
-        == 'Warehouse schema does not match expected schema: {"invalid": "schema"}'
+        == f"Warehouse schema does not match expected schema: {dumps(expected_diff)}"
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("log_record", "expected_hash"),
     tuple(
         zip(
@@ -182,8 +188,8 @@ def test_get_log_hash(log_record: LogRecord, expected_hash: str) -> None:
     assert WarehouseHandler.get_log_hash(log_record) == expected_hash
 
 
-@mark.add_handler("warehouse_handler")
-@mark.parametrize(("level", "message"), SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL)
+@pytest.mark.add_handler("warehouse_handler")
+@pytest.mark.parametrize(("level", "message"), SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL)
 def test_emit(level: int, message: str, logger: Logger) -> None:
     """Test that the emit method sends the correct payload to the warehouse."""
 
@@ -197,7 +203,9 @@ def test_emit(level: int, message: str, logger: Logger) -> None:
         "file": __file__,
         "level": level,
         "line": ANY,
-        "log_hash": md5(message.encode()).hexdigest(),
+        "log_hash": md5(
+            message.encode(),
+        ).hexdigest(),
         "log_host": gethostname(),
         "logger": logger.name,
         "message": message,
@@ -216,7 +224,7 @@ def test_emit(level: int, message: str, logger: Logger) -> None:
     )
 
 
-@mark.add_handler("warehouse_handler")
+@pytest.mark.add_handler("warehouse_handler")
 def test_emit_exception(logger: Logger) -> None:
     """Test exception info is included for exceptions."""
 
@@ -225,7 +233,7 @@ def test_emit_exception(logger: Logger) -> None:
         WarehouseHandler, "post_json_response"
     ) as mock_post_json_response:
         try:
-            raise TestError("Test Error")
+            raise TestError("Test Error")  # noqa: TRY301
         except TestError:
             logger.exception(":(")
             tb = format_exc()
@@ -240,7 +248,9 @@ def test_emit_exception(logger: Logger) -> None:
             "file": __file__,
             "level": ERROR,
             "line": ANY,
-            "log_hash": md5(b":(").hexdigest(),
+            "log_hash": md5(
+                b":(",
+            ).hexdigest(),
             "log_host": gethostname(),
             "logger": logger.name,
             "message": ":(",
@@ -255,9 +265,9 @@ def test_emit_exception(logger: Logger) -> None:
     )
 
 
-@mark.add_handler("warehouse_handler")
+@pytest.mark.add_handler("warehouse_handler")
 def test_emit_duplicate_record(
-    caplog: LogCaptureFixture, logger: Logger, mock_requests: Mocker
+    caplog: pytest.LogCaptureFixture, logger: Logger, mock_requests: Mocker
 ) -> None:
     """Test that the emit method doesn't throw an error for duplicate records."""
 
@@ -279,9 +289,9 @@ def test_emit_duplicate_record(
     assert not caplog.records
 
 
-@mark.add_handler("warehouse_handler")
+@pytest.mark.add_handler("warehouse_handler")
 def test_emit_http_error(
-    caplog: LogCaptureFixture, logger: Logger, mock_requests: Mocker
+    caplog: pytest.LogCaptureFixture, logger: Logger, mock_requests: Mocker
 ) -> None:
     """Test that the emit method logs other HTTP errors."""
 
@@ -303,9 +313,9 @@ def test_emit_http_error(
     )
 
 
-@mark.add_handler("warehouse_handler")
+@pytest.mark.add_handler("warehouse_handler")
 def test_emit_bad_response_schema(
-    caplog: LogCaptureFixture, logger: Logger, mock_requests: Mocker
+    caplog: pytest.LogCaptureFixture, logger: Logger, mock_requests: Mocker
 ) -> None:
     """Test that the emit method logs other HTTP errors, even with an unknown schema."""
 
@@ -327,8 +337,8 @@ def test_emit_bad_response_schema(
     )
 
 
-@mark.add_handler("warehouse_handler")
-@mark.parametrize("allow_connection_errors", (True, False))
+@pytest.mark.add_handler("warehouse_handler")
+@pytest.mark.parametrize("allow_connection_errors", [True, False])
 def test_allow_connection_errors(
     allow_connection_errors: bool,
     mock_requests: Mocker,
@@ -358,21 +368,21 @@ def test_allow_connection_errors(
 
         logger.info("Info log")
     else:
-        with raises(RequestsConnectionError) as conn_exc_info:
+        with pytest.raises(RequestsConnectionError) as conn_exc_info:
             _ = WarehouseHandler(allow_connection_errors=allow_connection_errors)
 
         assert str(conn_exc_info.value) == connection_str
 
         warehouse_handler._allow_connection_errors = allow_connection_errors
 
-        with raises(RequestException) as req_exc_info:
+        with pytest.raises(RequestException) as req_exc_info:
             logger.error("Info log")
 
         assert str(req_exc_info.value) == request_exc_str
 
 
 @freeze_time("2021-01-01 00:00:00")
-@mark.add_handler("warehouse_handler")
+@pytest.mark.add_handler("warehouse_handler")
 def test_pyscript_task_executor(
     logger: Logger, warehouse_handler: WarehouseHandler
 ) -> None:
@@ -405,7 +415,9 @@ def test_pyscript_task_executor(
                 "file": __file__,
                 "level": 10,
                 "line": ANY,
-                "log_hash": md5(b"Debug log").hexdigest(),
+                "log_hash": md5(
+                    b"Debug log",
+                ).hexdigest(),
                 "log_host": gethostname(),
                 "logger": logger.name,
                 "message": "Debug log",
@@ -426,7 +438,9 @@ def test_pyscript_task_executor(
                 "file": __file__,
                 "level": 20,
                 "line": ANY,
-                "log_hash": md5(b"Info log").hexdigest(),
+                "log_hash": md5(
+                    b"Info log",
+                ).hexdigest(),
                 "log_host": gethostname(),
                 "logger": logger.name,
                 "message": "Info log",
@@ -447,7 +461,9 @@ def test_pyscript_task_executor(
                 "file": __file__,
                 "level": 30,
                 "line": ANY,
-                "log_hash": md5(b"Warning log").hexdigest(),
+                "log_hash": md5(
+                    b"Warning log",
+                ).hexdigest(),
                 "log_host": gethostname(),
                 "logger": logger.name,
                 "message": "Warning log",
@@ -468,7 +484,9 @@ def test_pyscript_task_executor(
                 "file": __file__,
                 "level": 40,
                 "line": ANY,
-                "log_hash": md5(b"Error log").hexdigest(),
+                "log_hash": md5(
+                    b"Error log",
+                ).hexdigest(),
                 "log_host": gethostname(),
                 "logger": logger.name,
                 "message": "Error log",
@@ -489,7 +507,9 @@ def test_pyscript_task_executor(
                 "file": __file__,
                 "level": 50,
                 "line": ANY,
-                "log_hash": md5(b"Critical log").hexdigest(),
+                "log_hash": md5(
+                    b"Critical log",
+                ).hexdigest(),
                 "log_host": gethostname(),
                 "logger": logger.name,
                 "message": "Critical log",
@@ -511,14 +531,14 @@ def test_run_pyscript_task_executor_not_implemented(
 
     assert warehouse_handler._pyscript_task_executor is None
 
-    with raises(NotImplementedError) as exc_info:
+    with pytest.raises(NotImplementedError) as exc_info:
         warehouse_handler._run_pyscript_task_executor(lambda: None)
 
     assert str(exc_info.value) == "Pyscript task executor is not defined"
 
 
-@mark.add_handler("warehouse_handler")
-@mark.asyncio
+@pytest.mark.add_handler("warehouse_handler")
+@pytest.mark.asyncio()
 async def test_emit_inside_event_loop(
     logger: Logger, mock_requests: Mocker, warehouse_handler: WarehouseHandler
 ) -> None:
@@ -527,8 +547,7 @@ async def test_emit_inside_event_loop(
     async def _pyscript_task_executor(
         func: Callable[..., Any], *args: Any, **kwargs: Any
     ) -> Any:
-        thing = func(*args, **kwargs)
-        return thing
+        return func(*args, **kwargs)
 
     mock_task_executor = AsyncMock(side_effect=_pyscript_task_executor)
 
@@ -562,7 +581,9 @@ async def test_emit_inside_event_loop(
         "file": __file__,
         "level": ERROR,
         "line": ANY,
-        "log_hash": md5(b"test message").hexdigest(),
+        "log_hash": md5(
+            b"test message",
+        ).hexdigest(),
         "log_host": gethostname(),
         "logger": logger.name,
         "message": "test message",

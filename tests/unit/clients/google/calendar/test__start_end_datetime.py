@@ -3,13 +3,14 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-from pytest import mark, raises
+import pytest
+from pydantic import ValidationError
 from pytz import timezone
 
 from wg_utilities.clients.google_calendar import _StartEndDatetime
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("obj_json", "expected_datetime"),
     [
         (
@@ -41,7 +42,7 @@ def test_instantiation(obj_json: dict[str, str], expected_datetime: datetime) ->
 def test_bad_instantiation() -> None:
     """Test an error is raised if neither date nor datetime is provided."""
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValidationError) as exc_info:
         _StartEndDatetime(timeZone="Europe/London")  # type: ignore[arg-type,call-arg]
 
     assert "Either `date` or `dateTime` must be provided." in str(exc_info.value)

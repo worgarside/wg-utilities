@@ -2,7 +2,7 @@
 """Unit Tests for `wg_utilities.clients.google_photos.GooglePhotosClient`."""
 from __future__ import annotations
 
-from pytest import raises
+import pytest
 from requests_mock import Mocker
 
 from wg_utilities.clients import GooglePhotosClient
@@ -32,9 +32,9 @@ def test_get_album_by_id_no_albums(
 
     assert album == google_photos_album
     assert google_photos_client._albums == [google_photos_album]
+    assert mock_requests.last_request
     assert (
-        mock_requests.last_request
-        and mock_requests.last_request.url
+        mock_requests.last_request.url
         == f"https://photoslibrary.googleapis.com/v1/albums/{google_photos_album.id}"
     )
 
@@ -82,9 +82,9 @@ def test_get_album_by_id_unknown_album(
         == google_photos_album
     )
     assert google_photos_album in google_photos_client._albums
+    assert mock_requests.last_request
     assert (
-        mock_requests.last_request
-        and mock_requests.last_request.url
+        mock_requests.last_request.url
         == f"https://photoslibrary.googleapis.com/v1/albums/{google_photos_album.id}"
     )
 
@@ -109,7 +109,7 @@ def test_get_album_by_name_bad_name(
 ) -> None:
     """Test the `get_album_by_name` method with a bad album name."""
 
-    with raises(FileNotFoundError) as exc_info:
+    with pytest.raises(FileNotFoundError) as exc_info:
         google_photos_client.get_album_by_name(album_name="Naughty Pics of My Cat")
 
     assert (

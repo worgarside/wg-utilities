@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
 from typing_extensions import TypedDict
 
@@ -51,7 +51,7 @@ class DataSource:
          DataSource info
     """
 
-    DP_VALUE_KEY_LOOKUP: DataPointValueKeyLookupInfo = {
+    DP_VALUE_KEY_LOOKUP: ClassVar[DataPointValueKeyLookupInfo] = {
         "floatPoint": "fpVal",
         "integer": "intVal",
     }
@@ -189,7 +189,7 @@ class GoogleFitClient(GoogleClient[Any]):
 
     BASE_URL = "https://www.googleapis.com/fitness/v1"
 
-    DEFAULT_SCOPES = [
+    DEFAULT_SCOPES: ClassVar[list[str]] = [
         "https://www.googleapis.com/auth/fitness.activity.read",
         "https://www.googleapis.com/auth/fitness.body.read",
         "https://www.googleapis.com/auth/fitness.location.read",

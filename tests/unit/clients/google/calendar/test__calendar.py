@@ -5,8 +5,8 @@ from datetime import datetime, tzinfo
 from json import loads
 from unittest.mock import patch
 
+import pytest
 from freezegun import freeze_time
-from pytest import mark
 from pytz import timezone
 
 from tests.conftest import read_json_file
@@ -74,9 +74,9 @@ def test_get_events_method(calendar: Calendar) -> None:
     assert len(events) == 1011
 
 
-@mark.parametrize(
-    ["from_datetime", "to_datetime", "day_limit", "expected_params"],
-    (
+@pytest.mark.parametrize(
+    ("from_datetime", "to_datetime", "day_limit", "expected_params"),
+    [
         (
             datetime(1996, 4, 20, 12, 30, 45),
             datetime(1997, 11, 15, 12, 30, 45),
@@ -171,7 +171,7 @@ def test_get_events_method(calendar: Calendar) -> None:
                 "timeMax": "2022-01-01T00:00:00+00:00",
             },
         ),
-    ),
+    ],
 )
 def test_get_events_datetime_parameters(
     calendar: Calendar,

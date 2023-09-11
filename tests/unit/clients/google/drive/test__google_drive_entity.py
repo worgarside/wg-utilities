@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from json import loads
 
-from pytest import raises
+import pytest
 
 from wg_utilities.clients import GoogleDriveClient
 from wg_utilities.clients.google_drive import _GoogleDriveEntity
@@ -62,7 +62,7 @@ def test_host_drive_property_raises_error(
         },
     )
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         _ = google_drive_entity.host_drive
 
     assert str(exc_info.value) == "Cannot get host drive of _GoogleDriveEntity."

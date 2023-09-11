@@ -22,5 +22,4 @@ jobs:
       pr-is-draft: ${{ github.event.pull_request.draft }}
       pr-number: ${{ github.event.pull_request.number }}
       pr-title: ${{ github.event.pull_request.title }}
-    secrets:
-      gh-token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+    secrets: inherit

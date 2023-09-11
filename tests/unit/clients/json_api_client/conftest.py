@@ -3,16 +3,15 @@ from __future__ import annotations
 
 from typing import Any
 
-from pytest import fixture
+import pytest
 from requests_mock import Mocker
 
-from tests.conftest import YieldFixture
 from wg_utilities.clients.json_api_client import JsonApiClient
 
 
-@fixture(scope="function", name="json_api_client")
-def _oauth_client(
-    mock_requests: Mocker,  # pylint: disable=unused-argument
+@pytest.fixture(name="json_api_client")
+def oauth_client_(
+    mock_requests: Mocker,  # noqa: ARG001
 ) -> JsonApiClient[dict[str, Any]]:
     """Fixture for creating an OAuthClient instance."""
 
@@ -22,10 +21,10 @@ def _oauth_client(
     )
 
 
-@fixture(scope="function", name="mock_requests", autouse=True)
-def _mock_requests(
+@pytest.fixture(name="mock_requests", autouse=True)
+def mock_requests_(
     mock_requests_root: Mocker,
-) -> YieldFixture[Mocker]:
+) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
 
-    yield mock_requests_root
+    return mock_requests_root

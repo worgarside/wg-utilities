@@ -1,4 +1,3 @@
-# pylint: disable=no-self-argument
 """Custom client for interacting with Google's Photos API."""
 from __future__ import annotations
 
@@ -6,7 +5,7 @@ from datetime import datetime
 from enum import Enum
 from logging import DEBUG, getLogger
 from pathlib import Path
-from typing import Any, Literal, Self, TypeAlias
+from typing import Any, ClassVar, Literal, Self, TypeAlias
 
 from pydantic import Field, field_validator
 from requests import post
@@ -78,7 +77,7 @@ class _GooglePhotosEntityJson(TypedDict):
 class GooglePhotosEntity(BaseModelWithConfig):
     """Generic base class for Google Photos entities."""
 
-    id: str
+    id: str  # noqa: A003
     product_url: str = Field(alias="productUrl")
 
     google_client: GooglePhotosClient = Field(exclude=True)
@@ -124,7 +123,8 @@ class Album(GooglePhotosEntity):
     _media_items: list[MediaItem]
 
     @field_validator("title")
-    def _validate_title(cls, value: str) -> str:  # noqa: N805
+    @classmethod
+    def _validate_title(cls, value: str) -> str:
         """Validate the title of the album."""
 
         if not value:
@@ -247,7 +247,7 @@ class MediaItem(GooglePhotosEntity):
         return self.local_path
 
     @property
-    def bytes(self) -> bytes:
+    def binary_content(self) -> bytes:
         """MediaItem binary content.
 
         Opens the local copy of the file (downloading it first if necessary) and
@@ -328,7 +328,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
 
     BASE_URL = "https://photoslibrary.googleapis.com/v1"
 
-    DEFAULT_SCOPES = [
+    DEFAULT_SCOPES: ClassVar[list[str]] = [
         "https://www.googleapis.com/auth/photoslibrary.readonly",
         "https://www.googleapis.com/auth/photoslibrary.appendonly",
         "https://www.googleapis.com/auth/photoslibrary.readonly.appcreateddata",

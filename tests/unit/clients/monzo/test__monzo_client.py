@@ -6,16 +6,21 @@ from datetime import datetime, timezone
 from http import HTTPStatus
 from urllib.parse import urlencode
 
+import pytest
 from freezegun import freeze_time
-from pytest import mark, raises
 from requests.exceptions import HTTPError
 from requests_mock import Mocker
 
 from tests.conftest import assert_mock_requests_request_history, read_json_file
 from wg_utilities.clients import MonzoClient
-from wg_utilities.clients.monzo import Account, AccountJson, Pot, Transaction
-from wg_utilities.clients.monzo import TransactionCategory as TxCategory
-from wg_utilities.clients.monzo import TransactionJson
+from wg_utilities.clients.monzo import (
+    Account,
+    AccountJson,
+    Pot,
+    Transaction,
+    TransactionCategory,
+    TransactionJson,
+)
 from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
 from wg_utilities.functions import user_data_dir
 
@@ -76,7 +81,7 @@ def test_deposit_into_pot_raises_error_on_failure(
         reason=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
     )
 
-    with raises(HTTPError) as exc_info:
+    with pytest.raises(HTTPError) as exc_info:
         monzo_client.deposit_into_pot(monzo_pot, 100)
 
     assert exc_info.value.response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
@@ -87,13 +92,13 @@ def test_deposit_into_pot_raises_error_on_failure(
     )
 
 
-@mark.parametrize("include_closed", (True, False))
-@mark.parametrize(
+@pytest.mark.parametrize("include_closed", [True, False])
+@pytest.mark.parametrize(
     "account_type",
-    (
+    [
         "uk_retail",
         "uk_retail_joint",
-    ),
+    ],
 )
 def test_list_accounts_method(
     monzo_client: MonzoClient,
@@ -174,7 +179,8 @@ def test_list_pots_method(
         pot for pot in all_pots if not pot.deleted
     ]
 
-    assert mock_requests.last_request and mock_requests.last_request.method == "GET"
+    assert mock_requests.last_request
+    assert mock_requests.last_request.method == "GET"
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
@@ -190,7 +196,8 @@ def test_get_pot_by_id_method(
     """Test that the `get_pot_by_id` returns the single expected `Pot` instance."""
     assert monzo_client.get_pot_by_id(monzo_pot.id) == monzo_pot
 
-    assert mock_requests.last_request and mock_requests.last_request.method == "GET"
+    assert mock_requests.last_request
+    assert mock_requests.last_request.method == "GET"
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
@@ -209,7 +216,8 @@ def test_get_pot_by_name_exact_match_true(
 
     assert monzo_client.get_pot_by_name(monzo_pot.name, exact_match=True) == monzo_pot
 
-    assert mock_requests.last_request and mock_requests.last_request.method == "GET"
+    assert mock_requests.last_request
+    assert mock_requests.last_request.method == "GET"
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
@@ -234,7 +242,8 @@ def test_get_pot_by_name_exact_match_false(
         == monzo_pot
     )
 
-    assert mock_requests.last_request and mock_requests.last_request.method == "GET"
+    assert mock_requests.last_request
+    assert mock_requests.last_request.method == "GET"
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
@@ -273,7 +282,7 @@ def test_transaction_json_annotations_vs_transaction_fields() -> None:
 
         forward_arg = av.__forward_arg__.replace(
             "TransactionCategory",
-            f"Literal{sorted(TxCategory.__args__)!r}",  # type: ignore[attr-defined]
+            f"Literal{sorted(TransactionCategory.__args__)!r}",  # type: ignore[attr-defined]
         )
 
         assert forward_arg == tx_field_type

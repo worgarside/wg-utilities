@@ -9,8 +9,8 @@ from http import HTTPStatus
 from typing import Literal
 from unittest.mock import patch
 
+import pytest
 from freezegun import freeze_time
-from pytest import mark, raises
 from requests_mock import Mocker
 
 from tests.conftest import read_json_file
@@ -48,13 +48,13 @@ def test_from_json_response_instantiation(truelayer_client: TrueLayerClient) -> 
     assert tle.truelayer_client == truelayer_client
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("from_datetime", "to_datetime"),
-    (
+    [
         (datetime(2023, 1, 1), datetime(2023, 1, 7)),
         (datetime(2023, 2, 1, 1, 2, 3), datetime(2023, 2, 7, 3, 2, 1)),
         (None, None),
-    ),
+    ],
 )
 def test_get_transactions(
     account: Account, from_datetime: datetime | None, to_datetime: datetime | None
@@ -112,7 +112,7 @@ def test_update_balance_values_multiple_results(
         reason=HTTPStatus.OK.phrase,
     )
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         account.update_balance_values()
 
     assert (
@@ -121,9 +121,9 @@ def test_update_balance_values_multiple_results(
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("property_name", "expected_value"),
-    (
+    [
         ("available_balance", 1234.56),
         ("current_balance", 1234.56),
         ("overdraft", 0.0),
@@ -132,7 +132,7 @@ def test_update_balance_values_multiple_results(
         ("last_statement_date", None),
         ("payment_due", None),
         ("payment_due_date", None),
-    ),
+    ],
 )
 def test_get_balance_property_account(
     account: Account,
@@ -170,9 +170,9 @@ def test_get_balance_property_account(
             mock_update_balance_values.assert_not_called()
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("property_name", "expected_value"),
-    (
+    [
         ("available_balance", 3279.0),
         ("current_balance", 20.0),
         ("overdraft", None),
@@ -182,7 +182,7 @@ def test_get_balance_property_account(
         ("payment_due", 5.0),
         ("payment_due_date", datetime(2023, 3, 30).date()),
         ("invalid_value", None),
-    ),
+    ],
 )
 def test_get_balance_property_card(
     card: Card,
@@ -223,7 +223,7 @@ def test_get_balance_property_card(
             mock_update_balance_values.assert_not_called()
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "property_name",
     sorted(set(Account.BALANCE_FIELDS + Card.BALANCE_FIELDS)),  # type: ignore[operator]
 )

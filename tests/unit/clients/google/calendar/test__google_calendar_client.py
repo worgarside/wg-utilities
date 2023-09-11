@@ -7,7 +7,7 @@ from json import loads
 from typing import Any
 from unittest.mock import patch
 
-from pytest import mark, raises
+import pytest
 from pytz import timezone
 from requests import HTTPError
 from requests_mock import Mocker
@@ -33,7 +33,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     assert not hasattr(client, "_primary_calendar")
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     (
         "summary",
         "start_datetime",
@@ -42,7 +42,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
         "calendar_arg",  # Not `calendar` as that's a fixture
         "extra_params",
     ),
-    (
+    [
         (
             "Test Event 1",
             date(2021, 1, 1),
@@ -111,7 +111,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
                 "three": "three",
             },
         ),
-    ),
+    ],
 )
 def test_create_event_request(
     google_calendar_client: GoogleCalendarClient,
@@ -184,7 +184,7 @@ def test_create_event_request(
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     (
         "summary",
         "start_datetime",
@@ -193,7 +193,7 @@ def test_create_event_request(
         "calendar_arg",  # Not `calendar` as that's a fixture
         "extra_params",
     ),
-    (
+    [
         (
             "Test Event 1",
             date(2021, 1, 1),
@@ -262,7 +262,7 @@ def test_create_event_request(
                 "three": "three",
             },
         ),
-    ),
+    ],
 )
 def test_create_event_response(
     google_calendar_client: GoogleCalendarClient,
@@ -347,9 +347,9 @@ def test_create_event_response(
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("start_datetime", "end_datetime", "expected_exception_message"),
-    (
+    [
         (date(2021, 1, 1), date(2021, 1, 2), None),
         (date(2021, 1, 1), datetime(2021, 1, 2), None),
         (datetime(2021, 1, 1), date(2021, 1, 2), None),
@@ -363,7 +363,7 @@ def test_create_event_response(
             "2021-01-02",
             "^`end_datetime` must be either a date or a datetime$",
         ),
-    ),
+    ],
 )
 def test_create_event_type_validation(
     start_datetime: datetime | date,
@@ -380,7 +380,7 @@ def test_create_event_type_validation(
         mock_post_json_response.return_value = loads(event.model_dump_json())
 
         if expected_exception_message:
-            with raises(TypeError, match=expected_exception_message):
+            with pytest.raises(TypeError, match=expected_exception_message):
                 google_calendar_client.create_event(
                     summary="Test Event",
                     start_datetime=start_datetime,
@@ -439,7 +439,7 @@ def test_delete_event_by_id_raises_exception(
         reason=HTTPStatus.NOT_FOUND.phrase,
     )
 
-    with raises(HTTPError) as exc_info:
+    with pytest.raises(HTTPError) as exc_info:
         google_calendar_client.delete_event_by_id(event_id=event.id, calendar=calendar)
 
     assert exc_info.value.response.status_code == HTTPStatus.NOT_FOUND

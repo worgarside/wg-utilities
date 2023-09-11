@@ -54,7 +54,7 @@ class TargetProcessorFunc(Protocol):
         dict_key: str | None = None,
         list_index: int | None = None,
     ) -> JSONVal:
-        """The function to be called on each value in the JSON object."""  # noqa: D401
+        """The function to be called on each value in the JSON object."""
 
 
 def process_list(
@@ -93,11 +93,13 @@ def process_list(
         if isinstance(elem, target_type):
             try:
                 lst[i] = target_processor_func(elem, list_index=i)
-            except Exception as exc:  # pylint: disable=broad-except
+            except Exception:  # pylint: disable=broad-except
                 if log_op_func_failures:
-                    LOGGER.error("Unable to process item at index %i: %s", i, repr(exc))
+                    LOGGER.exception("Unable to process item at index %i", i)
+
                 if not pass_on_fail:
                     raise
+
         elif isinstance(elem, dict):
             traverse_dict(
                 elem,
@@ -117,7 +119,7 @@ def process_list(
             )
 
 
-def traverse_dict(
+def traverse_dict(  # noqa: PLR0912
     payload_json: JSONObj,
     *,
     target_type: type[object] | tuple[type[object], ...] | type[Callable[..., Any]],
@@ -126,7 +128,6 @@ def traverse_dict(
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,
 ) -> None:
-    # pylint: disable=too-many-branches
     """Traverse dict, applying`dict_op_func` to any values of type `target_type`.
 
     Args:
@@ -166,46 +167,48 @@ def traverse_dict(
                         log_op_func_failures=log_op_func_failures,
                         single_keys_to_remove=single_keys_to_remove,
                     )
-            except Exception as exc:  # pylint: disable=broad-except
+            except Exception:  # pylint: disable=broad-except
                 if log_op_func_failures:
-                    LOGGER.error("Unable to process item with key %s: %s", k, repr(exc))
+                    LOGGER.exception("Unable to process item with key %s", k)
                 if not pass_on_fail:
                     raise
         elif isinstance(v, dict):
             matched_single_key = False
-            if len(v) == 1 and single_keys_to_remove is not None:
-                if (only_key := next(iter(v.keys()))) in single_keys_to_remove:
-                    matched_single_key = True
-                    if isinstance(value := v.get(only_key), target_type):
-                        try:
-                            value = target_processor_func(value, dict_key=only_key)
-                        except Exception as exc:  # pylint: disable=broad-except
-                            if log_op_func_failures:
-                                LOGGER.error(
-                                    "Unable to process item with key %s: %s",
-                                    k,
-                                    repr(exc),
-                                )
-                            if not pass_on_fail:
-                                raise
+            if (
+                len(v) == 1
+                and single_keys_to_remove is not None
+                and (only_key := next(iter(v.keys()))) in single_keys_to_remove
+            ):
+                matched_single_key = True
+                if isinstance(value := v.get(only_key), target_type):
+                    try:
+                        value = target_processor_func(value, dict_key=only_key)
+                    except Exception:  # pylint: disable=broad-except
+                        if log_op_func_failures:
+                            LOGGER.exception(
+                                "Unable to process item with key %s",
+                                k,
+                            )
+                        if not pass_on_fail:
+                            raise
 
-                    if isinstance(value, dict):
-                        # Wrap the value, so that if the top level key is one
-                        # of `single_keys_to_remove` then it's processed
-                        # correctly
-                        tmp_wrapper: JSONObj = {"-": value}
-                        traverse_dict(
-                            tmp_wrapper,
-                            target_type=target_type,
-                            target_processor_func=target_processor_func,
-                            pass_on_fail=pass_on_fail,
-                            log_op_func_failures=log_op_func_failures,
-                            single_keys_to_remove=single_keys_to_remove,
-                        )
+                if isinstance(value, dict):
+                    # Wrap the value, so that if the top level key is one
+                    # of `single_keys_to_remove` then it's processed
+                    # correctly
+                    tmp_wrapper: JSONObj = {"-": value}
+                    traverse_dict(
+                        tmp_wrapper,
+                        target_type=target_type,
+                        target_processor_func=target_processor_func,
+                        pass_on_fail=pass_on_fail,
+                        log_op_func_failures=log_op_func_failures,
+                        single_keys_to_remove=single_keys_to_remove,
+                    )
 
-                        value = tmp_wrapper["-"]
+                    value = tmp_wrapper["-"]
 
-                    payload_json[k] = value
+                payload_json[k] = value
 
             if not matched_single_key:
                 traverse_dict(
