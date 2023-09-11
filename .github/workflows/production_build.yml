@@ -3,24 +3,74 @@ name: Production Build/Deploy
 
 on:
   push:
-    tags:
-      - '*'
+    branches:
+      - main
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  get-release-tag:
-    name: Get Release Tag
-    uses: worgarside/github-config-files/.github/workflows/__get_release_tag.yml@main
-    with:
-      branch-name: ${{ github.ref }}
+  check-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.check-for-tag.outputs.found-tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+
+      - name: Check for Tag
+        id: check-for-tag
+        env:
+          TIMEOUT: 120
+          INTERVAL: 5
+        run: |
+          while [[ "${TIMEOUT}" -gt 0 ]]; do
+              git fetch --tags
+              TAG=$(git describe --tags --exact-match 2> /dev/null)
+              if [[ -n "${TAG}" ]]; then
+                  echo "Found tag: ${TAG}"
+                  echo "found-tag=${TAG}" >> "${GITHUB_OUTPUT}"
+                  exit 0
+              fi
+              sleep "${INTERVAL}"
+              TIMEOUT=$((TIMEOUT - INTERVAL))
+          done
+
+          echo "Oi, timed out waitin' for a tag, ya numpty!" >> "${GITHUB_STEP_SUMMARY}"
+          exit 1
+
+  validate-tag:
+    needs:
+      - check-tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+
+      - name: Validate Tag
+        # yamllint disable rule:line-length
+        run: |
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+
+          if [[ "${COMMIT_MESSAGE}" != *"${{ needs.check-tag.outputs.tag }}"* ]]; then
+            echo "Tag not found in commit message. Sort it out!" >> "${GITHUB_STEP_SUMMARY}"
+            echo -e "Tag: \`${{ needs.check-tag.outputs.tag }}\`" >> "${GITHUB_STEP_SUMMARY}"
+            echo -e "Commit message: \`${COMMIT_MESSAGE}\`" >> "${GITHUB_STEP_SUMMARY}"
+            exit 1
+          fi
+        # yamllint enable rule:line-length
 
   run-production-build:
     name: Run Production Build
     needs:
-      - get-release-tag
+      - check-tag
+      - validate-tag
     uses: worgarside/github-config-files/.github/workflows/__build_and_publish.yml@main
     with:
       build-branch: main
@@ -28,5 +78,5 @@ jobs:
       commit-build-directory: false
       environment: production
       python-version: '3.11'
-      release-tag: ${{ needs.get-release-tag.outputs.release-tag }}
+      release-tag: ${{ needs.check-tag.outputs.tag }}
     secrets: inherit
