@@ -5,7 +5,7 @@ from collections.abc import Callable, Iterable, Mapping
 from copy import deepcopy
 from json import dumps
 from logging import DEBUG, getLogger
-from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, TypeAlias, TypeVar
 
 from requests import Response, get
 from typing_extensions import TypedDict
@@ -73,11 +73,13 @@ class GoogleClient(
 ):
     """Custom client for interacting with the Google APIs."""
 
-    ACCESS_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
+    ACCESS_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"  # noqa: S105
     AUTH_LINK_BASE = "https://accounts.google.com/o/oauth2/v2/auth"
     BASE_URL: str
 
-    DEFAULT_PARAMS: dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None] = {
+    DEFAULT_PARAMS: ClassVar[
+        dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None]
+    ] = {
         "pageSize": "50",
     }
 

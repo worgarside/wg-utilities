@@ -5,8 +5,8 @@ from json import loads
 from pathlib import Path
 from re import fullmatch
 
+import pytest
 from pydantic.fields import Field
-from pytest import FixtureRequest, fixture
 from requests_mock import Mocker
 
 from tests.conftest import (
@@ -28,8 +28,8 @@ from wg_utilities.clients.google_photos import Album, GooglePhotosClient, MediaI
 from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
-@fixture(scope="function", name="calendar")
-def _calendar(google_calendar_client: GoogleCalendarClient) -> Calendar:
+@pytest.fixture(name="calendar")
+def calendar_(google_calendar_client: GoogleCalendarClient) -> Calendar:
     """Fixture for a Google Calendar instance."""
     return Calendar.from_json_response(
         read_json_file("v3/calendars/primary.json", host_name="google/calendar"),
@@ -37,8 +37,8 @@ def _calendar(google_calendar_client: GoogleCalendarClient) -> Calendar:
     )
 
 
-@fixture(scope="function", name="data_source")
-def _data_source(google_fit_client: GoogleFitClient) -> DataSource:
+@pytest.fixture(name="data_source")
+def data_source_(google_fit_client: GoogleFitClient) -> DataSource:
     """Fixture for a Google Fit DataSource instance."""
     return DataSource(
         # pylint: disable=line-too-long
@@ -47,8 +47,8 @@ def _data_source(google_fit_client: GoogleFitClient) -> DataSource:
     )
 
 
-@fixture(scope="function", name="directory")
-def _directory(drive: Drive, google_drive_client: GoogleDriveClient) -> Directory:
+@pytest.fixture(name="directory")
+def directory_(drive: Drive, google_drive_client: GoogleDriveClient) -> Directory:
     # pylint: disable=protected-access
     """Fixture for a Google Drive Directory instance."""
     diry = Directory.from_json_response(
@@ -71,8 +71,8 @@ def _directory(drive: Drive, google_drive_client: GoogleDriveClient) -> Director
     return diry
 
 
-@fixture(scope="function", name="drive_comparison_entity_lookup")
-def _drive_comparison_entity_lookup(
+@pytest.fixture(name="drive_comparison_entity_lookup")
+def drive_comparison_entity_lookup_(
     drive: Drive, google_drive_client: GoogleDriveClient
 ) -> dict[str, Drive | File | Directory]:
     """Lookup for Google Drive entities, makes assertions easier to write."""
@@ -102,8 +102,8 @@ def _drive_comparison_entity_lookup(
     return lookup
 
 
-@fixture(scope="function", name="drive")
-def _drive(google_drive_client: GoogleDriveClient) -> Drive:
+@pytest.fixture(name="drive")
+def drive_(google_drive_client: GoogleDriveClient) -> Drive:
     """Fixture for a Google Drive instance."""
     return Drive.from_json_response(
         read_json_file("v3/files/root/fields=%2a.json", host_name="google/drive"),
@@ -111,8 +111,8 @@ def _drive(google_drive_client: GoogleDriveClient) -> Drive:
     )
 
 
-@fixture(scope="function", name="event")
-def _event(google_calendar_client: GoogleCalendarClient, calendar: Calendar) -> Event:
+@pytest.fixture(name="event")
+def event_(google_calendar_client: GoogleCalendarClient, calendar: Calendar) -> Event:
     """Fixture for a Google Calendar event."""
     return Event.from_json_response(
         read_json_file(
@@ -124,8 +124,8 @@ def _event(google_calendar_client: GoogleCalendarClient, calendar: Calendar) -> 
     )
 
 
-@fixture(scope="function", name="file")
-def _file(
+@pytest.fixture(name="file")
+def file_(
     drive: Drive, directory: Directory, google_drive_client: GoogleDriveClient
 ) -> File:
     # pylint: disable=protected-access
@@ -149,11 +149,11 @@ def _file(
     return file
 
 
-@fixture(scope="function", name="google_calendar_client")
-def _google_calendar_client(
+@pytest.fixture(name="google_calendar_client")
+def google_calendar_client_(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
-    mock_requests: Mocker,  # pylint: disable=unused-argument
+    mock_requests: Mocker,  # noqa: ARG001
 ) -> GoogleCalendarClient:
     """Fixture for `GoogleCalendarClient` instance."""
 
@@ -169,11 +169,11 @@ def _google_calendar_client(
     )
 
 
-@fixture(scope="function", name="google_drive_client")
-def _google_drive_client(
+@pytest.fixture(name="google_drive_client")
+def google_drive_client_(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
-    mock_requests: Mocker,  # pylint: disable=unused-argument
+    mock_requests: Mocker,  # noqa: ARG001
 ) -> GoogleDriveClient:
     """Fixture for `GoogleDriveClient` instance."""
 
@@ -189,11 +189,11 @@ def _google_drive_client(
     )
 
 
-@fixture(scope="function", name="google_fit_client")
-def _google_fit_client(
+@pytest.fixture(name="google_fit_client")
+def google_fit_client_(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
-    mock_requests: Mocker,  # pylint: disable=unused-argument
+    mock_requests: Mocker,  # noqa: ARG001
 ) -> GoogleFitClient:
     """Fixture for `GoogleFitClient` instance."""
 
@@ -208,8 +208,8 @@ def _google_fit_client(
     )
 
 
-@fixture(scope="function", name="google_photos_album")
-def _google_photos_album(google_photos_client: GooglePhotosClient) -> Album:
+@pytest.fixture(name="google_photos_album")
+def google_photos_album_(google_photos_client: GooglePhotosClient) -> Album:
     """Fixture for a Google Photos Album."""
 
     return Album.from_json_response(
@@ -222,11 +222,11 @@ def _google_photos_album(google_photos_client: GooglePhotosClient) -> Album:
     )
 
 
-@fixture(scope="function", name="google_photos_client")
-def _google_photos_client(
+@pytest.fixture(name="google_photos_client")
+def google_photos_client_(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
-    mock_requests: Mocker,  # pylint: disable=unused-argument
+    mock_requests: Mocker,  # noqa: ARG001
 ) -> GooglePhotosClient:
     """Fixture for `GooglePhotosClient` instance."""
 
@@ -242,8 +242,8 @@ def _google_photos_client(
     )
 
 
-@fixture(scope="function", name="media_item_image")
-def _media_item_image(
+@pytest.fixture(name="media_item_image")
+def media_item_image_(
     google_photos_client: GooglePhotosClient,
 ) -> YieldFixture[MediaItem]:
     """Fixture for a `MediaItem` instance with an image MIME type."""
@@ -273,8 +273,8 @@ def _media_item_image(
     )
 
 
-@fixture(scope="function", name="media_item_video")
-def _media_item_video(google_photos_client: GooglePhotosClient) -> MediaItem:
+@pytest.fixture(name="media_item_video")
+def media_item_video_(google_photos_client: GooglePhotosClient) -> MediaItem:
     """Fixture for a `MediaItem` instance with a video MIME type."""
 
     video = MediaItem.from_json_response(
@@ -295,8 +295,8 @@ def _media_item_video(google_photos_client: GooglePhotosClient) -> MediaItem:
     return video
 
 
-@fixture(scope="function", name="simple_file")
-def _simple_file(
+@pytest.fixture(name="simple_file")
+def simple_file_(
     drive: Drive, directory: Directory, google_drive_client: GoogleDriveClient
 ) -> File:
     """Fixture for a Google Drive File instance."""
@@ -321,11 +321,11 @@ def _simple_file(
     return simple_file
 
 
-@fixture(scope="function", name="mock_requests", autouse=True)
-def _mock_requests(
+@pytest.fixture(name="mock_requests", autouse=True)
+def mock_requests_(
     mock_requests_root: Mocker,
-    request: FixtureRequest,
-) -> YieldFixture[Mocker]:
+    request: pytest.FixtureRequest,
+) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
 
     if fullmatch(
@@ -417,4 +417,4 @@ def _mock_requests(
             content=video_bytes,
         )
 
-    yield mock_requests_root
+    return mock_requests_root

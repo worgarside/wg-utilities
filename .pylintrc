@@ -79,7 +79,8 @@ disable=raw-checker-failed,
         missing-function-docstring,
         used-before-assignment,
         undefined-variable,
-        use-dict-literal
+        use-dict-literal,
+        unused-argument
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

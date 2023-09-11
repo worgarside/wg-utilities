@@ -49,7 +49,7 @@ class _ImageMediaMetadata(BaseModelWithConfig):
     width: int
     height: int
     rotation: int | None
-    location: dict[str, float] = {}
+    location: dict[str, float] = Field(default_factory=dict)
     time: str | None
     camera_make: str | None = Field(None, alias="cameraMake")
     camera_model: str | None = Field(None, alias="cameraModel")
@@ -71,14 +71,14 @@ class _ImageMediaMetadata(BaseModelWithConfig):
 
 class _Label(BaseModelWithConfig):
     kind: EntityKind = Field(alias="kind", default=EntityKind.LABEL)
-    id: str
+    id: str  # noqa: A003
     revision_id: str = Field(alias="revisionId")
     fields: dict[str, _LabelField]
 
 
 class _LabelField(BaseModelWithConfig):
     kind: EntityKind = Field(alias="kind", default=EntityKind.USER)
-    id: str
+    id: str  # noqa: A003
     value_type: str = Field(alias="valueType")
     date_str: list[date] = Field(alias="datestr", default_factory=list)
     integer: list[float]
@@ -96,8 +96,8 @@ class _PermissionDetails(BaseModelWithConfig):
 
 class _Permission(BaseModelWithConfig):
     kind: EntityKind = Field(alias="kind", default=EntityKind.PERMISSION)
-    id: str
-    type: str
+    id: str  # noqa: A003
+    type: str  # noqa: A003
     email_address: str | None = Field(None, alias="emailAddress")
     domain: str | None = None
     role: str
@@ -138,13 +138,13 @@ class _ContentRestriction(BaseModelWithConfig):
     reason: str
     restricting_user: _User = Field(alias="restrictingUser")
     restriction_time: datetime = Field(alias="restrictionTime")
-    type: str
+    type: str  # noqa: A003
 
 
 class _GoogleDriveEntity(BaseModelWithConfig):
     """Base class for Google Drive entities."""
 
-    id: str
+    id: str  # noqa: A003
     name: str
     mime_type: str = Field(alias="mimeType")
 
@@ -157,6 +157,7 @@ class _GoogleDriveEntity(BaseModelWithConfig):
         google_client: GoogleDriveClient,
         host_drive: Drive | None = None,
         parent: _CanHaveChildren | Drive | Directory | None = None,
+        *,
         _block_describe_call: bool = False,
     ) -> Self:
         """Create a new instance from a JSON response.
@@ -321,7 +322,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
                 "children."
             )
 
-    def navigate(self, path: str) -> _CanHaveChildren | File:
+    def navigate(self, path: str) -> _CanHaveChildren | File:  # noqa: PLR0911
         # pylint: disable=too-many-return-statements
         """Navigate to a directory within this directory.
 
@@ -425,7 +426,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
         self._files = []
         self._files_loaded = False
 
-    def tree(self, local_only: bool = False, include_files: bool = False) -> str:
+    def tree(self, *, local_only: bool = False, include_files: bool = False) -> str:
         """Emulate the Linux `tree` command output.
 
         This builds a directory tree in text form for quick visualisation. Not really
@@ -620,7 +621,7 @@ class File(_GoogleDriveEntity):
     kind: EntityKind = Field(alias="kind", default=EntityKind.FILE)
 
     # Optional, can be retrieved with the `describe` method or by getting the attribute
-    app_properties: dict[str, str] = {}
+    app_properties: dict[str, str] = Field(default_factory=dict)
     capabilities: _DriveCapabilities | None = None
     content_hints: _ContentHints | None = Field(None, alias="contentHints")
     content_restrictions: list[_ContentRestriction] | None = Field(
@@ -660,10 +661,10 @@ class File(_GoogleDriveEntity):
     modified_time: datetime | None = Field(None, alias="modifiedTime")
     original_filename: str | None = Field(None, alias="originalFilename")
     owned_by_me: bool | None = Field(None, alias="ownedByMe")
-    owners: list[_User] = []
+    owners: list[_User] = Field(default_factory=list)
     parents: list[str]
-    properties: dict[str, str] = {}
-    permissions: list[_Permission] = []
+    properties: dict[str, str] = Field(default_factory=dict)
+    permissions: list[_Permission] = Field(default_factory=list)
     permission_ids: list[str] = Field(alias="permissionIds", default_factory=list)
     quota_bytes_used: float | None = Field(None, alias="quotaBytesUsed")
     resource_key: str | None = Field(None, alias="resourceKey")
@@ -681,7 +682,7 @@ class File(_GoogleDriveEntity):
         str,
     ] = Field(alias="shortcutDetails", default_factory=dict)
     size: float | None = None
-    spaces: list[str] = []
+    spaces: list[str] = Field(default_factory=list)
     starred: bool | None = None
     thumbnail_link: str | None = Field(None, alias="thumbnailLink")
     thumbnail_version: int | None = Field(None, alias="thumbnailVersion")
@@ -742,22 +743,25 @@ class File(_GoogleDriveEntity):
         return super().__getattribute__(name)
 
     @field_validator("mime_type")
-    def _validate_mime_type(cls, mime_type: str) -> str:  # noqa: N805
+    @classmethod
+    def _validate_mime_type(cls, mime_type: str) -> str:
         if mime_type == Directory.MIME_TYPE:
             raise ValueError("Use `Directory` class to create a directory.")
 
         return mime_type
 
     @field_validator("parents")
-    def _validate_parents(cls, parents: list[str]) -> list[str]:  # noqa: N805
+    @classmethod
+    def _validate_parents(cls, parents: list[str]) -> list[str]:
         if len(parents) != 1:
             raise ValueError(f"A {cls.__name__} must have exactly one parent.")
 
         return parents
 
     @field_validator("parent_")
+    @classmethod
     def _validate_parent_instance(
-        cls, value: Directory | Drive | None, info: FieldValidationInfo  # noqa: N805
+        cls, value: Directory | Drive | None, info: FieldValidationInfo
     ) -> Directory | Drive | None:
         """Validate that the parent instance's ID matches the expected parent ID.
 
@@ -783,7 +787,7 @@ class File(_GoogleDriveEntity):
 
         return value
 
-    def describe(self, force_update: bool = False) -> JSONObj:
+    def describe(self, *, force_update: bool = False) -> JSONObj:
         """Describe the file by requesting all available fields from the Drive API.
 
         Args:
@@ -866,7 +870,8 @@ class Directory(File, _CanHaveChildren):
     host_drive_: Drive = Field(exclude=True)
 
     @field_validator("kind", mode="before")
-    def _validate_kind(cls, value: str | None) -> str:  # noqa: N805
+    @classmethod
+    def _validate_kind(cls, value: str | None) -> str:
         """Set the kind to "drive#folder"."""
 
         # Directories are just a subtype of files, so `"drive#file"` is okay too
@@ -876,7 +881,8 @@ class Directory(File, _CanHaveChildren):
         return EntityKind.DIRECTORY
 
     @field_validator("mime_type")
-    def _validate_mime_type(cls, mime_type: str) -> str:  # noqa: N805
+    @classmethod
+    def _validate_mime_type(cls, mime_type: str) -> str:
         """Just an override for the parent class's validator."""
 
         return mime_type
@@ -967,7 +973,7 @@ class _DriveRestrictions(BaseModelWithConfig):
 
 
 class _DriveBackgroundImageFile(BaseModelWithConfig):
-    id: str
+    id: str  # noqa: A003
     x_coordinate: float = Field(alias="xCoordinate")
     y_coordinate: float = Field(alias="yCoordinate")
     width: float
@@ -1010,13 +1016,13 @@ class Drive(_CanHaveChildren):
     modified_time: datetime | None = Field(None, alias="modifiedTime")
     org_unit_id: str | None = Field(None, alias="orgUnitId")
     owned_by_me: bool | None = Field(None, alias="ownedByMe")
-    owners: list[_User] = []
-    permissions: list[_Permission] = []
+    owners: list[_User] = Field(default_factory=list)
+    permissions: list[_Permission] = Field(default_factory=list)
     permission_ids: list[str] = Field(alias="permissionIds", default_factory=list)
     quota_bytes_used: float | None = Field(None, alias="quotaBytesUsed")
     restrictions: _DriveRestrictions | None = None
     shared: bool | None = None
-    spaces: list[str] = []
+    spaces: list[str] = Field(default_factory=list)
     starred: bool | None = None
     theme_id: str | None = Field(None, alias="themeId")
     thumbnail_version: int | None = Field(None, alias="thumbnailVersion")
@@ -1036,7 +1042,8 @@ class Drive(_CanHaveChildren):
     _files_mapped: bool = False
 
     @field_validator("kind", mode="before")
-    def _validate_kind(cls, value: str | None) -> str:  # noqa: N805
+    @classmethod
+    def _validate_kind(cls, value: str | None) -> str:
         """Set the kind to "drive#drive"."""
 
         # Drives are just a subtype of files, so `"drive#file"` is okay too
@@ -1111,7 +1118,7 @@ class Drive(_CanHaveChildren):
 
         return self._get_entity_by_id(File, file_id)
 
-    def map(self, map_type: EntityType = EntityType.FILE) -> None:
+    def map(self, map_type: EntityType = EntityType.FILE) -> None:  # noqa: A003
         """Traverse the entire Drive to map its content.
 
         Args:
@@ -1219,6 +1226,8 @@ class Drive(_CanHaveChildren):
     def search(
         self,
         term: str,
+        /,
+        *,
         entity_type: EntityType | None = None,
         max_results: int = 50,
         exact_match: bool = False,
@@ -1370,7 +1379,7 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
 
     BASE_URL = "https://www.googleapis.com/drive/v3"
 
-    DEFAULT_SCOPES = [
+    DEFAULT_SCOPES: ClassVar[list[str]] = [
         "https://www.googleapis.com/auth/drive",
         "https://www.googleapis.com/auth/drive.file",
         "https://www.googleapis.com/auth/drive.readonly",
@@ -1382,7 +1391,7 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
 
     _my_drive: Drive
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         *,
         client_id: str,

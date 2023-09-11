@@ -12,7 +12,7 @@ from re import compile as re_compile
 from textwrap import dedent
 from threading import Thread
 from time import sleep, strptime
-from typing import Any, Literal, TypeVar
+from typing import Any, ClassVar, Literal, TypeVar
 
 from async_upnp_client.aiohttp import AiohttpNotifyServer, AiohttpRequester
 from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable
@@ -49,7 +49,7 @@ class CurrentTrackMetaDataItemRes(BaseModel, extra="allow"):
 class TrackMetaDataItem(BaseModel, extra="allow"):
     """BaseModel for part of the DLNA payload."""
 
-    id: str
+    id: str  # noqa: A003
     song_subid: str | None = Field(None, alias="song:subid")
     song_description: str | None = Field(None, alias="song:description")
     song_skiplimit: str | None = Field(None, alias="song:skiplimit")
@@ -150,7 +150,7 @@ class LastChange(BaseModel, extra="allow"):
             ValueError: if more than just "Event" is in the payload
         """
         if not isinstance(payload, dict):
-            raise TypeError("Expected a dict")
+            raise TypeError(f"Expected a dict, got {type(payload)!r}")
 
         payload = payload.copy()
 
@@ -560,7 +560,9 @@ class YamahaYas209:
         Yas209Service.RC.service_id,
     )
 
-    LAST_CHANGE_PAYLOAD_PARSERS = {
+    LAST_CHANGE_PAYLOAD_PARSERS: ClassVar[
+        dict[str, Callable[[dict[Literal["Event"], object]], LastChange]]
+    ] = {
         Yas209Service.AVT.service_id: LastChangeAVTransport.parse,
         Yas209Service.RC.service_id: LastChangeRenderingControl.parse,
     }
@@ -574,7 +576,7 @@ class YamahaYas209:
         last_change: LastChange
         other_xml_payloads: dict[str, Any]
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         ip: str,
         *,
@@ -710,9 +712,8 @@ class YamahaYas209:
         if self.on_event is not None:
             self.on_event(event_payload)
 
-    # noinspection PyArgumentList
     @_needs_device
-    async def _subscribe(self) -> None:
+    async def _subscribe(self) -> None:  # noqa: PLR0912
         # pylint: disable=too-many-branches
         """Subscribe to service(s) and output updates."""
         # start notify server/event handler
@@ -762,12 +763,11 @@ class YamahaYas209:
                 await server.event_handler.async_subscribe(service)
                 self._active_service_ids.append(service.service_id)
                 LOGGER.info("Subscribed to %s", service.service_id)
-            except UpnpCommunicationError as exc:
+            except UpnpCommunicationError:
                 if self._logging:
                     LOGGER.exception(
-                        "Unable to subscribe to %s: %s",
+                        "Unable to subscribe to %s",
                         service.service_id,
-                        repr(exc),
                     )
                 failed_subscriptions.append(service)
 
@@ -869,7 +869,7 @@ class YamahaYas209:
         traverse_dict(
             xml_dict,
             target_type=str,
-            target_processor_func=lambda val, dict_key=None, list_index=None: parse_xml(
+            target_processor_func=lambda val, **_: parse_xml(  # type: ignore[arg-type]
                 pattern.sub("&amp;", val), attr_prefix="", cdata_key="text"
             ),
             single_keys_to_remove=["val", "DIDL-Lite"],
@@ -909,7 +909,7 @@ class YamahaYas209:
         """Go to the previous track."""
         self._call_service_action(Yas209Service.AVT, "Previous", InstanceID=0)
 
-    def set_state(self, value: Yas209State, local_only: bool = False) -> None:
+    def set_state(self, value: Yas209State, *, local_only: bool = False) -> None:
         """Set the state to the given value.
 
         Args:
@@ -938,7 +938,7 @@ class YamahaYas209:
         if self.on_state_update is not None:
             self.on_state_update(self._state.value)
 
-    def set_volume_level(self, value: float, local_only: bool = False) -> None:
+    def set_volume_level(self, value: float, *, local_only: bool = False) -> None:
         """Set the soundbar's volume level.
 
         Args:

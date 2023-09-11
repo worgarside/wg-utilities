@@ -43,7 +43,6 @@ repos:
           - --autofix
           - --indent
           - "2"
-        exclude: ^Pipfile\.lock$
       - id: requirements-txt-fixer
       - id: trailing-whitespace
 
@@ -51,10 +50,6 @@ repos:
     rev: 5.12.0
     hooks:
       - id: isort
-        name: isort (python)
-        args:
-          - -a
-          - from __future__ import annotations
 
   - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
     rev: 0.2.3

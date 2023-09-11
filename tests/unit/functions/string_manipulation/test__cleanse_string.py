@@ -4,14 +4,14 @@ from __future__ import annotations
 from json import dumps
 from re import sub
 
-from pytest import mark
+import pytest
 
 from tests.unit.functions import random_nested_json
 from wg_utilities.functions import cleanse_string
 
 
-@mark.parametrize(
-    "in_str,expected",
+@pytest.mark.parametrize(
+    ("in_str", "expected"),
     [
         ("   ", ""),
         ("@bcd3fgh!jk|MNØPQRST∪VWXYZ", "bcd3fghjkMNPQRSTVWXYZ"),  # noqa: RUF001
@@ -30,7 +30,7 @@ from wg_utilities.functions import cleanse_string
             "1234567890qwertyuiopasdfghjklzxcvbnm",
         ),
         (
-            "".join([chr(i) for i in range(0, 1000)]),
+            "".join([chr(i) for i in range(1000)]),
             "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
         ),
     ],
@@ -41,8 +41,8 @@ def test_varying_inputs(in_str: str, expected: str) -> None:
     assert cleanse_string(in_str) == expected
 
 
-@mark.parametrize(
-    "in_str,preserve_newlines,expected",
+@pytest.mark.parametrize(
+    ("in_str", "preserve_newlines", "expected"),
     [
         ("a\nb\nc\n", False, "abc"),
         ("a\nb\nc\n", True, "a\nb\nc\n"),
@@ -60,9 +60,9 @@ def test_newline_preservation(
     assert cleanse_string(in_str, preserve_newlines=preserve_newlines) == expected
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     # pylint: disable=unused-variable,undefined-variable
-    "in_str,whitespace_amount,expected",
+    ("in_str", "whitespace_amount", "expected"),
     [
         ("a b c", None, "abc"),
         ("a b c", 0, "a b c"),

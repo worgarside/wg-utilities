@@ -14,8 +14,8 @@ from typing import Any
 from unittest.mock import ANY, MagicMock, patch
 from urllib.parse import urlencode
 
+import pytest
 from freezegun import freeze_time
-from pytest import LogCaptureFixture, approx, mark, raises
 from requests import get
 from requests_mock import Mocker
 
@@ -69,7 +69,7 @@ def test_oauth_credentials_parse_first_time_login_attributes(
 
 def test_oauth_credentials_parse_first_time_login_expiry_mismatch() -> None:
     """Test that if `expiry` != the JWT token expiry, an error is raised."""
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         OAuthCredentials.parse_first_time_login(
             {
                 "client_id": "test_client_id",
@@ -96,12 +96,16 @@ def test_oauth_credentials_update_access_token(
     """Test the `update_access_token` method updates the access token."""
 
     assert oauth_client.access_token == fake_oauth_credentials.access_token
-    assert oauth_client.credentials.expiry_epoch == approx(int(time()) + 3600, abs=5)
+    assert oauth_client.credentials.expiry_epoch == pytest.approx(
+        int(time()) + 3600, abs=5
+    )
 
     oauth_client.credentials.update_access_token(
         "new_access_token", expires_in=7200, refresh_token="new_refresh_token"
     )
-    assert oauth_client.credentials.expiry_epoch == approx(int(time()) + 7200, abs=5)
+    assert oauth_client.credentials.expiry_epoch == pytest.approx(
+        int(time()) + 7200, abs=5
+    )
 
     assert oauth_client.access_token == "new_access_token"
     assert oauth_client.credentials.refresh_token == "new_refresh_token"
@@ -145,7 +149,8 @@ def test_instantiation(
     assert client.auth_link_base == "https://api.example.com/oauth2/authorize"
 
     assert client.DEFAULT_CACHE_DIR is None
-    assert not client.DEFAULT_PARAMS and isinstance(client.DEFAULT_PARAMS, dict)
+    assert not client.DEFAULT_PARAMS
+    assert isinstance(client.DEFAULT_PARAMS, dict)
 
 
 def test_load_local_credentials(
@@ -311,7 +316,7 @@ def test_run_time_first_login_validates_state_token(
     t = Thread(target=_worker)
     t.start()
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         oauth_client.run_first_time_login()
 
     t.join()
@@ -465,7 +470,7 @@ def test_creds_cache_path_raises_value_error_with_no_client_id(
     del oauth_client._credentials
     oauth_client._client_id = None
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         _ = oauth_client.creds_cache_path
 
     assert (
@@ -507,8 +512,9 @@ def test_creds_cache_path_with_env_var(
     oauth_client._creds_cache_path = None
     del oauth_client._credentials
 
-    assert oauth_client.DEFAULT_CACHE_DIR == str(
-        Path(__file__).parent / ".wg-utilities" / "oauth_credentials"
+    assert (
+        str(Path(__file__).parent / ".wg-utilities" / "oauth_credentials")
+        == oauth_client.DEFAULT_CACHE_DIR
     )
 
     assert oauth_client.creds_cache_path == (
@@ -556,13 +562,13 @@ def test_temp_auth_server_property(oauth_client: OAuthClient[dict[str, Any]]) ->
         mock_temp_auth_server.assert_not_called()
 
 
-@mark.parametrize(
-    "redirect_uri_override", (None, "https://some-proxy-site.com/path/to/stuff")
+@pytest.mark.parametrize(
+    "redirect_uri_override", [None, "https://some-proxy-site.com/path/to/stuff"]
 )
 @patch.object(
     OAuthClient,
     "HEADLESS_MODE",
-    True,
+    new=True,
 )
 @patch("wg_utilities.clients.oauth_client.ascii_letters", "x")
 @patch("wg_utilities.clients.oauth_client.open_browser")
@@ -657,14 +663,14 @@ def test_headless_mode_first_time_login(
 @patch.object(
     OAuthClient,
     "HEADLESS_MODE",
-    True,
+    new=True,
 )
 @patch("wg_utilities.clients.oauth_client.ascii_letters", "x")
 @patch("wg_utilities.clients.oauth_client.open_browser")
 def test_headless_mode_first_time_login_missing_callback(
     mock_open_browser: MagicMock,
     oauth_client: OAuthClient[dict[str, Any]],
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `run_first_time_login` logs the auth link with no callback."""
 
@@ -707,7 +713,7 @@ def test_use_existing_credentials_only(
 
     oauth_client.use_existing_credentials_only = True
 
-    with raises(
+    with pytest.raises(
         RuntimeError,
         match="^No existing credentials found, and `use_existing_credentials_only` is "
         "set to True$",

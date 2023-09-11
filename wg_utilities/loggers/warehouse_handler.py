@@ -96,7 +96,7 @@ class _PyscriptTaskExecutorProtocol(Protocol[T]):
 
 
 class HttpErrorHandler:
-    def __init__(self, allow_connection_errors: bool):
+    def __init__(self, *, allow_connection_errors: bool):
         self._allow_connection_errors = allow_connection_errors
 
     def __enter__(self) -> HttpErrorHandler:
@@ -160,7 +160,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
 
     WAREHOUSE_ENDPOINT: Final = "/warehouses/lumberyard"
 
-    _WAREHOUSE_SCHEMA: WarehouseSchema = {
+    _WAREHOUSE_SCHEMA: Final[WarehouseSchema] = {
         "name": WAREHOUSE_NAME,
         "item_name": ITEM_NAME,
         "item_schema": {
@@ -275,8 +275,8 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         except (
             ConnectionError,
             RequestException,
-        ) as exc:
-            LOGGER.exception("Error creating Warehouse: %r", exc)
+        ):
+            LOGGER.exception("Error creating Warehouse")
 
             if not self._allow_connection_errors:
                 raise
@@ -362,7 +362,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
             )
             return None
 
-        with http_error_handler(self._allow_connection_errors):
+        with http_error_handler(allow_connection_errors=self._allow_connection_errors):
             return self.post_json_response(
                 url,
                 params=params,
@@ -383,7 +383,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         ):
             raise NotImplementedError("Pyscript task executor is not defined")
 
-        with http_error_handler(self._allow_connection_errors):
+        with http_error_handler(allow_connection_errors=self._allow_connection_errors):
             await self._pyscript_task_executor(func, *args, **kwargs)
 
     def _run_pyscript_task_executor(
@@ -432,7 +432,7 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
         Returns:
             str: the hexdigest of the hash
         """
-        return md5(record.getMessage().encode()).hexdigest()
+        return md5(record.getMessage().encode(), usedforsecurity=False).hexdigest()
 
 
 def add_warehouse_handler(

@@ -1,6 +1,7 @@
 """Unit tests for `wg_utilities.clients.google_calendar.GoogleCalendarEntity`."""
 from __future__ import annotations
 
+from copy import deepcopy
 from json import loads
 from pathlib import Path
 
@@ -69,9 +70,6 @@ def test_eq(google_calendar_client: GoogleCalendarClient) -> None:
         google_client=google_calendar_client,
     )
 
-    assert (
-        google_calendar_entity  # pylint: disable=comparison-with-itself
-        == google_calendar_entity
-    )
+    assert google_calendar_entity == deepcopy(google_calendar_entity)
     assert google_calendar_entity != other_google_calendar_entity
     assert google_calendar_entity != "something else"

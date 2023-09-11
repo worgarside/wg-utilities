@@ -8,7 +8,7 @@ from logging import CRITICAL, DEBUG, ERROR, FATAL, INFO, NOTSET, WARN, WARNING, 
 from socket import gethostname
 from typing import Any
 
-from pytest import LogCaptureFixture, mark
+import pytest
 from requests_mock import Mocker
 
 from tests.unit.loggers.conftest import WAREHOUSE_SCHEMA
@@ -39,7 +39,7 @@ def test_handler_is_applied_to_logger_correctly(logger: Logger) -> None:
 
     assert isinstance(wh_handler, WarehouseHandler)
 
-    assert wh_handler.HOST_NAME == gethostname()
+    assert gethostname() == wh_handler.HOST_NAME
     assert wh_handler.ITEM_NAME == "log"
     assert wh_handler.WAREHOUSE_NAME == "lumberyard"
     assert wh_handler.WAREHOUSE_ENDPOINT == "/warehouses/lumberyard"
@@ -47,7 +47,7 @@ def test_handler_is_applied_to_logger_correctly(logger: Logger) -> None:
     assert wh_handler._pyscript_task_executor is _pyscript_task_executor  # type: ignore[comparison-overlap]
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "level",
     [
         CRITICAL,
@@ -76,7 +76,7 @@ def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
 
 
 def test_handler_only_added_once(
-    logger: Logger, caplog: LogCaptureFixture, mock_requests: Mocker
+    logger: Logger, caplog: pytest.LogCaptureFixture, mock_requests: Mocker
 ) -> None:
     """Test that a WarehouseHandler can only be added to a Logger once."""
 

@@ -1,3 +1,4 @@
+# ruff: noqa
 """Config for the EPD.
 
 * | File        :	  epdconfig.py
@@ -181,7 +182,7 @@ except (RuntimeError, ImportError):
 
     for method in dir(RaspberryPi):
         if not method.startswith("_"):
-            setattr(FakeImplementation, method, lambda *a, **k: None)
+            setattr(FakeImplementation, method, lambda *_, **__: None)
 
     implementation = FakeImplementation()
 

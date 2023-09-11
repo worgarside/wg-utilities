@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from logging import INFO, getLogger
 
-from pytest import FixtureRequest
+import pytest
 
 from wg_utilities.loggers import add_stream_handler
 
@@ -13,7 +13,7 @@ _LOGGER.setLevel(INFO)
 add_stream_handler(_LOGGER)
 
 
-def test_randomly_seed(request: FixtureRequest) -> None:
+def test_randomly_seed(request: pytest.FixtureRequest) -> None:
     """Ensure the randomly seed is always logged."""
 
     _LOGGER.info("Randomly seed: %s", request.config.getoption("--randomly-seed"))

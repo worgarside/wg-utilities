@@ -1,12 +1,11 @@
 """Unit Tests for the `flatten_dict` function."""
 from __future__ import annotations
 
-from json import load
+from json import loads
 from os import listdir
-from os.path import isfile
 from pathlib import Path
 
-from pytest import mark
+import pytest
 
 from wg_utilities.functions import flatten_dict
 
@@ -59,21 +58,22 @@ for _file in listdir(_json_dir := Path(__file__).parents[2] / "flat_files" / "js
     if _file.endswith("_flattened.json"):
         continue
 
-    if _file.endswith(".json") and isfile(
-        _flattened_path := _json_dir / _file.replace(".json", "_flattened.json")
+    if (
+        _file.endswith(".json")
+        and (
+            _flattened_path := _json_dir / _file.replace(".json", "_flattened.json")
+        ).is_file()
     ):
-        with open(_json_dir / _file, encoding="utf-8") as fin:
-            _original_payload = load(fin)
+        _original_payload = loads((_json_dir / _file).read_text(encoding="utf-8"))
 
         # I used this JSFiddle to create the flat JSON: https://jsfiddle.net/S2hsS
-        with open(_flattened_path, encoding="utf-8") as _fin:
-            _flattened_payload = load(_fin)
+        _flattened_payload = loads(_flattened_path.read_text())
 
         INPUT_OUTPUT_COMBOS.append((_original_payload, _flattened_payload))
 
 
-@mark.parametrize(
-    "user_input,want",
+@pytest.mark.parametrize(
+    ("user_input", "want"),
     INPUT_OUTPUT_COMBOS,
 )
 def test_flatten_dict_with_varying_input_dicts(
@@ -84,8 +84,8 @@ def test_flatten_dict_with_varying_input_dicts(
     assert flatten_dict(user_input) == want
 
 
-@mark.parametrize(
-    "user_input,want",
+@pytest.mark.parametrize(
+    ("user_input", "want"),
     INPUT_OUTPUT_COMBOS,
 )
 def test_flatten_dict_uses_correct_join_char(
@@ -101,8 +101,8 @@ def test_flatten_dict_uses_correct_join_char(
     assert flatten_dict(user_input, join_char="-") == want_with_join_char
 
 
-@mark.parametrize(
-    "user_input,want",
+@pytest.mark.parametrize(
+    ("user_input", "want"),
     [
         ({}, {}),
         (
@@ -175,8 +175,8 @@ def test_exclude_keys_with_exact_keys_false(
     assert flatten_dict(user_input, exclude_keys=["two"], exact_keys=False) == want
 
 
-@mark.parametrize(
-    "user_input,want",
+@pytest.mark.parametrize(
+    ("user_input", "want"),
     [
         ({}, {}),
         (

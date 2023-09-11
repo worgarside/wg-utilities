@@ -62,6 +62,7 @@ class TempAuthServer:
         name: str,
         host: str = "localhost",
         port: int = 0,
+        *,
         debug: bool = False,
         auto_run: bool = False,
     ):
@@ -124,7 +125,7 @@ class TempAuthServer:
             )
 
     def wait_for_request(
-        self, endpoint: str, max_wait: int = 300, kill_on_request: bool = False
+        self, endpoint: str, max_wait: int = 300, *, kill_on_request: bool = False
     ) -> dict[str, Any]:
         """Wait for a request.
 

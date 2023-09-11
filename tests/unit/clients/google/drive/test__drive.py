@@ -8,7 +8,7 @@ from random import choice
 from typing import Any
 from unittest.mock import Mock, call, patch
 
-from pytest import mark, param, raises
+import pytest
 
 from tests.conftest import read_json_file
 from wg_utilities.clients import GoogleDriveClient
@@ -22,17 +22,17 @@ from wg_utilities.clients.google_drive import (
 )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "drive_json",
-    (
-        param(
+    [
+        pytest.param(
             read_json_file(
                 "v3/files/root/fields=%2a.json",
                 host_name="google/drive",
             ),
             id="My Drive",
         ),
-        param(
+        pytest.param(
             read_json_file(  # type: ignore[index]
                 "v3/drives/pagesize=50&fields=%2a.json",
                 host_name="google/drive",
@@ -41,7 +41,7 @@ from wg_utilities.clients.google_drive import (
             ],
             id="Shared Drive 1",
         ),
-        param(
+        pytest.param(
             read_json_file(  # type: ignore[index]
                 "v3/drives/pagesize=50&fields=%2a.json",
                 host_name="google/drive",
@@ -50,7 +50,7 @@ from wg_utilities.clients.google_drive import (
             ],
             id="Shared Drive 2",
         ),
-    ),
+    ],
 )
 def test_from_json_response(
     drive_json: Mapping[str, Any], google_drive_client: GoogleDriveClient
@@ -92,7 +92,7 @@ def test_kind_validation(google_drive_client: GoogleDriveClient) -> None:
 
     drive_json["kind"] = EntityKind.USER
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         Drive.from_json_response(
             drive_json,
             google_client=google_drive_client,
@@ -104,9 +104,9 @@ def test_kind_validation(google_drive_client: GoogleDriveClient) -> None:
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("cls", "entity_id", "expected_path"),
-    (
+    [
         (
             File,
             "1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B",
@@ -117,7 +117,7 @@ def test_kind_validation(google_drive_client: GoogleDriveClient) -> None:
             "3yz1SpGR2YtgnocrGzphb-qkKTfU4htSx",
             "/My Drive/Archives/Old Documents",
         ),
-    ),
+    ],
 )
 def test_get_entity_by_id(
     drive: Drive, cls: type[File | Directory], entity_id: str, expected_path: str
@@ -366,7 +366,7 @@ def test_map_directories_already_mapped(drive: Drive) -> None:
     mock_get_items.assert_not_called()
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     (
         "term",
         "entity_type",
@@ -375,7 +375,7 @@ def test_map_directories_already_mapped(drive: Drive) -> None:
         "created_range",
         "expected_params",
     ),
-    (
+    [
         (
             "test",
             EntityType.FILE,
@@ -477,7 +477,7 @@ def test_map_directories_already_mapped(drive: Drive) -> None:
                 " createdTime <= '2020-01-02T00:00:00'",
             },
         ),
-    ),
+    ],
 )
 def test_search(
     drive: Drive,
@@ -516,7 +516,7 @@ def test_search(
 def test_search_invalid_entity_type(drive: Drive) -> None:
     """Test the `search` method with an invalid entity type."""
 
-    with raises(
+    with pytest.raises(
         ValueError,
         match="`entity_type` must be either EntityType.FILE or EntityType.DIRECTORY,"
         " or None to search for both",
