@@ -200,6 +200,9 @@ def test_emit(level: int, message: str, logger: Logger) -> None:
 
     expected_log_payload = {
         "created_at": ANY,
+        "exception_message": None,
+        "exception_type": None,
+        "exception_traceback": None,
         "file": __file__,
         "level": level,
         "line": ANY,
@@ -412,6 +415,9 @@ def test_pyscript_task_executor(
             timeout=5,
             json={
                 "created_at": 1609459200.0,
+                "exception_message": None,
+                "exception_type": None,
+                "exception_traceback": None,
                 "file": __file__,
                 "level": 10,
                 "line": ANY,
@@ -435,6 +441,9 @@ def test_pyscript_task_executor(
             timeout=5,
             json={
                 "created_at": 1609459200.0,
+                "exception_message": None,
+                "exception_type": None,
+                "exception_traceback": None,
                 "file": __file__,
                 "level": 20,
                 "line": ANY,
@@ -458,6 +467,9 @@ def test_pyscript_task_executor(
             timeout=5,
             json={
                 "created_at": 1609459200.0,
+                "exception_message": None,
+                "exception_type": None,
+                "exception_traceback": None,
                 "file": __file__,
                 "level": 30,
                 "line": ANY,
@@ -481,6 +493,9 @@ def test_pyscript_task_executor(
             timeout=5,
             json={
                 "created_at": 1609459200.0,
+                "exception_message": None,
+                "exception_type": None,
+                "exception_traceback": None,
                 "file": __file__,
                 "level": 40,
                 "line": ANY,
@@ -504,6 +519,9 @@ def test_pyscript_task_executor(
             timeout=5,
             json={
                 "created_at": 1609459200.0,
+                "exception_message": None,
+                "exception_type": None,
+                "exception_traceback": None,
                 "file": __file__,
                 "level": 50,
                 "line": ANY,
@@ -578,6 +596,9 @@ async def test_emit_inside_event_loop(
 
     json_payload = {
         "created_at": ANY,
+        "exception_message": None,
+        "exception_type": None,
+        "exception_traceback": None,
         "file": __file__,
         "level": ERROR,
         "line": ANY,
