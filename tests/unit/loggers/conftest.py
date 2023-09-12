@@ -120,7 +120,7 @@ WAREHOUSE_SCHEMA = {
     "created_at": "2023-07-26T17:56:26.951515",
     "item_name": "log",
     "item_schema": {
-        "created_at": {"nullable": False, "type": "float", "display_as": "datetime"},
+        "created_at": {"nullable": False, "type": "double", "display_as": "datetime"},
         "exception_message": {
             "nullable": True,
             "type_kwargs": {"length": 2048},
