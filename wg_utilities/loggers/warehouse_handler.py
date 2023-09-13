@@ -158,13 +158,16 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
     ITEM_NAME: Final = "log"
     WAREHOUSE_NAME: Final = "lumberyard"
 
-    WAREHOUSE_ENDPOINT: Final = "/warehouses/lumberyard"
+    WAREHOUSE_ENDPOINT: Final = f"/warehouses/{WAREHOUSE_NAME}"
 
     _WAREHOUSE_SCHEMA: Final[WarehouseSchema] = {
         "name": WAREHOUSE_NAME,
         "item_name": ITEM_NAME,
         "item_schema": {
-            "created_at": {"nullable": False, "type": "float"},
+            "created_at": {
+                "nullable": False,
+                "type": "double",
+            },
             "exception_message": {
                 "nullable": True,
                 "type": "string",
@@ -310,6 +313,9 @@ class WarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPage]):
 
         log_payload = {
             "created_at": record.created,
+            "exception_message": None,
+            "exception_type": None,
+            "exception_traceback": None,
             "file": record.pathname,
             "level": record.levelno,
             "line": record.lineno,
