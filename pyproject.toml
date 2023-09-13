@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wg-utilities"
-version = "4.1.1"
+version = "4.1.2"
 description = "Loads of useful stuff for the things I do :)"
 
 authors = ["Will Garside <worgarside@gmail.com>"]
@@ -22,7 +22,6 @@ python = "^3.11"
 async-upnp-client = { version = "*", optional = true }
 botocore = { version = "*", optional = true }
 flask = { version = ">=2.0.2", optional = true }
-"jetson.gpio" = { version = "*", platform = "linux", optional = true }
 lxml = { version = "==4.9.3", optional = true }
 pigpio = { version = "*", optional = true }
 pillow = { version = "*", optional = true }
