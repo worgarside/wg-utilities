@@ -74,7 +74,7 @@ def on_exception(
     _suppress_ignorant_warnings: bool | None = None,
 ) -> Callable[[Any], Any]:
     # pylint: disable=useless-type-doc,useless-param-doc
-    """Parameterize the inner decorator with a decorator factory.
+    """Allow simple cover-all exception handler callback behaviour.
 
     Args:
         exception_callback (Callable): callback function to process the exception

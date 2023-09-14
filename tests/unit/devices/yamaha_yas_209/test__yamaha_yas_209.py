@@ -65,6 +65,7 @@ FRESH_SUBSCRIPTION_CALL = RequestCall(
         },
         "data": None,
         "allow_redirects": True,
+        "timeout": 5,
     },
 )
 RESUBSCRIPTION_CALL_AV = RequestCall(
@@ -77,6 +78,7 @@ RESUBSCRIPTION_CALL_AV = RequestCall(
         },
         "data": None,
         "allow_redirects": True,
+        "timeout": 5,
     },
 )
 
@@ -90,6 +92,7 @@ RESUBSCRIPTION_CALL_RC = RequestCall(
         },
         "data": None,
         "allow_redirects": True,
+        "timeout": 5,
     },
 )
 
@@ -187,6 +190,7 @@ def assert_only_post_request_is(
                 # pylint: disable=line-too-long
                 "data": """<?xml version="1.0"?><s:Envelope s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><u:GetMediaInfo xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID></u:GetMediaInfo></s:Body></s:Envelope>""",  # noqa: E501
                 "allow_redirects": True,
+                "timeout": 5,
             },
         )
     ]

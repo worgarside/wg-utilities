@@ -119,7 +119,6 @@ class MockBoto3Client:
                     traverse_dict(
                         mocked_operation,
                         target_type=Callable,  # type: ignore[arg-type]
-                        # pylint: disable=line-too-long
                         target_processor_func=lambda value, **_: value(**kwargs),
                         pass_on_fail=False,
                     )

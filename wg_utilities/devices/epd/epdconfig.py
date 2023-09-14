@@ -39,7 +39,7 @@ from typing import Literal
 
 
 # noinspection PyMissingOrEmptyDocstring
-class RaspberryPi:  # noqa: D101
+class RaspberryPi:
     # Pin definition
     RST_PIN = 17
     DC_PIN = 25
@@ -57,21 +57,21 @@ class RaspberryPi:  # noqa: D101
         # SPI device, bus = 0, device = 0
         self.spi = SpiDev(0, 0)
 
-    def digital_write(self, pin: int, value: bool) -> None:  # noqa: D102
+    def digital_write(self, pin: int, value: bool) -> None:
         self.gpio.output(pin, value)
 
-    def digital_read(self, pin: int) -> bool:  # noqa: D102
+    def digital_read(self, pin: int) -> bool:
         return self.gpio.input(pin)  # type: ignore[no-any-return]
 
     @staticmethod
-    def delay_ms(delay_time: float | int) -> None:  # noqa: D102
+    def delay_ms(delay_time: float | int) -> None:
         sleep(delay_time / 1000.0)
 
-    def spi_writebyte(self, data: list[int]) -> None:  # noqa: D102
+    def spi_writebyte(self, data: list[int]) -> None:
         self.spi.writebytes(data)
 
     # noinspection DuplicatedCode
-    def module_init(self) -> Literal[0]:  # noqa: D102
+    def module_init(self) -> Literal[0]:
         self.gpio.setmode(self.gpio.BCM)
         self.gpio.setwarnings(False)
         self.gpio.setup(self.RST_PIN, self.gpio.OUT)
@@ -82,7 +82,7 @@ class RaspberryPi:  # noqa: D101
         self.spi.mode = 0b00
         return 0
 
-    def module_exit(self) -> None:  # noqa: D102
+    def module_exit(self) -> None:
         debug("spi end")
         self.spi.close()
 
