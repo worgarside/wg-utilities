@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from pydantic import ValidationError
 
+from tests.conftest import TestError
 from wg_utilities.functions import backoff
 
 
@@ -151,3 +152,39 @@ def test_transient_failure() -> None:
     assert call_count == 3
 
     assert function_succeeded
+
+
+def test_logger() -> None:
+    """Test that the logger is called correctly."""
+
+    call_count = 0
+
+    logger = MagicMock()
+
+    @backoff(TestError, max_tries=5, max_delay=30, logger=logger)
+    def test_func() -> None:
+        """Test function."""
+
+        nonlocal call_count
+
+        call_count += 1
+
+        raise TestError
+
+    with pytest.raises(TestError):
+        test_func()
+
+    assert call_count == 5
+
+    assert logger.warning.call_count == 5
+    for i, call in enumerate(logger.warning.call_args_list):
+        *rest, exc = call[0]
+
+        assert rest == [
+            "Exception caught in backoff decorator (attempt %i/%i): %s %s",
+            i,
+            5,
+            "TestError",
+        ]
+
+        assert isinstance(exc, TestError)
