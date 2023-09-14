@@ -88,7 +88,6 @@ repos:
       - id: mypy
         args:
           - --strict
-          - --show-error-codes
         additional_dependencies:
           - types-requests
           - boto3-stubs
