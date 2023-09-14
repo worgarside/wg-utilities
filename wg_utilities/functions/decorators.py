@@ -69,12 +69,14 @@ def backoff(
                 except exceptions as exc:  # pylint: disable=broad-except
                     if logger is not None:
                         logger.warning(
-                            "Exception caught in backoff decorator: %s %s",
+                            "Exception caught in backoff decorator (attempt %i/%i): %s %s",
+                            tries,
+                            max_tries,
                             type(exc).__name__,
                             exc,
                         )
-
                     tries += 1
+
                     if tries >= max_tries:
                         raise
 
