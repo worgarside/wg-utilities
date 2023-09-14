@@ -80,7 +80,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: matrix.python-version == env.LTS_PYTHON_VERSION
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           flags: unittests
           fail_ci_if_error: true
