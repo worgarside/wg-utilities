@@ -140,6 +140,10 @@ markers = [
 exclude_lines = ["pragma: no cover", "def __repr__", "def __str__", "@overload"]
 
 [tool.coverage.run]
+omit = [
+    "wg_utilities/devices/epd/*",
+    "wg_utilities/devices/dht22/*"
+]
 relative_files = true
 
 [tool.mypy]
