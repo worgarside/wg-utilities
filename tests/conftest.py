@@ -279,7 +279,9 @@ def get_flat_file_from_url(
         if "pagetoken" in request.qs and len(request.qs["pagetoken"]) == 1:
             file_path = file_path.replace(
                 quote(request.qs["pagetoken"][0]).lower(),
-                md5(request.qs["pagetoken"][0].encode()).hexdigest(),
+                md5(
+                    request.qs["pagetoken"][0].encode(), usedforsecurity=False
+                ).hexdigest(),
             )
             return read_json_file(file_path, host_name=host_name)
         raise  # pragma: no cover

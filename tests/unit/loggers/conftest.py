@@ -1,6 +1,8 @@
 """Unit test fixtures for the loggers module."""
 from __future__ import annotations
 
+from collections.abc import Callable
+from datetime import UTC, datetime
 from http import HTTPStatus
 from logging import (
     CRITICAL,
@@ -13,14 +15,19 @@ from logging import (
     getLevelName,
     getLogger,
 )
+from typing import Any
 
 import pytest
+from freezegun import freeze_time
 from requests_mock import ANY as REQUESTS_MOCK_ANY
 from requests_mock import Mocker
 
 from tests.conftest import YieldFixture
-from wg_utilities.loggers import ListHandler
-from wg_utilities.loggers.warehouse_handler import WarehouseHandler
+from wg_utilities.loggers import ListHandler, WarehouseHandler
+from wg_utilities.loggers.item_warehouse.pyscript_warehouse_handler import (
+    PyscriptWarehouseHandler,
+    _PyscriptTaskExecutorProtocol,
+)
 
 
 @pytest.fixture(name="list_handler")
@@ -52,6 +59,7 @@ def logger_(
     request: pytest.FixtureRequest,
     warehouse_handler: WarehouseHandler,
     list_handler: ListHandler,
+    pyscript_warehouse_handler: PyscriptWarehouseHandler,
 ) -> YieldFixture[Logger]:
     """Fixture for creating a logger."""
 
@@ -63,6 +71,7 @@ def logger_(
         handlers = {
             "list_handler": list_handler,
             "warehouse_handler": warehouse_handler,
+            "pyscript_warehouse_handler": pyscript_warehouse_handler,
         }
 
         for handler_name in handler_marker.args:
@@ -95,18 +104,19 @@ SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL = [
     for i, level in enumerate(LOG_LEVELS * 5)
 ]
 
-SAMPLE_LOG_RECORDS = [
-    LogRecord(
-        name="test",
-        level=record[0],
-        pathname="test",
-        lineno=1,
-        msg=record[1],
-        args=(),
-        exc_info=None,
-    )
-    for record in SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL
-]
+with freeze_time(datetime.fromtimestamp(0, tz=UTC)):
+    SAMPLE_LOG_RECORDS = [
+        LogRecord(
+            name="test",
+            level=record[0],
+            pathname="test",
+            lineno=1,
+            msg=record[1],
+            args=(),
+            exc_info=None,
+        )
+        for record in SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL
+    ]
 
 
 @pytest.fixture(name="sample_log_record_messages_with_level")
@@ -196,6 +206,27 @@ WAREHOUSE_SCHEMA = {
     },
 }
 
+IWH_DOT_COM = "https://item-warehouse.com"
+
+
+@pytest.fixture(name="pyscript_warehouse_handler")
+def pyscript_warehouse_handler_(
+    mock_requests: Mocker, pyscript_task_executor: _PyscriptTaskExecutorProtocol[Any]
+) -> YieldFixture[PyscriptWarehouseHandler]:
+    """Fixture for creating a PyscriptWarehouseHandler instance."""
+
+    _pyscript_warehouse_handler = PyscriptWarehouseHandler(
+        level="DEBUG",
+        warehouse_host=IWH_DOT_COM,
+        warehouse_port=0,
+        pyscript_task_executor=pyscript_task_executor,
+    )
+    mock_requests.reset_mock()
+
+    yield _pyscript_warehouse_handler
+
+    _pyscript_warehouse_handler.close()
+
 
 @pytest.fixture(name="warehouse_handler")
 def warehouse_handler_(
@@ -204,7 +235,7 @@ def warehouse_handler_(
     """Fixture for creating a WarehouseHandler instance."""
 
     _warehouse_handler = WarehouseHandler(
-        level="DEBUG", warehouse_host="https://item-warehouse.com", warehouse_port=None
+        level="DEBUG", warehouse_host=IWH_DOT_COM, warehouse_port=0
     )
     mock_requests.reset_mock()
 
@@ -221,7 +252,7 @@ def mock_requests_(
 
     lumberyard_url = "/".join(
         [
-            "https://item-warehouse.com",
+            IWH_DOT_COM,
             "v1",
             "warehouses",
             "lumberyard",
@@ -267,3 +298,15 @@ def mock_requests_(
     )
 
     return mock_requests_root
+
+
+@pytest.fixture(name="pyscript_task_executor")
+def pyscript_task_executor_() -> _PyscriptTaskExecutorProtocol[Any]:
+    """Fixture for returning a homemade-mock task.executor instance."""
+
+    async def _pyscript_task_executor(
+        func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> Any:
+        return func(*args, **kwargs)
+
+    return _pyscript_task_executor

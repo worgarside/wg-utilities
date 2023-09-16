@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wg-utilities"
-version = "4.1.2"
+version = "5.0.0"
 description = "Loads of useful stuff for the things I do :)"
 
 authors = ["Will Garside <worgarside@gmail.com>"]
@@ -140,12 +140,16 @@ markers = [
 exclude_lines = ["pragma: no cover", "def __repr__", "def __str__", "@overload"]
 
 [tool.coverage.run]
+omit = [
+    "wg_utilities/devices/epd/*",
+    "wg_utilities/devices/dht22/*"
+]
 relative_files = true
 
 [tool.mypy]
 exclude = ["_local_sandbox"]
 plugins = 'pydantic.mypy'
-follow_imports = "silent"
+follow_imports = "normal"
 disallow_any_generics = true
 disallow_subclassing_any = true
 disallow_untyped_calls = true
