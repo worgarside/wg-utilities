@@ -308,12 +308,3 @@ def pyscript_task_executor_() -> _PyscriptTaskExecutorProtocol[Any]:
         return func(*args, **kwargs)
 
     return _pyscript_task_executor
-
-
-def null_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Decorator that returns the function it decorates."""
-
-    def _null_decorator(*args: Any, **kwargs: Any) -> Any:
-        return func(*args, **kwargs)
-
-    return _null_decorator
