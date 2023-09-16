@@ -178,9 +178,7 @@ def test_emit(level: int, message: str, logger: Logger, record: LogRecord) -> No
         "file": __file__,
         "level": level,
         "line": ANY,
-        "log_hash": md5(
-            message.encode(),
-        ).hexdigest(),
+        "log_hash": md5(message.encode(), usedforsecurity=False).hexdigest(),
         "log_host": gethostname(),
         "logger": logger.name,
         "message": message,
