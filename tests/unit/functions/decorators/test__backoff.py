@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 import pytest
 from pydantic import ValidationError
@@ -181,9 +181,10 @@ def test_logger() -> None:
         *rest, exc = call[0]
 
         assert rest == [
-            "Exception caught in backoff decorator (attempt %i/%i): %s %s",
+            "Exception caught in backoff decorator (attempt %i/%i, waiting for %fs): %s %s",
             i,
             5,
+            ANY,
             "TestError",
         ]
 
