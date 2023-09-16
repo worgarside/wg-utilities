@@ -97,7 +97,7 @@ def test_get_base_url(host: str | None, port: int | None, expected_url: str) -> 
 
 
 _STANDARD_SAMPLE_LOG_RECORD_KWARGS = {
-    "created_at": 3600,
+    "created_at": 0,
     "exception_message": None,
     "exception_type": None,
     "exception_traceback": None,

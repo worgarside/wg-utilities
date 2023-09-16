@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from datetime import datetime
+from datetime import UTC, datetime
 from http import HTTPStatus
 from logging import (
     CRITICAL,
@@ -104,7 +104,7 @@ SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL = [
     for i, level in enumerate(LOG_LEVELS * 5)
 ]
 
-with freeze_time(datetime.fromtimestamp(0)):
+with freeze_time(datetime.fromtimestamp(0, tz=UTC)):
     SAMPLE_LOG_RECORDS = [
         LogRecord(
             name="test",
