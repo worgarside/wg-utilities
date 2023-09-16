@@ -15,7 +15,9 @@ from requests import HTTPError, post
 from requests.exceptions import RequestException
 
 from wg_utilities.functions.decorators import backoff
-from wg_utilities.loggers.flushable_queue_listener import FlushableQueueListener
+from wg_utilities.loggers.item_warehouse.flushable_queue_listener import (
+    FlushableQueueListener,
+)
 
 from .base_handler import BaseWarehouseHandler, LogPayload, WarehouseSchema
 

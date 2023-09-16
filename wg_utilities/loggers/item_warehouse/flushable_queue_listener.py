@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+from logging import getLogger
 from logging.handlers import QueueListener
 from multiprocessing import Queue
 from time import sleep, time
 from typing import Any
+
+LOGGER = getLogger(__name__)
 
 
 class FlushableQueueListener(QueueListener):
@@ -26,6 +29,9 @@ class FlushableQueueListener(QueueListener):
             sleep(1)
 
             if 0 < timeout < time() - start_time:
+                LOGGER.warning(
+                    "QueueListener failed to flush after %s seconds", timeout
+                )
                 break
 
         self.stop()
