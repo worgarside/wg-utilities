@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit Tests for the `add_pyscript_warehouse_handler` function."""
 from __future__ import annotations
 
@@ -10,7 +9,7 @@ from typing import Any
 import pytest
 from requests_mock import Mocker
 
-from tests.unit.loggers.conftest import WAREHOUSE_SCHEMA
+from tests.unit.loggers.conftest import IWH_DOT_COM, WAREHOUSE_SCHEMA
 from wg_utilities.loggers import (
     PyscriptWarehouseHandler,
     add_pyscript_warehouse_handler,
@@ -27,7 +26,7 @@ def test_handler_is_applied_to_logger_correctly(
 
     add_pyscript_warehouse_handler(
         logger,
-        warehouse_host="https://item-warehouse.com",
+        warehouse_host=IWH_DOT_COM,
         warehouse_port=0,
         pyscript_task_executor=pyscript_task_executor,
     )
@@ -67,7 +66,7 @@ def test_log_level_is_set_correctly(
     add_pyscript_warehouse_handler(
         logger,
         level=level,
-        warehouse_host="https://item-warehouse.com",
+        warehouse_host=IWH_DOT_COM,
         pyscript_task_executor=pyscript_task_executor,
     )
 
@@ -93,7 +92,7 @@ def test_handler_only_added_once(
 
     pwh_handler = add_pyscript_warehouse_handler(
         logger,
-        warehouse_host="https://item-warehouse.com",
+        warehouse_host=IWH_DOT_COM,
         pyscript_task_executor=pyscript_task_executor,
     )
 
@@ -102,7 +101,7 @@ def test_handler_only_added_once(
     assert (
         add_pyscript_warehouse_handler(
             logger,
-            warehouse_host="https://item-warehouse.com",
+            warehouse_host=IWH_DOT_COM,
             pyscript_task_executor=pyscript_task_executor,
         )
         == pwh_handler
@@ -112,7 +111,7 @@ def test_handler_only_added_once(
         assert (
             add_pyscript_warehouse_handler(
                 logger,
-                warehouse_host="https://item-warehouse.com",
+                warehouse_host=IWH_DOT_COM,
                 level=level,
                 pyscript_task_executor=pyscript_task_executor,
             )

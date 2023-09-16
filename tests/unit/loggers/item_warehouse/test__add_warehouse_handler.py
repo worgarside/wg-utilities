@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
+from tests.unit.loggers.conftest import IWH_DOT_COM
 from wg_utilities.loggers import WarehouseHandler, add_warehouse_handler
 from wg_utilities.loggers.item_warehouse.warehouse_handler import LOG_QUEUE
 
@@ -17,9 +18,7 @@ def test_vanilla_handler_is_applied_to_logger_correctly(
 ) -> None:
     """Test that the handler is applied to the logger correctly."""
 
-    add_warehouse_handler(
-        logger, warehouse_host="https://item-warehouse.com", disable_queue=True
-    )
+    add_warehouse_handler(logger, warehouse_host=IWH_DOT_COM, disable_queue=True)
 
     assert len(logger.handlers) == 1
 
@@ -44,7 +43,7 @@ def test_queue_handler_is_applied_to_logger_correctly(
         "wg_utilities.loggers.item_warehouse.warehouse_handler.atexit"
     ) as mock_atexit:
         wh_handler = add_warehouse_handler(
-            logger, warehouse_host="https://item-warehouse.com", level=WARNING
+            logger, warehouse_host=IWH_DOT_COM, level=WARNING
         )
 
     assert len(logger.handlers) == 1
@@ -90,7 +89,7 @@ def test_log_level_is_set_correctly(
     add_warehouse_handler(
         logger,
         level=level,
-        warehouse_host="https://item-warehouse.com",
+        warehouse_host=IWH_DOT_COM,
         disable_queue=disable_queue,
     )
 

@@ -18,7 +18,10 @@ from freezegun import freeze_time
 from requests_mock import Mocker
 
 from tests.conftest import assert_mock_requests_request_history
-from tests.unit.loggers.conftest import SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL
+from tests.unit.loggers.conftest import (
+    IWH_DOT_COM,
+    SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL,
+)
 from wg_utilities.loggers import PyscriptWarehouseHandler
 from wg_utilities.loggers.item_warehouse.pyscript_warehouse_handler import (
     _PyscriptTaskExecutorProtocol,
@@ -56,7 +59,7 @@ def test_emit(level: int, message: str, logger: Logger) -> None:
 
     mock_run_pyscript_task_executor.assert_called_once_with(
         logger.handlers[0].post_json_response,  # type: ignore[attr-defined]
-        "/warehouses/lumberyard/items",
+        PyscriptWarehouseHandler.ITEM_ENDPOINT,
         timeout=5,
         json=mock_get_log_payload.return_value,
     )
@@ -96,7 +99,7 @@ def test_emit_http_error(
     caplog.set_level(ERROR)
 
     mock_requests.post(
-        "https://item-warehouse.com/v1/warehouses/lumberyard/items",
+        f"{IWH_DOT_COM}/v1/warehouses/lumberyard/items",
         status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
         reason=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
     )
@@ -105,7 +108,8 @@ def test_emit_http_error(
 
     assert (
         caplog.records[0].message
-        == "Error logging to Item Warehouse: HTTPError('500 Server Error: Internal Server Error for url: https://item-warehouse.com/v1/warehouses/lumberyard/items')"
+        == "Error logging to Item Warehouse: HTTPError('500 Server Error: "
+        f"Internal Server Error for url: {IWH_DOT_COM}/v1/warehouses/lumberyard/items')"
     )
 
 
@@ -134,7 +138,7 @@ def test_pyscript_task_executor(
     assert mock_task_executor.call_args_list == [
         call(
             pyscript_warehouse_handler.post_json_response,
-            "/warehouses/lumberyard/items",
+            PyscriptWarehouseHandler.ITEM_ENDPOINT,
             timeout=5,
             json={
                 "created_at": 1609459200.0,
@@ -157,7 +161,7 @@ def test_pyscript_task_executor(
         ),
         call(
             pyscript_warehouse_handler.post_json_response,
-            "/warehouses/lumberyard/items",
+            PyscriptWarehouseHandler.ITEM_ENDPOINT,
             timeout=5,
             json={
                 "created_at": 1609459200.0,
@@ -180,7 +184,7 @@ def test_pyscript_task_executor(
         ),
         call(
             pyscript_warehouse_handler.post_json_response,
-            "/warehouses/lumberyard/items",
+            PyscriptWarehouseHandler.ITEM_ENDPOINT,
             timeout=5,
             json={
                 "created_at": 1609459200.0,
@@ -203,7 +207,7 @@ def test_pyscript_task_executor(
         ),
         call(
             pyscript_warehouse_handler.post_json_response,
-            "/warehouses/lumberyard/items",
+            PyscriptWarehouseHandler.ITEM_ENDPOINT,
             timeout=5,
             json={
                 "created_at": 1609459200.0,
@@ -226,7 +230,7 @@ def test_pyscript_task_executor(
         ),
         call(
             pyscript_warehouse_handler.post_json_response,
-            "/warehouses/lumberyard/items",
+            PyscriptWarehouseHandler.ITEM_ENDPOINT,
             timeout=5,
             json={
                 "created_at": 1609459200.0,
@@ -314,7 +318,7 @@ async def test_emit_inside_event_loop(
 
     mock_task_executor.assert_awaited_once_with(
         pyscript_warehouse_handler.post_json_response,
-        "/warehouses/lumberyard/items",
+        PyscriptWarehouseHandler.ITEM_ENDPOINT,
         timeout=5,
         json=json_payload,
     )
@@ -323,7 +327,7 @@ async def test_emit_inside_event_loop(
         mock_requests.request_history,
         [
             {
-                "url": "https://item-warehouse.com/v1/warehouses/lumberyard/items",
+                "url": f"{IWH_DOT_COM}/v1/warehouses/lumberyard/items",
                 "method": "POST",
                 "headers": {},
                 "json": json_payload,

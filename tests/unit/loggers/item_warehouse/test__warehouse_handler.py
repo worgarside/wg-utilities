@@ -16,6 +16,7 @@ from requests_mock import Mocker
 
 from tests.conftest import TestError, assert_mock_requests_request_history
 from tests.unit.loggers.conftest import (
+    IWH_DOT_COM,
     SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL,
     SAMPLE_LOG_RECORDS,
     WAREHOUSE_SCHEMA,
@@ -38,7 +39,7 @@ def test_initialize_warehouse_new_warehouse(mock_requests: Mocker) -> None:
     """Test that the _initialize_warehouse method works correctly."""
 
     mock_requests.get(
-        "https://item-warehouse.com/v1/warehouses/lumberyard",
+        f"{IWH_DOT_COM}/v1/warehouses/lumberyard",
         status_code=HTTPStatus.NOT_FOUND,
         reason=HTTPStatus.NOT_FOUND.phrase,
     )
@@ -47,7 +48,7 @@ def test_initialize_warehouse_new_warehouse(mock_requests: Mocker) -> None:
         WarehouseHandler, "post_json_response", return_value=WAREHOUSE_SCHEMA
     ) as mock_post_json_response:
         _ = WarehouseHandler(
-            warehouse_host="https://item-warehouse.com",
+            warehouse_host=IWH_DOT_COM,
             warehouse_port=0,
             initialize_warehouse=True,
         )
@@ -57,6 +58,9 @@ def test_initialize_warehouse_new_warehouse(mock_requests: Mocker) -> None:
         timeout=5,
         json=WarehouseHandler._WAREHOUSE_SCHEMA,
     )
+
+
+DEFAULT_ITEM_URL = "http://homeassistant.local:8002/v1/warehouses/lumberyard"
 
 
 def test_initialize_warehouse_already_exists(
@@ -71,7 +75,7 @@ def test_initialize_warehouse_already_exists(
 
     mock_requests.get(
         # Default URL
-        "http://homeassistant.local:8002/v1/warehouses/lumberyard",
+        DEFAULT_ITEM_URL,
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
         json=WAREHOUSE_SCHEMA,
@@ -83,7 +87,7 @@ def test_initialize_warehouse_already_exists(
         mock_requests.request_history,
         [
             {
-                "url": "http://homeassistant.local:8002/v1/warehouses/lumberyard",
+                "url": DEFAULT_ITEM_URL,
                 "method": "GET",
                 "headers": {},
             }
@@ -103,7 +107,7 @@ def test_initialize_warehouse_already_exists_but_wrong_schema(
 
     mock_requests.get(
         # Default URL
-        "http://homeassistant.local:8002/v1/warehouses/lumberyard",
+        DEFAULT_ITEM_URL,
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
         json={"invalid": "schema"},
@@ -116,7 +120,7 @@ def test_initialize_warehouse_already_exists_but_wrong_schema(
         mock_requests.request_history,
         [
             {
-                "url": "http://homeassistant.local:8002/v1/warehouses/lumberyard",
+                "url": DEFAULT_ITEM_URL,
                 "method": "GET",
                 "headers": {},
             }
@@ -141,7 +145,7 @@ def test_initialize_warehouse_exception(
 
     mock_requests.get(
         # Default URL
-        "http://homeassistant.local:8002/v1/warehouses/lumberyard",
+        DEFAULT_ITEM_URL,
         exc=TestError("Test exception"),
     )
 

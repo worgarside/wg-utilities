@@ -206,6 +206,8 @@ WAREHOUSE_SCHEMA = {
     },
 }
 
+IWH_DOT_COM = "https://item-warehouse.com"
+
 
 @pytest.fixture(name="pyscript_warehouse_handler")
 def pyscript_warehouse_handler_(
@@ -215,7 +217,7 @@ def pyscript_warehouse_handler_(
 
     _pyscript_warehouse_handler = PyscriptWarehouseHandler(
         level="DEBUG",
-        warehouse_host="https://item-warehouse.com",
+        warehouse_host=IWH_DOT_COM,
         warehouse_port=0,
         pyscript_task_executor=pyscript_task_executor,
     )
@@ -233,7 +235,7 @@ def warehouse_handler_(
     """Fixture for creating a WarehouseHandler instance."""
 
     _warehouse_handler = WarehouseHandler(
-        level="DEBUG", warehouse_host="https://item-warehouse.com", warehouse_port=0
+        level="DEBUG", warehouse_host=IWH_DOT_COM, warehouse_port=0
     )
     mock_requests.reset_mock()
 
@@ -250,7 +252,7 @@ def mock_requests_(
 
     lumberyard_url = "/".join(
         [
-            "https://item-warehouse.com",
+            IWH_DOT_COM,
             "v1",
             "warehouses",
             "lumberyard",
