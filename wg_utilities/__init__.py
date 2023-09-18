@@ -9,6 +9,7 @@ __version__ = "5.0.0"
 __all__ = [
     "api",
     "clients",
+    "decorators",
     "devices",
     "exceptions",
     "functions",
