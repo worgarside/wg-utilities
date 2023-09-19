@@ -8,11 +8,9 @@ from logging import DEBUG, Handler, LogRecord, getLogger
 from os import getenv
 from socket import gethostname
 from traceback import format_exception
-from typing import Final, Literal, NotRequired
+from typing import Final, Literal, NotRequired, TypedDict
 
-from typing_extensions import TypedDict
-
-from wg_utilities.clients.json_api_client import JsonApiClient
+from wg_utilities.clients import JsonApiClient
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
