@@ -6,7 +6,7 @@ from builtins import dict as dict_
 from builtins import type as type_
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from datetime import date, datetime, timedelta
-from enum import Enum
+from enum import StrEnum
 from http import HTTPStatus
 from json import dumps
 from logging import DEBUG, getLogger
@@ -67,7 +67,7 @@ class ParsedSearchResponse(TypedDict):
     tracks: NotRequired[list[Track]]
 
 
-class AlbumType(str, Enum):
+class AlbumType(StrEnum):
     """Enum for the different types of album Spotify supports."""
 
     SINGLE = "single"
