@@ -4,6 +4,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 from logging import DEBUG, getLogger
+from os import getenv
 from pathlib import Path
 from typing import Any, ClassVar, Literal, Self, TypeAlias
 
@@ -174,6 +175,10 @@ class MediaItemJson(_GooglePhotosEntityJson):
 class MediaItem(GooglePhotosEntity):
     """Class for representing a MediaItem and its metadata/content."""
 
+    DOWNLOAD_DIRECTORY: ClassVar[str | None] = getenv(
+        "WG_UTILITIES_GOOGLE_PHOTOS_DOWNLOAD_DIRECTORY"
+    )
+
     base_url: str = Field(alias="baseUrl")
     contributor_info: dict[str, str] | None = Field(
         alias="contributorInfo", default=None
@@ -213,9 +218,12 @@ class MediaItem(GooglePhotosEntity):
         """
 
         if isinstance(target_directory, str):
-            target_directory = (
-                Path.cwd() if target_directory == "" else Path(target_directory)
-            )
+            if target_directory:
+                target_directory = Path(target_directory)
+            elif self.DOWNLOAD_DIRECTORY:
+                target_directory = Path(self.DOWNLOAD_DIRECTORY)
+            else:
+                target_directory = Path.cwd()
 
         self._local_path = (
             target_directory

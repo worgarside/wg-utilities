@@ -17,12 +17,13 @@ Loads of useful stuff for the things I do :)
 
 ## Environment Variables
 
-| Name | Description | Default |
+| Name | Description | Default (Behaviour) |
 |------|-------------|---------|
 | `HA_LOG_ENDPOINT` | The HomeAssistant **host** to send logs to | `homeassistant.local:8001` |
 | `SUPPRESS_WG_UTILS_IGNORANCE` | If set to `"1"`, will suppress warnings about ignored exceptions caught in the `on_exception` [decorator](https://github.com/worgarside/wg-utilities/blob/main/wg_utilities/exceptions/__init__.py#L67) | `null` |
 | `WG_UTILITIES_CREDS_CACHE_DIR` | The directory to store the credentials cache in | `<App Data Dir>/WgUtilities/oauth_credentials/` |
-| `WG_UTILITIES_HEADLESS_MODE` | If set to `"1"`, allows a callback to be provided to OAuth clients instead of opening the auth link directly in the browser. Useful for running on headless devices. | `"-"` |
+| `WG_UTILITIES_GOOGLE_PHOTOS_DOWNLOAD_DIRECTORY` | The directory to download Google Photos to | `Path.cwd()` |
+| `WG_UTILITIES_HEADLESS_MODE` | If set to `"1"`, allows a callback to be provided to OAuth clients instead of opening the auth link directly in the browser. Useful for running on headless devices. | `"0"` |
 | `ITEM_WAREHOUSE_HOST` | The host to use for the [Item Warehouse API](https://github.com/worgarside/addon-item-warehouse-api) | `http://homeassistant.local` |
 | `ITEM_WAREHOUSE_PORT` | The port to use for the [Item Warehouse API](https://github.com/worgarside/addon-item-warehouse-api) | `8002` |
 
