@@ -6,7 +6,8 @@
 [![PyPI](https://img.shields.io/pypi/v/wg-utilities.svg?logo=python)](https://pypi.python.org/pypi/wg-utilities)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
 [![image](https://img.shields.io/pypi/pyversions/wg-utilities.svg)](https://pypi.python.org/pypi/wg-utilities)
-[![Python Unit Tests](https://github.com/worgarside/wg-utilities/actions/workflows/python_unit_tests.yml/badge.svg)](https://github.com/worgarside/wg-utilities/actions/workflows/python_unit_tests.yml)
+[![Test & Scan](https://github.com/worgarside/wg-utilities/actions/workflows/test_and_scan.yml/badge.svg)](https://github.com/worgarside/wg-utilities/actions/workflows/test_and_scan.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=worgarside_wg-utilities&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=worgarside_wg-utilities)
 
 Loads of useful stuff for the things I do :)
 
