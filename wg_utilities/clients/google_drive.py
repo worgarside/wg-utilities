@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Mapping
 from copy import deepcopy
 from datetime import date, datetime
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from re import sub
 from typing import Any, ClassVar, Literal, Self, TypeVar
@@ -18,7 +18,7 @@ from wg_utilities.clients.oauth_client import BaseModelWithConfig
 from wg_utilities.functions.json import JSONObj
 
 
-class EntityKind(str, Enum):
+class EntityKind(StrEnum):
     """Enum for the different kinds of entities that can be returned by the API."""
 
     COMMENT = "drive#comment"
@@ -38,7 +38,7 @@ class EntityKind(str, Enum):
     USER = "drive#user"
 
 
-class EntityType(str, Enum):
+class EntityType(StrEnum):
     """Enum for the different entity types contained within a Drive."""
 
     DIRECTORY = "directory"
@@ -1347,7 +1347,7 @@ class Drive(_CanHaveChildren):
         return f"Drive(id={self.id!r}, name={self.name!r}"
 
 
-class ItemMetadataRetrieval(str, Enum):
+class ItemMetadataRetrieval(StrEnum):
     """The type of metadata retrieval to use for items.
 
     Attributes:

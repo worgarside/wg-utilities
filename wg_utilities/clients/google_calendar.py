@@ -5,7 +5,7 @@ from collections.abc import Iterable
 from datetime import date as date_
 from datetime import datetime as datetime_
 from datetime import timedelta, tzinfo
-from enum import Enum
+from enum import StrEnum
 from typing import Any, ClassVar, Literal, Self, TypeAlias
 
 from pydantic import Field, field_serializer, field_validator, model_validator
@@ -19,7 +19,7 @@ from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import BaseModelWithConfig
 
 
-class ResponseStatus(str, Enum):
+class ResponseStatus(StrEnum):
     """Enumeration for event attendee response statuses."""
 
     ACCEPTED = "accepted"
@@ -29,7 +29,7 @@ class ResponseStatus(str, Enum):
     UNKNOWN = "unknown"
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """Enumeration for event types."""
 
     DEFAULT = "default"
