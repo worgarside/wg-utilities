@@ -127,14 +127,26 @@ def test_initialize_warehouse_already_exists_but_wrong_schema(
         ],
     )
 
-    expected_diff = {
-        "dictionary_item_added": "[root['invalid']]",
-        "dictionary_item_removed": "[root['name'], root['item_name'], root['item_schema']]",
+    mismatches = {
+        "created_at": {"expected": "double", "actual": None},
+        "exception_message": {"expected": "string", "actual": None},
+        "exception_type": {"expected": "string", "actual": None},
+        "exception_traceback": {"expected": "text", "actual": None},
+        "file": {"expected": "string", "actual": None},
+        "level": {"expected": "integer", "actual": None},
+        "line": {"expected": "integer", "actual": None},
+        "log_hash": {"expected": "string", "actual": None},
+        "log_host": {"expected": "string", "actual": None},
+        "logger": {"expected": "string", "actual": None},
+        "message": {"expected": "string", "actual": None},
+        "module": {"expected": "string", "actual": None},
+        "process": {"expected": "string", "actual": None},
+        "thread": {"expected": "string", "actual": None},
     }
 
     assert (
         str(exc_info.value)
-        == f"Warehouse schema does not match expected schema: {dumps(expected_diff)}"
+        == f"Warehouse types do not match expected types: {dumps(mismatches)}"
     )
 
 

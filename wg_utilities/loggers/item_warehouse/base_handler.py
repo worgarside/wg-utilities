@@ -182,6 +182,10 @@ class BaseWarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPag
         },
     }
 
+    _WAREHOUSE_TYPES: Final[dict[str, str]] = {
+        k: v["type"] for k, v in _WAREHOUSE_SCHEMA["item_schema"].items()
+    }
+
     def __init__(
         self,
         *,
