@@ -8,9 +8,8 @@ from json import dumps
 from logging import DEBUG, Logger, LogRecord, getLogger
 from logging.handlers import QueueHandler
 from multiprocessing import Queue
-from typing import Literal, cast
+from typing import Literal
 
-from deepdiff import DeepDiff  # type: ignore[import]
 from requests import HTTPError, post
 from requests.exceptions import RequestException
 
@@ -75,10 +74,12 @@ class WarehouseHandler(BaseWarehouseHandler):
     def initialize_warehouse(self) -> None:
         """Create a new warehouse or validate an existing one."""
         try:
-            schema = self.get_json_response(self.WAREHOUSE_ENDPOINT, timeout=5)
+            schema: WarehouseSchema = self.get_json_response(  # type: ignore[assignment]
+                self.WAREHOUSE_ENDPOINT, timeout=5
+            )
         except HTTPError as exc:
             if exc.response.status_code == HTTPStatus.NOT_FOUND:
-                schema = self.post_json_response(
+                schema = self.post_json_response(  # type: ignore[assignment]
                     "/warehouses", json=self._WAREHOUSE_SCHEMA, timeout=5
                 )
                 LOGGER.info("Created new Warehouse: %r", schema)
@@ -91,18 +92,21 @@ class WarehouseHandler(BaseWarehouseHandler):
                 schema.get("created_at", None),
             )
 
-            temp_schema = cast(
-                WarehouseSchema,
-                {key: value for key, value in schema.items() if key != "created_at"},
-            )
+            schema_types = {
+                k: v["type"] for k, v in schema.get("item_schema", {}).items()
+            }
 
-            for item_value in temp_schema.get("item_schema", {}).values():
-                item_value.pop("display_as", None)
-
-            if diff := DeepDiff(self._WAREHOUSE_SCHEMA, temp_schema):
+            if schema_types != self._WAREHOUSE_TYPES:
                 raise ValueError(
-                    "Warehouse schema does not match expected schema: "
-                    + dumps(diff, default=repr)
+                    "Warehouse types do not match expected types: "
+                    + dumps(
+                        {
+                            k: {"expected": v, "actual": schema_types.get(k)}
+                            for k, v in self._WAREHOUSE_TYPES.items()
+                            if v != schema_types.get(k)
+                        },
+                        default=str,
+                    )
                 )
 
     @backoff(RequestException, logger=LOGGER, max_tries=0, timeout=0)

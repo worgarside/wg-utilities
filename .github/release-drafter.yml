@@ -6,6 +6,32 @@ exclude-labels:
   - skip-changelog
   - sync
 categories:
+  # This section only applies to the Home Assistant repo but is included here
+  # for simplicity (doesn't affect other repos, cleaner to have one source of truth)
+  - title: 🏠 Home Assistant Updates
+    labels:
+      - ha:automations
+      - ha:config
+      - ha:cover
+      - ha:device-tracker
+      - ha:groups
+      - ha:input-boolean
+      - ha:input-button
+      - ha:input-datetime
+      - ha:input-number
+      - ha:input-select
+      - ha:input-text
+      - ha:lovelace
+      - ha:media-player
+      - ha:mqtt
+      - ha:pyscript
+      - ha:rest-command
+      - ha:scenes
+      - ha:scripts
+      - ha:sensors
+      - ha:switch
+      - ha:template
+      - ha:variables
   - title: 💥 Breaking Changes
     labels:
       - major
@@ -26,8 +52,8 @@ categories:
       - maintenance
       - tools
       - non-functional
-    collapse-after: 5
   - title: 🛠️ Dependencies
+    collapse-after: 5
     labels:
       - dependencies
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'

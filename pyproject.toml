@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wg-utilities"
-version = "5.1.1"
+version = "5.1.2"
 description = "Loads of useful stuff for the things I do :)"
 
 authors = ["Will Garside <worgarside@gmail.com>"]
@@ -34,7 +34,6 @@ spidev = { version = "*", platform = "linux", optional = true }
 tzlocal = { version = "*", optional = true }
 xmltodict = { version = "*", optional = true }
 pydantic = "<3.0.0"
-deepdiff = "^6.4.1"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -60,7 +59,6 @@ mypy-boto3-s3 = "*"
 mypy-boto3-lambda = "*"
 mypy-boto3-pinpoint = "*"
 moto = { extras = ["pinpoint"], version = "*" }
-deepdiff = "*"
 aioresponses = "*"
 pytest-cov = "*"
 pytest-randomly = "*"
