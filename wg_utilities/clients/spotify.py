@@ -1146,6 +1146,18 @@ class User(SpotifyEntity[UserSummaryJson]):
 
         return value
 
+    @overload
+    def get_playlists_by_name(
+        self, name: str, *, return_all: Literal[False] = False
+    ) -> Playlist | None:
+        ...
+
+    @overload
+    def get_playlists_by_name(
+        self, name: str, *, return_all: Literal[True]
+    ) -> list[Playlist]:
+        ...
+
     def get_playlists_by_name(
         self, name: str, *, return_all: bool = False
     ) -> list[Playlist] | Playlist | None:
