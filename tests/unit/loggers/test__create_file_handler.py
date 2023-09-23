@@ -17,7 +17,7 @@ def test_target_directory_is_created() -> None:
     """Test that the target directory is created when requested."""
 
     with TemporaryDirectory() as tmp_dir:
-        assert not (dir_path := Path(f"{tmp_dir}/foo/bar")).is_dir()
+        assert not (dir_path := Path(tmp_dir, "foo", "bar")).is_dir()
         assert not (file_path := dir_path / "baz.log").is_file()
 
         f_handler = create_file_handler(file_path, create_directory=True)
@@ -33,7 +33,7 @@ def test_target_directory_is_created() -> None:
 def test_target_directory_is_not_created() -> None:
     """Test that the target directory is not created when not requested."""
     dir_path = Path("/foo/bar")
-    file_path = Path(f"{dir_path}/baz.log")
+    file_path = Path(dir_path, "baz.log")
 
     assert not dir_path.is_dir()
     assert not file_path.is_file()
