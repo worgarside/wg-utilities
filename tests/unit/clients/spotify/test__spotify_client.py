@@ -741,7 +741,7 @@ def test_add_tracks_to_playlist(
     new_tracks_to_add = [
         track for track in spotify_playlist.tracks if track not in playlist_to_add_to
     ]
-    assert any(track not in playlist_to_add_to for track in new_tracks_to_add)
+    assert all(track not in playlist_to_add_to for track in new_tracks_to_add)
     mock_requests.reset()
     caplog.records.clear()
     spotify_client.log_requests = False
