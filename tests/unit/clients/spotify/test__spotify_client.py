@@ -741,15 +741,19 @@ def test_add_tracks_to_playlist(
     new_tracks_to_add = [
         track for track in spotify_playlist.tracks if track not in playlist_to_add_to
     ]
-    assert not any(track in playlist_to_add_to for track in new_tracks_to_add)
+    assert all(track not in playlist_to_add_to for track in new_tracks_to_add)
     mock_requests.reset()
     caplog.records.clear()
     spotify_client.log_requests = False
-    spotify_client.add_tracks_to_playlist(
-        new_tracks_to_add,
-        playlist_to_add_to,
-        log_responses=True,
-        update_instance_tracklist=update_instance_tracklist,
+
+    assert (
+        spotify_client.add_tracks_to_playlist(
+            new_tracks_to_add,
+            playlist_to_add_to,
+            log_responses=True,
+            update_instance_tracklist=update_instance_tracklist,
+        )
+        == new_tracks_to_add
     )
 
     assert_mock_requests_request_history(
@@ -801,10 +805,13 @@ def test_add_tracks_to_playlist_ignores_tracks_already_in_playlist(
         json={"snapshot_id": playlist_to_add_to.snapshot_id},
     )
 
-    spotify_client.add_tracks_to_playlist(
-        tracks_to_add,
-        playlist_to_add_to,
-        update_instance_tracklist=True,
+    assert (
+        spotify_client.add_tracks_to_playlist(
+            tracks_to_add,
+            playlist_to_add_to,
+            update_instance_tracklist=True,
+        )
+        == []
     )
 
     assert_mock_requests_request_history(
