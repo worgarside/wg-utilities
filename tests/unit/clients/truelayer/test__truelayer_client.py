@@ -290,3 +290,12 @@ def test_creds_rel_file_path(bank: Bank, truelayer_client: TrueLayerClient) -> N
     assert truelayer_client._creds_rel_file_path == Path(
         "TrueLayerClient", "test_client_id", bank.name.lower()
     ).with_suffix(".json")
+
+
+def test_creds_rel_file_path_no_client_id(truelayer_client: TrueLayerClient) -> None:
+    """Test that `None` is returns when there is no client ID available."""
+
+    truelayer_client._client_id = None
+    del truelayer_client._credentials
+
+    assert truelayer_client._creds_rel_file_path is None
