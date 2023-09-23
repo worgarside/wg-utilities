@@ -760,3 +760,14 @@ def test_use_existing_credentials_only(
         "set to True$",
     ):
         oauth_client.run_first_time_login()
+
+
+def test_creds_rel_file_path_no_client_id(
+    oauth_client: OAuthClient[dict[str, Any]]
+) -> None:
+    """Test that `None` is returns when there is no client ID available."""
+
+    oauth_client._client_id = None
+    del oauth_client._credentials
+
+    assert oauth_client._creds_rel_file_path is None
