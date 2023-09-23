@@ -173,8 +173,12 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         log_responses: bool = False,
         force_add: bool = False,
         update_instance_tracklist: bool = True,
-    ) -> None:
+    ) -> list[Track]:
         """Add one or more tracks to a playlist.
+
+        If `force_add` is False, a check is made against the Playlist's tracklist to
+        ensure that the track isn't already in the playlist. This can be slow if it's
+        a (new) big playlist.
 
         Args:
             tracks (list): a list of Track instances to be added to the given playlist
@@ -187,13 +191,13 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
              the tracklist first
         """
 
-        tracks = [
+        tracks_to_add = [
             track
             for track in tracks
             if not track.is_local and (force_add or track not in playlist)
         ]
 
-        for chunk in chunk_list(tracks, 100):
+        for chunk in chunk_list(tracks_to_add, 100):
             res = self._post(
                 f"/playlists/{playlist.id}/tracks",
                 json={"uris": [t.uri for t in chunk]},
@@ -203,7 +207,9 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
                 LOGGER.info(dumps(res.json()))
 
         if update_instance_tracklist:
-            playlist.tracks.extend(tracks)
+            playlist.tracks.extend(tracks_to_add)
+
+        return tracks_to_add
 
     def create_playlist(
         self,
@@ -995,6 +1001,8 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
     def live_snapshot_id(self) -> str:
         """The live snapshot ID of the playlist.
 
+        The value is cached for a minute before being refreshed.
+
         Returns:
             str: the live snapshot ID of the playlist
         """
@@ -1145,6 +1153,18 @@ class User(SpotifyEntity[UserSummaryJson]):
             info.data["name"] = value
 
         return value
+
+    @overload
+    def get_playlists_by_name(
+        self, name: str, *, return_all: Literal[False] = False
+    ) -> Playlist | None:
+        ...
+
+    @overload
+    def get_playlists_by_name(
+        self, name: str, *, return_all: Literal[True]
+    ) -> list[Playlist]:
+        ...
 
     def get_playlists_by_name(
         self, name: str, *, return_all: bool = False
@@ -1409,6 +1429,10 @@ class User(SpotifyEntity[UserSummaryJson]):
     @property
     def playlists(self) -> list[Playlist]:
         """Return a list of playlists owned by the current user.
+
+        If self.PLAYLIST_REFRESH_INTERVAL has elapsed, a new call to the API will be
+        made to refresh the list of playlists. Only new playlists will be added to the
+        list, preserving previous instances.
 
         Returns:
             list: a list of playlists owned by the current user
