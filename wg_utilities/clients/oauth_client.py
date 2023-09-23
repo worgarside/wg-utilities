@@ -237,14 +237,14 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
 
     ACCESS_TOKEN_EXPIRY_THRESHOLD = 150
 
-    # Second env var added for compatibility
-    DEFAULT_CACHE_DIR = getenv(
-        "WG_UTILITIES_CACHE_DIR", getenv("WG_UTILITIES_CREDS_CACHE_DIR")
-    )
+    DEFAULT_CACHE_DIR = getenv("WG_UTILITIES_CREDS_CACHE_DIR")
 
     DEFAULT_SCOPES: ClassVar[list[str]] = []
 
     HEADLESS_MODE = getenv("WG_UTILITIES_HEADLESS_MODE", "0") == "1"
+
+    _credentials: OAuthCredentials
+    _temp_auth_server: TempAuthServer
 
     def __init__(  # noqa: PLR0913
         self,
@@ -253,6 +253,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         client_secret: str | None = None,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
+        creds_cache_dir: Path | None = None,
         scopes: list[str] | None = None,
         oauth_login_redirect_host: str = "localhost",
         oauth_redirect_uri_override: str | None = None,
@@ -262,22 +263,60 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         auth_link_base: str | None = None,
         base_url: str | None = None,
     ):
+        """Initialise the client.
+
+        Args:
+            client_id (str, optional): the client ID for the API. Defaults to None.
+            client_secret (str, optional): the client secret for the API. Defaults to
+                None.
+            log_requests (bool, optional): whether to log requests. Defaults to False.
+            creds_cache_path (Path, optional): the path to the credentials cache file.
+                Defaults to None. Overrides `creds_cache_dir`.
+            creds_cache_dir (Path, optional): the path to the credentials cache directory.
+                Overrides environment variable `WG_UTILITIES_CREDS_CACHE_DIR`. Defaults to
+                None.
+            scopes (list[str], optional): the scopes to request when authenticating.
+                Defaults to None.
+            oauth_login_redirect_host (str, optional): the host to redirect to after
+                authenticating. Defaults to "localhost".
+            oauth_redirect_uri_override (str, optional): override the redirect URI
+                specified in the OAuth flow. Defaults to None.
+            headless_auth_link_callback (Callable[[str], None], optional): callback to
+                send the auth link to when running in headless mode. Defaults to None.
+            use_existing_credentials_only (bool, optional): whether to only use existing
+                credentials, and not attempt to authenticate. Defaults to False.
+            access_token_endpoint (str, optional): the endpoint to use to get an access
+                token. Defaults to None.
+            auth_link_base (str, optional): the base URL to use to generate the auth
+                link. Defaults to None.
+            base_url (str, optional): the base URL to use for API requests. Defaults to
+                None.
+        """
         super().__init__(log_requests=log_requests, base_url=base_url)
 
         self._client_id = client_id
         self._client_secret = client_secret
         self.access_token_endpoint = access_token_endpoint or self.ACCESS_TOKEN_ENDPOINT
         self.auth_link_base = auth_link_base or self.AUTH_LINK_BASE
-        self._creds_cache_path = creds_cache_path
         self.oauth_login_redirect_host = oauth_login_redirect_host
         self.oauth_redirect_uri_override = oauth_redirect_uri_override
         self.headless_auth_link_callback = headless_auth_link_callback
         self.use_existing_credentials_only = use_existing_credentials_only
 
-        self.scopes = scopes or self.DEFAULT_SCOPES
+        if creds_cache_path:
+            self._creds_cache_path: Path | None = creds_cache_path
+            self._creds_cache_dir: Path | None = None
+        elif creds_cache_dir:
+            self._creds_cache_path = None
+            self._creds_cache_dir = creds_cache_dir
+        else:
+            self._creds_cache_path = None
+            if self.DEFAULT_CACHE_DIR:
+                self._creds_cache_dir = Path(self.DEFAULT_CACHE_DIR)
+            else:
+                self._creds_cache_dir = None
 
-        self._credentials: OAuthCredentials
-        self._temp_auth_server: TempAuthServer
+        self.scopes = scopes or self.DEFAULT_SCOPES
 
         if self._creds_cache_path:
             self._load_local_credentials()
@@ -437,6 +476,20 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         self.credentials = OAuthCredentials.parse_first_time_login(credentials)
 
     @property
+    def _creds_rel_file_path(self) -> Path | None:
+        """Get the credentials cache filepath relative to the cache directory.
+
+        Overridable in subclasses.
+        """
+
+        try:
+            client_id = self._client_id or self._credentials.client_id
+        except AttributeError:
+            return None
+
+        return Path(type(self).__name__, f"{client_id}.json")
+
+    @property
     def access_token(self) -> str | None:
         """Access token.
 
@@ -523,20 +576,14 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         if self._creds_cache_path:
             return self._creds_cache_path
 
-        if (
-            not (hasattr(self, "_credentials") and self._credentials)
-            and not self._client_id
-        ):
+        if not self._creds_rel_file_path:
             raise ValueError(
                 "Unable to get client ID to generate path for credentials cache file."
             )
 
-        file_path = f"{type(self).__name__}/{self.client_id}.json"
-
         return force_mkdir(
-            Path(self.DEFAULT_CACHE_DIR) / file_path
-            if self.DEFAULT_CACHE_DIR
-            else user_data_dir() / "oauth_credentials" / file_path,
+            (self._creds_cache_dir or user_data_dir() / "oauth_credentials")
+            / self._creds_rel_file_path,
             path_is_file=True,
         )
 

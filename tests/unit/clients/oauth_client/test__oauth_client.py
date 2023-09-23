@@ -502,15 +502,22 @@ def test_creds_cache_path_returns_expected_value(
     str(Path(__file__).parent / ".wg-utilities" / "oauth_credentials"),
 )
 def test_creds_cache_path_with_env_var(
-    oauth_client: OAuthClient[dict[str, Any]],
+    fake_oauth_credentials: OAuthCredentials,
 ) -> None:
     """Test `creds_cache_path` returns the expected value when the env var is set.
 
     I've had to patch the `DEFAULT_CACHE_DIR` attribute because I can't set the env
     var for _just_ this test.
     """
-    oauth_client._creds_cache_path = None
-    del oauth_client._credentials
+
+    oauth_client: OAuthClient[dict[str, Any]] = OAuthClient(
+        client_id=fake_oauth_credentials.client_id,
+        client_secret=fake_oauth_credentials.client_secret,
+        base_url="https://api.example.com",
+        access_token_endpoint="https://api.example.com/oauth2/token",
+        log_requests=True,
+        auth_link_base="https://api.example.com/oauth2/authorize",
+    )
 
     assert (
         str(Path(__file__).parent / ".wg-utilities" / "oauth_credentials")
@@ -521,6 +528,40 @@ def test_creds_cache_path_with_env_var(
         Path(__file__).parent
         / ".wg-utilities"
         / "oauth_credentials"
+        / "OAuthClient"
+        / f"{oauth_client.client_id}.json"
+    )
+
+
+@patch.object(
+    OAuthClient,
+    "DEFAULT_CACHE_DIR",
+    str(Path(__file__).parent / ".wg-utilities" / "oauth_credentials"),
+)
+def test_creds_cache_dir(fake_oauth_credentials: OAuthCredentials) -> None:
+    """Test `creds_cache_dir` overrides the default value."""
+
+    oauth_client: OAuthClient[dict[str, Any]] = OAuthClient(
+        client_id=fake_oauth_credentials.client_id,
+        client_secret=fake_oauth_credentials.client_secret,
+        base_url="https://api.example.com",
+        access_token_endpoint="https://api.example.com/oauth2/token",
+        log_requests=True,
+        creds_cache_dir=Path(__file__).parent
+        / ".wg-utilities"
+        / "a_different_directory",
+        auth_link_base="https://api.example.com/oauth2/authorize",
+    )
+
+    assert (
+        str(Path(__file__).parent / ".wg-utilities" / "oauth_credentials")
+        == oauth_client.DEFAULT_CACHE_DIR
+    )
+
+    assert oauth_client.creds_cache_path == (
+        Path(__file__).parent
+        / ".wg-utilities"
+        / "a_different_directory"
         / "OAuthClient"
         / f"{oauth_client.client_id}.json"
     )
@@ -719,3 +760,14 @@ def test_use_existing_credentials_only(
         "set to True$",
     ):
         oauth_client.run_first_time_login()
+
+
+def test_creds_rel_file_path_no_client_id(
+    oauth_client: OAuthClient[dict[str, Any]]
+) -> None:
+    """Test that `None` is returns when there is no client ID available."""
+
+    oauth_client._client_id = None
+    del oauth_client._credentials
+
+    assert oauth_client._creds_rel_file_path is None
