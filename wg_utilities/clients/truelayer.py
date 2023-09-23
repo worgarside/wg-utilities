@@ -5,7 +5,6 @@ from collections.abc import Callable, Iterable
 from datetime import date, datetime, timedelta
 from enum import Enum, StrEnum, auto
 from logging import DEBUG, getLogger
-from os.path import sep
 from pathlib import Path
 from typing import Any, ClassVar, Literal, Self, TypeAlias, TypeVar
 
@@ -15,8 +14,6 @@ from typing_extensions import NotRequired, TypedDict
 
 from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
-from wg_utilities.functions import user_data_dir
-from wg_utilities.functions.file_management import force_mkdir
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -31,7 +28,7 @@ class AccountType(StrEnum):
     BUSINESS_SAVINGS = auto()
 
 
-class Bank(Enum):
+class Bank(StrEnum):
     """Enum for all banks supported by TrueLayer."""
 
     ALLIED_IRISH_BANK_CORPORATE = "Allied Irish Bank Corporate"
@@ -533,6 +530,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         client_secret: str,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
+        creds_cache_dir: Path | None = None,
         scopes: list[str] | None = None,
         oauth_login_redirect_host: str = "localhost",
         oauth_redirect_uri_override: str | None = None,
@@ -540,25 +538,6 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         use_existing_credentials_only: bool = False,
         bank: Bank,
     ):
-        if not creds_cache_path:
-            if self.DEFAULT_CACHE_DIR:
-                creds_cache_path = Path(self.DEFAULT_CACHE_DIR).joinpath(
-                    type(self).__name__, client_id, f"{bank.name.lower()}.json"
-                )
-            else:
-                creds_cache_path = user_data_dir(
-                    file_name=sep.join(
-                        [
-                            "oauth_credentials",
-                            type(self).__name__,
-                            client_id,
-                            f"{bank.name.lower()}.json",
-                        ]
-                    )
-                )
-
-        force_mkdir(creds_cache_path, path_is_file=True)
-
         super().__init__(
             base_url=self.BASE_URL,
             access_token_endpoint=self.ACCESS_TOKEN_ENDPOINT,
@@ -566,9 +545,8 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
             client_id=client_id,
             client_secret=client_secret,
             log_requests=log_requests,
-            # TrueLayer shares the same Client ID for all banks, so override the
-            # default to separate by bank
             creds_cache_path=creds_cache_path,
+            creds_cache_dir=creds_cache_dir,
             scopes=scopes or self.DEFAULT_SCOPES,
             oauth_login_redirect_host=oauth_login_redirect_host,
             oauth_redirect_uri_override=oauth_redirect_uri_override,
@@ -687,6 +665,21 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
             list[Account]: Account instances, containing all related info
         """
         return self._list_entities(Card)
+
+    @property
+    def _creds_rel_file_path(self) -> Path | None:
+        """Get the credentials cache filepath relative to the cache directory.
+
+        TrueLayer shares the same Client ID for all banks, so this overrides the default
+        to separate credentials by bank.
+        """
+
+        try:
+            client_id = self._client_id or self._credentials.client_id
+        except AttributeError:
+            return None
+
+        return Path(type(self).__name__, client_id, f"{self.bank.name.lower()}.json")
 
 
 Account.model_rebuild()
