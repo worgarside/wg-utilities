@@ -1770,13 +1770,13 @@ typing-extensions = {version = ">=4.1.0", markers = "python_version < \"3.12\""}
 
 [[package]]
 name = "mypy-boto3-pinpoint"
-version = "1.28.36"
-description = "Type annotations for boto3.Pinpoint 1.28.36 service generated with mypy-boto3-builder 7.18.0"
+version = "1.28.55"
+description = "Type annotations for boto3.Pinpoint 1.28.55 service generated with mypy-boto3-builder 7.19.0"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mypy-boto3-pinpoint-1.28.36.tar.gz", hash = "sha256:acba6cd53a1ef1c03705d782488943739e7eb7e72b9b4197e744f8ce2dca5a7f"},
-    {file = "mypy_boto3_pinpoint-1.28.36-py3-none-any.whl", hash = "sha256:e64a5fd60fc1b122453c19bd803ea0defc7d620f094619c921a7e3992aaf960d"},
+    {file = "mypy-boto3-pinpoint-1.28.55.tar.gz", hash = "sha256:422f7096b9ad1957865bf0576098201b5daad20d89c3ca6ed80f6377edebc8a2"},
+    {file = "mypy_boto3_pinpoint-1.28.55-py3-none-any.whl", hash = "sha256:2a3942e94f5881a73fed04197c8fa3fb0c377bcfa529dfaaacde178c6199497f"},
 ]
 
 [package.dependencies]
