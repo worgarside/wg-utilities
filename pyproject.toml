@@ -38,7 +38,7 @@ pydantic = "<3.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
-pylint = "*"
+pylint = "<3.0.0"
 pre-commit = "*"
 mypy = "*"
 types-requests = "*"

@@ -276,7 +276,7 @@ def test_transaction_json_annotations_vs_transaction_fields() -> None:
             tx_field_type = str(annotation)
 
         if tx_field_type == "Literal":  # pragma: no cover
-            tx_field_type = f"Literal{list(Transaction.model_fields[ak].annotation.__args__)!r}"  # type: ignore[union-attr] # noqa: E501
+            tx_field_type = f"Literal{list(Transaction.model_fields[ak].annotation.__args__)!r}"  # type: ignore[union-attr]
 
         tx_field_type = tx_field_type.replace("typing.", "").replace("NoneType", "None")
 
