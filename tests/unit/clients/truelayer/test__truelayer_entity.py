@@ -34,7 +34,7 @@ def test_from_json_response_instantiation(truelayer_client: TrueLayerClient) -> 
             "provider": {
                 "display_name": "account_provider",
                 # pylint: disable=line-too-long
-                "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/ft-ajxyecqs-icon.svg",  # noqa: E501
+                "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/ft-ajxyecqs-icon.svg",
                 "provider_id": "ft-ajxyecqs",
             },
             "update_timestamp": "2023-03-25T18:16:20.256Z",
