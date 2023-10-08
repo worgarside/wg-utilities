@@ -10,7 +10,7 @@ from pathlib import Path
 from re import sub
 from typing import Any, ClassVar, Literal, Self, TypeVar
 
-from pydantic import Field, FieldValidationInfo, PrivateAttr, field_validator
+from pydantic import Field, PrivateAttr, ValidationInfo, field_validator
 
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.clients.json_api_client import StrBytIntFlt
@@ -761,13 +761,13 @@ class File(_GoogleDriveEntity):
     @field_validator("parent_")
     @classmethod
     def _validate_parent_instance(
-        cls, value: Directory | Drive | None, info: FieldValidationInfo
+        cls, value: Directory | Drive | None, info: ValidationInfo
     ) -> Directory | Drive | None:
         """Validate that the parent instance's ID matches the expected parent ID.
 
         Args:
             value (Directory, Drive): The parent instance.
-            info (FieldValidationInfo): Object for extra validation information/data.
+            info (ValidationInfo): Object for extra validation information/data.
 
         Returns:
             Directory, Drive: The parent instance.

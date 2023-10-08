@@ -101,7 +101,7 @@ repos:
           - types-Pillow
           - types-setuptools==68.2.0.0
           - types-tzlocal==5.0.1.1
-          - pydantic==2.3.0
+          - pydantic==2.4.0
           - types-PyYAML
           - types-python-dateutil
           - pytest==7.4.2

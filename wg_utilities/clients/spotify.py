@@ -24,7 +24,7 @@ from typing import (
 )
 from urllib.parse import urlencode
 
-from pydantic import Field, FieldValidationInfo, field_validator, model_validator
+from pydantic import Field, ValidationInfo, field_validator, model_validator
 from requests import HTTPError, delete, put
 from typing_extensions import NotRequired, TypedDict
 
@@ -698,9 +698,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
 
     @field_validator("release_date", mode="before")
     @classmethod
-    def validate_release_date(
-        cls, value: str | date, info: FieldValidationInfo
-    ) -> date:
+    def validate_release_date(cls, value: str | date, info: ValidationInfo) -> date:
         """Convert the release date string to a date object."""
 
         if isinstance(value, date):
@@ -1138,12 +1136,12 @@ class User(SpotifyEntity[UserSummaryJson]):
 
     @field_validator("display_name", mode="before")
     @classmethod
-    def set_user_name_value(cls, value: str, info: FieldValidationInfo) -> str:
+    def set_user_name_value(cls, value: str, info: ValidationInfo) -> str:
         """Set the user's `name` field to the display name if it is not set.
 
         Args:
             value (str): the display name
-            info (FieldValidationInfo): Object for extra validation information/data.
+            info (ValidationInfo): Object for extra validation information/data.
 
         Returns:
             str: the display name
