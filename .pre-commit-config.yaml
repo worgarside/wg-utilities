@@ -106,7 +106,7 @@ repos:
           - types-python-dateutil
           - pytest==7.4.2
           - types-freezegun
-          - async-upnp-client==0.35.1
+          - async-upnp-client==0.36.1
           - types-pyjwt
           - aioresponses==0.7.4
           - types-xmltodict
