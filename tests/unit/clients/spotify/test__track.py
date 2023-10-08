@@ -86,7 +86,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
             "is_local": False,
             "name": "These Things Will Come To Be",
             "popularity": 56,
-            "preview_url": "https://p.scdn.co/mp3-preview/6e7e31ce91fa7523d807ef6aee98d93e4fe4c8ba?cid=230c2ac940f14f9aa4294af862300e9b",  # pylint: disable=line-too-long  # noqa: E501
+            "preview_url": "https://p.scdn.co/mp3-preview/6e7e31ce91fa7523d807ef6aee98d93e4fe4c8ba?cid=230c2ac940f14f9aa4294af862300e9b",  # pylint: disable=line-too-long
             "track_number": 6,
             "type": "track",
             "uri": "spotify:track:27cgqh0VRhVeM61ugTnorD",
