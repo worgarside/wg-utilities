@@ -8,6 +8,10 @@ on:
       - reopened
       - synchronize
 
+concurrency:
+  group: actionlint-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   actionlint:
     name: Lint Workflows
