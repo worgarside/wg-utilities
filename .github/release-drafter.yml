@@ -10,6 +10,7 @@ categories:
   # for simplicity (doesn't affect other repos, cleaner to have one source of truth)
   - title: 🏠 Home Assistant Updates
     labels:
+      - ha:appdaemon
       - ha:automations
       - ha:config
       - ha:cover
@@ -24,7 +25,6 @@ categories:
       - ha:lovelace
       - ha:media-player
       - ha:mqtt
-      - ha:pyscript
       - ha:rest-command
       - ha:scenes
       - ha:scripts
@@ -72,6 +72,7 @@ version-resolver:
       - minor
   patch:
     labels:
+      - dependencies
       - patch
       - bug
   default: major
