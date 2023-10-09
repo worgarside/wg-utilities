@@ -1,7 +1,7 @@
 ---
 repos:
   - repo: https://github.com/worgarside/pre-commit-hooks-dependency-sync
-    rev: 1.0.0
+    rev: 1.0.1
     hooks:
       - id: sync-additional-dependencies
 
@@ -12,7 +12,7 @@ repos:
         always_run: true
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.14.0
+    rev: v3.15.0
     hooks:
       - id: pyupgrade
 
@@ -28,7 +28,7 @@ repos:
       - id: blacken-docs
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-added-large-files
         args:
