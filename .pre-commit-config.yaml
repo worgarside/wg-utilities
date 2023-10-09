@@ -95,7 +95,7 @@ repos:
           - --strict
         additional_dependencies:
           - types-requests==2.31.0.2
-          - boto3-stubs==1.28.53
+          - boto3-stubs==1.28.62
           - lxml-stubs==0.4.0
           - types-flask
           - types-Pillow
