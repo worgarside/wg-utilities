@@ -142,7 +142,7 @@ def test_get_entity_by_id(
         (
             {"error": "internal_server_error"},
             HTTPStatus.INTERNAL_SERVER_ERROR,
-            HTTPError(
+            HTTPError(  # type: ignore[call-arg]
                 "500 Server Error: Internal Server Error for url: "
                 "https://api.truelayer.com/data/v1/accounts/gabbagool"
             ),
@@ -249,7 +249,7 @@ def test_list_cards(truelayer_client: TrueLayerClient, mock_requests: Mocker) ->
         (
             {"error": "internal_server_error"},
             HTTPStatus.INTERNAL_SERVER_ERROR,
-            HTTPError(
+            HTTPError(  # type: ignore[call-arg]
                 "500 Server Error: Internal Server Error for url: "
                 "https://api.truelayer.com/data/v1/accounts"
             ),
