@@ -41,30 +41,17 @@ black = "*"
 pylint = "<3.0.0"
 pre-commit = "*"
 mypy = "*"
-types-requests = "*"
-types-tzlocal = "*"
-boto3-stubs = "*"
-lxml-stubs = "*"
-types-setuptools = "*"
-pycln = "*"
-pylint-strict-informational = "*"
-pillow = "*"
 pytest = "*"
 pytest-env = "*"
 requests-mock = "*"
 coverage = "*"
 freezegun = "*"
 boto3 = "*"
-mypy-boto3-s3 = "*"
-mypy-boto3-lambda = "*"
-mypy-boto3-pinpoint = "*"
 moto = { extras = ["pinpoint"], version = "*" }
 aioresponses = "*"
 pytest-cov = "*"
 pytest-randomly = "*"
 pytest-aws-config = "*"
-exceptiongroup = "*"
-tomli = "*"
 pytest-xdist = "*"
 pytest-asyncio = "^0.21.1"
 
@@ -83,7 +70,8 @@ clients = [
 "devices.dht22" = ["pigpio"]
 "devices.yamaha_yas_209" = ["async-upnp-client", "pydantic", "xmltodict"]
 "exceptions" = ["python-dotenv", "requests"]
-"functions" = ["lxml"]
+"functions" = ["lxml", "pytz"]
+"testing" = ["botocore"]
 
 
 # Tool Configs
