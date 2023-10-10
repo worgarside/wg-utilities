@@ -1280,6 +1280,34 @@ install-types = ["pip"]
 reports = ["lxml"]
 
 [[package]]
+name = "mypy-boto3-lambda"
+version = "1.28.36"
+description = "Type annotations for boto3.Lambda 1.28.36 service generated with mypy-boto3-builder 7.18.0"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mypy-boto3-lambda-1.28.36.tar.gz", hash = "sha256:70498e6ff6bfd60b758553d27fadf691ba169572faca01c2bd457da0b48b9cff"},
+    {file = "mypy_boto3_lambda-1.28.36-py3-none-any.whl", hash = "sha256:edb1f49279f7713929a70eaab00cf3d4ba65a10016db636805d022b2eaf14c84"},
+]
+
+[package.dependencies]
+typing-extensions = {version = ">=4.1.0", markers = "python_version < \"3.12\""}
+
+[[package]]
+name = "mypy-boto3-s3"
+version = "1.28.55"
+description = "Type annotations for boto3.S3 1.28.55 service generated with mypy-boto3-builder 7.19.0"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mypy-boto3-s3-1.28.55.tar.gz", hash = "sha256:b008809f448e74075012d4fc54b0176de0b4f49bc38e39de30ca0e764eb75056"},
+    {file = "mypy_boto3_s3-1.28.55-py3-none-any.whl", hash = "sha256:11a3db97398973d4ae28489b94c010778a0a5c65f99e00268456c3fea67eca79"},
+]
+
+[package.dependencies]
+typing-extensions = {version = ">=4.1.0", markers = "python_version < \"3.12\""}
+
+[[package]]
 name = "mypy-extensions"
 version = "1.0.0"
 description = "Type system extensions for programs checked with the mypy type checker."
@@ -2309,4 +2337,4 @@ testing = ["botocore"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "9bb827716422d9bbc1ef4a227f2db4dc9682a2cba0d6e4d529b6be182d0fdc41"
+content-hash = "a5cac36b43b3e49464a35b8a99da319592012286930ae6087f00309d57879536"

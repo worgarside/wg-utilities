@@ -54,6 +54,8 @@ pytest-randomly = "*"
 pytest-aws-config = "*"
 pytest-xdist = "*"
 pytest-asyncio = "^0.21.1"
+mypy-boto3-lambda = "^1.28.36"
+mypy-boto3-s3 = "^1.28.55"
 
 
 [tool.poetry.extras]
