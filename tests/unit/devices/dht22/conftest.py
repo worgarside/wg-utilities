@@ -4,7 +4,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
-from pigpio import _callback  # type: ignore[import]
+from pigpio import _callback  # type: ignore[import-not-found]
 
 from tests.conftest import YieldFixture
 from wg_utilities.devices.dht22 import DHT22Sensor

@@ -22,7 +22,9 @@ from requests.exceptions import MissingSchema
 from requests_mock import Mocker
 from requests_mock.request import _RequestObjectProxy
 from requests_mock.response import _Context
-from xdist.scheduler.loadscope import LoadScopeScheduling  # type: ignore[import]
+from xdist.scheduler.loadscope import (  # type: ignore[import-not-found]
+    LoadScopeScheduling,
+)
 
 from wg_utilities.clients._spotify_types import SpotifyEntityJson
 from wg_utilities.clients.google_calendar import CalendarJson, GoogleCalendarEntityJson

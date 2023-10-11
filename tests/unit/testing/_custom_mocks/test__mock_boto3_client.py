@@ -9,7 +9,7 @@ import pytest
 from boto3 import client
 from dateutil.tz import tzutc
 from freezegun import freeze_time
-from moto import mock_s3  # type: ignore[import]
+from moto import mock_s3  # type: ignore[import-not-found]
 from mypy_boto3_lambda import LambdaClient
 from mypy_boto3_s3 import S3Client
 
@@ -214,9 +214,9 @@ def test_boto3_calls_get_correct_responses(
         list_functions = lambda_client.list_functions()
         create_function = lambda_client.create_function()  # type: ignore[call-arg]
 
-    assert list_bucket_res == {"Buckets": ["barry", "paul", "jimmy", "brian"]}
+    assert list_bucket_res == {"Buckets": ["barry", "paul", "jimmy", "brian"]}  # type: ignore[comparison-overlap]
     assert create_bucket_res == "done"  # type: ignore[comparison-overlap]
-    assert list_functions == {"Functions": ["foo", "bar", "baz"]}
+    assert list_functions == {"Functions": ["foo", "bar", "baz"]}  # type: ignore[comparison-overlap]
     assert create_function == "done"  # type: ignore[comparison-overlap]
 
 
@@ -331,7 +331,7 @@ def test_nested_callable_override(
             )
 
             assert counter == i + 1
-            assert res == {"value": counter}
+            assert res == {"value": counter}  # type: ignore[comparison-overlap]
 
 
 @mock_s3  # type: ignore[misc]
@@ -384,7 +384,7 @@ def test_lookup_overrides_in_api_call_builder(
     """Test `lookup_overrides` work as expected when passed to `build_api_call`."""
 
     with patch(MockBoto3Client.PATCH_METHOD, mb3c.build_api_call()):
-        assert s3_client.list_buckets() == {
+        assert s3_client.list_buckets() == {  # type: ignore[comparison-overlap]
             "Buckets": ["barry", "paul", "jimmy", "brian"]
         }
 
@@ -392,7 +392,7 @@ def test_lookup_overrides_in_api_call_builder(
         MockBoto3Client.PATCH_METHOD,
         mb3c.build_api_call(lookup_overrides={"ListBuckets": {"Buckets": ["foo"]}}),
     ):
-        assert s3_client.list_buckets() == {"Buckets": ["foo"]}
+        assert s3_client.list_buckets() == {"Buckets": ["foo"]}  # type: ignore[comparison-overlap]
 
 
 # This is a test I tried to write to test the `except KeyError` block in the `api_call`
