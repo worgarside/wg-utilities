@@ -6,6 +6,8 @@ on:
   pull_request:
     types:
       - closed
+    branches:
+      - develop
 
 permissions:
   contents: write
@@ -17,7 +19,6 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' || (
         github.event.pull_request.merged &&
-        github.base_ref == 'develop' &&
         !contains(
           github.event.pull_request.labels.*.name,
           'skip-changelog'
