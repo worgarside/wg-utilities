@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, call
 
-from pigpio import _callback  # type: ignore[import]
+from pigpio import _callback  # type: ignore[import-not-found]
 
 from wg_utilities.devices.dht22 import DHT22Sensor
 
