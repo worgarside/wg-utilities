@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from time import sleep
 
-from pigpio import (  # type: ignore[import]
+from pigpio import (  # type: ignore[import-not-found]
     EITHER_EDGE,
     INPUT,
     LOW,
