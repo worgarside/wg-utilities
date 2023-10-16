@@ -49,8 +49,8 @@ class RaspberryPi:
     # noinspection PyUnresolvedReferences,PyPackageRequirements
     # pylint: disable=import-outside-toplevel
     def __init__(self) -> None:
-        from RPi import GPIO  # type: ignore[import]
-        from spidev import SpiDev  # type: ignore[import]
+        from RPi import GPIO  # type: ignore[import-not-found]
+        from spidev import SpiDev  # type: ignore[import-not-found]
 
         self.gpio = GPIO
 
