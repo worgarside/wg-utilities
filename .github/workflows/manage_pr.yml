@@ -26,8 +26,6 @@ jobs:
       contents: read
       pull-requests: write
     with:
-      base-ref: ${{ github.base_ref }}
-      event-action: ${{ github.event.action }}
       head-ref: ${{ github.head_ref }}
       pr-author: ${{ github.event.pull_request.user.login }}
       pr-number: ${{ github.event.pull_request.number }}
@@ -36,6 +34,7 @@ jobs:
   close-empty-pr:
     name: Close Empty PR
     uses: worgarside/github-config-files/.github/workflows/__close_empty_pr.yml@main
+    if: github.event.pull_request.state == 'open'
     permissions:
       contents: read
       pull-requests: write
