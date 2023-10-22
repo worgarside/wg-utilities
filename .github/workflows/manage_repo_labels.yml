@@ -4,7 +4,6 @@ name: Manage Repo Labels
 on:
   push:
     branches:
-      - develop
       - main
     paths:
       - .github/repo_labels.yml

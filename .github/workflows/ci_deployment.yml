@@ -1,0 +1,41 @@
+---
+name: 'CI: Validation & Deployment'
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci-validation:
+    name: 'CI: Validation'
+    uses: worgarside/github-config-files/.github/workflows/__ci_validation.yml@main
+    with:
+      build-branch: '${{ github.ref }}'
+      build-type: 'python'
+      node-build-directory: ''
+      python-version: '3.11'
+      unit-test: 'true'
+    secrets: inherit
+
+  ci-deployment:
+    name: 'CI: Deployment'
+    needs:
+      - ci-validation
+    if: needs.ci-validation.outputs.release-tag != 'null'
+    permissions:
+      id-token: write
+    uses: worgarside/github-config-files/.github/workflows/__ci_deployment.yml@main
+    with:
+      build-branch: '${{ github.ref }}'
+      build-type: 'python'
+      deploy-to: 'pypi'
+      node-build-directory: ''
+      path-to-__version__-file: 'wg_utilities/__init__.py'
+      python-version: '3.11'
+      release-tag: '${{ needs.ci-validation.outputs.release-tag }}'
+      unit-test: 'true'
+      update-pyproject-toml: 'true'
+      update-json-file-path: ''
+      update-yaml-file-path: ''
+    secrets: inherit
