@@ -45,6 +45,7 @@ class HttpErrorHandler:
     ) -> bool:
         if exc and not (
             isinstance(exc, HTTPError)
+            and exc.response is not None
             and exc.response.status_code == HTTPStatus.CONFLICT
         ):
             LOGGER.exception(

@@ -580,7 +580,10 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
                 f"/data/v1/{entity_class.__name__.lower()}s/{entity_id}"
             ).get("results", [])
         except HTTPError as exc:
-            if exc.response.json().get("error") == "account_not_found":
+            if (
+                exc.response is not None
+                and exc.response.json().get("error") == "account_not_found"
+            ):
                 return None
             raise
 
@@ -608,7 +611,10 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         try:
             res = self.get_json_response(f"/data/v1/{entity_class.__name__.lower()}s")
         except HTTPError as exc:
-            if exc.response.json().get("error") == "endpoint_not_supported":
+            if (
+                exc.response is not None
+                and exc.response.json().get("error") == "endpoint_not_supported"
+            ):
                 LOGGER.warning(
                     "{entity_class.__name__}s endpoint not supported by %s",
                     self.bank.value,
