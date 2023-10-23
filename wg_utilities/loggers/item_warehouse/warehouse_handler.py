@@ -78,7 +78,10 @@ class WarehouseHandler(BaseWarehouseHandler):
                 self.WAREHOUSE_ENDPOINT, timeout=5
             )
         except HTTPError as exc:
-            if exc.response.status_code == HTTPStatus.NOT_FOUND:
+            if (
+                exc.response is not None
+                and exc.response.status_code == HTTPStatus.NOT_FOUND
+            ):
                 schema = self.post_json_response(  # type: ignore[assignment]
                     "/warehouses", json=self._WAREHOUSE_SCHEMA, timeout=5
                 )

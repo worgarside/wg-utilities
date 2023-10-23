@@ -927,7 +927,10 @@ class Track(SpotifyEntity[TrackFullJson]):
                     f"/audio-features/{self.id}"
                 )
             except HTTPError as exc:
-                if exc.response.status_code == HTTPStatus.NOT_FOUND:
+                if (
+                    exc.response is not None
+                    and exc.response.status_code == HTTPStatus.NOT_FOUND
+                ):
                     return None
                 raise
 

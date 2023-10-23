@@ -84,6 +84,7 @@ def test_deposit_into_pot_raises_error_on_failure(
     with pytest.raises(HTTPError) as exc_info:
         monzo_client.deposit_into_pot(monzo_pot, 100)
 
+    assert exc_info.value.response is not None
     assert exc_info.value.response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
     assert exc_info.value.response.reason == HTTPStatus.INTERNAL_SERVER_ERROR.phrase
     assert str(exc_info.value) == (

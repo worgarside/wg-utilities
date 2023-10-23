@@ -154,6 +154,7 @@ def test_request_raises_exception_for_non_200_response(
             url="/test_endpoint",
         )
 
+    assert exc_info.value.response is not None
     assert exc_info.value.response.status_code == HTTPStatus.NOT_FOUND
     assert exc_info.value.response.reason == HTTPStatus.NOT_FOUND.phrase
 

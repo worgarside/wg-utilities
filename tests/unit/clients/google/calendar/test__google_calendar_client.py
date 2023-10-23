@@ -442,6 +442,7 @@ def test_delete_event_by_id_raises_exception(
     with pytest.raises(HTTPError) as exc_info:
         google_calendar_client.delete_event_by_id(event_id=event.id, calendar=calendar)
 
+    assert exc_info.value.response is not None
     assert exc_info.value.response.status_code == HTTPStatus.NOT_FOUND
 
 
