@@ -17,7 +17,6 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     )
 
     assert isinstance(client, GoogleFitClient)
-    # pylint: disable=use-implicit-booleaness-not-comparison
     assert client.data_sources == {}
 
 

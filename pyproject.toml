@@ -38,7 +38,7 @@ pydantic = "<3.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
-pylint = "<3.0.0"
+pylint = "<4.0.0"
 pre-commit = "*"
 pytest = "*"
 pytest-env = "*"
