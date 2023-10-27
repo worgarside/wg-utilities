@@ -125,6 +125,18 @@ class WarehouseHandler(BaseWarehouseHandler):
         if res.status_code == HTTPStatus.CONFLICT:
             return
 
+        if (
+            str(res.status_code).startswith("4")
+            and res.status_code != HTTPStatus.TOO_MANY_REQUESTS
+        ):
+            LOGGER.error(
+                "Permanent error posting log to warehouse (%s %s): %s",
+                res.status_code,
+                res.reason,
+                res.text,
+            )
+            return
+
         res.raise_for_status()
 
 

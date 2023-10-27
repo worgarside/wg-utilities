@@ -242,14 +242,21 @@ def test_post_with_backoff_duplicate_record(logger: Logger) -> None:
     mock_post.return_value.raise_for_status.assert_not_called()
 
 
+@pytest.mark.parametrize(
+    "response_status",
+    [
+        HTTPStatus.OK,
+        HTTPStatus.TOO_MANY_REQUESTS,
+    ],
+)
 @pytest.mark.add_handler("warehouse_handler")
-def test_post_with_backoff(logger: Logger) -> None:
-    """Test that the post_with_backoff method doesn't throw an error for duplicate records."""
+def test_post_with_backoff(logger: Logger, response_status: HTTPStatus) -> None:
+    """Test that the post_with_backoff works (ignoring actual backoff functionality)."""
 
     with patch(
         "wg_utilities.loggers.item_warehouse.warehouse_handler.post"
     ) as mock_post:
-        mock_post.return_value.status_code = HTTPStatus.OK
+        mock_post.return_value.status_code = response_status
 
         logger.debug("Debug log")
         logger.info("Info log")
@@ -266,3 +273,51 @@ def test_post_with_backoff(logger: Logger) -> None:
     )
 
     assert mock_post.return_value.raise_for_status.call_count == 6
+
+
+@pytest.mark.parametrize(
+    "response_status",
+    [
+        HTTPStatus.BAD_REQUEST,
+        HTTPStatus.UNAUTHORIZED,
+        HTTPStatus.FORBIDDEN,
+        HTTPStatus.NOT_FOUND,
+        HTTPStatus.METHOD_NOT_ALLOWED,
+        HTTPStatus.NOT_ACCEPTABLE,
+        HTTPStatus.PROXY_AUTHENTICATION_REQUIRED,
+        HTTPStatus.REQUEST_TIMEOUT,
+        HTTPStatus.GONE,
+        HTTPStatus.LENGTH_REQUIRED,
+        HTTPStatus.PRECONDITION_FAILED,
+        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+        HTTPStatus.REQUEST_URI_TOO_LONG,
+        HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
+        HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE,
+        HTTPStatus.EXPECTATION_FAILED,
+        HTTPStatus.MISDIRECTED_REQUEST,
+        HTTPStatus.REQUEST_HEADER_FIELDS_TOO_LARGE,
+    ],
+)
+@pytest.mark.add_handler("warehouse_handler")
+def test_post_with_backoff_permanent_failure(
+    logger: Logger, caplog: pytest.LogCaptureFixture, response_status: HTTPStatus
+) -> None:
+    """Test that 4XX status codes aren't backed off."""
+
+    with patch(
+        "wg_utilities.loggers.item_warehouse.warehouse_handler.post"
+    ) as mock_post, caplog.at_level("ERROR"):
+        mock_post.return_value.status_code = response_status
+        mock_post.return_value.reason = response_status.phrase
+        mock_post.return_value.text = "!!!"
+
+        logger.info("Info log")
+
+    assert mock_post.call_count == 1
+
+    mock_post.return_value.raise_for_status.assert_not_called()
+
+    assert (
+        f"Permanent error posting log to warehouse ({response_status} {response_status.phrase}): !!!"
+        == caplog.records[-1].message
+    )
