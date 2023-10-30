@@ -8,6 +8,7 @@ from json import dumps
 from logging import DEBUG, Logger, LogRecord, getLogger
 from logging.handlers import QueueHandler
 from multiprocessing import Queue
+from os import getenv
 from typing import Literal
 
 from requests import HTTPError, post
@@ -23,6 +24,8 @@ from .base_handler import BaseWarehouseHandler, LogPayload, WarehouseSchema
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
+BACKOFF_MAX_TRIES = int(getenv("WAREHOUSE_HANDLER_BACKOFF_MAX_TRIES", "0"))
+BACKOFF_TIMEOUT = int(getenv("WAREHOUSE_HANDLER_BACKOFF_TIMEOUT", "0"))
 
 LOG_QUEUE: Queue[LogRecord | None] = Queue()  # pylint: disable=unsubscriptable-object
 
@@ -112,7 +115,12 @@ class WarehouseHandler(BaseWarehouseHandler):
                     )
                 )
 
-    @backoff(RequestException, logger=LOGGER, max_tries=0, timeout=0)
+    @backoff(
+        RequestException,
+        logger=LOGGER,
+        max_tries=BACKOFF_MAX_TRIES,
+        timeout=BACKOFF_TIMEOUT,
+    )
     def post_with_backoff(self, log_payload: LogPayload, /) -> None:
         """Post a JSON response to the warehouse, with backoff applied."""
 
