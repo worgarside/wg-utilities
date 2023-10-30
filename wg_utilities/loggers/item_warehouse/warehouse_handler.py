@@ -113,12 +113,12 @@ class WarehouseHandler(BaseWarehouseHandler):
                 )
 
     @backoff(RequestException, logger=LOGGER, max_tries=0, timeout=0)
-    def post_with_backoff(self, /, log_payload: LogPayload) -> None:
+    def post_with_backoff(self, log_payload: LogPayload, /) -> None:
         """Post a JSON response to the warehouse, with backoff applied."""
 
         res = post(
             f"{self.base_url}{self.ITEM_ENDPOINT}",
-            timeout=5,
+            timeout=60,
             json=log_payload,
         )
 
