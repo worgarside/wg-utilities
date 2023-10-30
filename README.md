@@ -27,7 +27,7 @@ Loads of useful stuff for the things I do :)
 | `ITEM_WAREHOUSE_HOST` | The host to use for the [Item Warehouse API](https://github.com/worgarside/addon-item-warehouse-api) | `http://homeassistant.local` |
 | `ITEM_WAREHOUSE_PORT` | The port to use for the [Item Warehouse API](https://github.com/worgarside/addon-item-warehouse-api) | `8002` |
 | `WAREHOUSE_HANDLER_BACKOFF_MAX_TRIES` | The maximum number of times to retry a request to the [Item Warehouse API](https://github.com/worgarside/addon-item-warehouse-api) | `∞` |
-| `WAREHOUSE_HANDLER_BACKOFF_TIMEOUT` | The maximum number of seconds to keep retrying requesst to the [Item Warehouse API](https://github.com/worgarside/addon-item-warehouse-api) | `86400` |
+| `WAREHOUSE_HANDLER_BACKOFF_TIMEOUT` | The maximum number of seconds to keep retrying requests to the [Item Warehouse API](https://github.com/worgarside/addon-item-warehouse-api) | `86400` |
 
 ### Unit Test Coverage
 
