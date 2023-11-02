@@ -82,6 +82,7 @@ TransactionCategory = Literal[
     "general",
     "groceries",
     "holidays",
+    "gifts",
     "income",
     "personal_care",
     "savings",
@@ -172,6 +173,7 @@ class Transaction(BaseModelWithConfig):
     local_amount: int
     local_currency: str
     merchant: str | None
+    merchant_feedback_uri: str | None = None
     metadata: dict[str, str]
     notes: str
     originator: bool
