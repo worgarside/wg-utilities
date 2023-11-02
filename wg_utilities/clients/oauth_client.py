@@ -35,11 +35,11 @@ LOGGER.setLevel(DEBUG)
 class BaseModelWithConfig(BaseModel):
     """Reusable `BaseModel` with Config to apply to all subclasses."""
 
-    model_config: ClassVar[ConfigDict] = {
-        "arbitrary_types_allowed": True,
-        "extra": "forbid",
-        "validate_assignment": True,
-    }
+    model_config: ClassVar[ConfigDict] = ConfigDict(
+        arbitrary_types_allowed=True,
+        extra="ignore",
+        validate_assignment=True,
+    )
 
     def model_dump(
         self,

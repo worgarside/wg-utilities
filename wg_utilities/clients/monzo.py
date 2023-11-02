@@ -80,6 +80,7 @@ TransactionCategory = Literal[
     "eating_out",
     "entertainment",
     "general",
+    "gifts",
     "groceries",
     "holidays",
     "income",
@@ -128,6 +129,7 @@ class TransactionJson(TypedDict):
     local_amount: int
     local_currency: str
     merchant: str | None
+    merchant_feedback_uri: str | None
     metadata: dict[str, str]
     notes: str
     originator: bool
@@ -172,6 +174,7 @@ class Transaction(BaseModelWithConfig):
     local_amount: int
     local_currency: str
     merchant: str | None
+    merchant_feedback_uri: str | None = None
     metadata: dict[str, str]
     notes: str
     originator: bool
