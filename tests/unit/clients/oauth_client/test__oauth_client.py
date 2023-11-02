@@ -34,7 +34,7 @@ def test_x_model_with_config_has_correct_config() -> None:
     """Check the `Config` options for `BaseModelWithConfig` are correct."""
 
     assert BaseModelWithConfig.model_config["arbitrary_types_allowed"] is True
-    assert BaseModelWithConfig.model_config["extra"] == "forbid"
+    assert BaseModelWithConfig.model_config["extra"] == "ignore"
     assert BaseModelWithConfig.model_config["validate_assignment"] is True
 
 

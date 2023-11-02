@@ -80,9 +80,9 @@ TransactionCategory = Literal[
     "eating_out",
     "entertainment",
     "general",
+    "gifts",
     "groceries",
     "holidays",
-    "gifts",
     "income",
     "personal_care",
     "savings",
@@ -129,6 +129,7 @@ class TransactionJson(TypedDict):
     local_amount: int
     local_currency: str
     merchant: str | None
+    merchant_feedback_uri: str | None
     metadata: dict[str, str]
     notes: str
     originator: bool
