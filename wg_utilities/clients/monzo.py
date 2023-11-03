@@ -115,7 +115,7 @@ class TransactionJson(TypedDict):
     ]
     category: TransactionCategory
     counterparty: dict[str, str]
-    created: str
+    created: datetime
     currency: str
     decline_reason: str | None
     dedupe_id: str
@@ -137,7 +137,7 @@ class TransactionJson(TypedDict):
     scheme: str
     settled: str
     tab: dict[str, object] | None
-    updated: str
+    updated: datetime
     user_id: str
 
 
@@ -160,7 +160,7 @@ class Transaction(BaseModelWithConfig):
     ]
     category: TransactionCategory
     counterparty: dict[str, str]
-    created: str
+    created: datetime
     currency: str
     decline_reason: str | None = None
     dedupe_id: str
@@ -182,7 +182,7 @@ class Transaction(BaseModelWithConfig):
     scheme: str
     settled: str
     tab: dict[str, object] | None = None
-    updated: str
+    updated: datetime
     user_id: str
 
 
