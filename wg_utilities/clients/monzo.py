@@ -290,8 +290,12 @@ class Account(BaseModelWithConfig):
             list[dict[str, object]]: the list of transactions
         """
 
-        from_datetime = from_datetime or datetime.utcnow() - timedelta(days=89)
-        to_datetime = to_datetime or datetime.utcnow()
+        from_datetime = (
+            from_datetime or (datetime.utcnow() - timedelta(days=89))
+        ).replace(microsecond=0, tzinfo=None)
+        to_datetime = (to_datetime or datetime.utcnow()).replace(
+            microsecond=0, tzinfo=None
+        )
 
         return [
             Transaction(**item)

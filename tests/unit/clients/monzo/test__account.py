@@ -61,7 +61,7 @@ def test_list_transactions(
     """Test that the `list_transactions` method returns a list of transactions."""
 
     # Freeze time to when I made the sample data, just to ensure the URL is correct
-    with freeze_time("2022-11-21T19:42:49.870206Z") as frozen_datetime:
+    with freeze_time("2022-11-21T19:42:49Z") as frozen_datetime:
         transactions = monzo_account.list_transactions()
 
     assert len(transactions) == 100
@@ -117,10 +117,12 @@ def test_list_transactions_with_limit(
                 "since": (
                     frozen_datetime.time_to_freeze  # type: ignore[union-attr]
                     - timedelta(days=89)
-                ).isoformat()
+                )
+                .replace(microsecond=0)
+                .isoformat()
                 + "Z",
                 # pylint: disable=line-too-long
-                "before": frozen_datetime.time_to_freeze.isoformat() + "Z",  # type: ignore[union-attr]
+                "before": frozen_datetime.time_to_freeze.replace(microsecond=0).isoformat() + "Z",  # type: ignore[union-attr]
                 "limit": 20,
             }
         )
