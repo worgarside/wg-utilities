@@ -531,14 +531,15 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         return None
 
     def get_pot_by_name(
-        self, pot_name: str, *, exact_match: bool = False
+        self, pot_name: str, *, exact_match: bool = False, include_deleted: bool = False
     ) -> Pot | None:
         """Get a pot from its name.
 
         Args:
             pot_name (str): the name of the pot to find
             exact_match (bool): if False, all pot names will be cleansed before
-             evaluation
+                evaluation
+            include_deleted (bool): whether to include deleted pots in the response
 
         Returns:
             Pot: the Pot instance
@@ -546,7 +547,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         if not exact_match:
             pot_name = cleanse_string(pot_name)
 
-        for pot in self.list_pots(include_deleted=True):
+        for pot in self.list_pots(include_deleted=include_deleted):
             found_name = pot.name if exact_match else cleanse_string(pot.name)
             if found_name.lower() == pot_name.lower():
                 return pot
