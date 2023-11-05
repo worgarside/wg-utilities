@@ -22,7 +22,9 @@ jobs:
     name: 'CI: Deployment'
     needs:
       - ci-validation
-    if: needs.ci-validation.outputs.release-tag != 'null'
+    if: |
+      needs.ci-validation.outputs.release-tag != 'null' &&
+      needs.ci-validation.outputs.release-tag != github.event.head_commit.message
     permissions:
       id-token: write
     uses: worgarside/github-config-files/.github/workflows/__ci_deployment.yml@main
