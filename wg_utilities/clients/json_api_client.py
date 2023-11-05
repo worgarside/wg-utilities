@@ -35,9 +35,11 @@ class JsonApiClient(Generic[GetJsonResponse]):
         *,
         log_requests: bool = False,
         base_url: str | None = None,
+        validate_request_success: bool = True,
     ):
         self.base_url = base_url or self.BASE_URL
         self.log_requests = log_requests
+        self.validate_request_success = validate_request_success
 
     def _get(
         self,
@@ -174,7 +176,8 @@ class JsonApiClient(Generic[GetJsonResponse]):
             data=data,
         )
 
-        res.raise_for_status()
+        if self.validate_request_success:
+            res.raise_for_status()
 
         return res
 

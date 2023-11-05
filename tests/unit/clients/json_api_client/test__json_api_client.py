@@ -163,6 +163,36 @@ def test_request_raises_exception_for_non_200_response(
         "https://api.example.com/test_endpoint"
     )
 
+    json_api_client.validate_request_success = False
+
+    res = json_api_client._request(
+        method=post,
+        url="/test_endpoint",
+    )
+
+    assert res.status_code == HTTPStatus.NOT_FOUND
+
+
+def test_request_validate_request_success_false(
+    json_api_client: JsonApiClient[dict[str, Any]], mock_requests: Mocker
+) -> None:
+    """Test that the `_request`` method raises an exception for non-200 responses."""
+
+    json_api_client.validate_request_success = False
+
+    mock_requests.post(
+        "https://api.example.com/test_endpoint",
+        status_code=HTTPStatus.NOT_FOUND,
+        reason=HTTPStatus.NOT_FOUND.phrase,
+    )
+
+    res = json_api_client._request(
+        method=post,
+        url="/test_endpoint",
+    )
+
+    assert res.status_code == HTTPStatus.NOT_FOUND
+
 
 def test_request_json_response(
     json_api_client: JsonApiClient[dict[str, Any]], mock_requests: Mocker
