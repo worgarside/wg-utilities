@@ -8,7 +8,11 @@
 		},
 		{
 			"path": "/Users/worgarside/Library/Application Support/WgUtilities/"
-		}
+		},
+        {
+            "name": "SSH FS - /config",
+            "uri": "ssh://hasspi-config/config"
+        },
 	],
 	"settings": {
 		"python.testing.unittestEnabled": false,

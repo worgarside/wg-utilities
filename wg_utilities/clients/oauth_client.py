@@ -262,6 +262,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         access_token_endpoint: str | None = None,
         auth_link_base: str | None = None,
         base_url: str | None = None,
+        validate_request_success: bool = True,
     ):
         """Initialise the client.
 
@@ -291,8 +292,14 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
                 link. Defaults to None.
             base_url (str, optional): the base URL to use for API requests. Defaults to
                 None.
+            validate_request_success (bool, optional): whether to validate that the
+                request was successful. Defaults to True.
         """
-        super().__init__(log_requests=log_requests, base_url=base_url)
+        super().__init__(
+            log_requests=log_requests,
+            base_url=base_url,
+            validate_request_success=validate_request_success,
+        )
 
         self._client_id = client_id
         self._client_secret = client_secret

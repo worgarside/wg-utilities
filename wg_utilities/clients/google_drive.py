@@ -1404,6 +1404,7 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
         oauth_redirect_uri_override: str | None = None,
         headless_auth_link_callback: Callable[[str], None] | None = None,
         use_existing_credentials_only: bool = False,
+        validate_request_success: bool = True,
         item_metadata_retrieval: IMR = IMR.ON_FIRST_REQUEST,
     ):
         super().__init__(
@@ -1418,6 +1419,7 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
             headless_auth_link_callback=headless_auth_link_callback,
             use_existing_credentials_only=use_existing_credentials_only,
             base_url=self.BASE_URL,
+            validate_request_success=validate_request_success,
         )
 
         self.item_metadata_retrieval = item_metadata_retrieval
