@@ -375,6 +375,11 @@ class TrueLayerEntity(BaseModelWithConfig):
         return self._get_balance_property("available_balance")
 
     @property
+    def balance(self) -> float:
+        """Get the available balance, or current if available is not available."""
+        return self.available_balance or self.current_balance
+
+    @property
     def current_balance(self) -> float:
         """Current balance of the account.
 

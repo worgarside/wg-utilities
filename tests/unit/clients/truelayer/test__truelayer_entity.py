@@ -223,7 +223,7 @@ def test_get_balance_property_card(
             mock_update_balance_values.assert_not_called()
 
 
-@pytest.mark.parametrize("property_name", Account.BALANCE_FIELDS)
+@pytest.mark.parametrize("property_name", [*Account.BALANCE_FIELDS, "balance"])
 def test_account_balance_property(
     account: Account,
     property_name: Literal[
@@ -248,7 +248,7 @@ def test_account_balance_property(
     assert value == account._get_balance_property(property_name)
 
 
-@pytest.mark.parametrize("property_name", Card.BALANCE_FIELDS)
+@pytest.mark.parametrize("property_name", [*Card.BALANCE_FIELDS, "balance"])
 def test_card_balance_property(
     card: Card,
     property_name: Literal[
