@@ -7,7 +7,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from http import HTTPStatus
 from typing import Literal
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 import pytest
 from freezegun import freeze_time
@@ -86,7 +86,8 @@ def test_update_balance_values(account: Account) -> None:
     with freeze_time(frozen_datetime := datetime.utcnow()):
         account.update_balance_values()
 
-    assert account._available_balance == 1234.56
+    assert not hasattr(account, "_available_balance")
+
     assert account._current_balance == 1234.56
     assert account._overdraft == 0.0
 
@@ -124,7 +125,6 @@ def test_update_balance_values_multiple_results(
 @pytest.mark.parametrize(
     ("property_name", "expected_value"),
     [
-        ("available_balance", 1234.56),
         ("current_balance", 1234.56),
         ("overdraft", 0.0),
         ("credit_limit", None),
@@ -137,7 +137,6 @@ def test_update_balance_values_multiple_results(
 def test_get_balance_property_account(
     account: Account,
     property_name: Literal[
-        "available_balance",
         "current_balance",
         "overdraft",
         "credit_limit",
@@ -223,11 +222,8 @@ def test_get_balance_property_card(
             mock_update_balance_values.assert_not_called()
 
 
-@pytest.mark.parametrize(
-    "property_name",
-    sorted(set(Account.BALANCE_FIELDS + Card.BALANCE_FIELDS)),  # type: ignore[operator]
-)
-def test_balance_property(
+@pytest.mark.parametrize("property_name", Account.BALANCE_FIELDS)
+def test_account_balance_property(
     account: Account,
     property_name: Literal[
         "available_balance",
@@ -243,7 +239,51 @@ def test_balance_property(
     """Test that all balance properties call `_get_balance_property` correctly."""
 
     with patch.object(
-        TrueLayerEntity, "_get_balance_property", return_value=1234.56
+        TrueLayerEntity, "_get_balance_property", wraps=account._get_balance_property
     ) as mock_get_balance_property:
-        assert getattr(account, property_name) == 1234.56
-        mock_get_balance_property.assert_called_once_with(property_name)
+        value = getattr(account, property_name)
+
+    mock_get_balance_property.assert_called_once_with(property_name)
+    assert value == account._get_balance_property(property_name)
+
+
+@pytest.mark.parametrize("property_name", Card.BALANCE_FIELDS)
+def test_card_balance_property(
+    card: Card,
+    property_name: Literal[
+        "available_balance",
+        "current_balance",
+        "overdraft",
+        "credit_limit",
+        "last_statement_balance",
+        "last_statement_date",
+        "payment_due",
+        "payment_due_date",
+    ],
+) -> None:
+    """Test that all balance properties call `_get_balance_property` correctly."""
+
+    with patch.object(
+        TrueLayerEntity, "_get_balance_property", wraps=card._get_balance_property
+    ) as mock_get_balance_property:
+        value = getattr(card, property_name)
+
+    mock_get_balance_property.assert_called_once_with(property_name)
+    assert value == card._get_balance_property(property_name)
+
+
+def test_balance_property(
+    account: Account,
+) -> None:
+    """Test the `balance` property works correctly."""
+
+    with patch.object(
+        TrueLayerEntity, "_get_balance_property", wraps=account._get_balance_property
+    ) as mock_get_balance_property:
+        value = account.balance
+
+    assert value == account._get_balance_property("current_balance")
+    assert mock_get_balance_property.call_args_list == [
+        call("available_balance"),
+        call("current_balance"),
+    ]
