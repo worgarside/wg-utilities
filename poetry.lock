@@ -1154,13 +1154,13 @@ files = [
 
 [[package]]
 name = "mypy-boto3-lambda"
-version = "1.28.81"
-description = "Type annotations for boto3.Lambda 1.28.81 service generated with mypy-boto3-builder 7.19.1"
+version = "1.28.83"
+description = "Type annotations for boto3.Lambda 1.28.83 service generated with mypy-boto3-builder 7.19.1"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mypy-boto3-lambda-1.28.81.tar.gz", hash = "sha256:e833bee74fc4a146da68184f379b4dff374db559bddf0a6b45e532b58c03eb61"},
-    {file = "mypy_boto3_lambda-1.28.81-py3-none-any.whl", hash = "sha256:9e23a566c07d0c40dd2b3df04be5718a3a5006bea513ffe19ae9ba5880d9fb6b"},
+    {file = "mypy-boto3-lambda-1.28.83.tar.gz", hash = "sha256:ff9d47bee0a15ccf5b798ed5a33f80e2dad0e2ea960ea5f74186390498ff8432"},
+    {file = "mypy_boto3_lambda-1.28.83-py3-none-any.whl", hash = "sha256:92f8bab35bd8b1e8dba827c2e95a351b2adae9bfcc0596801d8249fbaa9984ce"},
 ]
 
 [package.dependencies]
