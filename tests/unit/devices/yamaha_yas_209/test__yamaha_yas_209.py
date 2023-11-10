@@ -330,7 +330,10 @@ def test_listen_starts_listening(
 def test_listen_reraises_exception_from_subscribe_worker(
     yamaha_yas_209: YamahaYas209,
 ) -> None:
-    """Test that `listen` starts listening if `self._listening` is False."""
+    """Test that `listen` starts listening if `self._listening` is False.
+
+    Fails with seed 3830143397
+    """
 
     call_count = 0
 

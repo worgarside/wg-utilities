@@ -185,10 +185,10 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
             playlist (Playlist): the playlist being updated
             log_responses (bool): log each individual response
             force_add (bool): flag for adding the track even if it's in the playlist
-             already
+                already
             update_instance_tracklist (bool): appends the track to the Playlist's
-             tracklist. Can be slow if it's a big playlist as it might have to get
-             the tracklist first
+                tracklist. Can be slow if it's a big playlist as it might have to get
+                the tracklist first
         """
 
         tracks_to_add = [
@@ -229,7 +229,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
 
         Returns:
             Playlist: an instance of the Playlist class containing the new playlist's
-             metadata
+                metadata
         """
         res = self._post(
             f"/users/{self.current_user.id}/playlists",
@@ -441,18 +441,18 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         Args:
             search_term (str): the term to use as the base of the search
             entity_types (str): the types of entity to search for. Must be one of
-             SpotifyClient.SEARCH_TYPES
+                SpotifyClient.SEARCH_TYPES
             get_best_match_only (bool): return a single entity from the top of the
-             list, rather than all matches
+                list, rather than all matches
 
         Returns:
             Artist | Playlist | Track | Album: a single entity if the best match flag
-             is set
+                is set
             dict: a dict of entities, by type
 
         Raises:
             ValueError: if multiple entity types have been requested but the best match
-             flag is true
+                flag is true
             ValueError: if one of entity_types is an invalid value
         """
 

@@ -75,7 +75,7 @@ class TransactionCategory(Enum):
     """Enum for TrueLayer transaction types.
 
     __init__ method is overridden to allow setting a description as well as the main
-     value.
+    value.
     """
 
     ATM = (
@@ -385,7 +385,7 @@ class TrueLayerEntity(BaseModelWithConfig):
 
         Returns:
             float: the total amount of money in the account, including pending
-             transactions
+                transactions
         """
         return self._get_balance_property("current_balance")
 
@@ -611,7 +611,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
 
         Raises:
             HTTPError: if a HTTPError is raised by the request, and it's not because
-             the ID wasn't found
+                the ID wasn't found
             ValueError: if >1 result is returned from the TrueLayer API
         """
         try:
@@ -642,7 +642,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
 
         Returns:
             list[Union([Account, Card])]: a list of Account/Card instances with
-             associated info
+                associated info
 
         Raises:
             HTTPError: if a HTTPError is raised by the `_get` method, but it's not a 501
