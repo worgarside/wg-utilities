@@ -284,14 +284,14 @@ class Calendar(GoogleCalendarEntity):
         Args:
             page_size (int): the number of records to return on a single response page
             order_by (Literal["updated", "startTime"]): the order of the events
-             returned within the result
+                returned within the result
             from_datetime (datetime): lower bound (exclusive) for an event's end time
-             to filter by. Defaults to 90 days ago.
+                to filter by. Defaults to 90 days ago.
             to_datetime (datetime): upper bound (exclusive) for an event's start time
-             to filter by. Defaults to now.
+                to filter by. Defaults to now.
             combine_recurring_events (bool): whether to expand recurring events into
-             instances and only return single one-off events and instances of recurring
-             events, but not the underlying recurring events themselves
+                instances and only return single one-off events and instances of recurring
+                events, but not the underlying recurring events themselves
             day_limit (int): the maximum number of days to return events for.
 
         Returns:

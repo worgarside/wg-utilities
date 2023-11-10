@@ -69,7 +69,7 @@ class MockBoto3Client:
 
         Args:
             lookup_overrides (dict): any overrides to be applied for this specific API
-             call
+                call
             reset_boto3_calls (bool): option for resetting boto3 calls
 
         Returns:

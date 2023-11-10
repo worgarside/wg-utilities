@@ -358,7 +358,7 @@ class Account(BaseModelWithConfig):
 
         Returns:
             float: the currently available balance of the account, including flexible
-             savings pots
+                savings pots
         """
         return self.balance_variables.balance_including_flexible_savings
 
@@ -378,7 +378,7 @@ class Account(BaseModelWithConfig):
 
         Returns:
             str: the sum of the currently available balance of the account and the
-             combined total of all the user's pots
+                combined total of all the user's pots
         """
         return self.balance_variables.total_balance
 
@@ -452,7 +452,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
             pot (Pot): the target pot
             amount_pence (int): the amount of money to deposit, in pence
             dedupe_id (str): unique string used to de-duplicate deposits. Will be
-             created if not provided
+                created if not provided
         """
 
         dedupe_id = dedupe_id or "|".join(
@@ -479,7 +479,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         Args:
             include_closed (bool): whether to include closed accounts in the response
             account_type (str): the type of account(s) to find; submitted as param in
-             request
+                request
 
         Returns:
             list: Account instances, containing all related info

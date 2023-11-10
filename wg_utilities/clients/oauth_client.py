@@ -552,7 +552,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
 
         Raises:
             ValueError: if the state token returned from the request doesn't match the
-             expected value
+                expected value
         """
         if not hasattr(self, "_credentials") and not self._load_local_credentials():
             self.run_first_time_login()
