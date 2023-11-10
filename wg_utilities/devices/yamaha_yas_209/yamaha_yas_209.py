@@ -915,7 +915,7 @@ class YamahaYas209:
         Args:
             value (Yas209State): the new state of the YAS-209
             local_only (bool): only change the local value of the state (i.e. don't
-             update the soundbar)
+                update the soundbar)
 
         Raises:
             TypeError: if the value is not a valid state
@@ -944,7 +944,7 @@ class YamahaYas209:
         Args:
             value (float): the new volume level, as a float between 0 and 1
             local_only (bool): only change the local value of the volume level (i.e.
-             don't update the soundbar)
+                don't update the soundbar)
 
         Raises:
             ValueError: if the value is not between 0 and 1

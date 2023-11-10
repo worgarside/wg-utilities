@@ -209,7 +209,7 @@ class MediaItem(GooglePhotosEntity):
                 locally already
 
         Returns:
-             str: the path to the downloaded file (self.local_path)
+                str: the path to the downloaded file (self.local_path)
         """
 
         if isinstance(target_directory, str):

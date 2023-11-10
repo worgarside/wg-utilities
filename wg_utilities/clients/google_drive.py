@@ -792,7 +792,7 @@ class File(_GoogleDriveEntity):
 
         Args:
             force_update (bool): re-pull the description from Google Drive, even if we
-             already have the description locally
+                already have the description locally
 
         Returns:
             dict: the description JSON for this file
