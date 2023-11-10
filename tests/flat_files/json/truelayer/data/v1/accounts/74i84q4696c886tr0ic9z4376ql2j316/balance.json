@@ -1,7 +1,6 @@
 {
   "results": [
     {
-      "available": 1234.56,
       "currency": "GBP",
       "current": 1234.56,
       "overdraft": 0.0,
