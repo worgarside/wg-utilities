@@ -6,7 +6,7 @@ from datetime import date, datetime, timedelta
 from enum import Enum, StrEnum, auto
 from logging import DEBUG, getLogger
 from pathlib import Path
-from typing import Any, ClassVar, Literal, Self, TypeAlias, TypeVar
+from typing import Any, ClassVar, Literal, Self, TypeAlias, TypeVar, overload
 
 from pydantic import Field, field_validator
 from requests import HTTPError
@@ -190,12 +190,6 @@ class TrueLayerEntity(BaseModelWithConfig):
 
     _available_balance: float
     _current_balance: float
-    _overdraft: float
-    _credit_limit: float
-    _last_statement_balance: float
-    _last_statement_date: date
-    _payment_due: float
-    _payment_due_date: date
 
     truelayer_client: TrueLayerClient = Field(exclude=True)
     balance_update_threshold: timedelta = Field(timedelta(minutes=15), exclude=True)
@@ -302,6 +296,36 @@ class TrueLayerEntity(BaseModelWithConfig):
 
         self.last_balance_update = datetime.utcnow()
 
+    @overload
+    def _get_balance_property(
+        self,
+        prop_name: Literal["current_balance"],
+    ) -> float:
+        ...
+
+    @overload
+    def _get_balance_property(
+        self,
+        prop_name: Literal[
+            "available_balance",
+            "overdraft",
+            "credit_limit",
+            "last_statement_balance",
+            "payment_due",
+        ],
+    ) -> float | None:
+        ...
+
+    @overload
+    def _get_balance_property(
+        self,
+        prop_name: Literal[
+            "last_statement_date",
+            "payment_due_date",
+        ],
+    ) -> date | None:
+        ...
+
     def _get_balance_property(
         self,
         prop_name: Literal[
@@ -314,7 +338,7 @@ class TrueLayerEntity(BaseModelWithConfig):
             "payment_due",
             "payment_due_date",
         ],
-    ) -> str | float | int | None:
+    ) -> float | date | None:
         """Get a value for a balance-specific property.
 
         Updates the values if necessary (i.e. if they don't already exist). This also
@@ -342,7 +366,7 @@ class TrueLayerEntity(BaseModelWithConfig):
         return getattr(self, f"_{prop_name}", None)
 
     @property
-    def available_balance(self) -> str | float | int | None:
+    def available_balance(self) -> float | None:
         """Available balance for the entity.
 
         Returns:
@@ -351,7 +375,7 @@ class TrueLayerEntity(BaseModelWithConfig):
         return self._get_balance_property("available_balance")
 
     @property
-    def current_balance(self) -> str | float | int | None:
+    def current_balance(self) -> float:
         """Current balance of the account.
 
         Returns:
@@ -359,60 +383,6 @@ class TrueLayerEntity(BaseModelWithConfig):
              transactions
         """
         return self._get_balance_property("current_balance")
-
-    @property
-    def overdraft(self) -> str | float | int | None:
-        """Overdraft limit for the account.
-
-        Returns:
-            float: the overdraft limit of the account
-        """
-        return self._get_balance_property("overdraft")
-
-    @property
-    def credit_limit(self) -> str | float | int | None:
-        """Credit limit of the account.
-
-        Returns:
-            float: the credit limit available to the customer
-        """
-        return self._get_balance_property("credit_limit")
-
-    @property
-    def last_statement_balance(self) -> str | float | int | None:
-        """Balance of the account at the last statement date.
-
-        Returns:
-            float: the balance on the last statement
-        """
-        return self._get_balance_property("last_statement_balance")
-
-    @property
-    def last_statement_date(self) -> str | float | int | None:
-        """Date of the last statement.
-
-        Returns:
-            date: the date the last statement was issued on
-        """
-        return self._get_balance_property("last_statement_date")
-
-    @property
-    def payment_due(self) -> str | float | int | None:
-        """Amount due on the next statement.
-
-        Returns:
-            float: the amount of any due payment
-        """
-        return self._get_balance_property("payment_due")
-
-    @property
-    def payment_due_date(self) -> str | float | int | None:
-        """Date of the next statement.
-
-        Returns:
-            date: the date on which the next payment is due
-        """
-        return self._get_balance_property("payment_due_date")
 
     def __str__(self) -> str:
         """Return a string representation of the entity."""
@@ -468,6 +438,8 @@ class Account(TrueLayerEntity):
     account_number: _AccountNumber
     account_type: AccountType
 
+    _overdraft: float
+
     @field_validator("account_type", mode="before")
     @classmethod
     def validate_account_type(cls, value: str) -> AccountType:
@@ -479,6 +451,15 @@ class Account(TrueLayerEntity):
             raise ValueError(f"Invalid account type: `{value}`")
 
         return AccountType[value.upper()]
+
+    @property
+    def overdraft(self) -> float | None:
+        """Overdraft limit for the account.
+
+        Returns:
+            float: the overdraft limit of the account
+        """
+        return self._get_balance_property("overdraft")
 
 
 class Card(TrueLayerEntity):
@@ -500,6 +481,57 @@ class Card(TrueLayerEntity):
     name_on_card: str
     valid_from: date | None = None
     valid_to: date | None = None
+
+    _credit_limit: float
+    _last_statement_balance: float
+    _last_statement_date: date
+    _payment_due: float
+    _payment_due_date: date
+
+    @property
+    def credit_limit(self) -> float | None:
+        """Credit limit of the account.
+
+        Returns:
+            float: the credit limit available to the customer
+        """
+        return self._get_balance_property("credit_limit")
+
+    @property
+    def last_statement_balance(self) -> float | None:
+        """Balance of the account at the last statement date.
+
+        Returns:
+            float: the balance on the last statement
+        """
+        return self._get_balance_property("last_statement_balance")
+
+    @property
+    def last_statement_date(self) -> date | None:
+        """Date of the last statement.
+
+        Returns:
+            date: the date the last statement was issued on
+        """
+        return self._get_balance_property("last_statement_date")
+
+    @property
+    def payment_due(self) -> float | None:
+        """Amount due on the next statement.
+
+        Returns:
+            float: the amount of any due payment
+        """
+        return self._get_balance_property("payment_due")
+
+    @property
+    def payment_due_date(self) -> date | None:
+        """Date of the next statement.
+
+        Returns:
+            date: the date on which the next payment is due
+        """
+        return self._get_balance_property("payment_due_date")
 
 
 AccountOrCard = TypeVar("AccountOrCard", Account, Card)
