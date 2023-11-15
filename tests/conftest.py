@@ -125,56 +125,56 @@ def assert_mock_requests_request_history(
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["google/calendar"]
 ) -> CalendarJson:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["google/photos/v1/albums"]
 ) -> AlbumJson:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["google/photos/v1/mediaitems"]
 ) -> dict[Literal["mediaItems"], list[MediaItemJson]]:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["monzo", "monzo/accounts"]
 ) -> dict[Literal["accounts"], list[MonzoAccountJson]]:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["monzo/pots"]
 ) -> dict[Literal["pots"], list[PotJson]]:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["monzo/transactions"]
 ) -> dict[Literal["transactions"], list[TransactionJson]]:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["spotify"]
 ) -> SpotifyEntityJson:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["truelayer"]
 ) -> dict[Literal["results"], list[TrueLayerAccountJson | CardJson]]:
     ...
