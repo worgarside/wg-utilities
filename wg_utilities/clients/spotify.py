@@ -351,9 +351,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
 
             page_items: list[AlbumSummaryJson] | list[DeviceJson] | list[
                 ArtistSummaryJson
-            ] | list[PlaylistSummaryJson] | list[TrackFullJson] = page.get(
-                list_key, []
-            )  # type: ignore[assignment]
+            ] | list[PlaylistSummaryJson] | list[TrackFullJson] = page.get(list_key, [])
             if limit_func is None:
                 items.extend(page_items)
             else:
@@ -512,11 +510,9 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
                 except LookupError:
                     return None
 
-            entity_instances.setdefault(
-                res_entity_type, []  # type: ignore[typeddict-item]
-            ).extend(
+            entity_instances.setdefault(res_entity_type, []).extend(
                 [
-                    instance_class.from_json_response(entity_json, spotify_client=self)
+                    instance_class.from_json_response(entity_json, spotify_client=self)  # type: ignore[misc]
                     for entity_json in entities_json.get("items", [])
                 ]
             )

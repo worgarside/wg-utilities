@@ -8,7 +8,7 @@ from logging import DEBUG, Handler, LogRecord, getLogger
 from os import getenv
 from socket import gethostname
 from traceback import format_exception
-from typing import Final, Literal, NotRequired, TypedDict
+from typing import Any, Final, Literal, NotRequired, TypedDict
 
 from wg_utilities.clients import JsonApiClient
 
@@ -43,7 +43,7 @@ class WarehouseLog(TypedDict):
     thread: str
 
 
-PythonType = int | str | datetime | date | bool | dict | float | None
+PythonType = int | str | datetime | date | bool | dict[str, Any] | float | None
 
 
 class FieldDefinition(TypedDict):
