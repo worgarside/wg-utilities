@@ -95,7 +95,6 @@ class RaspberryPi:
 
 try:
     if path.exists("/sys/bus/platform/drivers/gpiomem-bcm2835"):
-        # pylint: disable=used-before-assignment
         implementation: RaspberryPi | FakeImplementation = RaspberryPi()
     else:
         raise RuntimeError("Unsupported platform (Jetson Nano?)")
