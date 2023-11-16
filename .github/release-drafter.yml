@@ -41,7 +41,6 @@ categories:
       - enhancement
   - title: 🐛 Bug Fixes
     labels:
-      - patch
       - fix
       - bugfix
       - bug
@@ -51,6 +50,7 @@ categories:
       - github-actions
       - maintenance
       - tools
+      - patch
       - non-functional
   - title: 🛠️ Dependencies
     collapse-after: 5
