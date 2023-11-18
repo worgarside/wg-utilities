@@ -70,6 +70,7 @@ clients = [
 "devices.dht22" = ["pigpio"]
 "devices.yamaha_yas_209" = ["async-upnp-client", "pydantic", "xmltodict"]
 "exceptions" = ["python-dotenv", "requests"]
+"logging" = ["pytz", "requests"]
 "functions" = ["lxml", "pytz"]
 "testing" = ["botocore"]
 
