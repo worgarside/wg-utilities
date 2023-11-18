@@ -1,7 +1,6 @@
 """Unit test fixtures for the loggers module."""
 from __future__ import annotations
 
-from collections.abc import Callable
 from datetime import UTC, datetime
 from http import HTTPStatus
 from logging import (
@@ -15,7 +14,6 @@ from logging import (
     getLevelName,
     getLogger,
 )
-from typing import Any
 
 import pytest
 from freezegun import freeze_time
@@ -24,10 +22,6 @@ from requests_mock import Mocker
 
 from tests.conftest import YieldFixture
 from wg_utilities.loggers import ListHandler, WarehouseHandler
-from wg_utilities.loggers.item_warehouse.pyscript_warehouse_handler import (
-    PyscriptWarehouseHandler,
-    _PyscriptTaskExecutorProtocol,
-)
 
 
 @pytest.fixture(name="list_handler")
@@ -59,7 +53,6 @@ def logger_(
     request: pytest.FixtureRequest,
     warehouse_handler: WarehouseHandler,
     list_handler: ListHandler,
-    pyscript_warehouse_handler: PyscriptWarehouseHandler,
 ) -> YieldFixture[Logger]:
     """Fixture for creating a logger."""
 
@@ -71,7 +64,6 @@ def logger_(
         handlers = {
             "list_handler": list_handler,
             "warehouse_handler": warehouse_handler,
-            "pyscript_warehouse_handler": pyscript_warehouse_handler,
         }
 
         for handler_name in handler_marker.args:
@@ -209,25 +201,6 @@ WAREHOUSE_SCHEMA = {
 IWH_DOT_COM = "https://item-warehouse.com"
 
 
-@pytest.fixture(name="pyscript_warehouse_handler")
-def pyscript_warehouse_handler_(
-    mock_requests: Mocker, pyscript_task_executor: _PyscriptTaskExecutorProtocol[Any]
-) -> YieldFixture[PyscriptWarehouseHandler]:
-    """Fixture for creating a PyscriptWarehouseHandler instance."""
-
-    _pyscript_warehouse_handler = PyscriptWarehouseHandler(
-        level="DEBUG",
-        warehouse_host=IWH_DOT_COM,
-        warehouse_port=0,
-        pyscript_task_executor=pyscript_task_executor,
-    )
-    mock_requests.reset_mock()
-
-    yield _pyscript_warehouse_handler
-
-    _pyscript_warehouse_handler.close()
-
-
 @pytest.fixture(name="warehouse_handler")
 def warehouse_handler_(
     mock_requests: Mocker,
@@ -298,15 +271,3 @@ def mock_requests_(
     )
 
     return mock_requests_root
-
-
-@pytest.fixture(name="pyscript_task_executor")
-def pyscript_task_executor_() -> _PyscriptTaskExecutorProtocol[Any]:
-    """Fixture for returning a homemade-mock task.executor instance."""
-
-    async def _pyscript_task_executor(
-        func: Callable[..., Any], *args: Any, **kwargs: Any
-    ) -> Any:
-        return func(*args, **kwargs)
-
-    return _pyscript_task_executor
