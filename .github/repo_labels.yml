@@ -13,6 +13,10 @@
     description: Delete this branch after merging (bot command)
     color: 8B0000
 
+  - name: bot:do-not-close
+    description: Do not close this PR, even if it's empty (bot command)
+    color: 2C6AAB
+
   - name: bot:keep-updated
     from_name: keep-updated
     description: Keep this PR updated from its base branch (bot command)
