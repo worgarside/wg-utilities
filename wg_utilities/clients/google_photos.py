@@ -185,13 +185,27 @@ class MediaItem(GooglePhotosEntity):
 
     _local_path: Path
 
+    def as_bytes(self, *, height_override: int = 0, width_override: int = 0) -> bytes:
+        """MediaItem binary content - without the download."""
+        height = height_override or self.height
+        width = width_override or self.width
+
+        param_str = {
+            MediaType.IMAGE: f"=w{width}-h{height}",
+            MediaType.VIDEO: "=dv",
+        }.get(self.media_type, "")
+
+        return self.google_client._get(  # pylint: disable=protected-access
+            f"{self.base_url}{param_str}", params={"pageSize": None}
+        ).content
+
     def download(
         self,
         target_directory: Path | str = "",
         *,
         file_name_override: str | None = None,
-        width_override: int | None = None,
-        height_override: int | None = None,
+        width_override: int = 0,
+        height_override: int = 0,
         force_download: bool = False,
     ) -> Path:
         """Download the media item to local storage.
@@ -230,18 +244,10 @@ class MediaItem(GooglePhotosEntity):
                 self.local_path,
             )
         else:
-            width = width_override or self.width
-            height = height_override or self.height
-
-            param_str = {
-                MediaType.IMAGE: f"=w{width}-h{height}",
-                MediaType.VIDEO: "=dv",
-            }.get(self.media_type, "")
-
             force_mkdir(self.local_path, path_is_file=True).write_bytes(
-                self.google_client._get(  # pylint: disable=protected-access
-                    f"{self.base_url}{param_str}", params={"pageSize": None}
-                ).content
+                self.as_bytes(
+                    width_override=width_override, height_override=height_override
+                )
             )
 
         return self.local_path
