@@ -8,6 +8,7 @@ on:
       - bugfix/*
       - chore/*
       - hotfix/*
+      - refactor/*
 
 jobs:
   create-pr:
