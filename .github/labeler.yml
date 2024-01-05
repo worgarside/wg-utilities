@@ -37,6 +37,9 @@ labels:
     files:
       - ^.+\.py$
 
+  - label: refactor
+    branch: ^refactor/.+$
+
   - label: release
     base-branch: ^main$
     branch: ^release/.+$
