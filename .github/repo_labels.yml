@@ -64,11 +64,15 @@
 
   - name: python
     description: Pull requests that update Python code
-    color: 2b67c6
+    color: 2B67C6
 
   - name: release
     description: PR for a new release
     color: C30AC6
+
+  - name: refactor
+    description: No/low functional changes
+    color: 2BB9D9
 
   - name: skip-changelog
     description: Skip the changelog
