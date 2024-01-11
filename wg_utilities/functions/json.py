@@ -228,3 +228,39 @@ def traverse_dict(  # noqa: PLR0912
                 log_op_func_failures=log_op_func_failures,
                 single_keys_to_remove=single_keys_to_remove,
             )
+
+
+def process_json_object(
+    obj: JSONObj,
+    /,
+    *,
+    target_type: type[object] | tuple[type[object], ...] | type[Callable[..., Any]],
+    target_processor_func: TargetProcessorFunc,
+    pass_on_fail: bool = True,
+    log_op_func_failures: bool = False,
+    single_keys_to_remove: Sequence[str] | None = None,
+) -> None:
+    """Generic entry point to process dicts and/or lists."""
+
+    if isinstance(obj, dict):
+        traverse_dict(
+            obj,
+            target_type=target_type,
+            target_processor_func=target_processor_func,
+            pass_on_fail=pass_on_fail,
+            log_op_func_failures=log_op_func_failures,
+            single_keys_to_remove=single_keys_to_remove,
+        )
+    elif isinstance(obj, list):
+        process_list(
+            obj,
+            target_type=target_type,
+            target_processor_func=target_processor_func,
+            pass_on_fail=pass_on_fail,
+            log_op_func_failures=log_op_func_failures,
+            single_keys_to_remove=single_keys_to_remove,
+        )
+    else:
+        raise TypeError(
+            f"Input object must be a dict or list, not {type(obj)!r}",
+        )
