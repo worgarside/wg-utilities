@@ -4,6 +4,7 @@ repos:
     rev: 1.0.1
     hooks:
       - id: sync-additional-dependencies
+        language_version: python3.11
 
   - repo: https://github.com/python-poetry/poetry
     rev: 1.7.0
@@ -84,6 +85,7 @@ repos:
     rev: v2.4.0
     hooks:
       - id: pycln
+        language_version: python3.11
         args:
           - --all
 
