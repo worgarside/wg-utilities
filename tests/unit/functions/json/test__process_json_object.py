@@ -10,7 +10,7 @@ from wg_utilities.functions import process_json_object
 from wg_utilities.functions.json import JSONVal
 
 
-def target_proc_func(
+def target_proc_func(  # pragma: no cover
     value: JSONVal, dict_key: str | None = None, list_index: int | None = None
 ) -> JSONVal:
     """Dummy function for processing items."""
