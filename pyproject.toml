@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wg-utilities"
-version = "5.8.0"
+version = "5.8.1"
 description = "Loads of useful stuff for the things I do :)"
 
 authors = ["Will Garside <worgarside@gmail.com>"]
