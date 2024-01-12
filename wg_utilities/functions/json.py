@@ -100,7 +100,9 @@ def process_list(
                 if not pass_on_fail:
                     raise
 
-        elif isinstance(elem, dict):
+            continue
+
+        if isinstance(elem, dict):
             traverse_dict(
                 elem,
                 target_type=target_type,
@@ -109,7 +111,10 @@ def process_list(
                 log_op_func_failures=log_op_func_failures,
                 single_keys_to_remove=single_keys_to_remove,
             )
-        elif isinstance(elem, list):
+
+            continue
+
+        if isinstance(elem, list):
             process_list(
                 elem,
                 target_type=target_type,
@@ -117,6 +122,8 @@ def process_list(
                 pass_on_fail=pass_on_fail,
                 log_op_func_failures=log_op_func_failures,
             )
+
+            continue
 
 
 def traverse_dict(  # noqa: PLR0912
@@ -176,7 +183,10 @@ def traverse_dict(  # noqa: PLR0912
                     LOGGER.exception("Unable to process item with key %s", k)
                 if not pass_on_fail:
                     raise
-        elif isinstance(v, dict):
+
+            continue
+
+        if isinstance(v, dict):
             matched_single_key = False
             if (
                 len(v) == 1
@@ -223,7 +233,10 @@ def traverse_dict(  # noqa: PLR0912
                     log_op_func_failures=log_op_func_failures,
                     single_keys_to_remove=single_keys_to_remove,
                 )
-        elif isinstance(v, list):
+
+            continue
+
+        if isinstance(v, list):
             process_list(
                 v,
                 target_type=target_type,
