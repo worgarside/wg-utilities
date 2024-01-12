@@ -174,6 +174,53 @@ def test_varying_inputs_processed_as_expected(
     assert in_dict == expected
 
 
+def test_traversing_dict_resursion_error() -> None:
+    """This particular JSON generated a RecursionError. This tests the fix."""
+
+    def _process_schema_values(
+        value: JSONVal,
+        *,
+        dict_key: str | None = None,
+        list_index: int | None = None,
+    ) -> JSONVal:
+        _ = dict_key, list_index
+
+        # Do some work...
+
+        return value
+
+    obj = {
+        # This dict would just get traversed again and again forever
+        "properties": {
+            "responseBody": {
+                "anyOf": [
+                    {"$ref": "#/components/schemas/JSONObj"},
+                    {
+                        "items": {"$ref": "#/components/schemas/JSONVal"},
+                        "type": "array",
+                    },
+                ],
+            },
+            "responseSample": {
+                "anyOf": [
+                    {"$ref": "#/components/schemas/JSONObj"},
+                    {
+                        "items": {"$ref": "#/components/schemas/JSONVal"},
+                        "type": "array",
+                    },
+                ],
+            },
+        },
+        "type": "object",
+    }
+
+    traverse_dict(
+        obj,  # type: ignore[arg-type]
+        target_type=dict,
+        target_processor_func=_process_schema_values,
+    )
+
+
 @pytest.mark.parametrize(
     ",".join(
         [
