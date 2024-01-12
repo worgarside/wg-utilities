@@ -160,7 +160,11 @@ def traverse_dict(  # noqa: PLR0912
                 payload_json.update({k: target_processor_func(v, dict_key=k)})
                 if isinstance(payload_json.get(k), dict):
                     traverse_dict(
-                        payload_json,
+                        # If a dict has been created from a non-dict type (e.g. `loads("{...}")`,
+                        # then we need to traverse the current object again, as the new dict may
+                        # contain more instances of `target_type`. Otherwise, traverse
+                        # the dict (that already existed).
+                        payload_json if target_type is not dict else payload_json[k],  # type: ignore[arg-type]
                         target_type=target_type,
                         target_processor_func=target_processor_func,
                         pass_on_fail=pass_on_fail,
