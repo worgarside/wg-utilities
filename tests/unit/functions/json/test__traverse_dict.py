@@ -184,8 +184,8 @@ def test_traversing_dict_resursion_error() -> None:
         list_index: int | None = None,
     ) -> JSONVal:
         _ = dict_key, list_index
-        if isinstance(value, dict) and value.get("type") == "object":
-            value.setdefault("properties", {})
+
+        # Do some work...
 
         return value
 
