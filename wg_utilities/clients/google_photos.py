@@ -77,7 +77,7 @@ class _GooglePhotosEntityJson(TypedDict):
 class GooglePhotosEntity(BaseModelWithConfig):
     """Generic base class for Google Photos entities."""
 
-    id: str  # noqa: A003
+    id: str
     product_url: str = Field(alias="productUrl")
 
     google_client: GooglePhotosClient = Field(exclude=True)
