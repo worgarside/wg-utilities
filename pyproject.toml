@@ -22,7 +22,7 @@ python = "^3.11"
 async-upnp-client = { version = "*", optional = true }
 botocore = { version = "*", optional = true }
 flask = { version = ">=2.0.2", optional = true }
-lxml = { version = "==5.0.0", optional = true }
+lxml = { version = "==5.1.0", optional = true }
 pigpio = { version = "*", optional = true }
 pillow = { version = "*", optional = true }
 pyjwt = { version = ">=2.6,<2.9", optional = true }
