@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 
 from wg_utilities.functions import process_json_object
-from wg_utilities.functions.json import JSONVal
+from wg_utilities.functions.json import InvalidJsonObjectError, JSONVal
 
 
 def target_proc_func(  # pragma: no cover
@@ -77,7 +77,7 @@ def test_list() -> None:
 def test_invalid_type() -> None:
     """Test that an invalid type raises an exception."""
 
-    with pytest.raises(TypeError):
+    with pytest.raises(InvalidJsonObjectError) as exc_info:
         process_json_object(
             123,  # type: ignore[arg-type]
             target_type=str,
@@ -86,3 +86,8 @@ def test_invalid_type() -> None:
             log_op_func_failures=True,
             single_keys_to_remove=["one", "two"],
         )
+
+    assert (
+        exc_info.value.args[0]
+        == "Input object must be a dict or list, not <class 'int'>"
+    )
