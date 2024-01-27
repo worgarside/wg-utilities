@@ -42,7 +42,7 @@ class _Attendee(BaseModelWithConfig):
     comment: str | None = None
     display_name: str | None = Field(None, alias="displayName")
     email: str
-    id: str | None = None  # noqa: A003
+    id: str | None = None
     optional: bool = False
     organizer: bool = False
     resource: bool = False
@@ -160,7 +160,7 @@ class GoogleCalendarEntity(BaseModelWithConfig):
 
     description: str | None = None
     etag: str
-    id: str  # noqa: A003
+    id: str
     location: str | None = None
     summary: str
 
@@ -204,7 +204,7 @@ class _Notification(BaseModelWithConfig):
     """Base class for Event notifications."""
 
     method: Literal["email", "sms"]
-    type: Literal[  # noqa: A003
+    type: Literal[
         "eventCreation", "eventChange", "eventCancellation", "eventResponse", "agenda"
     ]
 
