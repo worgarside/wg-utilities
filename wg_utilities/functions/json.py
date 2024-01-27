@@ -3,12 +3,10 @@ from __future__ import annotations
 
 from collections.abc import MutableMapping, Sequence
 from logging import DEBUG, getLogger
-from typing import Any, Protocol, TypeVar, Union
+from typing import Any, Protocol, TypeVar, Union, cast
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-
-T = TypeVar("T")
 
 JSONVal = Union[
     None, object, bool, str, float, int, list["JSONVal"], "JSONObj", dict[str, object]
@@ -99,7 +97,7 @@ def process_list(
     for i, elem in enumerate(lst):
         if isinstance(elem, target_type):
             try:
-                lst[i] = target_processor_func(elem, list_index=i)  # type: ignore[arg-type]
+                lst[i] = target_processor_func(cast(V, elem), list_index=i)
             except Exception:  # pylint: disable=broad-except
                 if log_op_func_failures:
                     LOGGER.exception("Unable to process item at index %i", i)
@@ -171,14 +169,16 @@ def traverse_dict(  # noqa: PLR0912
     for k, v in payload_json.items():
         if isinstance(v, target_type):
             try:
-                payload_json.update({k: target_processor_func(v, dict_key=k)})  # type: ignore[arg-type]
+                payload_json.update({k: target_processor_func(cast(V, v), dict_key=k)})
                 if isinstance(payload_json.get(k), dict):
                     traverse_dict(
                         # If a dict has been created from a non-dict type (e.g. `loads("{...}")`,
                         # then we need to traverse the current object again, as the new dict may
                         # contain more instances of `target_type`. Otherwise, traverse
                         # the dict (that already existed).
-                        payload_json if target_type is not dict else payload_json[k],  # type: ignore[arg-type]
+                        payload_json
+                        if target_type is not dict
+                        else cast(JSONObj, payload_json[k]),
                         target_type=target_type,
                         target_processor_func=target_processor_func,
                         pass_on_fail=pass_on_fail,
@@ -203,7 +203,7 @@ def traverse_dict(  # noqa: PLR0912
                 matched_single_key = True
                 if isinstance(value := v.get(only_key), target_type):
                     try:
-                        value = target_processor_func(value, dict_key=only_key)  # type: ignore[arg-type]
+                        value = target_processor_func(cast(V, value), dict_key=only_key)
                     except Exception:  # pylint: disable=broad-except
                         if log_op_func_failures:
                             LOGGER.exception(
