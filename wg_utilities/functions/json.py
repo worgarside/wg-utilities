@@ -253,7 +253,7 @@ def traverse_dict(  # noqa: PLR0912
             )
 
 
-class InvalidJsonObjectError(TypeError):
+class InvalidJsonObjectError(Exception):
     """Raised when an invalid JSON object/array is passed to `process_json_object`."""
 
     def __init__(self, obj: Any) -> None:
@@ -273,7 +273,11 @@ def process_json_object(
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,
 ) -> None:
-    """Generic entry point to process dicts and/or lists."""
+    """Generic entry point to process dicts and/or lists.
+
+    Raises:
+        InvalidJsonObjectError: if an invalid JSON object/array is passed
+    """
 
     if isinstance(obj, dict):
         traverse_dict(
