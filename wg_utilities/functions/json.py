@@ -253,6 +253,16 @@ def traverse_dict(  # noqa: PLR0912
             )
 
 
+class InvalidJsonObjectError(TypeError):
+    """Raised when an invalid JSON object/array is passed to `process_json_object`."""
+
+    def __init__(self, obj: Any) -> None:
+        """Initialize the exception."""
+        super().__init__(
+            f"Input object must be a dict or list, not {type(obj)!r}",
+        )
+
+
 def process_json_object(
     obj: JSONObj | JSONArr,
     /,
@@ -284,6 +294,4 @@ def process_json_object(
             single_keys_to_remove=single_keys_to_remove,
         )
     else:
-        raise TypeError(
-            f"Input object must be a dict or list, not {type(obj)!r}",
-        )
+        raise InvalidJsonObjectError(obj)
