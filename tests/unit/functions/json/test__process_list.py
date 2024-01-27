@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from logging import ERROR
+from typing import Any
 from unittest.mock import ANY, MagicMock, _Call, call, patch
 
 import pytest
@@ -96,7 +97,7 @@ def test_single_item_list() -> None:
 def test_varying_inputs_processed_as_expected(
     in_list: list[JSONVal],
     target_type: type[JSONVal] | tuple[type[JSONVal], ...],
-    target_processor_func: TargetProcessorFunc,
+    target_processor_func: TargetProcessorFunc[Any],
     expected: list[JSONVal],
 ) -> None:
     """Test various lists with different types and processor functions."""
@@ -151,7 +152,7 @@ def test_varying_inputs_processed_as_expected(
 def test_exceptions_are_raised_correctly(
     in_list: list[JSONVal],
     target_type: type[JSONVal] | tuple[type[JSONVal], ...],
-    target_processor_func: TargetProcessorFunc,
+    target_processor_func: TargetProcessorFunc[Any],
     exception_type: type[Exception],
     exception_message: str,
     expected: list[JSONVal],
@@ -207,7 +208,7 @@ def test_exceptions_are_raised_correctly(
 def test_exceptions_are_logged_correctly(
     in_list: list[JSONVal],
     target_type: type[JSONVal] | tuple[type[JSONVal], ...],
-    target_processor_func: TargetProcessorFunc,
+    target_processor_func: TargetProcessorFunc[Any],
     exception_indexes: list[int],
     expected: list[JSONVal],
     caplog: pytest.LogCaptureFixture,
@@ -422,7 +423,7 @@ def test_nested_dicts_are_passed_to_traverse_dict(
 def test_list_index_parameter_for_target_processor_func(
     in_list: list[JSONVal],
     target_type: type[JSONVal] | tuple[type[JSONVal], ...],
-    target_processor_func: TargetProcessorFunc,
+    target_processor_func: TargetProcessorFunc[Any],
     expected: list[JSONVal],
 ) -> None:
     """Test that the list index is passed to the target processor function."""

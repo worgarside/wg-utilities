@@ -55,7 +55,7 @@ def test_list() -> None:
         "wg_utilities.functions.json.process_list"
     ) as mock_process_list:
         process_json_object(
-            ["value"],  # type: ignore[arg-type]
+            ["value"],
             target_type=str,
             target_processor_func=target_proc_func,
             pass_on_fail=False,
