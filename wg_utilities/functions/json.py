@@ -132,7 +132,8 @@ def process_list(
 
 
 def traverse_dict(  # noqa: PLR0912
-    payload_json: JSONObj,
+    obj: JSONObj,
+    /,
     *,
     target_type: type[V] | tuple[type[V], ...],
     target_processor_func: TargetProcessorFunc[V],
@@ -143,7 +144,7 @@ def traverse_dict(  # noqa: PLR0912
     """Traverse dict, applying`target_processor_func` to any values of type `target_type`.
 
     Args:
-        payload_json (dict): the JSON object to traverse
+        obj (dict): the JSON object to traverse
         target_type (type): the target type to apply functions to
         target_processor_func (Callable): a function to apply to instances of
          `target_type`
@@ -166,19 +167,17 @@ def traverse_dict(  # noqa: PLR0912
     Raises:
         Exception: if the `target_processor_func` fails and `pass_on_fail` is False
     """
-    for k, v in payload_json.items():
+    for k, v in obj.items():
         if isinstance(v, target_type):
             try:
-                payload_json.update({k: target_processor_func(cast(V, v), dict_key=k)})
-                if isinstance(payload_json.get(k), dict):
+                obj.update({k: target_processor_func(cast(V, v), dict_key=k)})
+                if isinstance(obj.get(k), dict):
                     traverse_dict(
                         # If a dict has been created from a non-dict type (e.g. `loads("{...}")`,
                         # then we need to traverse the current object again, as the new dict may
                         # contain more instances of `target_type`. Otherwise, traverse
                         # the dict (that already existed).
-                        payload_json
-                        if target_type is not dict
-                        else cast(JSONObj, payload_json[k]),
+                        obj if target_type is not dict else cast(JSONObj, obj[k]),
                         target_type=target_type,
                         target_processor_func=target_processor_func,
                         pass_on_fail=pass_on_fail,
@@ -229,7 +228,7 @@ def traverse_dict(  # noqa: PLR0912
 
                     value = tmp_wrapper["-"]
 
-                payload_json[k] = value
+                obj[k] = value
 
             if not matched_single_key:
                 traverse_dict(
