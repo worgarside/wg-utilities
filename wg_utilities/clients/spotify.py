@@ -78,12 +78,12 @@ class AlbumType(StrEnum):
 class Device(BaseModelWithConfig):
     """Model for a Spotify device."""
 
-    id: str  # noqa: A003
+    id: str
     is_active: bool
     is_private_session: bool
     is_restricted: bool
     name: str
-    type: str  # noqa: A003
+    type: str
     volume_percent: int
 
 
@@ -95,7 +95,7 @@ class TrackAudioFeatures(BaseModelWithConfig):
     danceability: float
     duration_ms: int
     energy: float
-    id: str  # noqa: A003
+    id: str
     instrumentalness: float
     key: int
     liveness: float
@@ -105,7 +105,7 @@ class TrackAudioFeatures(BaseModelWithConfig):
     tempo: float
     time_signature: int
     track_href: str
-    type: Literal["audio_features"]  # noqa: A003
+    type: Literal["audio_features"]
     uri: str
     valence: float
 
@@ -554,7 +554,7 @@ class SpotifyEntity(BaseModelWithConfig, Generic[SJ]):
     description: str = ""
     external_urls: dict_[Literal["spotify"], str]
     href: str
-    id: str  # noqa: A003
+    id: str
     name: str = ""
     uri: str
 
@@ -685,7 +685,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
     tracks_json: PaginatedResponseTracks = Field(
         alias="tracks", default_factory=dict
     )  # type: ignore[assignment]
-    type: Literal["album"]  # noqa: A003
+    type: Literal["album"]
 
     _artists: list[Artist]
     _tracks: list[Track]
@@ -806,7 +806,7 @@ class Artist(SpotifyEntity[ArtistSummaryJson]):
     genres: list[str] | None = None
     images: list[Image] | None = None
     popularity: int | None = None
-    type: Literal["artist"]  # noqa: A003
+    type: Literal["artist"]
 
     _albums: list[Album]
 
@@ -852,7 +852,7 @@ class Track(SpotifyEntity[TrackFullJson]):
     restrictions: str | None = None
     track: bool | None = None
     track_number: int
-    type: Literal["track"]  # noqa: A003
+    type: Literal["track"]
 
     _artists: list[Artist]
     _album: Album
@@ -971,7 +971,7 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
     tracks_json: PaginatedResponsePlaylistTracks | PlaylistSummaryJsonTracks = Field(
         alias="tracks"
     )
-    type: Literal["playlist"]  # noqa: A003
+    type: Literal["playlist"]
 
     _tracks: list[Track]
     _owner: User
@@ -1120,7 +1120,7 @@ class User(SpotifyEntity[UserSummaryJson]):
     followers: Followers | None = None
     images: list[Image] | None = None
     product: str | None = None
-    type: Literal["user"]  # noqa: A003
+    type: Literal["user"]
 
     _albums: list[Album]
     _artists: list[Artist]
