@@ -171,7 +171,7 @@ class BalanceVariables(BaseModelWithConfig):
 class _TrueLayerEntityProvider(BaseModelWithConfig):
     display_name: str
     logo_uri: str
-    id: str = Field(alias="provider_id")  # noqa: A003
+    id: str = Field(alias="provider_id")
 
 
 TrueLayerEntityJson: TypeAlias = AccountJson | CardJson
@@ -182,7 +182,7 @@ class TrueLayerEntity(BaseModelWithConfig):
 
     BALANCE_FIELDS: ClassVar[Iterable[str]] = ()
 
-    id: str = Field(alias="account_id")  # noqa: A003
+    id: str = Field(alias="account_id")
     currency: str
     display_name: str
     provider: _TrueLayerEntityProvider
@@ -400,7 +400,7 @@ class Transaction(BaseModelWithConfig):
     amount: float
     currency: str
     description: str
-    id: str = Field(alias="transaction_id")  # noqa: A003
+    id: str = Field(alias="transaction_id")
     merchant_name: str | None = None
     meta: dict[str, str]
     normalised_provider_transaction_id: str | None = None

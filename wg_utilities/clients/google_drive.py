@@ -71,14 +71,14 @@ class _ImageMediaMetadata(BaseModelWithConfig):
 
 class _Label(BaseModelWithConfig):
     kind: EntityKind = Field(alias="kind", default=EntityKind.LABEL)
-    id: str  # noqa: A003
+    id: str
     revision_id: str = Field(alias="revisionId")
     fields: dict[str, _LabelField]
 
 
 class _LabelField(BaseModelWithConfig):
     kind: EntityKind = Field(alias="kind", default=EntityKind.USER)
-    id: str  # noqa: A003
+    id: str
     value_type: str = Field(alias="valueType")
     date_str: list[date] = Field(alias="datestr", default_factory=list)
     integer: list[float]
@@ -96,8 +96,8 @@ class _PermissionDetails(BaseModelWithConfig):
 
 class _Permission(BaseModelWithConfig):
     kind: EntityKind = Field(alias="kind", default=EntityKind.PERMISSION)
-    id: str  # noqa: A003
-    type: str  # noqa: A003
+    id: str
+    type: str
     email_address: str | None = Field(None, alias="emailAddress")
     domain: str | None = None
     role: str
@@ -138,13 +138,13 @@ class _ContentRestriction(BaseModelWithConfig):
     reason: str
     restricting_user: _User = Field(alias="restrictingUser")
     restriction_time: datetime = Field(alias="restrictionTime")
-    type: str  # noqa: A003
+    type: str
 
 
 class _GoogleDriveEntity(BaseModelWithConfig):
     """Base class for Google Drive entities."""
 
-    id: str  # noqa: A003
+    id: str
     name: str
     mime_type: str = Field(alias="mimeType")
 
@@ -973,7 +973,7 @@ class _DriveRestrictions(BaseModelWithConfig):
 
 
 class _DriveBackgroundImageFile(BaseModelWithConfig):
-    id: str  # noqa: A003
+    id: str
     x_coordinate: float = Field(alias="xCoordinate")
     y_coordinate: float = Field(alias="yCoordinate")
     width: float
@@ -1118,7 +1118,7 @@ class Drive(_CanHaveChildren):
 
         return self._get_entity_by_id(File, file_id)
 
-    def map(self, map_type: EntityType = EntityType.FILE) -> None:  # noqa: A003
+    def map(self, map_type: EntityType = EntityType.FILE) -> None:
         """Traverse the entire Drive to map its content.
 
         Args:

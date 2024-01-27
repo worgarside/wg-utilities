@@ -166,7 +166,7 @@ class Transaction(BaseModelWithConfig):
     dedupe_id: str
     description: str
     fees: dict[str, Any] | None = None
-    id: str  # noqa: A003
+    id: str
     include_in_spending: bool
     international: bool | None = None
     is_load: bool
@@ -219,7 +219,7 @@ class Account(BaseModelWithConfig):
     created: datetime
     currency: Literal["GBP"]
     description: str
-    id: str  # noqa: A003
+    id: str
     initial_balance: int | None = Field(None, validation_alias="balance")
     initial_balance_including_flexible_savings: int | None = Field(
         None, validation_alias="balance_including_flexible_savings"
@@ -229,7 +229,7 @@ class Account(BaseModelWithConfig):
     owners: list[AccountOwner]
     payment_details: dict[str, dict[str, str]] | None = None
     sort_code: str = Field(min_length=6, max_length=6)
-    type: Literal["uk_monzo_flex", "uk_retail", "uk_retail_joint"]  # noqa: A003
+    type: Literal["uk_monzo_flex", "uk_retail", "uk_retail_joint"]
 
     monzo_client: MonzoClient = Field(exclude=True)
     balance_update_threshold: int = Field(15, exclude=True)
@@ -407,7 +407,7 @@ class Pot(BaseModelWithConfig):
     deleted: bool
     goal_amount: float | None = None
     has_virtual_cards: bool
-    id: str  # noqa: A003
+    id: str
     is_tax_pot: bool
     isa_wrapper: str
     lock_type: Literal["until_date"] | None = None
@@ -418,7 +418,7 @@ class Pot(BaseModelWithConfig):
     round_up: bool
     round_up_multiplier: float | None = None
     style: str
-    type: str  # noqa: A003
+    type: str
     updated: datetime
 
 
