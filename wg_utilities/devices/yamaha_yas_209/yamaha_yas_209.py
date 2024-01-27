@@ -49,7 +49,7 @@ class CurrentTrackMetaDataItemRes(BaseModel, extra="allow"):
 class TrackMetaDataItem(BaseModel, extra="allow"):
     """BaseModel for part of the DLNA payload."""
 
-    id: str  # noqa: A003
+    id: str
     song_subid: str | None = Field(None, alias="song:subid")
     song_description: str | None = Field(None, alias="song:description")
     song_skiplimit: str | None = Field(None, alias="song:skiplimit")
