@@ -1,18 +1,20 @@
 """Useful functions for working with JSON/dictionaries."""
 from __future__ import annotations
 
-from collections.abc import Callable, MutableMapping, Sequence
+from collections.abc import MutableMapping, Sequence
 from logging import DEBUG, getLogger
-from typing import Any, Protocol, Union
+from typing import Any, Protocol, TypeVar, Union
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
+T = TypeVar("T")
 
 JSONVal = Union[
     None, object, bool, str, float, int, list["JSONVal"], "JSONObj", dict[str, object]
 ]
 JSONObj = MutableMapping[str, JSONVal]
+JSONArr = Sequence[JSONVal]
 
 
 def set_nested_value(
@@ -44,12 +46,16 @@ def set_nested_value(
         json_obj[final_key] = target_value
 
 
-class TargetProcessorFunc(Protocol):
+V_contra = TypeVar("V_contra", contravariant=True, bound=JSONVal)
+V = TypeVar("V", bound=JSONVal)
+
+
+class TargetProcessorFunc(Protocol[V_contra]):
     """Typing protocol for the user-defined function passed into the below functions."""
 
     def __call__(
         self,
-        value: JSONVal,
+        value: V_contra,
         *,
         dict_key: str | None = None,
         list_index: int | None = None,
@@ -59,9 +65,10 @@ class TargetProcessorFunc(Protocol):
 
 def process_list(
     lst: list[JSONVal],
+    /,
     *,
-    target_type: type[object] | tuple[type[object], ...],
-    target_processor_func: TargetProcessorFunc,
+    target_type: type[V] | tuple[type[V], ...],
+    target_processor_func: TargetProcessorFunc[V],
     pass_on_fail: bool = True,
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,
@@ -92,7 +99,7 @@ def process_list(
     for i, elem in enumerate(lst):
         if isinstance(elem, target_type):
             try:
-                lst[i] = target_processor_func(elem, list_index=i)
+                lst[i] = target_processor_func(elem, list_index=i)  # type: ignore[arg-type]
             except Exception:  # pylint: disable=broad-except
                 if log_op_func_failures:
                     LOGGER.exception("Unable to process item at index %i", i)
@@ -129,13 +136,13 @@ def process_list(
 def traverse_dict(  # noqa: PLR0912
     payload_json: JSONObj,
     *,
-    target_type: type[object] | tuple[type[object], ...] | type[Callable[..., Any]],
-    target_processor_func: TargetProcessorFunc,
+    target_type: type[V] | tuple[type[V], ...],
+    target_processor_func: TargetProcessorFunc[V],
     pass_on_fail: bool = True,
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,
 ) -> None:
-    """Traverse dict, applying`dict_op_func` to any values of type `target_type`.
+    """Traverse dict, applying`target_processor_func` to any values of type `target_type`.
 
     Args:
         payload_json (dict): the JSON object to traverse
@@ -164,7 +171,7 @@ def traverse_dict(  # noqa: PLR0912
     for k, v in payload_json.items():
         if isinstance(v, target_type):
             try:
-                payload_json.update({k: target_processor_func(v, dict_key=k)})
+                payload_json.update({k: target_processor_func(v, dict_key=k)})  # type: ignore[arg-type]
                 if isinstance(payload_json.get(k), dict):
                     traverse_dict(
                         # If a dict has been created from a non-dict type (e.g. `loads("{...}")`,
@@ -196,7 +203,7 @@ def traverse_dict(  # noqa: PLR0912
                 matched_single_key = True
                 if isinstance(value := v.get(only_key), target_type):
                     try:
-                        value = target_processor_func(value, dict_key=only_key)
+                        value = target_processor_func(value, dict_key=only_key)  # type: ignore[arg-type]
                     except Exception:  # pylint: disable=broad-except
                         if log_op_func_failures:
                             LOGGER.exception(
@@ -248,11 +255,11 @@ def traverse_dict(  # noqa: PLR0912
 
 
 def process_json_object(
-    obj: JSONObj,
+    obj: JSONObj | JSONArr,
     /,
     *,
-    target_type: type[object] | tuple[type[object], ...] | type[Callable[..., Any]],
-    target_processor_func: TargetProcessorFunc,
+    target_type: type[V] | tuple[type[V], ...],
+    target_processor_func: TargetProcessorFunc[V],
     pass_on_fail: bool = True,
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,

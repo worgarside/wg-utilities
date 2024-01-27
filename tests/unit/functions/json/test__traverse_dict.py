@@ -4,6 +4,7 @@ from __future__ import annotations
 from json import dumps, loads
 from logging import ERROR
 from re import sub
+from typing import Any
 from unittest.mock import ANY
 
 import pytest
@@ -160,7 +161,7 @@ def test_empty_dict_doesnt_raise_exception() -> None:
 def test_varying_inputs_processed_as_expected(
     in_dict: JSONObj,
     target_type: type[object] | tuple[type[object], ...],
-    target_processor_func: TargetProcessorFunc,
+    target_processor_func: TargetProcessorFunc[Any],
     expected: JSONObj,
 ) -> None:
     """Test various lists with different types and processor functions."""
@@ -286,7 +287,7 @@ def test_traversing_dict_resursion_error() -> None:
 def test_exceptions_are_raised_correctly(
     in_dict: JSONObj,
     target_type: type[JSONVal] | tuple[type[JSONVal], ...],
-    target_processor_func: TargetProcessorFunc,
+    target_processor_func: TargetProcessorFunc[Any],
     exception_type: type[Exception],
     exception_message: str,
     expected: JSONObj,
@@ -392,7 +393,7 @@ def test_exceptions_are_raised_correctly(
 def test_exceptions_are_logged_correctly(
     in_dict: JSONObj,
     target_type: type[JSONVal] | tuple[type[JSONVal], ...],
-    target_processor_func: TargetProcessorFunc,
+    target_processor_func: TargetProcessorFunc[Any],
     exception_keys: list[str],
     expected: JSONObj,
     caplog: pytest.LogCaptureFixture,
@@ -732,7 +733,7 @@ def test_single_keys_of_target_type_have_exceptions_raised(
 def test_dict_key_parameter_for_target_processor_func(
     in_dict: JSONObj,
     target_type: type[object] | tuple[type[object], ...],
-    target_processor_func: TargetProcessorFunc,
+    target_processor_func: TargetProcessorFunc[Any],
     expected: JSONObj,
 ) -> None:
     """Test that the dict key is passed to the target processor func.
