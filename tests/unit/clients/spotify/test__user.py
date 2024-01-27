@@ -7,8 +7,8 @@ from http import HTTPStatus
 from typing import Literal
 from unittest.mock import patch
 
+import pytest
 from freezegun import freeze_time
-from pytest import FixtureRequest, mark, raises
 from requests_mock import Mocker
 
 from tests.conftest import assert_mock_requests_request_history, read_json_file
@@ -52,7 +52,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
 
     assert isinstance(user, User)
     assert user.spotify_client == spotify_client
-    assert user.dict(exclude_none=True, exclude_unset=True) == {
+    assert user.model_dump() == {
         "country": "GB",
         "display_name": "Will Garside",
         "email": "test_email_address@gmail.com",
@@ -102,7 +102,7 @@ def test_get_playlists_by_name_duplicate_names(
     """
 
     user_playlists = spotify_user.playlists
-    spotify_user._set_private_attr("_playlists", user_playlists + user_playlists)
+    spotify_user._playlists = user_playlists + user_playlists
 
     result = spotify_user.get_playlists_by_name("Chill Electronica", return_all=True)
 
@@ -193,8 +193,8 @@ def test_get_recently_liked_tracks_day_limit(
     )
 
 
-@mark.parametrize(
-    ["entity_fixture", "request_values"],
+@pytest.mark.parametrize(
+    ("entity_fixture", "request_values"),
     [
         (
             "spotify_album",
@@ -232,7 +232,7 @@ def test_save_unsave_methods(
     mock_requests: Mocker,
     entity_fixture: str,
     request_values: dict[str, str | dict[str, str]],
-    request: FixtureRequest,
+    request: pytest.FixtureRequest,
     live_jwt_token: str,
 ) -> None:
     """Test that `save` method makes the expected request per entity."""
@@ -267,13 +267,13 @@ def test_save_unsave_methods(
 def test_save_unsave_methods_with_invalid_type(spotify_user: User) -> None:
     """Test that `save` method raises an error if an invalid entity type is passed."""
 
-    device = Device.parse_obj(
+    device = Device.model_validate(
         read_json_file("spotify/v1/me/player/devices/limit=50.json")["devices"][
             0  # type: ignore[index]
         ]
     )
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         spotify_user.save(entity=device)  # type: ignore[arg-type]
 
     assert (
@@ -281,7 +281,7 @@ def test_save_unsave_methods_with_invalid_type(spotify_user: User) -> None:
         "Must be one of: Album, Artist, Playlist, Track"
     )
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         spotify_user.unsave(entity=device)  # type: ignore[arg-type]
 
     assert (
@@ -478,7 +478,7 @@ def test_devices_property(
     """Test that `devices` property makes the expected request."""
 
     assert spotify_user.devices == [
-        Device.parse_obj(device_json)
+        Device.model_validate(device_json)
         for device_json in read_json_file(
             "spotify/v1/me/player/devices/limit=50.json"
         )[  # type: ignore[union-attr]
@@ -654,7 +654,7 @@ def test_tracks_property(
     assert mock_requests.call_count == 5
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "properties_to_reset",
     [
         None,

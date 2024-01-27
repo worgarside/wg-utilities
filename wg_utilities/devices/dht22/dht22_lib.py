@@ -1,9 +1,11 @@
+# ruff: noqa
 """A class I found a long time ago for DHT22, I can't remember where :(."""
 from __future__ import annotations
 
 from time import sleep
+from typing import Final, Literal
 
-from pigpio import (  # type: ignore[import]
+from pigpio import (  # type: ignore[import-not-found]
     EITHER_EDGE,
     INPUT,
     LOW,
@@ -24,6 +26,9 @@ class DHT22Sensor:
     """
 
     MAX_NO_RESPONSE = 2
+
+    DEFAULT_RHUM_VALUE: Final[Literal[-999]] = -999
+    DEFAULT_TEMP_VALUE: Final[Literal[-999]] = -999
 
     def __init__(
         self,
@@ -53,8 +58,8 @@ class DHT22Sensor:
         # Power cycle if timeout > MAX_TIMEOUTS.
         self.no_response = 0
 
-        self.humidity: float = -999
-        self.temperature: float = -999
+        self.humidity: float = self.DEFAULT_RHUM_VALUE
+        self.temperature: float = self.DEFAULT_TEMP_VALUE
 
         self.high_tick = 0
         self.bit = 40
@@ -86,7 +91,7 @@ class DHT22Sensor:
             tick (int):    32 bit   The number of microseconds since boot
                                     WARNING: this wraps around from
                                     4294967295 to 0 roughly every 72 minutes
-        """  # noqa: D401
+        """
 
         diff = tickDiff(self.high_tick, tick)
 

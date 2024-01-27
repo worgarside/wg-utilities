@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from http import HTTPStatus
 
-from pytest import mark, raises
+import pytest
 from pytz import timezone
 from requests_mock import Mocker
 
@@ -67,9 +67,9 @@ def test_delete_method(
     assert mock_requests.last_request.headers["Content-Type"] == "application/json"
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("attendees", "creator", "expected_response_status"),
-    (
+    [
         (
             [
                 _Attendee(
@@ -145,7 +145,7 @@ def test_delete_method(
             _Creator(email="google-user-2@gmail.com"),
             ResponseStatus.UNKNOWN,
         ),
-    ),
+    ],
 )
 def test_response_status_property(
     event: Event,
@@ -162,7 +162,7 @@ def test_response_status_property(
     if creator:
         updates["creator"] = creator
 
-    new_event = event.copy(update=updates)
+    new_event = event.model_copy(update=updates)
 
     assert new_event.response_status == expected_response_status
 
@@ -171,15 +171,15 @@ def test_gt_method(event: Event) -> None:
     """Test that the `__gt__` method returns the correct value."""
 
     # Starts and ends a day later
-    before_first = event.copy(
+    before_first = event.model_copy(
         update={
-            "start": _StartEndDatetime.parse_obj(
+            "start": _StartEndDatetime.model_validate(
                 {
                     "dateTime": (event.start.datetime + timedelta(days=1)).isoformat(),
                     "timeZone": "Europe/London",
                 }
             ),
-            "end": _StartEndDatetime.parse_obj(
+            "end": _StartEndDatetime.model_validate(
                 {
                     "dateTime": (event.end.datetime + timedelta(days=1)).isoformat(),
                     "timeZone": "Europe/London",
@@ -189,9 +189,9 @@ def test_gt_method(event: Event) -> None:
     )
 
     # Ends 5 minutes later
-    before_second = event.copy(
+    before_second = event.model_copy(
         update={
-            "end": _StartEndDatetime.parse_obj(
+            "end": _StartEndDatetime.model_validate(
                 {
                     "dateTime": (event.end.datetime + timedelta(minutes=5)).isoformat(),
                     "timeZone": "Europe/London",
@@ -201,7 +201,7 @@ def test_gt_method(event: Event) -> None:
     )
 
     # Starts and ends at same time, but starts with a letter earlier in the alphabet
-    before_third = event.copy(
+    before_third = event.model_copy(
         update={
             "summary": "Z test event",
         }
@@ -209,7 +209,7 @@ def test_gt_method(event: Event) -> None:
 
     assert before_first > before_second > before_third > event
 
-    with raises(TypeError):
+    with pytest.raises(TypeError):
         assert event > "test"  # type: ignore[operator]
 
 
@@ -217,9 +217,9 @@ def test_lt_method(event: Event) -> None:
     """Test that the `__lt__` method returns the correct value."""
 
     # Starts a day earlier
-    before_first = event.copy(
+    before_first = event.model_copy(
         update={
-            "start": _StartEndDatetime.parse_obj(
+            "start": _StartEndDatetime.model_validate(
                 {
                     "dateTime": (event.start.datetime - timedelta(days=1)).isoformat(),
                     "timeZone": "Europe/London",
@@ -229,9 +229,9 @@ def test_lt_method(event: Event) -> None:
     )
 
     # Ends 5 minutes earlier
-    before_second = event.copy(
+    before_second = event.model_copy(
         update={
-            "end": _StartEndDatetime.parse_obj(
+            "end": _StartEndDatetime.model_validate(
                 {
                     "dateTime": (event.end.datetime - timedelta(minutes=5)).isoformat(),
                     "timeZone": "Europe/London",
@@ -241,7 +241,7 @@ def test_lt_method(event: Event) -> None:
     )
 
     # Starts and ends at same time, but starts with a letter earlier in the alphabet
-    before_third = event.copy(
+    before_third = event.model_copy(
         update={
             "summary": "A test event",
         }
@@ -249,7 +249,7 @@ def test_lt_method(event: Event) -> None:
 
     assert before_first < before_second < before_third < event
 
-    with raises(TypeError):
+    with pytest.raises(TypeError):
         assert event < "test"  # type: ignore[operator]
 
 

@@ -1,10 +1,10 @@
 """Custom client for interacting with Google's Fit API."""
 from __future__ import annotations
 
-from collections.abc import Callable
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Literal, TypedDict
+from typing import Any, ClassVar, Literal
+
+from typing_extensions import TypedDict
 
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.functions.datetime_helpers import DatetimeFixedUnit as DFUnit
@@ -49,7 +49,7 @@ class DataSource:
          DataSource info
     """
 
-    DP_VALUE_KEY_LOOKUP: DataPointValueKeyLookupInfo = {
+    DP_VALUE_KEY_LOOKUP: ClassVar[DataPointValueKeyLookupInfo] = {
         "floatPoint": "fpVal",
         "integer": "intVal",
     }
@@ -187,40 +187,14 @@ class GoogleFitClient(GoogleClient[Any]):
 
     BASE_URL = "https://www.googleapis.com/fitness/v1"
 
-    DEFAULT_SCOPES = [
+    DEFAULT_SCOPES: ClassVar[list[str]] = [
         "https://www.googleapis.com/auth/fitness.activity.read",
         "https://www.googleapis.com/auth/fitness.body.read",
         "https://www.googleapis.com/auth/fitness.location.read",
         "https://www.googleapis.com/auth/fitness.nutrition.read",
     ]
 
-    def __init__(
-        self,
-        *,
-        client_id: str,
-        client_secret: str,
-        log_requests: bool = False,
-        creds_cache_path: Path | None = None,
-        scopes: list[str] | None = None,
-        oauth_login_redirect_host: str = "localhost",
-        oauth_redirect_uri_override: str | None = None,
-        headless_auth_link_callback: Callable[[str], None] | None = None,
-        use_existing_credentials_only: bool = False,
-    ):
-        super().__init__(
-            client_id=client_id,
-            client_secret=client_secret,
-            log_requests=log_requests,
-            creds_cache_path=creds_cache_path,
-            scopes=scopes or self.DEFAULT_SCOPES,
-            oauth_login_redirect_host=oauth_login_redirect_host,
-            oauth_redirect_uri_override=oauth_redirect_uri_override,
-            headless_auth_link_callback=headless_auth_link_callback,
-            use_existing_credentials_only=use_existing_credentials_only,
-            base_url=self.BASE_URL,
-        )
-
-        self.data_sources: dict[str, DataSource] = {}
+    _data_sources: dict[str, DataSource]
 
     def get_data_source(self, data_source_id: str) -> DataSource:
         """Get a data source based on its UID.
@@ -239,3 +213,15 @@ class GoogleFitClient(GoogleClient[Any]):
             self.data_sources[data_source_id] = data_source
 
         return data_source
+
+    @property
+    def data_sources(self) -> dict[str, DataSource]:
+        """Data sources available to this client.
+
+        Returns:
+            dict: a dict of data sources, keyed by their UID
+        """
+        if not hasattr(self, "_data_sources"):
+            self._data_sources = {}
+
+        return self._data_sources

@@ -1,27 +1,25 @@
 """Custom client for interacting with Google's Calendar API."""
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Mapping, Set
+from collections.abc import Iterable
 from datetime import date as date_
 from datetime import datetime as datetime_
 from datetime import timedelta, tzinfo
-from enum import Enum
-from typing import Any, Literal, TypeAlias, TypedDict, TypeVar
+from enum import StrEnum
+from typing import Any, ClassVar, Literal, Self, TypeAlias
 
-from pydantic import Field, root_validator, validator
+from pydantic import Field, field_serializer, field_validator, model_validator
 from pytz import UTC, timezone
 from requests import delete
+from typing_extensions import NotRequired, TypedDict
 from tzlocal import get_localzone
 
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.clients.json_api_client import StrBytIntFlt
-from wg_utilities.clients.oauth_client import (
-    BaseModelWithConfig,
-    GenericModelWithConfig,
-)
+from wg_utilities.clients.oauth_client import BaseModelWithConfig
 
 
-class ResponseStatus(str, Enum):
+class ResponseStatus(StrEnum):
     """Enumeration for event attendee response statuses."""
 
     ACCEPTED = "accepted"
@@ -31,7 +29,7 @@ class ResponseStatus(str, Enum):
     UNKNOWN = "unknown"
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """Enumeration for event types."""
 
     DEFAULT = "default"
@@ -40,11 +38,11 @@ class EventType(str, Enum):
 
 
 class _Attendee(BaseModelWithConfig):
-    additionalGuests: int | None  # noqa: N815
-    comment: str | None
-    display_name: str | None = Field(alias="displayName", default=None)
+    additionalGuests: int | None = None  # noqa: N815
+    comment: str | None = None
+    display_name: str | None = Field(None, alias="displayName")
     email: str
-    id: str | None
+    id: str | None = None  # noqa: A003
     optional: bool = False
     organizer: bool = False
     resource: bool = False
@@ -101,9 +99,10 @@ class _StartEndDatetime(BaseModelWithConfig):
     date: date_
     timezone: tzinfo = Field(alias="timeZone", default_factory=get_localzone)
 
-    @root_validator(pre=True)
-    def validate_datetime_or_date(  # pylint: disable=no-self-argument
-        cls,  # noqa: N805
+    @model_validator(mode="before")
+    @classmethod
+    def validate_datetime_or_date(
+        cls,
         values: dict[str, Any],
     ) -> dict[str, Any]:
         """Validate that either `datetime` or `date` is provided."""
@@ -132,6 +131,12 @@ class _StartEndDatetime(BaseModelWithConfig):
 
         return values
 
+    @field_serializer("timezone", mode="plain", when_used="json", check_fields=True)
+    def serialize_timezone(self, tz: tzinfo) -> str:
+        """Serialize the timezone to a string."""
+
+        return tz.tzname(None) or ""
+
 
 class CalendarJson(TypedDict):
     """JSON representation of a Calendar."""
@@ -150,28 +155,24 @@ class CalendarJson(TypedDict):
     ]
 
 
-FJR = TypeVar("FJR", bound="GoogleCalendarEntity")
-
-
-class GoogleCalendarEntity(GenericModelWithConfig):
+class GoogleCalendarEntity(BaseModelWithConfig):
     """Base class for Google Calendar entities."""
 
-    description: str | None
+    description: str | None = None
     etag: str
-    id: str
-    location: str | None
+    id: str  # noqa: A003
+    location: str | None = None
     summary: str
 
     google_client: GoogleCalendarClient = Field(exclude=True)
 
     @classmethod
     def from_json_response(
-        cls: type[FJR],
+        cls,
         value: GoogleCalendarEntityJson,
         google_client: GoogleCalendarClient,
         calendar: Calendar | None = None,
-        _waive_validation: bool = False,
-    ) -> FJR:
+    ) -> Self:
         """Create a Calendar/Event from a JSON response."""
 
         value_data: dict[str, Any] = {
@@ -182,108 +183,7 @@ class GoogleCalendarEntity(GenericModelWithConfig):
         if cls == Event:
             value_data["calendar"] = calendar
 
-        instance = cls.parse_obj(value_data)
-
-        if not _waive_validation:
-            instance._validate()  # pylint: disable=protected-access
-
-        return instance
-
-    def dict(
-        self,
-        *,
-        include: Set[int | str] | Mapping[int | str, Any] | None = None,
-        exclude: Set[int | str] | Mapping[int | str, Any] | None = None,
-        by_alias: bool = True,
-        skip_defaults: bool | None = None,
-        exclude_unset: bool = True,
-        exclude_defaults: bool = False,
-        exclude_none: bool = False,
-    ) -> dict[str, Any]:
-        # pylint: disable=useless-parent-delegation
-        """Override the standard `BaseModel.dict` method.
-
-        Allows us to consistently return the dict with the same field names it came in
-        with, and exclude any null values that have been added when parsing.
-
-        Original documentation is here:
-          - https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeldict
-
-        Overridden Parameters:
-            by_alias: False -> True
-            exclude_unset: False -> True
-        """
-
-        return super().dict(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            skip_defaults=skip_defaults,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-        )
-
-    @staticmethod
-    def _json_encoder(o: Any) -> str:
-        """Custom-encode GoogleCalendarEntity JSON.
-
-        Args:
-            o (Any): object to encode
-
-        Returns:
-            str: encoded object
-        """
-
-        if isinstance(o, datetime_):
-            return o.isoformat()
-
-        if isinstance(o, tzinfo):
-            return o.tzname(None) or ""
-
-        return str(o)
-
-    def json(
-        self,
-        *,
-        include: Set[int | str] | Mapping[int | str, Any] | None = None,
-        exclude: Set[int | str] | Mapping[int | str, Any] | None = None,
-        by_alias: bool = True,
-        skip_defaults: bool | None = None,
-        exclude_unset: bool = True,
-        exclude_defaults: bool = False,
-        exclude_none: bool = False,
-        encoder: Callable[[Any], Any] | None = None,
-        models_as_dict: bool = True,
-        **dumps_kwargs: Any,
-    ) -> str:
-        # pylint: disable=useless-parent-delegation
-        """Override the standard `BaseModel.json` method.
-
-        Allows us to consistently return the dict with the same field names it came in
-        with, and exclude any null values that have been added when parsing.
-
-        Original documentation is here:
-          - https://pydantic-docs.helpmanual.io/usage/exporting_models/#modeljson
-
-        Overridden Parameters:
-            by_alias: False -> True
-            exclude_unset: False -> True
-            encoder: None -> self._json_encoder
-        """
-
-        return super().json(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            skip_defaults=skip_defaults,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            encoder=encoder or self._json_encoder,
-            models_as_dict=models_as_dict,
-            **dumps_kwargs,
-        )
+        return cls.model_validate(value_data)
 
     def __eq__(self, other: Any) -> bool:
         """Compare two GoogleCalendarEntity objects by ID."""
@@ -304,7 +204,7 @@ class _Notification(BaseModelWithConfig):
     """Base class for Event notifications."""
 
     method: Literal["email", "sms"]
-    type: Literal[
+    type: Literal[  # noqa: A003
         "eventCreation", "eventChange", "eventCancellation", "eventResponse", "agenda"
     ]
 
@@ -336,20 +236,26 @@ class Calendar(GoogleCalendarEntity):
     )
     primary: bool = False
     selected: bool = False
-    summary_override: str | None = Field(alias="summaryOverride")
+    summary_override: str | None = Field(None, alias="summaryOverride")
     timezone: tzinfo = Field(alias="timeZone")
 
     # mypy can't get this type from the parent class for some reason...
     google_client: GoogleCalendarClient = Field(exclude=True)
 
-    @validator("timezone", pre=True)
-    def validate_timezone(  # pylint: disable=no-self-argument
-        cls, value: str  # noqa: N805
-    ) -> tzinfo:
+    @field_validator("timezone", mode="before")
+    @classmethod
+    def validate_timezone(cls, value: str) -> tzinfo:
         """Convert the timezone string into a tzinfo object."""
         if isinstance(value, tzinfo):
             return value
+
         return timezone(value)
+
+    @field_serializer("timezone", mode="plain", when_used="json", check_fields=True)
+    def serialize_timezone(self, tz: tzinfo) -> str:
+        """Serialize the timezone to a string."""
+
+        return tz.tzname(None) or ""
 
     def get_event_by_id(self, event_id: str) -> Event:
         """Get an event by its ID.
@@ -361,9 +267,7 @@ class Calendar(GoogleCalendarEntity):
             Event: Event object
         """
 
-        event = self.google_client.get_event_by_id(event_id, calendar=self)
-
-        return event
+        return self.google_client.get_event_by_id(event_id, calendar=self)
 
     def get_events(
         self,
@@ -371,22 +275,23 @@ class Calendar(GoogleCalendarEntity):
         order_by: Literal["updated", "startTime"] = "updated",
         from_datetime: datetime_ | None = None,
         to_datetime: datetime_ | None = None,
-        combine_recurring_events: bool = False,
         day_limit: int | None = None,
+        *,
+        combine_recurring_events: bool = False,
     ) -> list[Event]:
         """Retrieve events from the calendar according to a set of criteria.
 
         Args:
             page_size (int): the number of records to return on a single response page
             order_by (Literal["updated", "startTime"]): the order of the events
-             returned within the result
+                returned within the result
             from_datetime (datetime): lower bound (exclusive) for an event's end time
-             to filter by. Defaults to 90 days ago.
+                to filter by. Defaults to 90 days ago.
             to_datetime (datetime): upper bound (exclusive) for an event's start time
-             to filter by. Defaults to now.
+                to filter by. Defaults to now.
             combine_recurring_events (bool): whether to expand recurring events into
-             instances and only return single one-off events and instances of recurring
-             events, but not the underlying recurring events themselves
+                instances and only return single one-off events and instances of recurring
+                events, but not the underlying recurring events themselves
             day_limit (int): the maximum number of days to return events for.
 
         Returns:
@@ -436,7 +341,12 @@ class Calendar(GoogleCalendarEntity):
         return self.summary
 
 
-class EventJson(TypedDict):
+class _EventReminders(TypedDict):
+    useDefault: bool
+    overrides: NotRequired[list[_Reminder]]
+
+
+class EventJson(TypedDict, total=False):
     """JSON representation of an Event."""
 
     description: str | None
@@ -469,7 +379,7 @@ class EventJson(TypedDict):
     privateCopy: bool | None
     recurrence: list[str] | None
     recurringEventId: str | None
-    reminders: dict[str, bool | dict[str, str | int]]
+    reminders: _EventReminders | None
     sequence: int
     source: dict[str, str] | None
     start: _StartEndDatetime
@@ -484,40 +394,42 @@ class Event(GoogleCalendarEntity):
 
     summary: str = "(No Title)"
 
-    attachments: list[dict[str, str]] | None
+    attachments: list[dict[str, str]] | None = None
     attendees: list[_Attendee] = Field(default_factory=list)
-    attendees_omitted: bool | None = Field(alias="attendeesOmitted")
+    attendees_omitted: bool | None = Field(None, alias="attendeesOmitted")
     created: datetime_
-    color_id: str | None = Field(alias="colorId")
-    conference_data: _ConferenceData | None = Field(alias="conferenceData")
+    color_id: str | None = Field(None, alias="colorId")
+    conference_data: _ConferenceData | None = Field(None, alias="conferenceData")
     creator: _Creator
     end: _StartEndDatetime
-    end_time_unspecified: bool | None = Field(alias="endTimeUnspecified")
+    end_time_unspecified: bool | None = Field(None, alias="endTimeUnspecified")
     event_type: EventType = Field(alias="eventType")
     extended_properties: dict[str, dict[str, str]] | None = Field(
-        alias="extendedProperties"
+        None, alias="extendedProperties"
     )
-    guests_can_invite_others: bool | None = Field(alias="guestsCanInviteOthers")
-    guests_can_modify: bool | None = Field(alias="guestsCanModify")
-    guests_can_see_other_guests: bool | None = Field(alias="guestsCanSeeOtherGuests")
-    hangout_link: str | None = Field(alias="hangoutLink")
+    guests_can_invite_others: bool | None = Field(None, alias="guestsCanInviteOthers")
+    guests_can_modify: bool | None = Field(None, alias="guestsCanModify")
+    guests_can_see_other_guests: bool | None = Field(
+        None, alias="guestsCanSeeOtherGuests"
+    )
+    hangout_link: str | None = Field(None, alias="hangoutLink")
     html_link: str = Field(alias="htmlLink")
     ical_uid: str = Field(alias="iCalUID")
     kind: Literal["calendar#event"]
-    locked: bool | None
+    locked: bool | None = None
     organizer: dict[str, bool | str]
-    original_start_time: dict[str, str] | None = Field(alias="originalStartTime")
-    private_copy: bool | None = Field(alias="privateCopy")
-    recurrence: list[str] | None
-    recurring_event_id: str | None = Field(alias="recurringEventId")
-    reminders: dict[str, bool | dict[str, str | int]]
+    original_start_time: dict[str, str] | None = Field(None, alias="originalStartTime")
+    private_copy: bool | None = Field(None, alias="privateCopy")
+    recurrence: list[str] | None = None
+    recurring_event_id: str | None = Field(None, alias="recurringEventId")
+    reminders: _EventReminders | None = None
     sequence: int
-    source: dict[str, str] | None
+    source: dict[str, str] | None = None
     start: _StartEndDatetime
-    status: Literal["cancelled", "confirmed", "tentative"] | None
-    transparency: str | None  # != transparent
+    status: Literal["cancelled", "confirmed", "tentative"] | None = None
+    transparency: str | None = None  # != transparent
     updated: datetime_
-    visibility: Literal["default", "public", "private", "confidential"] | None
+    visibility: Literal["default", "public", "private", "confidential"] | None = None
 
     calendar: Calendar
 
@@ -583,11 +495,13 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
 
     BASE_URL = "https://www.googleapis.com/calendar/v3"
 
-    DEFAULT_PARAMS: dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None] = {
+    DEFAULT_PARAMS: ClassVar[
+        dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None]
+    ] = {
         "maxResults": "250",
     }
 
-    DEFAULT_SCOPES = [
+    DEFAULT_SCOPES: ClassVar[list[str]] = [
         "https://www.googleapis.com/auth/calendar",
         "https://www.googleapis.com/auth/calendar.events",
     ]
@@ -674,6 +588,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         res = delete(
             f"{self.base_url}/calendars/{calendar.id}/events/{event_id}",
             headers=self.request_headers,
+            timeout=10,
         )
 
         res.raise_for_status()
@@ -734,5 +649,5 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         return self._primary_calendar
 
 
-Calendar.update_forward_refs()
-Event.update_forward_refs()
+Calendar.model_rebuild()
+Event.model_rebuild()

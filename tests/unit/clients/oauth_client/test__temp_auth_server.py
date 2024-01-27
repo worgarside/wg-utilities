@@ -8,8 +8,8 @@ from threading import Thread
 from time import sleep
 from unittest.mock import patch
 
+import pytest
 from flask import Flask
-from pytest import raises
 from requests import get
 from werkzeug.serving import BaseWSGIServer, make_server
 
@@ -177,7 +177,7 @@ def test_wait_for_request_timeout(temp_auth_server: TempAuthServer) -> None:
 
     temp_auth_server.start_server()
 
-    with raises(TimeoutError) as exc_info:
+    with pytest.raises(TimeoutError) as exc_info:
         temp_auth_server.wait_for_request("/get_auth_code", max_wait=1)
 
     assert (
@@ -248,7 +248,7 @@ def test_wait_for_request_starts_server(temp_auth_server: TempAuthServer) -> Non
 def test_get_auth_code_url_property(temp_auth_server: TempAuthServer) -> None:
     """Test the `get_auth_code_url` property returns the correct URL."""
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         _ = temp_auth_server.get_auth_code_url
 
     assert str(exc_info.value) == "Server is not running"
@@ -290,7 +290,7 @@ def test_port_allocation_fails(temp_auth_server: TempAuthServer) -> None:
     with patch(
         "wg_utilities.api.temp_auth_server.make_server",
         side_effect=OSError("Address already in use"),
-    ), raises(OSError) as exc_info:
+    ), pytest.raises(OSError) as exc_info:
         temp_auth_server.start_server()
 
     assert str(exc_info.value) == "No available ports in range 5000-5020"
@@ -313,7 +313,7 @@ def test_hard_port_allocation(temp_auth_server: TempAuthServer) -> None:
     with patch(
         "wg_utilities.api.temp_auth_server.make_server",
         side_effect=make_server_side_effect,
-    ), raises(OSError) as exc_info:
+    ), pytest.raises(OSError) as exc_info:
         temp_auth_server.start_server()
 
     assert str(exc_info.value) == "Address already in use"
@@ -328,7 +328,7 @@ def test_port_setter_raises_exception(temp_auth_server: TempAuthServer) -> None:
 
     assert temp_auth_server.is_running
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         temp_auth_server.port = 5015
 
     assert str(exc_info.value) == "Cannot set port while server is running"

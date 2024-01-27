@@ -3,30 +3,23 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from datetime import date, datetime, timedelta
-from enum import Enum, auto
+from enum import Enum, StrEnum, auto
 from logging import DEBUG, getLogger
-from os.path import sep
 from pathlib import Path
-from typing import Any, ClassVar, Literal, TypeAlias, TypedDict, TypeVar
+from typing import Any, ClassVar, Literal, Self, TypeAlias, TypeVar, overload
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 from requests import HTTPError
-from strenum import StrEnum  # type: ignore[import]
+from typing_extensions import NotRequired, TypedDict
 
 from wg_utilities.clients.json_api_client import StrBytIntFlt
-from wg_utilities.clients.oauth_client import (
-    BaseModelWithConfig,
-    GenericModelWithConfig,
-    OAuthClient,
-)
-from wg_utilities.functions import user_data_dir
-from wg_utilities.functions.file_management import force_mkdir
+from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
 
-class AccountType(StrEnum):  # type: ignore[misc]
+class AccountType(StrEnum):
     """Possible TrueLayer account types."""
 
     TRANSACTION = auto()
@@ -35,7 +28,7 @@ class AccountType(StrEnum):  # type: ignore[misc]
     BUSINESS_SAVINGS = auto()
 
 
-class Bank(Enum):
+class Bank(StrEnum):
     """Enum for all banks supported by TrueLayer."""
 
     ALLIED_IRISH_BANK_CORPORATE = "Allied Irish Bank Corporate"
@@ -82,7 +75,7 @@ class TransactionCategory(Enum):
     """Enum for TrueLayer transaction types.
 
     __init__ method is overridden to allow setting a description as well as the main
-     value.
+    value.
     """
 
     ATM = (
@@ -130,9 +123,9 @@ class TransactionCategory(Enum):
 
 
 class _AccountNumber(BaseModelWithConfig):
-    iban: str | None
-    number: str | None
-    sort_code: str | None
+    iban: str | None = None
+    number: str | None = None
+    sort_code: str | None = None
     swift_bic: str
 
 
@@ -158,8 +151,8 @@ class CardJson(_TrueLayerBaseEntityJson):
     card_type: str
     partial_card_number: str
     name_on_card: str
-    valid_from: date | None
-    valid_to: date | None
+    valid_from: NotRequired[date]
+    valid_to: NotRequired[date]
 
 
 class BalanceVariables(BaseModelWithConfig):
@@ -178,20 +171,18 @@ class BalanceVariables(BaseModelWithConfig):
 class _TrueLayerEntityProvider(BaseModelWithConfig):
     display_name: str
     logo_uri: str
-    id: str = Field(alias="provider_id")
+    id: str = Field(alias="provider_id")  # noqa: A003
 
 
 TrueLayerEntityJson: TypeAlias = AccountJson | CardJson
 
-FJR = TypeVar("FJR", bound="TrueLayerEntity")
 
-
-class TrueLayerEntity(GenericModelWithConfig):
+class TrueLayerEntity(BaseModelWithConfig):
     """Parent class for all TrueLayer entities (accounts, cards, etc.)."""
 
     BALANCE_FIELDS: ClassVar[Iterable[str]] = ()
 
-    id: str = Field(alias="account_id")
+    id: str = Field(alias="account_id")  # noqa: A003
     currency: str
     display_name: str
     provider: _TrueLayerEntityProvider
@@ -199,12 +190,6 @@ class TrueLayerEntity(GenericModelWithConfig):
 
     _available_balance: float
     _current_balance: float
-    _overdraft: float
-    _credit_limit: float
-    _last_statement_balance: float
-    _last_statement_date: date
-    _payment_due: float
-    _payment_due_date: date
 
     truelayer_client: TrueLayerClient = Field(exclude=True)
     balance_update_threshold: timedelta = Field(timedelta(minutes=15), exclude=True)
@@ -213,8 +198,8 @@ class TrueLayerEntity(GenericModelWithConfig):
 
     @classmethod
     def from_json_response(
-        cls: type[FJR], value: TrueLayerEntityJson, *, truelayer_client: TrueLayerClient
-    ) -> FJR:
+        cls, value: TrueLayerEntityJson, *, truelayer_client: TrueLayerClient
+    ) -> Self:
         """Create an account from a JSON response."""
 
         value_data: dict[str, Any] = {
@@ -222,11 +207,7 @@ class TrueLayerEntity(GenericModelWithConfig):
             **value,
         }
 
-        instance = cls.parse_obj(value_data)
-
-        instance._validate()  # pylint: disable=protected-access
-
-        return instance
+        return cls.model_validate(value_data)
 
     def get_transactions(
         self,
@@ -262,7 +243,7 @@ class TrueLayerEntity(GenericModelWithConfig):
             params = None
 
         return [
-            Transaction.parse_obj(result)
+            Transaction.model_validate(result)
             for result in self.truelayer_client.get_json_response(
                 f"/data/v1/{self.__class__.__name__.lower()}s/{self.id}/transactions",
                 params=params,
@@ -299,7 +280,9 @@ class TrueLayerEntity(GenericModelWithConfig):
             elif k.endswith("_date"):
                 attr_name = f"_{k}"
                 if isinstance(v, str):
-                    v = datetime.strptime(v, "%Y-%m-%dT%H:%M:%SZ").date()
+                    v = datetime.strptime(  # noqa: PLW2901
+                        v, "%Y-%m-%dT%H:%M:%SZ"
+                    ).date()
             else:
                 attr_name = f"_{k}"
 
@@ -308,9 +291,40 @@ class TrueLayerEntity(GenericModelWithConfig):
                 continue
 
             LOGGER.info("Updating %s with value %s", attr_name, v)
-            self._set_private_attr(attr_name, v)
+
+            setattr(self, attr_name, v)
 
         self.last_balance_update = datetime.utcnow()
+
+    @overload
+    def _get_balance_property(
+        self,
+        prop_name: Literal["current_balance"],
+    ) -> float:
+        ...
+
+    @overload
+    def _get_balance_property(
+        self,
+        prop_name: Literal[
+            "available_balance",
+            "overdraft",
+            "credit_limit",
+            "last_statement_balance",
+            "payment_due",
+        ],
+    ) -> float | None:
+        ...
+
+    @overload
+    def _get_balance_property(
+        self,
+        prop_name: Literal[
+            "last_statement_date",
+            "payment_due_date",
+        ],
+    ) -> date | None:
+        ...
 
     def _get_balance_property(
         self,
@@ -324,7 +338,7 @@ class TrueLayerEntity(GenericModelWithConfig):
             "payment_due",
             "payment_due_date",
         ],
-    ) -> str | float | int | None:
+    ) -> float | date | None:
         """Get a value for a balance-specific property.
 
         Updates the values if necessary (i.e. if they don't already exist). This also
@@ -352,7 +366,7 @@ class TrueLayerEntity(GenericModelWithConfig):
         return getattr(self, f"_{prop_name}", None)
 
     @property
-    def available_balance(self) -> str | float | int | None:
+    def available_balance(self) -> float | None:
         """Available balance for the entity.
 
         Returns:
@@ -361,68 +375,19 @@ class TrueLayerEntity(GenericModelWithConfig):
         return self._get_balance_property("available_balance")
 
     @property
-    def current_balance(self) -> str | float | int | None:
+    def balance(self) -> float:
+        """Get the available balance, or current if available is not available."""
+        return self.available_balance or self.current_balance
+
+    @property
+    def current_balance(self) -> float:
         """Current balance of the account.
 
         Returns:
             float: the total amount of money in the account, including pending
-             transactions
+                transactions
         """
         return self._get_balance_property("current_balance")
-
-    @property
-    def overdraft(self) -> str | float | int | None:
-        """Overdraft limit for the account.
-
-        Returns:
-            float: the overdraft limit of the account
-        """
-        return self._get_balance_property("overdraft")
-
-    @property
-    def credit_limit(self) -> str | float | int | None:
-        """Credit limit of the account.
-
-        Returns:
-            float: the credit limit available to the customer
-        """
-        return self._get_balance_property("credit_limit")
-
-    @property
-    def last_statement_balance(self) -> str | float | int | None:
-        """Balance of the account at the last statement date.
-
-        Returns:
-            float: the balance on the last statement
-        """
-        return self._get_balance_property("last_statement_balance")
-
-    @property
-    def last_statement_date(self) -> str | float | int | None:
-        """Date of the last statement.
-
-        Returns:
-            date: the date the last statement was issued on
-        """
-        return self._get_balance_property("last_statement_date")
-
-    @property
-    def payment_due(self) -> str | float | int | None:
-        """Amount due on the next statement.
-
-        Returns:
-            float: the amount of any due payment
-        """
-        return self._get_balance_property("payment_due")
-
-    @property
-    def payment_due_date(self) -> str | float | int | None:
-        """Date of the next statement.
-
-        Returns:
-            date: the date on which the next payment is due
-        """
-        return self._get_balance_property("payment_due_date")
 
     def __str__(self) -> str:
         """Return a string representation of the entity."""
@@ -435,21 +400,20 @@ class Transaction(BaseModelWithConfig):
     amount: float
     currency: str
     description: str
-    id: str = Field(alias="transaction_id")
-    merchant_name: str | None
+    id: str = Field(alias="transaction_id")  # noqa: A003
+    merchant_name: str | None = None
     meta: dict[str, str]
-    normalised_provider_transaction_id: str | None
+    normalised_provider_transaction_id: str | None = None
     provider_transaction_id: str | None
-    running_balance: dict[str, str | float] | None
+    running_balance: dict[str, str | float] | None = None
     timestamp: datetime
     transaction_category: TransactionCategory
     transaction_classification: list[str]
     transaction_type: str
 
-    @validator("transaction_category", pre=True)
-    def validate_transaction_category(  # pylint: disable=no-self-argument
-        cls, v: str  # noqa: N805
-    ) -> TransactionCategory:
+    @field_validator("transaction_category", mode="before")
+    @classmethod
+    def validate_transaction_category(cls, v: str) -> TransactionCategory:
         """Validate the transaction category.
 
         The default Enum assignment doesn't work for some reason, so we have to do it
@@ -479,10 +443,11 @@ class Account(TrueLayerEntity):
     account_number: _AccountNumber
     account_type: AccountType
 
-    @validator("account_type", pre=True)
-    def validate_account_type(  # pylint: disable=no-self-argument
-        cls, value: str  # noqa: N805
-    ) -> AccountType:
+    _overdraft: float
+
+    @field_validator("account_type", mode="before")
+    @classmethod
+    def validate_account_type(cls, value: str) -> AccountType:
         """Validate `account_type` and parse it into an `AccountType` instance."""
         if isinstance(value, AccountType):
             return value
@@ -490,7 +455,16 @@ class Account(TrueLayerEntity):
         if value not in AccountType.__members__:  # pragma: no cover
             raise ValueError(f"Invalid account type: `{value}`")
 
-        return AccountType[value.upper()]  # type: ignore[no-any-return,misc]
+        return AccountType[value.upper()]
+
+    @property
+    def overdraft(self) -> float | None:
+        """Overdraft limit for the account.
+
+        Returns:
+            float: the overdraft limit of the account
+        """
+        return self._get_balance_property("overdraft")
 
 
 class Card(TrueLayerEntity):
@@ -510,8 +484,59 @@ class Card(TrueLayerEntity):
     card_type: str
     partial_card_number: str
     name_on_card: str
-    valid_from: date | None
-    valid_to: date | None
+    valid_from: date | None = None
+    valid_to: date | None = None
+
+    _credit_limit: float
+    _last_statement_balance: float
+    _last_statement_date: date
+    _payment_due: float
+    _payment_due_date: date
+
+    @property
+    def credit_limit(self) -> float | None:
+        """Credit limit of the account.
+
+        Returns:
+            float: the credit limit available to the customer
+        """
+        return self._get_balance_property("credit_limit")
+
+    @property
+    def last_statement_balance(self) -> float | None:
+        """Balance of the account at the last statement date.
+
+        Returns:
+            float: the balance on the last statement
+        """
+        return self._get_balance_property("last_statement_balance")
+
+    @property
+    def last_statement_date(self) -> date | None:
+        """Date of the last statement.
+
+        Returns:
+            date: the date the last statement was issued on
+        """
+        return self._get_balance_property("last_statement_date")
+
+    @property
+    def payment_due(self) -> float | None:
+        """Amount due on the next statement.
+
+        Returns:
+            float: the amount of any due payment
+        """
+        return self._get_balance_property("payment_due")
+
+    @property
+    def payment_due_date(self) -> date | None:
+        """Date of the next statement.
+
+        Returns:
+            date: the date on which the next payment is due
+        """
+        return self._get_balance_property("payment_due_date")
 
 
 AccountOrCard = TypeVar("AccountOrCard", Account, Card)
@@ -521,10 +546,10 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
     """Custom client for interacting with TrueLayer's APIs."""
 
     AUTH_LINK_BASE = "https://auth.truelayer.com/"
-    ACCESS_TOKEN_ENDPOINT = "https://auth.truelayer.com/connect/token"
+    ACCESS_TOKEN_ENDPOINT = "https://auth.truelayer.com/connect/token"  # noqa: S105
     BASE_URL = "https://api.truelayer.com"
 
-    DEFAULT_SCOPES = [
+    DEFAULT_SCOPES: ClassVar[list[str]] = [
         "info",
         "accounts",
         "balance",
@@ -535,39 +560,22 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         "offline_access",
     ]
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         *,
         client_id: str,
         client_secret: str,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
+        creds_cache_dir: Path | None = None,
         scopes: list[str] | None = None,
         oauth_login_redirect_host: str = "localhost",
         oauth_redirect_uri_override: str | None = None,
         headless_auth_link_callback: Callable[[str], None] | None = None,
         use_existing_credentials_only: bool = False,
+        validate_request_success: bool = True,
         bank: Bank,
     ):
-        if not creds_cache_path:
-            if self.DEFAULT_CACHE_DIR:
-                creds_cache_path = Path(self.DEFAULT_CACHE_DIR).joinpath(
-                    type(self).__name__, client_id, f"{bank.name.lower()}.json"
-                )
-            else:
-                creds_cache_path = user_data_dir(
-                    file_name=sep.join(
-                        [
-                            "oauth_credentials",
-                            type(self).__name__,
-                            client_id,
-                            f"{bank.name.lower()}.json",
-                        ]
-                    )
-                )
-
-        force_mkdir(creds_cache_path, path_is_file=True)
-
         super().__init__(
             base_url=self.BASE_URL,
             access_token_endpoint=self.ACCESS_TOKEN_ENDPOINT,
@@ -575,13 +583,13 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
             client_id=client_id,
             client_secret=client_secret,
             log_requests=log_requests,
-            # TrueLayer shares the same Client ID for all banks, so override the
-            # default to separate by bank
             creds_cache_path=creds_cache_path,
+            creds_cache_dir=creds_cache_dir,
             scopes=scopes or self.DEFAULT_SCOPES,
             oauth_login_redirect_host=oauth_login_redirect_host,
             oauth_redirect_uri_override=oauth_redirect_uri_override,
             headless_auth_link_callback=headless_auth_link_callback,
+            validate_request_success=validate_request_success,
             use_existing_credentials_only=use_existing_credentials_only,
         )
 
@@ -603,7 +611,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
 
         Raises:
             HTTPError: if a HTTPError is raised by the request, and it's not because
-             the ID wasn't found
+                the ID wasn't found
             ValueError: if >1 result is returned from the TrueLayer API
         """
         try:
@@ -611,7 +619,10 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
                 f"/data/v1/{entity_class.__name__.lower()}s/{entity_id}"
             ).get("results", [])
         except HTTPError as exc:
-            if exc.response.json().get("error") == "account_not_found":
+            if (
+                exc.response is not None
+                and exc.response.json().get("error") == "account_not_found"
+            ):
                 return None
             raise
 
@@ -631,7 +642,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
 
         Returns:
             list[Union([Account, Card])]: a list of Account/Card instances with
-             associated info
+                associated info
 
         Raises:
             HTTPError: if a HTTPError is raised by the `_get` method, but it's not a 501
@@ -639,7 +650,10 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         try:
             res = self.get_json_response(f"/data/v1/{entity_class.__name__.lower()}s")
         except HTTPError as exc:
-            if exc.response.json().get("error") == "endpoint_not_supported":
+            if (
+                exc.response is not None
+                and exc.response.json().get("error") == "endpoint_not_supported"
+            ):
                 LOGGER.warning(
                     "{entity_class.__name__}s endpoint not supported by %s",
                     self.bank.value,
@@ -697,7 +711,22 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         """
         return self._list_entities(Card)
 
+    @property
+    def _creds_rel_file_path(self) -> Path | None:
+        """Get the credentials cache filepath relative to the cache directory.
 
-Account.update_forward_refs()
-Card.update_forward_refs()
-TrueLayerEntity.update_forward_refs()
+        TrueLayer shares the same Client ID for all banks, so this overrides the default
+        to separate credentials by bank.
+        """
+
+        try:
+            client_id = self._client_id or self._credentials.client_id
+        except AttributeError:
+            return None
+
+        return Path(type(self).__name__, client_id, f"{self.bank.name.lower()}.json")
+
+
+Account.model_rebuild()
+Card.model_rebuild()
+TrueLayerEntity.model_rebuild()

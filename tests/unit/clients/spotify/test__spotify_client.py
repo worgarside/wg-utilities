@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Literal
 from urllib.parse import parse_qsl
 
-from pytest import LogCaptureFixture, mark, raises
+import pytest
 from requests import HTTPError
 from requests_mock import Mocker
 
@@ -43,7 +43,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     assert client.log_requests is True
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "file_path",
     [
         path_object
@@ -54,7 +54,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
 def test_get_method_with_sample_responses(
     spotify_client: SpotifyClient,
     file_path: Path,
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
     mock_requests: Mocker,
     live_jwt_token: str,
 ) -> None:
@@ -105,7 +105,7 @@ def test_get_method_with_sample_responses(
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "file_path",
     [
         path_object
@@ -116,7 +116,7 @@ def test_get_method_with_sample_responses(
 def test_get_method_without_leading_slash(
     spotify_client: SpotifyClient,
     file_path: Path,
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
     mock_requests: Mocker,
     live_jwt_token: str,
 ) -> None:
@@ -166,7 +166,7 @@ def test_get_method_without_leading_slash(
     assert caplog.records[0].message == f"GET {endpoint}: {dumps(params or {})}"
 
 
-@mark.parametrize("http_status", HTTPStatus)
+@pytest.mark.parametrize("http_status", HTTPStatus)
 def test_get_method_with_exception(
     spotify_client: SpotifyClient, mock_requests: Mocker, http_status: HTTPStatus
 ) -> None:
@@ -180,7 +180,7 @@ def test_get_method_with_exception(
     )
 
     if str(http_status.value).startswith("4"):
-        with raises(HTTPError) as exc_info:
+        with pytest.raises(HTTPError) as exc_info:
             spotify_client._get("https://www.example.com")
 
         assert (
@@ -189,7 +189,7 @@ def test_get_method_with_exception(
             f" https://www.example.com/"
         )
     elif str(http_status.value).startswith("5"):
-        with raises(HTTPError) as exc_info:
+        with pytest.raises(HTTPError) as exc_info:
             spotify_client._get("https://www.example.com")
 
         assert (
@@ -476,14 +476,8 @@ def test_get_json_response_returns_json(
         text="",
     )
 
-    assert (
-        spotify_client.get_json_response("/foo")
-        == {}  # type: ignore[comparison-overlap]
-    )
-    assert (
-        spotify_client.get_json_response("/bar")
-        == {}  # type: ignore[comparison-overlap]
-    )
+    assert spotify_client.get_json_response("/foo") == {}  # type: ignore[comparison-overlap]
+    assert spotify_client.get_json_response("/bar") == {}  # type: ignore[comparison-overlap]
 
     # Test a 204 No Content response
     mock_requests.get(
@@ -492,20 +486,17 @@ def test_get_json_response_returns_json(
         reason=HTTPStatus.NO_CONTENT.phrase,
     )
 
-    assert (
-        spotify_client.get_json_response("/baz")  # type: ignore[comparison-overlap]
-        == {}
-    )
+    assert spotify_client.get_json_response("/baz") == {}  # type: ignore[comparison-overlap]
 
 
-@mark.parametrize(
-    [
+@pytest.mark.parametrize(
+    (
         "search_term",
         "entity_type",
         "entity_type_str",
         "expected_url",
         "expected_return_value_file_path",
-    ],
+    ),
     [
         (
             "Mirrors",
@@ -580,7 +571,7 @@ def test_search_method_get_best_match_only_multiple_entity_types_throws_error(
 ) -> None:
     """Test the `search` method returns `None` when no results are found."""
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         spotify_client.search(
             "Mirrors",
             entity_types=["album", "artist"],
@@ -609,7 +600,7 @@ def test_search_method_get_best_match_only_multiple_entity_types_throws_error(
 def test_search_method_invalid_entity_type(spotify_client: SpotifyClient) -> None:
     """Test that an exception is thrown when an invalid entity type is requested."""
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         spotify_client.search(
             "Mirrors", entity_types=["album", "foo"]  # type: ignore[list-item]
         )
@@ -735,12 +726,12 @@ def test_current_user_property(
     )
 
 
-@mark.parametrize("update_instance_tracklist", [True, False])
+@pytest.mark.parametrize("update_instance_tracklist", [True, False])
 def test_add_tracks_to_playlist(
     spotify_client: SpotifyClient,
     spotify_playlist: Playlist,
     mock_requests: Mocker,
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
     update_instance_tracklist: bool,
     live_jwt_token: str,
 ) -> None:
@@ -750,15 +741,19 @@ def test_add_tracks_to_playlist(
     new_tracks_to_add = [
         track for track in spotify_playlist.tracks if track not in playlist_to_add_to
     ]
-    assert not any(track in playlist_to_add_to for track in new_tracks_to_add)
+    assert all(track not in playlist_to_add_to for track in new_tracks_to_add)
     mock_requests.reset()
     caplog.records.clear()
     spotify_client.log_requests = False
-    spotify_client.add_tracks_to_playlist(
-        new_tracks_to_add,
-        playlist_to_add_to,
-        log_responses=True,
-        update_instance_tracklist=update_instance_tracklist,
+
+    assert (
+        spotify_client.add_tracks_to_playlist(
+            new_tracks_to_add,
+            playlist_to_add_to,
+            log_responses=True,
+            update_instance_tracklist=update_instance_tracklist,
+        )
+        == new_tracks_to_add
     )
 
     assert_mock_requests_request_history(
@@ -810,10 +805,13 @@ def test_add_tracks_to_playlist_ignores_tracks_already_in_playlist(
         json={"snapshot_id": playlist_to_add_to.snapshot_id},
     )
 
-    spotify_client.add_tracks_to_playlist(
-        tracks_to_add,
-        playlist_to_add_to,
-        update_instance_tracklist=True,
+    assert (
+        spotify_client.add_tracks_to_playlist(
+            tracks_to_add,
+            playlist_to_add_to,
+            update_instance_tracklist=True,
+        )
+        == []
     )
 
     assert_mock_requests_request_history(
@@ -822,17 +820,14 @@ def test_add_tracks_to_playlist_ignores_tracks_already_in_playlist(
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
+    ("public", "collaborative"),
     [
-        "public",
-        "collaborative",
+        (True, True),
+        (True, False),
+        (False, True),
+        (False, False),
     ],
-    (
-        [True, True],
-        [True, False],
-        [False, True],
-        [False, False],
-    ),
 )
 def test_create_playlist_method(
     spotify_client: SpotifyClient, public: bool, collaborative: bool
@@ -855,7 +850,9 @@ def test_create_playlist_method(
     assert new_playlist.tracks == []
 
 
-@mark.parametrize("album_id", ["4julBAGYv4WmRXwhjJ2LPD", "7FvnTARvgjUyWnUT0flUN7"])
+@pytest.mark.parametrize(
+    "album_id", ["4julBAGYv4WmRXwhjJ2LPD", "7FvnTARvgjUyWnUT0flUN7"]
+)
 def test_get_album_by_id_method(
     spotify_client: SpotifyClient,
     album_id: str,
@@ -884,7 +881,9 @@ def test_get_album_by_id_method(
     )
 
 
-@mark.parametrize("artist_id", ["0q8eApZJs5WDBxayY9769C", "1Ma3pJzPIrAyYPNRkp3SUF"])
+@pytest.mark.parametrize(
+    "artist_id", ["0q8eApZJs5WDBxayY9769C", "1Ma3pJzPIrAyYPNRkp3SUF"]
+)
 def test_get_artist_by_id_method(
     spotify_client: SpotifyClient,
     artist_id: str,
@@ -913,7 +912,7 @@ def test_get_artist_by_id_method(
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "playlist_id",
     [
         "2lMx8FU0SeQ7eA5kcMlNpX",
@@ -950,7 +949,9 @@ def test_get_playlist_by_id_method(
     )
 
 
-@mark.parametrize("playlist_id", ["2lMx8FU0SeQ7eA5kcMlNpX", "4Vv023MaZsc8NTWZ4WJvIL"])
+@pytest.mark.parametrize(
+    "playlist_id", ["2lMx8FU0SeQ7eA5kcMlNpX", "4Vv023MaZsc8NTWZ4WJvIL"]
+)
 def test_get_playlist_by_id_after_property_accessed(
     spotify_client: SpotifyClient, playlist_id: str, mock_requests: Mocker
 ) -> None:
@@ -967,7 +968,7 @@ def test_get_playlist_by_id_after_property_accessed(
     assert not mock_requests.request_history
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "track_id",
     [
         "1PfbIpFjsS1BayUoqB3X7O",

@@ -4,7 +4,7 @@ updates:
   - package-ecosystem: pip
     directory: /
     schedule:
-      interval: weekly
+      interval: daily
     open-pull-requests-limit: 20
     reviewers:
       - worgarside
@@ -12,6 +12,13 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: daily
+    reviewers:
+      - worgarside
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: daily
     reviewers:
       - worgarside

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from wg_utilities.clients.google_photos import GooglePhotosClient, GooglePhotosEntity
 
-GooglePhotosEntity.update_forward_refs()
+GooglePhotosEntity.model_rebuild()
 
 
 def test_from_json_response_instantiation(
@@ -20,9 +20,9 @@ def test_from_json_response_instantiation(
     )
     assert isinstance(google_photos_entity, GooglePhotosEntity)
 
-    assert google_photos_entity.dict() == {
+    assert google_photos_entity.model_dump() == {
         "id": "test-id",
-        "product_url": "https://photos.google.com/lr/photo/test-id",
+        "productUrl": "https://photos.google.com/lr/photo/test-id",
     }
 
     assert google_photos_entity.id == "test-id"

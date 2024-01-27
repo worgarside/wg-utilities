@@ -1,8 +1,8 @@
 """Unit tests for the `wg_utilities.clients.google_drive.Directory` class."""
 from __future__ import annotations
 
+import pytest
 from pydantic import ValidationError
-from pytest import raises
 
 from tests.conftest import read_json_file
 from wg_utilities.clients import GoogleDriveClient
@@ -37,7 +37,7 @@ def test_kind_validation(drive: Drive, google_drive_client: GoogleDriveClient) -
 
     directory_json["kind"] = EntityKind.USER
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         Directory.from_json_response(
             directory_json,
             google_client=google_drive_client,
@@ -61,11 +61,9 @@ def test_mime_type_validation(
 
     directory_json["mimeType"] = "application/vnd.google-apps.spreadsheet"
 
-    with raises(ValidationError) as exc_info:
+    with pytest.raises(ValidationError) as exc_info:
         Directory.from_json_response(
             directory_json, google_client=google_drive_client, host_drive=drive
         )
 
-    assert "unexpected value; permitted: 'application/vnd.google-apps.folder'" in str(
-        exc_info.value
-    )
+    assert "Input should be 'application/vnd.google-apps.folder'" in str(exc_info.value)

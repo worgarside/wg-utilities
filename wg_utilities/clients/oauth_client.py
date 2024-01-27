@@ -10,93 +10,116 @@ from pathlib import Path
 from random import choice
 from string import ascii_letters
 from time import time
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 from urllib.parse import urlencode
 from webbrowser import open as open_browser
 
 from jwt import DecodeError, decode
-from pydantic import BaseModel, Extra, validate_model
-from pydantic.generics import GenericModel
+from pydantic import BaseModel, ConfigDict
 
 from wg_utilities.api import TempAuthServer
 from wg_utilities.clients.json_api_client import GetJsonResponse, JsonApiClient
 from wg_utilities.functions import user_data_dir
 from wg_utilities.functions.file_management import force_mkdir
 
+if TYPE_CHECKING:  # pragma: no cover
+    from pydantic.main import IncEx
+
+else:
+    IncEx = set[int] | set[str] | dict[int, Any] | dict[str, Any] | None
+
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
 
-class _ModelBase:
-    """Base class for `BaseModelWithConfig` and `GenericModelWithConfig`.
-
-    This is just to prevent duplicating the methods in both classes.
-    """
-
-    __fields__: dict[str, Any]
-
-    def _set_private_attr(self, attr_name: str, attr_value: Any) -> None:
-        """Set private attribute on the instance.
-
-        Args:
-            attr_name (str): the name of the attribute to set
-            attr_value (Any): the value to set the attribute to
-
-        Raises:
-            ValueError: if the attribute isn't private (i.e. the name doesn't start
-                with an underscore)
-        """
-        if not attr_name.startswith("_"):
-            raise ValueError("Only private attributes can be set via this method.")
-
-        object.__setattr__(self, attr_name, attr_value)
-
-    def _validate(self) -> None:
-        """Validate the model.
-
-        Any fields which have been renamed via `alias` will be renamed in the
-        validation dict before being passed to `validate_model`. Private attributes,
-        functions, and excluded fields are also ignored.
-
-        Raises:
-            ValidationError: if the model is invalid
-        """
-
-        model_dict = {
-            self.__fields__[k].alias if k in self.__fields__ else k: v
-            for k, v in self.__dict__.items()
-            if not k.startswith("_") and not callable(v)
-        }
-
-        *_, validation_error = validate_model(
-            self.__class__, model_dict, self.__class__  # type: ignore[arg-type]
-        )
-
-        if validation_error:  # pragma: no cover
-            LOGGER.error(repr(validation_error))
-            raise validation_error
-
-
-class BaseModelWithConfig(_ModelBase, BaseModel):
+class BaseModelWithConfig(BaseModel):
     """Reusable `BaseModel` with Config to apply to all subclasses."""
 
-    class Config:
-        """Pydantic config."""
+    model_config: ClassVar[ConfigDict] = ConfigDict(
+        arbitrary_types_allowed=True,
+        extra="ignore",
+        validate_assignment=True,
+    )
 
-        arbitrary_types_allowed = True
-        extra = Extra.forbid
-        validate_assignment = True
+    def model_dump(
+        self,
+        *,
+        mode: Literal["json", "python"] | str = "python",
+        include: IncEx | None = None,
+        exclude: IncEx | None = None,
+        by_alias: bool = True,
+        exclude_unset: bool = True,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+        round_trip: bool = False,
+        warnings: bool = True,
+    ) -> dict[str, Any]:
+        # pylint: disable=useless-parent-delegation
+        """Create a dictionary representation of the model.
 
+        Overrides the standard `BaseModel.dict` method, so we can always return the
+        dict with the same field names it came in with, and exclude any null values
+        that have been added when parsing
 
-class GenericModelWithConfig(_ModelBase, GenericModel):
-    """Reusable `GenericModel` with Config to apply to all subclasses."""
+        Original documentation is here:
+          - https://docs.pydantic.dev/latest/usage/serialization/#modelmodel_dump
 
-    class Config:
-        """Pydantic config."""
+        Overridden Parameters:
+            by_alias: False -> True
+            exclude_unset: False -> True
+        """
 
-        arbitrary_types_allowed = True
-        extra = Extra.forbid
-        validate_assignment = True
+        return super().model_dump(
+            mode=mode,
+            include=include,
+            exclude=exclude,
+            by_alias=by_alias,
+            exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults,
+            exclude_none=exclude_none,
+            round_trip=round_trip,
+            warnings=warnings,
+        )
+
+    def model_dump_json(
+        self,
+        *,
+        indent: int | None = None,
+        include: IncEx | None = None,
+        exclude: IncEx | None = None,
+        by_alias: bool = True,
+        exclude_unset: bool = True,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+        round_trip: bool = False,
+        warnings: bool = True,
+    ) -> str:
+        # pylint: disable=useless-parent-delegation
+        """Create a JSON string representation of the model.
+
+        Overrides the standard `BaseModel.json` method, so we can always return the
+        dict with the same field names it came in with, and exclude any null values
+        that have been added when parsing
+
+        Original documentation is here:
+          - https://docs.pydantic.dev/latest/usage/serialization/#modelmodel_dump_json
+
+        Overridden Parameters:
+            by_alias: False -> True
+            exclude_unset: False -> True
+        """
+
+        return super().model_dump_json(
+            indent=indent,
+            include=include,
+            exclude=exclude,
+            by_alias=by_alias,
+            exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults,
+            exclude_none=exclude_none,
+            round_trip=round_trip,
+            warnings=warnings,
+        )
 
 
 class OAuthCredentials(BaseModelWithConfig):
@@ -111,12 +134,12 @@ class OAuthCredentials(BaseModelWithConfig):
     client_secret: str
 
     # Monzo
-    user_id: str | None
+    user_id: str | None = None
 
     # Google
-    token: str | None
-    token_uri: str | None
-    scopes: list[str] | None
+    token: str | None = None
+    token_uri: str | None = None
+    scopes: list[str] | None = None
 
     @classmethod
     def parse_first_time_login(cls, value: dict[str, Any]) -> OAuthCredentials:
@@ -167,7 +190,7 @@ class OAuthCredentials(BaseModelWithConfig):
             # Verify it against the expiry time string
             if expiry_time_str := value.get("expiry"):
                 expiry_time = datetime.fromisoformat(expiry_time_str)
-                if abs(expiry_epoch - expiry_time.timestamp()) > 60:
+                if abs(expiry_epoch - expiry_time.timestamp()) > 60:  # noqa: PLR2004
                     raise ValueError(
                         "`expiry` and `expires_in` are not consistent with each other:"
                         f" expiry: {expiry_time_str}, expires_in: {expiry_epoch}"
@@ -214,22 +237,23 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
 
     ACCESS_TOKEN_EXPIRY_THRESHOLD = 150
 
-    # Second env var added for compatibility
-    DEFAULT_CACHE_DIR = getenv(
-        "WG_UTILITIES_CACHE_DIR", getenv("WG_UTILITIES_CREDS_CACHE_DIR")
-    )
+    DEFAULT_CACHE_DIR = getenv("WG_UTILITIES_CREDS_CACHE_DIR")
 
-    DEFAULT_SCOPES: list[str] = []
+    DEFAULT_SCOPES: ClassVar[list[str]] = []
 
     HEADLESS_MODE = getenv("WG_UTILITIES_HEADLESS_MODE", "0") == "1"
 
-    def __init__(
+    _credentials: OAuthCredentials
+    _temp_auth_server: TempAuthServer
+
+    def __init__(  # noqa: PLR0913
         self,
         *,
         client_id: str | None = None,
         client_secret: str | None = None,
         log_requests: bool = False,
         creds_cache_path: Path | None = None,
+        creds_cache_dir: Path | None = None,
         scopes: list[str] | None = None,
         oauth_login_redirect_host: str = "localhost",
         oauth_redirect_uri_override: str | None = None,
@@ -238,23 +262,68 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         access_token_endpoint: str | None = None,
         auth_link_base: str | None = None,
         base_url: str | None = None,
+        validate_request_success: bool = True,
     ):
-        super().__init__(log_requests=log_requests, base_url=base_url)
+        """Initialise the client.
+
+        Args:
+            client_id (str, optional): the client ID for the API. Defaults to None.
+            client_secret (str, optional): the client secret for the API. Defaults to
+                None.
+            log_requests (bool, optional): whether to log requests. Defaults to False.
+            creds_cache_path (Path, optional): the path to the credentials cache file.
+                Defaults to None. Overrides `creds_cache_dir`.
+            creds_cache_dir (Path, optional): the path to the credentials cache directory.
+                Overrides environment variable `WG_UTILITIES_CREDS_CACHE_DIR`. Defaults to
+                None.
+            scopes (list[str], optional): the scopes to request when authenticating.
+                Defaults to None.
+            oauth_login_redirect_host (str, optional): the host to redirect to after
+                authenticating. Defaults to "localhost".
+            oauth_redirect_uri_override (str, optional): override the redirect URI
+                specified in the OAuth flow. Defaults to None.
+            headless_auth_link_callback (Callable[[str], None], optional): callback to
+                send the auth link to when running in headless mode. Defaults to None.
+            use_existing_credentials_only (bool, optional): whether to only use existing
+                credentials, and not attempt to authenticate. Defaults to False.
+            access_token_endpoint (str, optional): the endpoint to use to get an access
+                token. Defaults to None.
+            auth_link_base (str, optional): the base URL to use to generate the auth
+                link. Defaults to None.
+            base_url (str, optional): the base URL to use for API requests. Defaults to
+                None.
+            validate_request_success (bool, optional): whether to validate that the
+                request was successful. Defaults to True.
+        """
+        super().__init__(
+            log_requests=log_requests,
+            base_url=base_url,
+            validate_request_success=validate_request_success,
+        )
 
         self._client_id = client_id
         self._client_secret = client_secret
         self.access_token_endpoint = access_token_endpoint or self.ACCESS_TOKEN_ENDPOINT
         self.auth_link_base = auth_link_base or self.AUTH_LINK_BASE
-        self._creds_cache_path = creds_cache_path
         self.oauth_login_redirect_host = oauth_login_redirect_host
         self.oauth_redirect_uri_override = oauth_redirect_uri_override
         self.headless_auth_link_callback = headless_auth_link_callback
         self.use_existing_credentials_only = use_existing_credentials_only
 
-        self.scopes = scopes or self.DEFAULT_SCOPES
+        if creds_cache_path:
+            self._creds_cache_path: Path | None = creds_cache_path
+            self._creds_cache_dir: Path | None = None
+        elif creds_cache_dir:
+            self._creds_cache_path = None
+            self._creds_cache_dir = creds_cache_dir
+        else:
+            self._creds_cache_path = None
+            if self.DEFAULT_CACHE_DIR:
+                self._creds_cache_dir = Path(self.DEFAULT_CACHE_DIR)
+            else:
+                self._creds_cache_dir = None
 
-        self._credentials: OAuthCredentials
-        self._temp_auth_server: TempAuthServer
+        self.scopes = scopes or self.DEFAULT_SCOPES
 
         if self._creds_cache_path:
             self._load_local_credentials()
@@ -266,7 +335,9 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
             bool: True if the credentials were loaded successfully, False otherwise
         """
         try:
-            self._credentials = OAuthCredentials.parse_file(self.creds_cache_path)
+            self._credentials = OAuthCredentials.model_validate_json(
+                self.creds_cache_path.read_text()
+            )
         except FileNotFoundError:
             return False
 
@@ -307,7 +378,9 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
             refresh_token=new_creds.get("refresh_token"),
         )
 
-        self.creds_cache_path.write_text(self.credentials.json(exclude_none=True))
+        self.creds_cache_path.write_text(
+            self.credentials.model_dump_json(exclude_none=True)
+        )
 
     def run_first_time_login(self) -> None:
         """Run the first time login process.
@@ -329,7 +402,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
 
         LOGGER.info("Performing first time login")
 
-        state_token = "".join(choice(ascii_letters) for _ in range(32))
+        state_token = "".join(choice(ascii_letters) for _ in range(32))  # noqa: S311
 
         self.temp_auth_server.start_server()
 
@@ -410,6 +483,20 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         self.credentials = OAuthCredentials.parse_first_time_login(credentials)
 
     @property
+    def _creds_rel_file_path(self) -> Path | None:
+        """Get the credentials cache filepath relative to the cache directory.
+
+        Overridable in subclasses.
+        """
+
+        try:
+            client_id = self._client_id or self._credentials.client_id
+        except AttributeError:
+            return None
+
+        return Path(type(self).__name__, f"{client_id}.json")
+
+    @property
     def access_token(self) -> str | None:
         """Access token.
 
@@ -428,9 +515,8 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         Returns:
             bool: has the access token expired?
         """
-        if not hasattr(self, "_credentials"):
-            if not self._load_local_credentials():
-                return True
+        if not hasattr(self, "_credentials") and not self._load_local_credentials():
+            return True
 
         return (
             self.credentials.expiry_epoch
@@ -466,7 +552,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
 
         Raises:
             ValueError: if the state token returned from the request doesn't match the
-             expected value
+                expected value
         """
         if not hasattr(self, "_credentials") and not self._load_local_credentials():
             self.run_first_time_login()
@@ -480,7 +566,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         self._credentials = value
 
         self.creds_cache_path.write_text(
-            dumps(self._credentials.dict(exclude_none=True))
+            dumps(self._credentials.model_dump(exclude_none=True))
         )
 
     @property
@@ -497,20 +583,14 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         if self._creds_cache_path:
             return self._creds_cache_path
 
-        if (
-            not (hasattr(self, "_credentials") and self._credentials)
-            and not self._client_id
-        ):
+        if not self._creds_rel_file_path:
             raise ValueError(
                 "Unable to get client ID to generate path for credentials cache file."
             )
 
-        file_path = f"{type(self).__name__}/{self.client_id}.json"
-
         return force_mkdir(
-            Path(self.DEFAULT_CACHE_DIR) / file_path
-            if self.DEFAULT_CACHE_DIR
-            else user_data_dir() / "oauth_credentials" / file_path,
+            (self._creds_cache_dir or user_data_dir() / "oauth_credentials")
+            / self._creds_rel_file_path,
             path_is_file=True,
         )
 

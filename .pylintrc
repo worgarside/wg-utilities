@@ -15,7 +15,7 @@ ignore-patterns=
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.dirname(find_pylintrc()))"
+# init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.dirname(find_pylintrc()))"
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.
@@ -76,7 +76,21 @@ disable=raw-checker-failed,
         line-too-long,
         no-self-argument,
         missing-class-docstring,
-        missing-function-docstring
+        missing-function-docstring,
+        used-before-assignment,
+        undefined-variable,
+        use-dict-literal,
+        unused-argument,
+        missing-param-doc,
+        missing-module-docstring,
+        consider-using-f-string,
+        no-name-in-module,
+        too-many-return-statements,
+        too-many-arguments,
+        f-string-without-interpolation,
+        wrong-import-position,
+        logging-fstring-interpolation,
+        too-many-statements,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

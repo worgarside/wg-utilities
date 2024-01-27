@@ -14,6 +14,7 @@ from time import sleep
 from unittest.mock import MagicMock, patch
 from xml.etree import ElementTree
 
+import pytest
 from aioresponses import aioresponses
 from aioresponses.core import RequestCall
 from async_upnp_client.aiohttp import AiohttpNotifyServer
@@ -31,7 +32,6 @@ from async_upnp_client.const import (
 from async_upnp_client.exceptions import UpnpResponseError
 from async_upnp_client.utils import get_local_ip
 from freezegun import freeze_time
-from pytest import LogCaptureFixture, mark, raises
 from xmltodict import parse as parse_xml
 from yarl import URL
 
@@ -65,6 +65,7 @@ FRESH_SUBSCRIPTION_CALL = RequestCall(
         },
         "data": None,
         "allow_redirects": True,
+        "timeout": 5,
     },
 )
 RESUBSCRIPTION_CALL_AV = RequestCall(
@@ -77,6 +78,7 @@ RESUBSCRIPTION_CALL_AV = RequestCall(
         },
         "data": None,
         "allow_redirects": True,
+        "timeout": 5,
     },
 )
 
@@ -90,6 +92,7 @@ RESUBSCRIPTION_CALL_RC = RequestCall(
         },
         "data": None,
         "allow_redirects": True,
+        "timeout": 5,
     },
 )
 
@@ -187,10 +190,11 @@ def assert_only_post_request_is(
                 # pylint: disable=line-too-long
                 "data": """<?xml version="1.0"?><s:Envelope s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><u:GetMediaInfo xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID></u:GetMediaInfo></s:Body></s:Envelope>""",  # noqa: E501
                 "allow_redirects": True,
+                "timeout": 5,
             },
         )
     ]
-    assert all(key[0] == "GET" for key in requests.keys()), str(requests)
+    assert all(key[0] == "GET" for key in requests), str(requests)
 
 
 def mock_get_info_response(
@@ -208,16 +212,14 @@ def mock_get_info_response(
         str: The URL that the response was mocked for.
     """
 
-    with open(
-        FLAT_FILES_DIR / "xml" / "yamaha_yas_209" / "get_media_info" / file_name,
-        encoding="utf-8",
-    ) as fin:
-        mock_aiohttp.post(
-            url := f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1",
-            status=HTTPStatus.OK,
-            reason=HTTPStatus.OK.phrase,
-            body=fin.read(),
-        )
+    mock_aiohttp.post(
+        (url := f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1"),
+        status=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        body=(
+            FLAT_FILES_DIR / "xml" / "yamaha_yas_209" / "get_media_info" / file_name
+        ).read_text(),
+    )
 
     return url
 
@@ -239,7 +241,7 @@ def test_instantiation() -> None:
 def test_providing_listen_ip_only_raises_exception() -> None:
     """Test that setting only the `listen_ip` and not the port raises an exception."""
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         YamahaYas209("192.168.1.1", listen_ip="192.168.1.2")
 
     assert (
@@ -250,7 +252,7 @@ def test_providing_listen_ip_only_raises_exception() -> None:
 
 
 def test_listen_exits_early_if_already_listening(
-    yamaha_yas_209: YamahaYas209, caplog: LogCaptureFixture
+    yamaha_yas_209: YamahaYas209, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Test that `listen` exits early if already `self._listening` is True."""
     yamaha_yas_209._listening = True
@@ -279,7 +281,9 @@ def test_auto_listening_works() -> None:
 
 @patch("wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.sleep")
 def test_listen_starts_listening(
-    mock_sleep: MagicMock, yamaha_yas_209: YamahaYas209, caplog: LogCaptureFixture
+    mock_sleep: MagicMock,
+    yamaha_yas_209: YamahaYas209,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that `listen` starts listening if `self._listening` is False."""
 
@@ -326,7 +330,10 @@ def test_listen_starts_listening(
 def test_listen_reraises_exception_from_subscribe_worker(
     yamaha_yas_209: YamahaYas209,
 ) -> None:
-    """Test that `listen` starts listening if `self._listening` is False."""
+    """Test that `listen` starts listening if `self._listening` is False.
+
+    Fails with seed 3830143397
+    """
 
     call_count = 0
 
@@ -348,7 +355,7 @@ def test_listen_reraises_exception_from_subscribe_worker(
     with patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.YamahaYas209._subscribe",
         _mock_async_function,
-    ), raises(TestError) as exc_info:
+    ), pytest.raises(TestError) as exc_info:
         yamaha_yas_209.listen()
 
     assert call_count == 1
@@ -377,16 +384,16 @@ def test_on_event_wrapper_parses_xml_dicts(
 
     mock_parse_xml_dict.side_effect = _mock_parse_xml_dict_side_effect
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         yamaha_yas_209.on_event_wrapper(
             upnp_service_av_transport, [upnp_state_variable]
         )
 
     assert called
-    assert str(exc_info.value) == "Expected a dict"
+    assert str(exc_info.value) == "Expected a dict, got <class 'NoneType'>"
 
 
-@mark.upnp_value_path(
+@pytest.mark.upnp_value_path(
     # You & I by JANEVA
     FLAT_FILES_DIR
     / "xml"
@@ -405,7 +412,7 @@ def test_xml_payloads_with_ampersands_can_be_parsed(
     yamaha_yas_209.on_event_wrapper(upnp_service_av_transport, [upnp_state_variable])
 
 
-@mark.upnp_value_path(
+@pytest.mark.upnp_value_path(
     # Obvs by Jamie XX
     FLAT_FILES_DIR
     / "xml"
@@ -468,7 +475,7 @@ def test_av_transport_state_change_updates_local_state(
     )
 
 
-@mark.upnp_value_path(
+@pytest.mark.upnp_value_path(
     # Obvs by Jamie XX
     FLAT_FILES_DIR
     / "xml"
@@ -491,15 +498,13 @@ def test_av_transport_ctm_updates_current_track(
     time for complete testing throughout.
     """
 
-    with open(
+    get_media_info_response_nothing_playing = (
         FLAT_FILES_DIR
         / "xml"
         / "yamaha_yas_209"
         / "get_media_info"
-        / "nothing_playing.xml",
-        "rb",
-    ) as fin:
-        get_media_info_response_nothing_playing = fin.read()
+        / "nothing_playing.xml"
+    ).read_text()
 
     mock_aiohttp.post(
         f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1",
@@ -551,7 +556,7 @@ def test_av_transport_ctm_updates_current_track(
     assert yamaha_yas_209.current_track == current_track_null
 
 
-@mark.upnp_value_path(
+@pytest.mark.upnp_value_path(
     FLAT_FILES_DIR
     / "xml"
     / "yamaha_yas_209"
@@ -578,11 +583,9 @@ def test_rendering_control_updates_volume(
 
     mock_set_volume_level.side_effect = _mock_set_volume_level_side_effect
 
-    with open(
-        FLAT_FILES_DIR / "xml" / "yamaha_yas_209" / "get_volume" / "50.xml",
-        encoding="utf-8",
-    ) as fin:
-        get_volume_response = fin.read()
+    get_volume_response = (
+        FLAT_FILES_DIR / "xml" / "yamaha_yas_209" / "get_volume" / "50.xml"
+    ).read_text()
 
     mock_aiohttp.post(
         f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendercontrol1",
@@ -648,42 +651,41 @@ def test_on_event_callback_called_correctly(
     upnp_state_variable_rendering_control = deepcopy(upnp_state_variable)
     upnp_state_variable_av_transport = deepcopy(upnp_state_variable)
 
-    with open(payload_dir / "rendering_control" / "56.xml", encoding="utf-8") as fin:
-        # The `RenderingControl` copy is pretty simple as the service argument is
-        # RenderingControl-flavoured
-        upnp_state_variable_rendering_control.upnp_value = fin.read()
+    # The `RenderingControl` copy is pretty simple as the service argument is
+    # RenderingControl-flavoured
+    upnp_state_variable_rendering_control.upnp_value = (
+        payload_dir / "rendering_control" / "56.xml"
+    ).read_text()
 
-    with open(
-        payload_dir / "av_transport" / "payload_20220622204720404264.xml",
-        encoding="utf-8",
-    ) as fin:
-        upnp_state_variable_av_transport.upnp_value = fin.read()
-        # The `AVTransport` state variable needs to be re-written, mainly to change the
-        # name from `LastChange` to something else
+    upnp_state_variable_av_transport.upnp_value = (
+        payload_dir / "av_transport" / "payload_20220622204720404264.xml"
+    ).read_text()
+    # The `AVTransport` state variable needs to be re-written, mainly to change the
+    # name from `LastChange` to something else
 
-        upnp_state_variable_av_transport._state_variable_info = StateVariableInfo(
-            name="SomethingElse",
-            send_events=True,
-            type_info=StateVariableTypeInfo(
-                data_type="string",
-                data_type_mapping={"type": str, "in": str, "out": str},
-                default_value=None,
-                allowed_value_range={},
-                allowed_values=None,
-                xml=(
-                    something_else_xml := ElementTree.fromstring(
-                        """
-                        <ns0:stateVariable xmlns:ns0="urn:schemas-upnp-org:service-1-0"
-                                           sendEvents="yes">
-                            <ns0:name>SomethingElse</ns0:name>
-                            <ns0:dataType>string</ns0:dataType>
-                        </ns0:stateVariable>
+    upnp_state_variable_av_transport._state_variable_info = StateVariableInfo(
+        name="SomethingElse",
+        send_events=True,
+        type_info=StateVariableTypeInfo(
+            data_type="string",
+            data_type_mapping={"type": str, "in": str, "out": str},
+            default_value=None,
+            allowed_value_range={},
+            allowed_values=None,
+            xml=(
+                something_else_xml := ElementTree.fromstring(
                     """
-                    )
-                ),
+                    <ns0:stateVariable xmlns:ns0="urn:schemas-upnp-org:service-1-0"
+                                        sendEvents="yes">
+                        <ns0:name>SomethingElse</ns0:name>
+                        <ns0:dataType>string</ns0:dataType>
+                    </ns0:stateVariable>
+                """
+                )
             ),
-            xml=something_else_xml,
-        )
+        ),
+        xml=something_else_xml,
+    )
 
     call_count = 0
 
@@ -737,7 +739,7 @@ def test_on_event_callback_called_correctly(
 def test_call_service_action_value_error(yamaha_yas_209: YamahaYas209) -> None:
     """Test that an unknown action raise a `ValueError`."""
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         yamaha_yas_209._call_service_action(
             Yas209Service.AVT,
             "GetCurrentConnectionIDs",
@@ -757,15 +759,13 @@ def test_call_service_routes_call_correctly(
 ) -> None:
     """Test that a service action is called correctly."""
 
-    with open(
+    get_media_info_response = (
         FLAT_FILES_DIR
         / "xml"
         / "yamaha_yas_209"
         / "get_media_info"
-        / "different_people_spotify.xml",
-        "rb",
-    ) as fin:
-        get_media_info_response = fin.read()
+        / "different_people_spotify.xml"
+    ).read_text()
 
     mock_aiohttp.post(
         url := f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1",
@@ -784,15 +784,13 @@ def test_call_service_action_callback(
 ) -> None:
     """Test that a service action is called correctly."""
 
-    with open(
+    get_media_info_response = (
         FLAT_FILES_DIR
         / "xml"
         / "yamaha_yas_209"
         / "get_media_info"
-        / "different_people_spotify.xml",
-        "rb",
-    ) as fin:
-        get_media_info_response = fin.read()
+        / "different_people_spotify.xml"
+    ).read_text()
 
     mock_aiohttp.post(
         f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1",
@@ -916,7 +914,7 @@ def test_previous_track_calls_correct_service_action(
 def test_set_state_raises_type_error(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the set_state method raises a TypeError for an invalid state."""
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         yamaha_yas_209.set_state("invalid_state")  # type: ignore[arg-type]
 
     assert str(exc_info.value) == "Expected a Yas209State instance."
@@ -1019,12 +1017,12 @@ def test_set_volume_level_calls_correct_service_action(
 def test_set_volume_level_raises_value_error(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the `set_volume_level` method raises a ValueError."""
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         yamaha_yas_209.set_volume_level(1.1)
 
     assert str(exc_info.value) == "Volume level must be between 0 and 1"
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         yamaha_yas_209.set_volume_level(-0.1)
 
     assert str(exc_info.value) == "Volume level must be between 0 and 1"
@@ -1068,7 +1066,7 @@ def test_stop_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None
 
 
 def test_stop_listening_sets_attribute(
-    yamaha_yas_209: YamahaYas209, caplog: LogCaptureFixture
+    yamaha_yas_209: YamahaYas209, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Test the `stop_listening` sets the attribute as expected."""
 
@@ -1146,26 +1144,24 @@ def test_album_art_uri_property(
 ) -> None:
     """Test that the album_art_uri property returns the expected value."""
 
-    with open(
-        FLAT_FILES_DIR
-        / "xml"
-        / "yamaha_yas_209"
-        / "get_media_info"
-        / "different_people_spotify.xml",
-        encoding="utf-8",
-    ) as fin:
-        mock_aiohttp.post(
-            url := f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1",
-            status=HTTPStatus.OK,
-            reason=HTTPStatus.OK.phrase,
-            body=fin.read(),
-        )
+    mock_aiohttp.post(
+        url := f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1",
+        status=HTTPStatus.OK,
+        reason=HTTPStatus.OK.phrase,
+        body=(
+            FLAT_FILES_DIR
+            / "xml"
+            / "yamaha_yas_209"
+            / "get_media_info"
+            / "different_people_spotify.xml"
+        ).read_text(),
+    )
 
-        assert (
-            yamaha_yas_209.album_art_uri
-            == "https://i.scdn.co/image/ab67616d0000b273c565a3629c5def95a0f85668"
-        )
-        assert_only_post_request_is(url, mock_aiohttp.requests, yamaha_yas_209)
+    assert (
+        yamaha_yas_209.album_art_uri
+        == "https://i.scdn.co/image/ab67616d0000b273c565a3629c5def95a0f85668"
+    )
+    assert_only_post_request_is(url, mock_aiohttp.requests, yamaha_yas_209)
 
 
 def test_current_track_property_gets_correct_info(
@@ -1204,7 +1200,7 @@ def test_current_track_setter_on_track_update(yamaha_yas_209: YamahaYas209) -> N
 def test_current_track_setter_raises_type_error(yamaha_yas_209: YamahaYas209) -> None:
     """Test the `current_track` setter raises a `TypeError` with invalid types."""
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         yamaha_yas_209.current_track = "invalid"  # type: ignore[assignment]
 
     assert str(exc_info.value) == "Expected a CurrentTrack instance."
@@ -1343,11 +1339,9 @@ def test_volume_level_property_returns_correct_value(
 ) -> None:
     """Test the volume_level property returns the correct value."""
 
-    with open(
-        FLAT_FILES_DIR / "xml" / "yamaha_yas_209" / "get_volume" / "50.xml",
-        encoding="utf-8",
-    ) as fin:
-        get_volume_response = fin.read()
+    get_volume_response = (
+        FLAT_FILES_DIR / "xml" / "yamaha_yas_209" / "get_volume" / "50.xml"
+    ).read_text()
 
     mock_aiohttp.post(
         f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendercontrol1",
@@ -1393,7 +1387,9 @@ def test_needs_device_decorator(
 
 
 def test_subscribe_creates_notify_server_with_correct_subscriptions(
-    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses, caplog: LogCaptureFixture
+    yamaha_yas_209: YamahaYas209,
+    mock_aiohttp: aioresponses,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the `_subscribe` method creates a notify server.
 
@@ -1464,11 +1460,13 @@ def test_subscribe_creates_notify_server_with_correct_subscriptions(
     mock_aiohttp.requests.pop(
         ("SUBSCRIBE", URL("http://192.168.1.1:49152/upnp/event/rendercontrol1"))
     )
-    assert all(key[0] == "GET" for key in mock_aiohttp.requests.keys())
+    assert all(key[0] == "GET" for key in mock_aiohttp.requests)
 
 
 def test_subscribe_creates_notify_server_logs_subscription_errors(
-    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses, caplog: LogCaptureFixture
+    yamaha_yas_209: YamahaYas209,
+    mock_aiohttp: aioresponses,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `_subscribe` method logs any exceptions when subscribing to services."""
 
@@ -1476,11 +1474,7 @@ def test_subscribe_creates_notify_server_logs_subscription_errors(
     add_rc_subscription_call(
         mock_aiohttp,
         yamaha_yas_209,
-        exception=(
-            response_exception := UpnpResponseError(
-                status=HTTPStatus.INTERNAL_SERVER_ERROR
-            )
-        ),
+        exception=(UpnpResponseError(status=HTTPStatus.INTERNAL_SERVER_ERROR)),
     )
 
     def _sleep_side_effect(_: int) -> None:
@@ -1501,9 +1495,7 @@ def test_subscribe_creates_notify_server_logs_subscription_errors(
     assert second_record.message == f"Subscribed to {Yas209Service.AVT.service_id}"
     assert (third_record := caplog.records.pop(0)).levelno == ERROR
     assert (
-        third_record.message
-        == f"Unable to subscribe to {Yas209Service.RC.service_id}: "
-        f'UpnpCommunicationError("{response_exception!r}", None)'
+        third_record.message == f"Unable to subscribe to {Yas209Service.RC.service_id}"
     )
 
     assert mock_aiohttp.requests.pop(
@@ -1512,11 +1504,13 @@ def test_subscribe_creates_notify_server_logs_subscription_errors(
     assert mock_aiohttp.requests.pop(
         ("SUBSCRIBE", URL("http://192.168.1.1:49152/upnp/event/rendercontrol1"))
     ) == [FRESH_SUBSCRIPTION_CALL]
-    assert all(key[0] == "GET" for key in mock_aiohttp.requests.keys())
+    assert all(key[0] == "GET" for key in mock_aiohttp.requests)
 
 
 def test_subscribe_resubscribes_to_active_services(
-    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses, caplog: LogCaptureFixture
+    yamaha_yas_209: YamahaYas209,
+    mock_aiohttp: aioresponses,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `_subscribe` method logs any exceptions when subscribing to services."""
 
@@ -1550,14 +1544,16 @@ def test_subscribe_resubscribes_to_active_services(
     assert mock_aiohttp.requests.pop(
         ("SUBSCRIBE", URL("http://192.168.1.1:49152/upnp/event/rendercontrol1"))
     ) == [FRESH_SUBSCRIPTION_CALL, RESUBSCRIPTION_CALL_RC]
-    assert all(key[0] == "GET" for key in mock_aiohttp.requests.keys())
+    assert all(key[0] == "GET" for key in mock_aiohttp.requests)
     assert "Resubscribing to all services" in caplog.text
 
     assert call_count == 121
 
 
 def test_subscribe_resubscribes_to_failed_services(
-    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses, caplog: LogCaptureFixture
+    yamaha_yas_209: YamahaYas209,
+    mock_aiohttp: aioresponses,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `_subscribe` method logs any exceptions when subscribing to services."""
 
@@ -1608,17 +1604,17 @@ def test_subscribe_resubscribes_to_failed_services(
     assert call_count == 121
 
 
-@mark.parametrize(
-    ["logging", "expected_level"],
-    (
+@pytest.mark.parametrize(
+    ("logging", "expected_level"),
+    [
         (True, ERROR),
         (False, WARNING),
-    ),
+    ],
 )
 def test_subscribe_keeps_retrying_failed_subscriptions(
     yamaha_yas_209: YamahaYas209,
     mock_aiohttp: aioresponses,
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
     logging: bool,
     expected_level: int,
 ) -> None:
@@ -1692,7 +1688,9 @@ def test_subscribe_keeps_retrying_failed_subscriptions(
 
 
 def test_stop_listening_stops_listener(
-    yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses, caplog: LogCaptureFixture
+    yamaha_yas_209: YamahaYas209,
+    mock_aiohttp: aioresponses,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `stop_listening` method stops the listener."""
 

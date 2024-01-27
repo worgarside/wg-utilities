@@ -5,19 +5,19 @@ from datetime import datetime
 from os import environ
 from unittest.mock import patch
 
+import pytest
 from boto3 import client
 from dateutil.tz import tzutc
 from freezegun import freeze_time
-from moto import mock_s3  # type: ignore[import]
+from moto import mock_s3  # type: ignore[import-not-found]
 from mypy_boto3_lambda import LambdaClient
 from mypy_boto3_s3 import S3Client
-from pytest import FixtureRequest, fixture, mark
 
 from tests.conftest import YieldFixture
 from wg_utilities.testing import MockBoto3Client
 
 
-@fixture(scope="module", autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def _aws_credentials_env_vars() -> YieldFixture[None]:
     """Mock environment variables.
 
@@ -37,14 +37,14 @@ def _aws_credentials_env_vars() -> YieldFixture[None]:
         yield
 
 
-@fixture(scope="function", name="lambda_client")
-def _lambda_client() -> LambdaClient:
+@pytest.fixture(name="lambda_client")
+def lambda_client_() -> LambdaClient:
     """Fixture for creating a boto3 client instance for Lambda Functions."""
     return client("lambda")
 
 
-@fixture(scope="function", name="mb3c")
-def _mb3c(request: FixtureRequest) -> MockBoto3Client:
+@pytest.fixture(name="mb3c")
+def mb3c_(request: pytest.FixtureRequest) -> MockBoto3Client:
     """Fixture for creating a MockBoto3Client instance."""
 
     if name_marker := request.node.get_closest_marker("mocked_operation_lookup"):
@@ -55,8 +55,8 @@ def _mb3c(request: FixtureRequest) -> MockBoto3Client:
     return MockBoto3Client(mocked_operation_lookup=mocked_operation_lookup)
 
 
-@fixture(scope="function", name="s3_client")
-def _s3_client() -> S3Client:
+@pytest.fixture(name="s3_client")
+def s3_client_() -> S3Client:
     """Fixture for creating a boto3 client instance for S3."""
     return client("s3")
 
@@ -79,7 +79,7 @@ def test_reset_boto3_calls(mb3c: MockBoto3Client) -> None:
     assert mb3c.boto3_calls == {}
 
 
-@mark.mocked_operation_lookup(
+@pytest.mark.mocked_operation_lookup(
     {
         "ListBuckets": {"Buckets": ["barry", "paul", "jimmy", "brian"]},
         "CreateBucket": "done",
@@ -191,7 +191,7 @@ def test_boto3_calls_are_logged_correctly(
     }
 
 
-@mark.mocked_operation_lookup(
+@pytest.mark.mocked_operation_lookup(
     {
         "ListBuckets": {"Buckets": ["barry", "paul", "jimmy", "brian"]},
         "CreateBucket": "done",
@@ -214,13 +214,9 @@ def test_boto3_calls_get_correct_responses(
         list_functions = lambda_client.list_functions()
         create_function = lambda_client.create_function()  # type: ignore[call-arg]
 
-    assert list_bucket_res == {  # type: ignore[comparison-overlap]
-        "Buckets": ["barry", "paul", "jimmy", "brian"]
-    }
+    assert list_bucket_res == {"Buckets": ["barry", "paul", "jimmy", "brian"]}  # type: ignore[comparison-overlap]
     assert create_bucket_res == "done"  # type: ignore[comparison-overlap]
-    assert list_functions == {  # type: ignore[comparison-overlap]
-        "Functions": ["foo", "bar", "baz"]
-    }
+    assert list_functions == {"Functions": ["foo", "bar", "baz"]}  # type: ignore[comparison-overlap]
     assert create_function == "done"  # type: ignore[comparison-overlap]
 
 
@@ -339,7 +335,7 @@ def test_nested_callable_override(
 
 
 @mock_s3  # type: ignore[misc]
-@mark.mocked_operation_lookup(
+@pytest.mark.mocked_operation_lookup(
     {
         "ListBuckets": {"Buckets": ["barry", "paul", "jimmy", "brian"]},
     }
@@ -377,7 +373,7 @@ def test_non_mocked_calls_still_go_to_aws(
 
 
 @mock_s3  # type: ignore[misc]
-@mark.mocked_operation_lookup(
+@pytest.mark.mocked_operation_lookup(
     {
         "ListBuckets": {"Buckets": ["barry", "paul", "jimmy", "brian"]},
     }
@@ -396,9 +392,7 @@ def test_lookup_overrides_in_api_call_builder(
         MockBoto3Client.PATCH_METHOD,
         mb3c.build_api_call(lookup_overrides={"ListBuckets": {"Buckets": ["foo"]}}),
     ):
-        assert s3_client.list_buckets() == {  # type: ignore[comparison-overlap]
-            "Buckets": ["foo"]
-        }
+        assert s3_client.list_buckets() == {"Buckets": ["foo"]}  # type: ignore[comparison-overlap]
 
 
 # This is a test I tried to write to test the `except KeyError` block in the `api_call`
@@ -408,7 +402,7 @@ def test_lookup_overrides_in_api_call_builder(
 # pylint: disable=pointless-string-statement
 """
 @mock_pinpoint  # type: ignore[misc]
-@mark.mocked_operation_lookup(
+@pytest.mark.mocked_operation_lookup(
     {
         "GetApp": {
             "ApplicationResponse": {
@@ -470,7 +464,7 @@ def test_non_moto_supported_operations_raise_exception(
         # Finally prove that the non-moto, non-mocked supported operation raises an
         # exception
 
-        with raises(NotImplementedError) as exc_info:
+        with pytest.raises(NotImplementedError) as exc_info:
             # I've just picked something I think moto are unlikely to support any time
             # soon!
             pinpoint_client.verify_otp_message(

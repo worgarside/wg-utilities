@@ -7,7 +7,7 @@ from json import loads
 from typing import Any
 from unittest.mock import patch
 
-from pytest import mark, raises
+import pytest
 from pytz import timezone
 from requests import HTTPError
 from requests_mock import Mocker
@@ -33,7 +33,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     assert not hasattr(client, "_primary_calendar")
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     (
         "summary",
         "start_datetime",
@@ -42,7 +42,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
         "calendar_arg",  # Not `calendar` as that's a fixture
         "extra_params",
     ),
-    (
+    [
         (
             "Test Event 1",
             date(2021, 1, 1),
@@ -72,7 +72,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
             date(2021, 1, 2),
             date(2021, 1, 2),
             timezone("Africa/Johannesburg"),
-            Calendar.parse_obj(
+            Calendar.model_validate(
                 {
                     "id": "test-calendar-id",
                     "etag": "",
@@ -92,7 +92,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
             date(2021, 1, 2),
             date(2021, 1, 2),
             timezone("Africa/Johannesburg"),
-            Calendar.parse_obj(
+            Calendar.model_validate(
                 {
                     "id": "test-calendar-id",
                     "etag": "",
@@ -111,7 +111,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
                 "three": "three",
             },
         ),
-    ),
+    ],
 )
 def test_create_event_request(
     google_calendar_client: GoogleCalendarClient,
@@ -154,7 +154,7 @@ def test_create_event_request(
     with patch.object(
         google_calendar_client, "post_json_response"
     ) as mock_post_json_response:
-        mock_post_json_response.return_value = loads(event.json())
+        mock_post_json_response.return_value = loads(event.model_dump_json())
 
         google_calendar_client.create_event(
             summary=summary,
@@ -184,7 +184,7 @@ def test_create_event_request(
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     (
         "summary",
         "start_datetime",
@@ -193,7 +193,7 @@ def test_create_event_request(
         "calendar_arg",  # Not `calendar` as that's a fixture
         "extra_params",
     ),
-    (
+    [
         (
             "Test Event 1",
             date(2021, 1, 1),
@@ -223,7 +223,7 @@ def test_create_event_request(
             date(2021, 1, 2),
             date(2021, 1, 2),
             timezone("Africa/Johannesburg"),
-            Calendar.parse_obj(
+            Calendar.model_validate(
                 {
                     "id": "test-calendar-id",
                     "etag": "",
@@ -243,7 +243,7 @@ def test_create_event_request(
             date(2021, 1, 2),
             date(2021, 1, 2),
             timezone("Africa/Johannesburg"),
-            Calendar.parse_obj(
+            Calendar.model_validate(
                 {
                     "id": "test-calendar-id",
                     "etag": "",
@@ -262,7 +262,7 @@ def test_create_event_request(
                 "three": "three",
             },
         ),
-    ),
+    ],
 )
 def test_create_event_response(
     google_calendar_client: GoogleCalendarClient,
@@ -278,7 +278,7 @@ def test_create_event_response(
     """Test the `create_event` method returns an Event instance."""
 
     if isinstance(start_datetime, datetime):
-        start = _StartEndDatetime.parse_obj(
+        start = _StartEndDatetime.model_validate(
             {
                 "timeZone": tz.tzname(None),
                 "dateTime": start_datetime.replace(tzinfo=tz).strftime(
@@ -287,7 +287,7 @@ def test_create_event_response(
             }
         )
     else:
-        start = _StartEndDatetime.parse_obj(
+        start = _StartEndDatetime.model_validate(
             {
                 "timeZone": tz.tzname(None),
                 "date": start_datetime.isoformat(),
@@ -295,7 +295,7 @@ def test_create_event_response(
         )
 
     if isinstance(end_datetime, datetime):
-        end = _StartEndDatetime.parse_obj(
+        end = _StartEndDatetime.model_validate(
             {
                 "timeZone": tz.tzname(None),
                 "dateTime": end_datetime.replace(tzinfo=tz).strftime(
@@ -304,14 +304,14 @@ def test_create_event_response(
             }
         )
     else:
-        end = _StartEndDatetime.parse_obj(
+        end = _StartEndDatetime.model_validate(
             {
                 "timeZone": tz.tzname(None),
                 "date": end_datetime.isoformat(),
             }
         )
 
-    expected_event = event.copy(
+    expected_event = event.model_copy(
         update={
             "summary": summary,
             "start": start,
@@ -331,7 +331,7 @@ def test_create_event_response(
         ),
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
-        json=loads(expected_event.json()),
+        json=loads(expected_event.model_dump_json()),
     )
 
     assert (
@@ -347,9 +347,9 @@ def test_create_event_response(
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("start_datetime", "end_datetime", "expected_exception_message"),
-    (
+    [
         (date(2021, 1, 1), date(2021, 1, 2), None),
         (date(2021, 1, 1), datetime(2021, 1, 2), None),
         (datetime(2021, 1, 1), date(2021, 1, 2), None),
@@ -363,7 +363,7 @@ def test_create_event_response(
             "2021-01-02",
             "^`end_datetime` must be either a date or a datetime$",
         ),
-    ),
+    ],
 )
 def test_create_event_type_validation(
     start_datetime: datetime | date,
@@ -377,10 +377,10 @@ def test_create_event_type_validation(
     with patch.object(
         google_calendar_client, "post_json_response"
     ) as mock_post_json_response:
-        mock_post_json_response.return_value = loads(event.json())
+        mock_post_json_response.return_value = loads(event.model_dump_json())
 
         if expected_exception_message:
-            with raises(TypeError, match=expected_exception_message):
+            with pytest.raises(TypeError, match=expected_exception_message):
                 google_calendar_client.create_event(
                     summary="Test Event",
                     start_datetime=start_datetime,
@@ -439,9 +439,10 @@ def test_delete_event_by_id_raises_exception(
         reason=HTTPStatus.NOT_FOUND.phrase,
     )
 
-    with raises(HTTPError) as exc_info:
+    with pytest.raises(HTTPError) as exc_info:
         google_calendar_client.delete_event_by_id(event_id=event.id, calendar=calendar)
 
+    assert exc_info.value.response is not None
     assert exc_info.value.response.status_code == HTTPStatus.NOT_FOUND
 
 

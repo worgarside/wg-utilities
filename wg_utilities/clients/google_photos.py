@@ -1,4 +1,3 @@
-# pylint: disable=no-self-argument
 """Custom client for interacting with Google's Photos API."""
 from __future__ import annotations
 
@@ -6,16 +5,14 @@ from datetime import datetime
 from enum import Enum
 from logging import DEBUG, getLogger
 from pathlib import Path
-from typing import Any, Literal, TypeAlias, TypedDict, TypeVar
+from typing import Any, ClassVar, Literal, Self, TypeAlias
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 from requests import post
+from typing_extensions import TypedDict
 
 from wg_utilities.clients._google import GoogleClient
-from wg_utilities.clients.oauth_client import (
-    BaseModelWithConfig,
-    GenericModelWithConfig,
-)
+from wg_utilities.clients.oauth_client import BaseModelWithConfig
 from wg_utilities.functions import force_mkdir
 from wg_utilities.loggers import add_stream_handler
 
@@ -39,27 +36,27 @@ class _ShareInfoInfo(TypedDict):
 
 
 class _MediaItemMetadataPhoto(BaseModelWithConfig):
-    camera_make: str | None = Field(alias="cameraMake")
-    camera_model: str | None = Field(alias="cameraModel")
-    focal_length: float | None = Field(alias="focalLength")
-    aperture_f_number: float | None = Field(alias="apertureFNumber")
-    iso_equivalent: int | None = Field(alias="isoEquivalent")
-    exposure_time: str | None = Field(alias="exposureTime")
+    camera_make: str | None = Field(None, alias="cameraMake")
+    camera_model: str | None = Field(None, alias="cameraModel")
+    focal_length: float | None = Field(None, alias="focalLength")
+    aperture_f_number: float | None = Field(None, alias="apertureFNumber")
+    iso_equivalent: int | None = Field(None, alias="isoEquivalent")
+    exposure_time: str | None = Field(None, alias="exposureTime")
 
 
 class _MediaItemMetadataVideo(BaseModelWithConfig):
-    camera_make: str | None = Field(alias="cameraMake")
-    camera_model: str | None = Field(alias="cameraModel")
-    status: Literal["READY"] | None
-    fps: float | None
+    camera_make: str | None = Field(None, alias="cameraMake")
+    camera_model: str | None = Field(None, alias="cameraModel")
+    status: Literal["READY"] | None = None
+    fps: float | None = None
 
 
 class _MediaItemMetadata(BaseModelWithConfig):
     creation_time: datetime = Field(alias="creationTime")
     height: int
     width: int
-    photo: _MediaItemMetadataPhoto | None
-    video: _MediaItemMetadataVideo | None
+    photo: _MediaItemMetadataPhoto | None = Field(default=None)
+    video: _MediaItemMetadataVideo | None = Field(default=None)
 
 
 class MediaType(Enum):
@@ -70,25 +67,28 @@ class MediaType(Enum):
     UNKNOWN = "unknown"
 
 
-FJR = TypeVar("FJR", bound="GooglePhotosEntity")
-
-
-class GooglePhotosEntity(GenericModelWithConfig):
-    """Base class for Google Photos entities."""
+class _GooglePhotosEntityJson(TypedDict):
+    """JSON representation of a Google Photos entity."""
 
     id: str
+    productUrl: str
+
+
+class GooglePhotosEntity(BaseModelWithConfig):
+    """Generic base class for Google Photos entities."""
+
+    id: str  # noqa: A003
     product_url: str = Field(alias="productUrl")
 
     google_client: GooglePhotosClient = Field(exclude=True)
 
     @classmethod
     def from_json_response(
-        cls: type[FJR],
+        cls,
         value: GooglePhotosEntityJson,
         *,
         google_client: GooglePhotosClient,
-        _waive_validation: bool = False,
-    ) -> FJR:
+    ) -> Self:
         """Create an entity from a JSON response."""
 
         value_data: dict[str, Any] = {
@@ -96,25 +96,17 @@ class GooglePhotosEntity(GenericModelWithConfig):
             **value,
         }
 
-        instance = cls.parse_obj(value_data)
-
-        if not _waive_validation:
-            instance._validate()  # pylint: disable=protected-access
-
-        return instance
+        return cls.model_validate(value_data)
 
 
-class AlbumJson(TypedDict):
+class AlbumJson(_GooglePhotosEntityJson):
     """JSON representation of an Album."""
 
-    id: str
-    productUrl: str
-
-    coverPhotoBaseUrl: str
-    coverPhotoMediaItemId: str
-    isWriteable: bool | None
-    mediaItemsCount: int
-    shareInfo: _ShareInfoInfo | None
+    coverPhotoBaseUrl: str  # noqa: N815
+    coverPhotoMediaItemId: str  # noqa: N815
+    isWriteable: bool | None  # noqa: N815
+    mediaItemsCount: int  # noqa: N815
+    shareInfo: _ShareInfoInfo | None  # noqa: N815
     title: str
 
 
@@ -123,15 +115,16 @@ class Album(GooglePhotosEntity):
 
     cover_photo_base_url: str = Field(alias="coverPhotoBaseUrl")
     cover_photo_media_item_id: str = Field(alias="coverPhotoMediaItemId")
-    is_writeable: bool | None = Field(alias="isWriteable")
+    is_writeable: bool | None = Field(None, alias="isWriteable")
     media_items_count: int = Field(alias="mediaItemsCount")
-    share_info: _ShareInfoInfo | None = Field(alias="shareInfo")
+    share_info: _ShareInfoInfo | None = Field(None, alias="shareInfo")
     title: str
 
     _media_items: list[MediaItem]
 
-    @validator("title")
-    def _validate_title(cls, value: str) -> str:  # noqa: N805
+    @field_validator("title")
+    @classmethod
+    def _validate_title(cls, value: str) -> str:
         """Validate the title of the album."""
 
         if not value:
@@ -149,18 +142,15 @@ class Album(GooglePhotosEntity):
         """
 
         if not hasattr(self, "_media_items"):
-            self._set_private_attr(
-                "_media_items",
-                [
-                    MediaItem.from_json_response(item, google_client=self.google_client)
-                    for item in self.google_client.get_items(
-                        "/mediaItems:search",
-                        method_override=post,
-                        list_key="mediaItems",
-                        params={"albumId": self.id, "pageSize": 100},
-                    )
-                ],
-            )
+            self._media_items = [
+                MediaItem.from_json_response(item, google_client=self.google_client)
+                for item in self.google_client.get_items(
+                    "/mediaItems:search",
+                    method_override=post,
+                    list_key="mediaItems",
+                    params={"albumId": self.id, "pageSize": 100},
+                )
+            ]
 
         return self._media_items
 
@@ -170,39 +160,52 @@ class Album(GooglePhotosEntity):
         return item.id in [media_item.id for media_item in self.media_items]
 
 
-class MediaItemJson(TypedDict):
+class MediaItemJson(_GooglePhotosEntityJson):
     """JSON representation of a Media Item (photo or video)."""
 
-    id: str
-    productUrl: str
-
-    baseUrl: str
-    contributorInfo: dict[str, str] | None
+    baseUrl: str  # noqa: N815
+    contributorInfo: dict[str, str] | None  # noqa: N815
     description: str | None
     filename: str
-    mediaMetadata: _MediaItemMetadata
-    mimeType: str
+    mediaMetadata: _MediaItemMetadata  # noqa: N815
+    mimeType: str  # noqa: N815
 
 
 class MediaItem(GooglePhotosEntity):
     """Class for representing a MediaItem and its metadata/content."""
 
     base_url: str = Field(alias="baseUrl")
-    contributor_info: dict[str, str] | None = Field(alias="contributorInfo")
-    description: str | None
+    contributor_info: dict[str, str] | None = Field(
+        alias="contributorInfo", default=None
+    )
+    description: str | None = Field(default=None)
     filename: str
     media_metadata: _MediaItemMetadata = Field(alias="mediaMetadata")
     mime_type: str = Field(alias="mimeType")
 
     _local_path: Path
 
+    def as_bytes(self, *, height_override: int = 0, width_override: int = 0) -> bytes:
+        """MediaItem binary content - without the download."""
+        height = height_override or self.height
+        width = width_override or self.width
+
+        param_str = {
+            MediaType.IMAGE: f"=w{width}-h{height}",
+            MediaType.VIDEO: "=dv",
+        }.get(self.media_type, "")
+
+        return self.google_client._get(  # pylint: disable=protected-access
+            f"{self.base_url}{param_str}", params={"pageSize": None}
+        ).content
+
     def download(
         self,
         target_directory: Path | str = "",
         *,
         file_name_override: str | None = None,
-        width_override: int | None = None,
-        height_override: int | None = None,
+        width_override: int = 0,
+        height_override: int = 0,
         force_download: bool = False,
     ) -> Path:
         """Download the media item to local storage.
@@ -220,7 +223,7 @@ class MediaItem(GooglePhotosEntity):
                 locally already
 
         Returns:
-             str: the path to the downloaded file (self.local_path)
+                str: the path to the downloaded file (self.local_path)
         """
 
         if isinstance(target_directory, str):
@@ -228,13 +231,10 @@ class MediaItem(GooglePhotosEntity):
                 Path.cwd() if target_directory == "" else Path(target_directory)
             )
 
-        self._set_private_attr(
-            "_local_path",
-            (
-                target_directory
-                / self.creation_datetime.strftime("%Y/%m/%d")
-                / (file_name_override or self.filename)
-            ),
+        self._local_path = (
+            target_directory
+            / self.creation_datetime.strftime("%Y/%m/%d")
+            / (file_name_override or self.filename)
         )
 
         if self.local_path.is_file() and not force_download:
@@ -244,24 +244,16 @@ class MediaItem(GooglePhotosEntity):
                 self.local_path,
             )
         else:
-            width = width_override or self.width
-            height = height_override or self.height
-
-            param_str = {
-                MediaType.IMAGE: f"=w{width}-h{height}",
-                MediaType.VIDEO: "=dv",
-            }.get(self.media_type, "")
-
             force_mkdir(self.local_path, path_is_file=True).write_bytes(
-                self.google_client._get(  # pylint: disable=protected-access
-                    f"{self.base_url}{param_str}", params={"pageSize": None}
-                ).content
+                self.as_bytes(
+                    width_override=width_override, height_override=height_override
+                )
             )
 
         return self.local_path
 
     @property
-    def bytes(self) -> bytes:
+    def binary_content(self) -> bytes:
         """MediaItem binary content.
 
         Opens the local copy of the file (downloading it first if necessary) and
@@ -342,7 +334,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
 
     BASE_URL = "https://photoslibrary.googleapis.com/v1"
 
-    DEFAULT_SCOPES = [
+    DEFAULT_SCOPES: ClassVar[list[str]] = [
         "https://www.googleapis.com/auth/photoslibrary.readonly",
         "https://www.googleapis.com/auth/photoslibrary.appendonly",
         "https://www.googleapis.com/auth/photoslibrary.readonly.appcreateddata",
@@ -438,5 +430,5 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
         return self._albums
 
 
-Album.update_forward_refs()
-MediaItem.update_forward_refs()
+Album.model_rebuild()
+MediaItem.model_rebuild()

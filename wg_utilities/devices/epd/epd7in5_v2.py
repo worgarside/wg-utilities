@@ -1,3 +1,4 @@
+# ruff: noqa
 """EPD class.
 
 * | File        :	  epd7in5.py
@@ -42,7 +43,7 @@ EPD_HEIGHT = 480
 
 
 # noinspection PyUnresolvedReferences,PyMissingOrEmptyDocstring,SpellCheckingInspection
-class EPD:  # noqa: D101
+class EPD:
     def __init__(self) -> None:
         self.reset_pin = epdconfig.RST_PIN  # type: ignore[attr-defined]
         self.dc_pin = epdconfig.DC_PIN  # type: ignore[attr-defined]
@@ -52,7 +53,7 @@ class EPD:  # noqa: D101
         self.height = EPD_HEIGHT
 
     # Hardware reset
-    def reset(self) -> None:  # noqa: D102
+    def reset(self) -> None:
         epdconfig.digital_write(self.reset_pin, 1)  # type: ignore[attr-defined]
         epdconfig.delay_ms(200)  # type: ignore[attr-defined]
         epdconfig.digital_write(self.reset_pin, 0)  # type: ignore[attr-defined]
@@ -60,19 +61,19 @@ class EPD:  # noqa: D101
         epdconfig.digital_write(self.reset_pin, 1)  # type: ignore[attr-defined]
         epdconfig.delay_ms(200)  # type: ignore[attr-defined]
 
-    def send_command(self, command: int) -> None:  # noqa: D102
+    def send_command(self, command: int) -> None:
         epdconfig.digital_write(self.dc_pin, 0)  # type: ignore[attr-defined]
         epdconfig.digital_write(self.cs_pin, 0)  # type: ignore[attr-defined]
         epdconfig.spi_writebyte([command])  # type: ignore[attr-defined]
         epdconfig.digital_write(self.cs_pin, 1)  # type: ignore[attr-defined]
 
-    def send_data(self, data: int) -> None:  # noqa: D102
+    def send_data(self, data: int) -> None:
         epdconfig.digital_write(self.dc_pin, 1)  # type: ignore[attr-defined]
         epdconfig.digital_write(self.cs_pin, 0)  # type: ignore[attr-defined]
         epdconfig.spi_writebyte([data])  # type: ignore[attr-defined]
         epdconfig.digital_write(self.cs_pin, 1)  # type: ignore[attr-defined]
 
-    def read_busy(self) -> None:  # noqa: D102
+    def read_busy(self) -> None:
         debug("e-Paper busy")
         self.send_command(0x71)
         busy = epdconfig.digital_read(self.busy_pin)  # type: ignore[attr-defined]
@@ -81,7 +82,7 @@ class EPD:  # noqa: D101
             busy = epdconfig.digital_read(self.busy_pin)  # type: ignore[attr-defined]
         epdconfig.delay_ms(200)  # type: ignore[attr-defined]
 
-    def init(self) -> int:  # noqa: D102
+    def init(self) -> int:
         if epdconfig.module_init() != 0:  # type: ignore[attr-defined]
             return -1
         # EPD hardware init start
@@ -119,7 +120,7 @@ class EPD:  # noqa: D101
         # EPD hardware init end
         return 0
 
-    def getbuffer(self, image: Image) -> list[int]:  # noqa: D102
+    def getbuffer(self, image: Image) -> list[int]:
         buf = [0xFF] * (int(self.width / 8) * self.height)
         image_monocolor = image.convert("1")
         imwidth, imheight = image_monocolor.size
@@ -141,7 +142,7 @@ class EPD:  # noqa: D101
                         buf[int((new_x + new_y * self.width) / 8)] &= ~(0x80 >> (y % 8))
         return buf
 
-    def display(self, image: Image) -> None:  # noqa: D102
+    def display(self, image: Image) -> None:
         self.send_command(0x13)
         for i in range(0, int(self.width * self.height / 8)):
             self.send_data(~image[i])  # type: ignore[index]
@@ -150,7 +151,7 @@ class EPD:  # noqa: D101
         epdconfig.delay_ms(100)  # type: ignore[attr-defined]
         self.read_busy()
 
-    def clear(self) -> None:  # noqa: D102
+    def clear(self) -> None:
         self.send_command(0x10)
         for _ in range(0, int(self.width * self.height / 8)):
             self.send_data(0x00)
@@ -163,7 +164,7 @@ class EPD:  # noqa: D101
         epdconfig.delay_ms(100)  # type: ignore[attr-defined]
         self.read_busy()
 
-    def sleep(self) -> None:  # noqa: D102
+    def sleep(self) -> None:
         self.send_command(0x02)  # POWER_OFF
         self.read_busy()
 
@@ -171,5 +172,5 @@ class EPD:  # noqa: D101
         self.send_data(0xA5)
 
     @staticmethod
-    def dev_exit() -> None:  # noqa: D102
+    def dev_exit() -> None:
         epdconfig.module_exit()  # type: ignore[attr-defined]

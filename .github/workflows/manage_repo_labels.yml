@@ -4,11 +4,11 @@ name: Manage Repo Labels
 on:
   push:
     branches:
-      - develop
       - main
     paths:
       - .github/repo_labels.yml
       - .github/workflows/manage_repo_labels.yml
+  workflow_dispatch:
 
 jobs:
   manage-repo-labels:

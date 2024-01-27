@@ -6,8 +6,7 @@ from datetime import datetime
 from http import HTTPStatus
 from unittest.mock import patch
 
-from pydantic.fields import FieldInfo
-from pytest import mark, param, raises
+import pytest
 from pytz import utc
 from requests_mock import Mocker
 
@@ -130,7 +129,7 @@ def test_mime_type_validation(
 
     file_json["mimeType"] = "application/vnd.google-apps.folder"
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         File.from_json_response(
             file_json, google_client=google_drive_client, host_drive=drive
         )
@@ -138,15 +137,15 @@ def test_mime_type_validation(
     assert "Use `Directory` class to create a directory" in str(exc_info.value)
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "parents_value",
-    (
-        param([], id="empty list"),
-        param(
+    [
+        pytest.param([], id="empty list"),
+        pytest.param(
             ["a", "b"],  # length is immaterial
             id="multiple parents",
         ),
-    ),
+    ],
 )
 def test_parents_validation(
     drive: Drive, google_drive_client: GoogleDriveClient, parents_value: list[str]
@@ -160,7 +159,7 @@ def test_parents_validation(
 
     file_json["parents"] = parents_value
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         File.from_json_response(
             file_json, google_client=google_drive_client, host_drive=drive
         )
@@ -180,7 +179,7 @@ def test_parent_instance_validation(
 
     assert drive.id != file_json["parents"][0]  # type: ignore[index]
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         File.from_json_response(
             file_json, google_client=google_drive_client, host_drive=drive, parent=drive
         )
@@ -194,7 +193,7 @@ def test_parent_instance_validation(
 def test_describe(simple_file: File) -> None:
     """Test that the `describe` method gets all available data."""
 
-    assert isinstance(simple_file._description, FieldInfo)
+    assert not simple_file._description
 
     with patch.object(
         simple_file.google_client,
@@ -232,7 +231,7 @@ def test_describe(simple_file: File) -> None:
 def test_describe_force_update(simple_file: File) -> None:
     """Test that `describe` method refreshes all available data with `force_update`."""
 
-    assert isinstance(simple_file._description, FieldInfo)
+    assert not simple_file._description
 
     with patch.object(
         simple_file.google_client,
@@ -282,7 +281,7 @@ def test_describe_with_invalid_field(simple_file: File, mock_requests: Mocker) -
         json=res,
     )
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         simple_file.describe()
 
     assert (
@@ -311,8 +310,8 @@ def test_parent_property(simple_file: File, directory: Directory, drive: Drive) 
     # This looks like I'm testing the Directory class, but it's a File subclass, so it's
     # fine :)
 
-    directory.parent_ = None
-    drive._set_private_attr("_directories", [])
+    directory.parent_ = None  # type: ignore[assignment]
+    drive._directories = []
 
     assert drive.all_known_children == []
     assert directory.parent == drive

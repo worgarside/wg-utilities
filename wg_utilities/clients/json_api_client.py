@@ -6,7 +6,7 @@ from copy import deepcopy
 from http import HTTPStatus
 from json import JSONDecodeError, dumps
 from logging import DEBUG, getLogger
-from typing import Any, Generic, TypeAlias, TypeVar
+from typing import Any, ClassVar, Generic, TypeAlias, TypeVar
 
 from requests import Response, get, post
 
@@ -26,8 +26,8 @@ class JsonApiClient(Generic[GetJsonResponse]):
 
     BASE_URL: str
 
-    DEFAULT_PARAMS: dict[
-        StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None
+    DEFAULT_PARAMS: ClassVar[
+        dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None]
     ] = {}
 
     def __init__(
@@ -35,9 +35,11 @@ class JsonApiClient(Generic[GetJsonResponse]):
         *,
         log_requests: bool = False,
         base_url: str | None = None,
+        validate_request_success: bool = True,
     ):
         self.base_url = base_url or self.BASE_URL
         self.log_requests = log_requests
+        self.validate_request_success = validate_request_success
 
     def _get(
         self,
@@ -174,7 +176,8 @@ class JsonApiClient(Generic[GetJsonResponse]):
             data=data,
         )
 
-        res.raise_for_status()
+        if self.validate_request_success:
+            res.raise_for_status()
 
         return res
 

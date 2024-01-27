@@ -5,8 +5,8 @@ from datetime import datetime, tzinfo
 from json import loads
 from unittest.mock import patch
 
+import pytest
 from freezegun import freeze_time
-from pytest import mark
 from pytz import timezone
 
 from tests.conftest import read_json_file
@@ -27,7 +27,7 @@ def test_instantiation(google_calendar_client: GoogleCalendarClient) -> None:
 
     assert isinstance(calendar, Calendar)
     # the `loads` is to convert tzinfo objects to strings
-    assert loads(calendar.json()) == calendar_json
+    assert loads(calendar.model_dump_json()) == calendar_json
     assert calendar.google_client == google_calendar_client
 
 
@@ -49,8 +49,8 @@ def test_timezone_tzinfo_conversion(
 
     assert calendar.timezone == timezone("Europe/London")
     assert isinstance(calendar.timezone, tzinfo)
-    assert calendar.dict()["timeZone"] == timezone("Europe/London")
-    assert "timezone" not in calendar.dict()
+    assert calendar.model_dump()["timeZone"] == timezone("Europe/London")
+    assert "timezone" not in calendar.model_dump()
 
 
 def test_get_event_by_id(calendar: Calendar) -> None:
@@ -74,9 +74,9 @@ def test_get_events_method(calendar: Calendar) -> None:
     assert len(events) == 1011
 
 
-@mark.parametrize(
-    ["from_datetime", "to_datetime", "day_limit", "expected_params"],
-    (
+@pytest.mark.parametrize(
+    ("from_datetime", "to_datetime", "day_limit", "expected_params"),
+    [
         (
             datetime(1996, 4, 20, 12, 30, 45),
             datetime(1997, 11, 15, 12, 30, 45),
@@ -171,7 +171,7 @@ def test_get_events_method(calendar: Calendar) -> None:
                 "timeMax": "2022-01-01T00:00:00+00:00",
             },
         ),
-    ),
+    ],
 )
 def test_get_events_datetime_parameters(
     calendar: Calendar,

@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from pytest import mark, raises
+import pytest
 
 from wg_utilities.functions import chunk_list
 
 
-@mark.parametrize(
-    "user_input,chunk_len,want",
+@pytest.mark.parametrize(
+    ("user_input", "chunk_len", "want"),
     [
         ([], 5, []),
         (list(range(9)), 2, [[0, 1], [2, 3], [4, 5], [6, 7], [8]]),
@@ -32,14 +32,16 @@ def test_chunk_list_with_varying_input(
     assert all_items == user_input
 
 
-@mark.parametrize("chunk_len,exception_expected", [(i, i < 1) for i in range(-10, 10)])
+@pytest.mark.parametrize(
+    ("chunk_len", "exception_expected"), [(i, i < 1) for i in range(-10, 10)]
+)
 def test_chunk_len_less_than_one_throws_value_error(
     chunk_len: int, exception_expected: bool
 ) -> None:
     """Test that a `chunk_len` value <1 throws a ValueError."""
 
     if exception_expected:
-        with raises(ValueError) as exc_info:
+        with pytest.raises(ValueError) as exc_info:
             list(chunk_list([], chunk_len))
 
         assert str(exc_info.value) == "`chunk_len` must be a positive integer"

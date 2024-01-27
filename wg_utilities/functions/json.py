@@ -54,7 +54,7 @@ class TargetProcessorFunc(Protocol):
         dict_key: str | None = None,
         list_index: int | None = None,
     ) -> JSONVal:
-        """The function to be called on each value in the JSON object."""  # noqa: D401
+        """The function to be called on each value in the JSON object."""
 
 
 def process_list(
@@ -93,12 +93,16 @@ def process_list(
         if isinstance(elem, target_type):
             try:
                 lst[i] = target_processor_func(elem, list_index=i)
-            except Exception as exc:  # pylint: disable=broad-except
+            except Exception:  # pylint: disable=broad-except
                 if log_op_func_failures:
-                    LOGGER.error("Unable to process item at index %i: %s", i, repr(exc))
+                    LOGGER.exception("Unable to process item at index %i", i)
+
                 if not pass_on_fail:
                     raise
-        elif isinstance(elem, dict):
+
+            continue
+
+        if isinstance(elem, dict):
             traverse_dict(
                 elem,
                 target_type=target_type,
@@ -107,7 +111,10 @@ def process_list(
                 log_op_func_failures=log_op_func_failures,
                 single_keys_to_remove=single_keys_to_remove,
             )
-        elif isinstance(elem, list):
+
+            continue
+
+        if isinstance(elem, list):
             process_list(
                 elem,
                 target_type=target_type,
@@ -117,8 +124,10 @@ def process_list(
                 single_keys_to_remove=single_keys_to_remove,
             )
 
+            continue
 
-def traverse_dict(
+
+def traverse_dict(  # noqa: PLR0912
     payload_json: JSONObj,
     *,
     target_type: type[object] | tuple[type[object], ...] | type[Callable[..., Any]],
@@ -127,7 +136,6 @@ def traverse_dict(
     log_op_func_failures: bool = False,
     single_keys_to_remove: Sequence[str] | None = None,
 ) -> None:
-    # pylint: disable=too-many-branches
     """Traverse dict, applying`dict_op_func` to any values of type `target_type`.
 
     Args:
@@ -160,53 +168,62 @@ def traverse_dict(
                 payload_json.update({k: target_processor_func(v, dict_key=k)})
                 if isinstance(payload_json.get(k), dict):
                     traverse_dict(
-                        payload_json,
+                        # If a dict has been created from a non-dict type (e.g. `loads("{...}")`,
+                        # then we need to traverse the current object again, as the new dict may
+                        # contain more instances of `target_type`. Otherwise, traverse
+                        # the dict (that already existed).
+                        payload_json if target_type is not dict else payload_json[k],  # type: ignore[arg-type]
                         target_type=target_type,
                         target_processor_func=target_processor_func,
                         pass_on_fail=pass_on_fail,
                         log_op_func_failures=log_op_func_failures,
                         single_keys_to_remove=single_keys_to_remove,
                     )
-            except Exception as exc:  # pylint: disable=broad-except
+            except Exception:  # pylint: disable=broad-except
                 if log_op_func_failures:
-                    LOGGER.error("Unable to process item with key %s: %s", k, repr(exc))
+                    LOGGER.exception("Unable to process item with key %s", k)
                 if not pass_on_fail:
                     raise
-        elif isinstance(v, dict):
+
+            continue
+
+        if isinstance(v, dict):
             matched_single_key = False
-            if len(v) == 1 and single_keys_to_remove is not None:
-                if (only_key := next(iter(v.keys()))) in single_keys_to_remove:
-                    matched_single_key = True
-                    if isinstance(value := v.get(only_key), target_type):
-                        try:
-                            value = target_processor_func(value, dict_key=only_key)
-                        except Exception as exc:  # pylint: disable=broad-except
-                            if log_op_func_failures:
-                                LOGGER.error(
-                                    "Unable to process item with key %s: %s",
-                                    k,
-                                    repr(exc),
-                                )
-                            if not pass_on_fail:
-                                raise
+            if (
+                len(v) == 1
+                and single_keys_to_remove is not None
+                and (only_key := next(iter(v.keys()))) in single_keys_to_remove
+            ):
+                matched_single_key = True
+                if isinstance(value := v.get(only_key), target_type):
+                    try:
+                        value = target_processor_func(value, dict_key=only_key)
+                    except Exception:  # pylint: disable=broad-except
+                        if log_op_func_failures:
+                            LOGGER.exception(
+                                "Unable to process item with key %s",
+                                k,
+                            )
+                        if not pass_on_fail:
+                            raise
 
-                    if isinstance(value, dict):
-                        # Wrap the value, so that if the top level key is one
-                        # of `single_keys_to_remove` then it's processed
-                        # correctly
-                        tmp_wrapper: JSONObj = {"-": value}
-                        traverse_dict(
-                            tmp_wrapper,
-                            target_type=target_type,
-                            target_processor_func=target_processor_func,
-                            pass_on_fail=pass_on_fail,
-                            log_op_func_failures=log_op_func_failures,
-                            single_keys_to_remove=single_keys_to_remove,
-                        )
+                if isinstance(value, dict):
+                    # Wrap the value, so that if the top level key is one
+                    # of `single_keys_to_remove` then it's processed
+                    # correctly
+                    tmp_wrapper: JSONObj = {"-": value}
+                    traverse_dict(
+                        tmp_wrapper,
+                        target_type=target_type,
+                        target_processor_func=target_processor_func,
+                        pass_on_fail=pass_on_fail,
+                        log_op_func_failures=log_op_func_failures,
+                        single_keys_to_remove=single_keys_to_remove,
+                    )
 
-                        value = tmp_wrapper["-"]
+                    value = tmp_wrapper["-"]
 
-                    payload_json[k] = value
+                payload_json[k] = value
 
             if not matched_single_key:
                 traverse_dict(
@@ -217,7 +234,10 @@ def traverse_dict(
                     log_op_func_failures=log_op_func_failures,
                     single_keys_to_remove=single_keys_to_remove,
                 )
-        elif isinstance(v, list):
+
+            continue
+
+        if isinstance(v, list):
             process_list(
                 v,
                 target_type=target_type,
@@ -226,3 +246,39 @@ def traverse_dict(
                 log_op_func_failures=log_op_func_failures,
                 single_keys_to_remove=single_keys_to_remove,
             )
+
+
+def process_json_object(
+    obj: JSONObj,
+    /,
+    *,
+    target_type: type[object] | tuple[type[object], ...] | type[Callable[..., Any]],
+    target_processor_func: TargetProcessorFunc,
+    pass_on_fail: bool = True,
+    log_op_func_failures: bool = False,
+    single_keys_to_remove: Sequence[str] | None = None,
+) -> None:
+    """Generic entry point to process dicts and/or lists."""
+
+    if isinstance(obj, dict):
+        traverse_dict(
+            obj,
+            target_type=target_type,
+            target_processor_func=target_processor_func,
+            pass_on_fail=pass_on_fail,
+            log_op_func_failures=log_op_func_failures,
+            single_keys_to_remove=single_keys_to_remove,
+        )
+    elif isinstance(obj, list):
+        process_list(
+            obj,
+            target_type=target_type,
+            target_processor_func=target_processor_func,
+            pass_on_fail=pass_on_fail,
+            log_op_func_failures=log_op_func_failures,
+            single_keys_to_remove=single_keys_to_remove,
+        )
+    else:
+        raise TypeError(
+            f"Input object must be a dict or list, not {type(obj)!r}",
+        )

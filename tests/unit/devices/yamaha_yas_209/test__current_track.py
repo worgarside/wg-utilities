@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pytest import mark
+import pytest
 
 from tests.unit.devices.yamaha_yas_209.conftest import (
     yamaha_yas_209_get_media_info_responses,
@@ -62,11 +62,8 @@ def test_json_property() -> None:
     }
 
 
-@mark.parametrize(
-    [
-        "media_info_dict",
-        "json_values",
-    ],
+@pytest.mark.parametrize(
+    ("media_info_dict", "json_values"),
     yamaha_yas_209_get_media_info_responses(
         other_test_parameters={
             # pylint: disable=line-too-long
@@ -101,17 +98,14 @@ def test_from_get_media_info(
     """Test that `from_get_media_info` returns the expected values."""
 
     current_track = CurrentTrack.from_get_media_info(
-        GetMediaInfoResponse.parse_obj(media_info_dict)
+        GetMediaInfoResponse.model_validate(media_info_dict)
     )
 
     assert current_track.json == json_values
 
 
-@mark.parametrize(
-    [
-        "last_change_dict",
-        "json_values",
-    ],
+@pytest.mark.parametrize(
+    ("last_change_dict", "json_values"),
     yamaha_yas_209_last_change_av_transport_events(
         other_test_parameters={
             # pylint: disable=line-too-long

@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 from http import HTTPStatus
 from urllib.parse import urlencode
 
+import pytest
 from freezegun import freeze_time
-from pytest import LogCaptureFixture
 from pytz import utc
 from requests_mock import Mocker
 
@@ -19,7 +19,7 @@ def test_instantiation(monzo_client: MonzoClient) -> None:
     """Test that the class can be instantiated."""
     account = Account(
         account_number="12345678",
-        balance=10000,
+        balance=10000,  # type: ignore[call-arg]
         balance_including_flexible_savings=50000,
         closed=False,
         country_code="GB",
@@ -36,7 +36,7 @@ def test_instantiation(monzo_client: MonzoClient) -> None:
     )
 
     assert isinstance(account, Account)
-    assert account.dict() == {
+    assert account.model_dump() == {
         "account_number": "12345678",
         "closed": False,
         "country_code": "GB",
@@ -49,7 +49,6 @@ def test_instantiation(monzo_client: MonzoClient) -> None:
         "initial_spend_today": -115,
         "initial_total_balance": 50000,
         "owners": [],
-        "payment_details": None,
         "sort_code": "123456",
         "type": "uk_retail",
     }
@@ -62,7 +61,7 @@ def test_list_transactions(
     """Test that the `list_transactions` method returns a list of transactions."""
 
     # Freeze time to when I made the sample data, just to ensure the URL is correct
-    with freeze_time("2022-11-21T19:42:49.870206Z") as frozen_datetime:
+    with freeze_time("2022-11-21T19:42:49Z") as frozen_datetime:
         transactions = monzo_account.list_transactions()
 
     assert len(transactions) == 100
@@ -107,9 +106,10 @@ def test_list_transactions_with_limit(
     with freeze_time() as frozen_datetime:
         monzo_account.list_transactions(limit=20)
 
+    assert mock_requests.last_request
+
     assert (
-        mock_requests.last_request
-        and mock_requests.last_request.url
+        mock_requests.last_request.url
         == f"{monzo_account.monzo_client.base_url}/transactions?"
         + urlencode(
             {
@@ -117,10 +117,12 @@ def test_list_transactions_with_limit(
                 "since": (
                     frozen_datetime.time_to_freeze  # type: ignore[union-attr]
                     - timedelta(days=89)
-                ).isoformat()
+                )
+                .replace(microsecond=0)
+                .isoformat()
                 + "Z",
                 # pylint: disable=line-too-long
-                "before": frozen_datetime.time_to_freeze.isoformat() + "Z",  # type: ignore[union-attr]
+                "before": frozen_datetime.time_to_freeze.replace(microsecond=0).isoformat() + "Z",  # type: ignore[union-attr]
                 "limit": 20,
             }
         )
@@ -144,9 +146,9 @@ def test_list_transactions_with_time_parameters(
         to_datetime=datetime(2022, 11, 15),
     )
 
+    assert mock_requests.last_request
     assert (
-        mock_requests.last_request
-        and mock_requests.last_request.url
+        mock_requests.last_request.url
         == f"{monzo_account.monzo_client.base_url}/transactions?"
         + urlencode(
             {
@@ -170,7 +172,7 @@ def test_update_balance_variables(
 
         assert monzo_account.last_balance_update == datetime.utcnow()
 
-    assert monzo_account.balance_variables.dict() == {
+    assert monzo_account.balance_variables.model_dump() == {
         "balance": 177009,
         "balance_including_flexible_savings": 41472,
         "currency": "GBP",
@@ -188,7 +190,9 @@ def test_update_balance_variables(
     assert mock_requests.request_history[0].method == "GET"
 
 
-def test_balance_property(monzo_account: Account, caplog: LogCaptureFixture) -> None:
+def test_balance_property(
+    monzo_account: Account, caplog: pytest.LogCaptureFixture
+) -> None:
     """Test that the `balance` property returns the correct value."""
 
     assert monzo_account.balance == 177009
@@ -198,7 +202,7 @@ def test_balance_property(monzo_account: Account, caplog: LogCaptureFixture) -> 
 
 
 def test_balance_including_flexible_savings_property(
-    monzo_account: Account, caplog: LogCaptureFixture
+    monzo_account: Account, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Test the `balance_including_flexible_savings` property."""
 
@@ -209,7 +213,7 @@ def test_balance_including_flexible_savings_property(
 
 
 def test_spend_today_property(
-    monzo_account: Account, caplog: LogCaptureFixture
+    monzo_account: Account, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Test that the `spend_today` property returns the correct value."""
 
@@ -220,7 +224,7 @@ def test_spend_today_property(
 
 
 def test_total_balance_property(
-    monzo_account: Account, caplog: LogCaptureFixture
+    monzo_account: Account, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Test that the `total_balance` property returns the correct value."""
 

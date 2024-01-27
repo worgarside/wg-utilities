@@ -5,3 +5,6 @@ coverage:
       default:
         target: auto
         threshold: 1%
+  ignore:
+    - "wg_utilities/devices/epd/*"
+    - "wg_utilities/devices/dht22/*"

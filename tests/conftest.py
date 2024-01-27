@@ -14,15 +14,17 @@ from typing import Literal, TypeVar, cast, overload
 from unittest.mock import MagicMock, patch
 from urllib.parse import quote, unquote
 
+import pytest
 from jwt import encode
-from pytest import fixture
 from requests import get
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import MissingSchema
 from requests_mock import Mocker
 from requests_mock.request import _RequestObjectProxy
 from requests_mock.response import _Context
-from xdist.scheduler.loadscope import LoadScopeScheduling  # type: ignore[import]
+from xdist.scheduler.loadscope import (  # type: ignore[import-not-found]
+    LoadScopeScheduling,
+)
 
 from wg_utilities.clients._spotify_types import SpotifyEntityJson
 from wg_utilities.clients.google_calendar import CalendarJson, GoogleCalendarEntityJson
@@ -107,6 +109,8 @@ def assert_mock_requests_request_history(
 ) -> None:
     """Assert that the request history matches the expected data."""
 
+    assert len(request_history) == len(expected)
+
     for i, expected_values in enumerate(expected):
         assert request_history[i].method == expected_values["method"]
         assert (
@@ -116,63 +120,61 @@ def assert_mock_requests_request_history(
         for k, v in expected_values["headers"].items():  # type: ignore[union-attr]
             assert request_history[i].headers[k] == v
 
-    assert len(request_history) == len(expected)
-
 
 # JSON Objects
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["google/calendar"]
 ) -> CalendarJson:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["google/photos/v1/albums"]
 ) -> AlbumJson:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["google/photos/v1/mediaitems"]
 ) -> dict[Literal["mediaItems"], list[MediaItemJson]]:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["monzo", "monzo/accounts"]
 ) -> dict[Literal["accounts"], list[MonzoAccountJson]]:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["monzo/pots"]
 ) -> dict[Literal["pots"], list[PotJson]]:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["monzo/transactions"]
 ) -> dict[Literal["transactions"], list[TransactionJson]]:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["spotify"]
 ) -> SpotifyEntityJson:
     ...
 
 
 @overload
-def read_json_file(  # type: ignore[misc]
+def read_json_file(  # type: ignore[overload-overlap]
     rel_file_path: str, host_name: Literal["truelayer"]
 ) -> dict[Literal["results"], list[TrueLayerAccountJson | CardJson]]:
     ...
@@ -279,7 +281,9 @@ def get_flat_file_from_url(
         if "pagetoken" in request.qs and len(request.qs["pagetoken"]) == 1:
             file_path = file_path.replace(
                 quote(request.qs["pagetoken"][0]).lower(),
-                md5(request.qs["pagetoken"][0].encode()).hexdigest(),
+                md5(
+                    request.qs["pagetoken"][0].encode(), usedforsecurity=False
+                ).hexdigest(),
             )
             return read_json_file(file_path, host_name=host_name)
         raise  # pragma: no cover
@@ -288,8 +292,8 @@ def get_flat_file_from_url(
 # Fixtures
 
 
-@fixture(scope="function", name="fake_oauth_credentials")
-def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
+@pytest.fixture()
+def fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
     """Fixture for fake OAuth credentials."""
     return OAuthCredentials(
         access_token=live_jwt_token,
@@ -302,8 +306,8 @@ def _fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
     )
 
 
-@fixture(scope="module", name="live_jwt_token")
-def _live_jwt_token() -> str:
+@pytest.fixture(scope="module", name="live_jwt_token")
+def live_jwt_token_() -> str:
     """Fixture for a live JWT token."""
     return str(
         encode(
@@ -318,8 +322,8 @@ def _live_jwt_token() -> str:
     )
 
 
-@fixture(scope="module", name="live_jwt_token_alt")
-def _live_jwt_token_alt() -> str:
+@pytest.fixture(scope="module")
+def live_jwt_token_alt() -> str:
     """Another fixture for a live JWT token."""
     return str(
         encode(
@@ -334,8 +338,8 @@ def _live_jwt_token_alt() -> str:
     )
 
 
-@fixture(scope="function", name="mock_requests_root", autouse=True)
-def _mock_requests_root() -> YieldFixture[Mocker]:
+@pytest.fixture(autouse=True)
+def mock_requests_root() -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
 
     with Mocker(real_http=False, case_sensitive=False) as mock_requests:
@@ -360,14 +364,15 @@ def _mock_requests_root() -> YieldFixture[Mocker]:
         yield mock_requests
 
 
-@fixture(scope="function", name="mock_open_browser")
-def _mock_open_browser() -> YieldFixture[MagicMock]:
+@pytest.fixture(name="mock_open_browser")
+def mock_open_browser_() -> YieldFixture[MagicMock]:
+    """Fixture for mocking opening the user's browser."""
     with patch("wg_utilities.clients.oauth_client.open_browser") as mock_open_browser:
         yield mock_open_browser
 
 
-@fixture(scope="function", name="temp_dir")
-def _temp_dir() -> YieldFixture[Path]:
+@pytest.fixture(name="temp_dir")
+def temp_dir_() -> YieldFixture[Path]:
     """Fixture for creating a temporary directory."""
 
     with TemporaryDirectory() as temp_dir:

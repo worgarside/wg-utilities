@@ -1,0 +1,110 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "/Users/worgarside/Library/Application Support/Code/User/globalStorage/buenon.scratchpads/scratchpads/"
+		},
+		{
+			"path": "/Users/worgarside/Library/Application Support/WgUtilities/"
+		},
+        {
+            "name": "SSH FS - /config",
+            "uri": "ssh://hasspi-config/config"
+        },
+	],
+	"settings": {
+		"python.testing.unittestEnabled": false,
+		"python.testing.pytestEnabled": true,
+		"python.envFile": "${workspaceFolder}/.env",
+		"python.linting.pylintEnabled": false,
+		"python.terminal.activateEnvInCurrentTerminal": true,
+		"python.analysis.typeCheckingMode": "off",
+		"python.analysis.autoImportCompletions": true,
+		"python.formatting.provider": "black",
+		"python.formatting.blackPath": "black",
+		"python.linting.mypyEnabled": false,
+		"python.analysis.diagnosticSeverityOverrides": {
+			"reportUnusedFunction": "none"
+		},
+		"editor.rulers": [
+			88,
+			101
+		],
+		"files.exclude": {
+			"**/.git": true,
+			"**/.svn": true,
+			"**/.hg": true,
+			"**/CVS": true,
+			"**/.DS_Store": true,
+			"**/Thumbs.db": true,
+		},
+		"launches": {
+			"PythonCurrentFile": "Python: Current File",
+		},
+		"python.testing.autoTestDiscoverOnSaveEnabled": true
+	},
+	"launch": {
+		"version": "0.2.0",
+		"terminal.integrated.env.osx": {
+			"PYTHONPATH": "${workspaceFolder:wg-utilities}",
+		},
+		"configurations": [
+			{
+				"name": "Python: Current File",
+				"type": "python",
+				"request": "launch",
+				"program": "${file}",
+				"console": "integratedTerminal",
+				"env": {
+					"PYTHONPATH": "${workspaceFolder:wg-utilities}"
+				}
+			},
+			{
+				"name": "Debug Tests",
+				"type": "python",
+				"request": "launch",
+				"purpose": [
+					"debug-test"
+				],
+				"console": "internalConsole",
+				"stopOnEntry": true,
+				"module": "pytest",
+				"justMyCode": false,
+				"env": {
+					"PYTHONPATH": "${workspaceFolder:wg-utilities}"
+				}
+			},
+			{
+				"name": "Python: Debug Test File",
+				"type": "python",
+				"request": "launch",
+				"module": "pytest",
+				"purpose": [
+					"debug-test"
+				],
+				"args": [
+					"${file}"
+				],
+				"stopOnEntry": true,
+				"justMyCode": false,
+				"env": {
+					"PYTHONPATH": "${workspaceFolder:wg-utilities}"
+				}
+			},
+			{
+				"name": "Python: Debug Current File",
+				"type": "python",
+				"request": "launch",
+				"program": "${file}",
+				"console": "integratedTerminal",
+				"stopOnEntry": true,
+				"justMyCode": false,
+				"env": {
+					"PYTHONPATH": "${workspaceFolder:wg-utilities}"
+				}
+			},
+		]
+	}
+}

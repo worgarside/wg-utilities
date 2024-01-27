@@ -3,22 +3,18 @@ from __future__ import annotations
 
 from http import HTTPStatus
 from pathlib import Path
+from unittest.mock import MagicMock
 
-from pytest import fixture
+import pytest
 from requests_mock import Mocker
 
-from tests.conftest import (
-    FLAT_FILES_DIR,
-    YieldFixture,
-    get_flat_file_from_url,
-    read_json_file,
-)
+from tests.conftest import FLAT_FILES_DIR, get_flat_file_from_url, read_json_file
 from wg_utilities.clients.monzo import Account, MonzoClient, Pot
 from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
-@fixture(scope="function", name="monzo_account")
-def _monzo_account(monzo_client: MonzoClient) -> Account:
+@pytest.fixture(name="monzo_account")
+def monzo_account_(monzo_client: MonzoClient) -> Account:
     """Fixture for creating a Account instance."""
 
     return Account.from_json_response(
@@ -29,18 +25,18 @@ def _monzo_account(monzo_client: MonzoClient) -> Account:
     )
 
 
-@fixture(scope="function", name="monzo_client")
-def _monzo_client(
+@pytest.fixture(name="monzo_client")
+def monzo_client_(
     temp_dir: Path,
     fake_oauth_credentials: OAuthCredentials,
-    mock_requests: Mocker,  # pylint: disable=unused-argument
-    mock_open_browser: Mocker,  # pylint: disable=unused-argument
+    mock_requests: Mocker,  # noqa: ARG001
+    mock_open_browser: MagicMock,  # noqa: ARG001
 ) -> MonzoClient:
     """Fixture for creating a MonzoClient instance."""
 
     (
         creds_cache_path := temp_dir / "oauth_credentials/monzo_credentials.json"
-    ).write_text(fake_oauth_credentials.json())
+    ).write_text(fake_oauth_credentials.model_dump_json())
 
     return MonzoClient(
         client_id="test_client_id",
@@ -50,8 +46,8 @@ def _monzo_client(
     )
 
 
-@fixture(scope="function", name="monzo_pot")
-def _monzo_pot() -> Pot:
+@pytest.fixture(name="monzo_pot")
+def monzo_pot_() -> Pot:
     """Fixture for creating a Pot instance."""
 
     return Pot(
@@ -62,8 +58,8 @@ def _monzo_pot() -> Pot:
     )
 
 
-@fixture(scope="function", name="mock_requests", autouse=True)
-def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
+@pytest.fixture(name="mock_requests", autouse=True)
+def mock_requests_(mock_requests_root: Mocker) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
 
     for path_object in (monzo_dir := FLAT_FILES_DIR / "json" / "monzo").rglob("*"):
@@ -79,4 +75,4 @@ def _mock_requests(mock_requests_root: Mocker) -> YieldFixture[Mocker]:
         reason=HTTPStatus.OK.phrase,
     )
 
-    yield mock_requests_root
+    return mock_requests_root

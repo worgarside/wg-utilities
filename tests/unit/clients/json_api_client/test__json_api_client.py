@@ -8,7 +8,7 @@ from logging import DEBUG
 from typing import Any
 from unittest.mock import call, patch
 
-from pytest import LogCaptureFixture, raises
+import pytest
 from requests import HTTPError, get, post
 from requests_mock import Mocker
 
@@ -96,7 +96,7 @@ def test_post_method_calls_request_correctly(
 def test_request_method_sends_correct_request(
     json_api_client: JsonApiClient[dict[str, Any]],
     mock_requests: Mocker,
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the `_request`` method sends the correct request."""
 
@@ -148,12 +148,13 @@ def test_request_raises_exception_for_non_200_response(
         reason=HTTPStatus.NOT_FOUND.phrase,
     )
 
-    with raises(HTTPError) as exc_info:
+    with pytest.raises(HTTPError) as exc_info:
         json_api_client._request(
             method=post,
             url="/test_endpoint",
         )
 
+    assert exc_info.value.response is not None
     assert exc_info.value.response.status_code == HTTPStatus.NOT_FOUND
     assert exc_info.value.response.reason == HTTPStatus.NOT_FOUND.phrase
 
@@ -161,6 +162,36 @@ def test_request_raises_exception_for_non_200_response(
         str(exc_info.value) == "404 Client Error: Not Found for url: "
         "https://api.example.com/test_endpoint"
     )
+
+    json_api_client.validate_request_success = False
+
+    res = json_api_client._request(
+        method=post,
+        url="/test_endpoint",
+    )
+
+    assert res.status_code == HTTPStatus.NOT_FOUND
+
+
+def test_request_validate_request_success_false(
+    json_api_client: JsonApiClient[dict[str, Any]], mock_requests: Mocker
+) -> None:
+    """Test that the `_request`` method raises an exception for non-200 responses."""
+
+    json_api_client.validate_request_success = False
+
+    mock_requests.post(
+        "https://api.example.com/test_endpoint",
+        status_code=HTTPStatus.NOT_FOUND,
+        reason=HTTPStatus.NOT_FOUND.phrase,
+    )
+
+    res = json_api_client._request(
+        method=post,
+        url="/test_endpoint",
+    )
+
+    assert res.status_code == HTTPStatus.NOT_FOUND
 
 
 def test_request_json_response(
@@ -249,7 +280,7 @@ def test_request_json_response_raises_exception_with_invalid_json(
         text="invalid_json",
     )
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         json_api_client._request_json_response(
             method=get,
             url="/test_endpoint",

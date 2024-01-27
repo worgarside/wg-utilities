@@ -6,7 +6,7 @@ from collections.abc import Callable
 from os import environ
 from unittest.mock import patch
 
-from pytest import LogCaptureFixture, mark, raises
+import pytest
 from requests_mock import Mocker
 
 from tests.conftest import EXCEPTION_GENERATORS, TEST_EXCEPTION
@@ -66,7 +66,9 @@ def test_exception_is_sent_to_ha_by_default(mock_requests_root: Mocker) -> None:
     )
 
 
-@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
+@pytest.mark.parametrize(
+    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+)
 def test_decorator_catches_exception_and_calls_callback_correctly(
     exception_type: (
         type[AttributeError]
@@ -96,7 +98,7 @@ def test_decorator_catches_exception_and_calls_callback_correctly(
         exception = exc
         assert isinstance(exc, exception_type)
 
-    with raises(exception_type) as exc_info:
+    with pytest.raises(exception_type) as exc_info:  # noqa: PT012
 
         @on_exception(exception_callback=_cb)
         def worker() -> None:
@@ -109,7 +111,9 @@ def test_decorator_catches_exception_and_calls_callback_correctly(
     assert exc_info.value is exception
 
 
-@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
+@pytest.mark.parametrize(
+    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+)
 def test_false_raise_after_callback_does_not_raise(
     exception_type: type[Exception],
     raise_func: Callable[..., object],
@@ -141,7 +145,9 @@ def test_false_raise_after_callback_does_not_raise(
     assert isinstance(exception, exception_type)
 
 
-@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
+@pytest.mark.parametrize(
+    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+)
 def test_ignore_exception_types(
     exception_type: type[Exception],
     raise_func: Callable[..., object],
@@ -168,12 +174,14 @@ def test_ignore_exception_types(
     assert finished is False
 
 
-@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
+@pytest.mark.parametrize(
+    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+)
 def test_ignoring_exceptions_is_logged_as_warning(
     exception_type: type[Exception],
     raise_func: Callable[..., object],
     raise_args: tuple[object, ...],
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that ignoring exceptions is logged as a warning.
 
@@ -210,12 +218,14 @@ def test_ignoring_exceptions_is_logged_as_warning(
 
 
 @patch.dict(environ, {"SUPPRESS_WG_UTILS_IGNORANCE": "0"})
-@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
+@pytest.mark.parametrize(
+    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+)
 def test_ignorant_warning_suppression_via_parameter(
     exception_type: type[Exception],
     raise_func: Callable[..., object],
     raise_args: tuple[object, ...],
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the warning suppression for ignoring exceptions works as expected.
 
@@ -240,12 +250,14 @@ def test_ignorant_warning_suppression_via_parameter(
 
 
 @patch.dict(environ, {"SUPPRESS_WG_UTILS_IGNORANCE": "1"})
-@mark.parametrize("exception_type,raise_func,raise_args", EXCEPTION_GENERATORS)
+@pytest.mark.parametrize(
+    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+)
 def test_ignorant_warning_suppression_via_env_var(
     exception_type: type[Exception],
     raise_func: Callable[..., object],
     raise_args: tuple[object, ...],
-    caplog: LogCaptureFixture,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the warning suppression for ignoring exceptions works as expected.
 
@@ -281,7 +293,7 @@ def test_default_return_value() -> None:
 def test_default_return_value_with_raise_after_callback() -> None:
     """Test that the default return value is returned correctly."""
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
 
         @on_exception(str, raise_after_callback=True, default_return_value="default")
         def _() -> None:  # pragma: no cover

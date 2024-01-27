@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from textwrap import dedent
-from unittest.mock import call, patch
+from unittest.mock import patch
 from urllib.parse import urlencode
 
+import pytest
 from pydantic.fields import FieldInfo
-from pytest import mark, raises
 from requests_mock import Mocker
 
 from tests.conftest import FLAT_FILES_DIR, assert_mock_requests_request_history
@@ -20,42 +20,30 @@ from wg_utilities.clients.google_drive import (
     _CanHaveChildren,
     _GoogleDriveEntity,
 )
-from wg_utilities.clients.oauth_client import GenericModelWithConfig
 
 
 def test_add_directory_method_first_call(directory: Directory) -> None:
     """Test the first call of `_add_directory` instantiates `_directories`."""
 
-    assert isinstance(directory._directories, FieldInfo)
+    assert directory._directories == []
 
-    new_dir = directory.copy(update={"name": "new_dir", "id": "new_dir_id"})
+    new_dir = directory.model_copy(update={"name": "new_dir", "id": "new_dir_id"})
 
-    with patch.object(
-        GenericModelWithConfig, "_set_private_attr", wraps=directory._set_private_attr
-    ) as mock_set_private_attr:
-        directory._add_directory(new_dir)
-
-    mock_set_private_attr.assert_called_once_with("_directories", [new_dir])
+    directory._add_directory(new_dir)
 
     assert directory._directories == [new_dir]
 
 
 def test_add_directory_method_second_call(directory: Directory) -> None:
-    """Test that a second call of `_add_directory` only appends to `_directories`."""
+    """Test that a second call of `_add_directory` only *appends* to `_directories`."""
 
-    assert isinstance(directory._directories, FieldInfo)
+    assert directory._directories == []
 
-    new_dir = directory.copy(update={"name": "new_dir", "id": "new_dir_id"})
-    new_dir_2 = directory.copy(update={"name": "new_dir_2", "id": "new_dir_2_id"})
+    new_dir = directory.model_copy(update={"name": "new_dir", "id": "new_dir_id"})
+    new_dir_2 = directory.model_copy(update={"name": "new_dir_2", "id": "new_dir_2_id"})
 
-    with patch.object(
-        GenericModelWithConfig, "_set_private_attr", wraps=directory._set_private_attr
-    ) as mock_set_private_attr:
-        directory._add_directory(new_dir)
-        mock_set_private_attr.assert_called_once_with("_directories", [new_dir])
-        mock_set_private_attr.reset_mock()
-        directory._add_directory(new_dir_2)
-        mock_set_private_attr.assert_not_called()
+    directory._add_directory(new_dir)
+    directory._add_directory(new_dir_2)
 
     assert directory._directories == [new_dir, new_dir_2]
 
@@ -63,18 +51,12 @@ def test_add_directory_method_second_call(directory: Directory) -> None:
 def test_add_directory_ignores_known_directory(directory: Directory) -> None:
     """Test that if a known directory is added, it is ignored."""
 
-    assert isinstance(directory._directories, FieldInfo)
+    assert directory._directories == []
 
-    new_dir = directory.copy(update={"name": "new_dir", "id": "new_dir_id"})
+    new_dir = directory.model_copy(update={"name": "new_dir", "id": "new_dir_id"})
 
-    with patch.object(
-        GenericModelWithConfig, "_set_private_attr", wraps=directory._set_private_attr
-    ) as mock_set_private_attr:
-        directory._add_directory(new_dir)
-        mock_set_private_attr.assert_called_once_with("_directories", [new_dir])
-        mock_set_private_attr.reset_mock()
-        directory._add_directory(new_dir)
-        mock_set_private_attr.assert_not_called()
+    directory._add_directory(new_dir)
+    directory._add_directory(new_dir)
 
     assert directory._directories == [new_dir]
 
@@ -84,12 +66,9 @@ def test_add_directory_raises_type_error_for_wrong_type(
 ) -> None:
     """Test that `_add_directory` raises a `TypeError` if the wrong type is passed."""
 
-    with patch.object(
-        GenericModelWithConfig, "_set_private_attr", wraps=directory._set_private_attr
-    ) as mock_set_private_attr, raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         directory._add_directory(file)  # type: ignore[arg-type]
 
-    mock_set_private_attr.assert_not_called()
     assert str(exc_info.value) == "Cannot add `File` instance to `self.directories`."
 
 
@@ -98,12 +77,7 @@ def test_add_file_method_first_call(directory: Directory, file: File) -> None:
 
     assert isinstance(directory._files, FieldInfo)
 
-    with patch.object(
-        GenericModelWithConfig, "_set_private_attr", wraps=directory._set_private_attr
-    ) as mock_set_private_attr:
-        directory._add_file(file)
-
-    mock_set_private_attr.assert_called_once_with("_files", [file])
+    directory._add_file(file)
 
     assert directory._files == [file]
 
@@ -113,16 +87,10 @@ def test_add_file_method_second_call(directory: Directory, file: File) -> None:
 
     assert isinstance(directory._files, FieldInfo)
 
-    new_file = file.copy(update={"name": "new_file", "id": "new_file_id"})
+    new_file = file.model_copy(update={"name": "new_file", "id": "new_file_id"})
 
-    with patch.object(
-        GenericModelWithConfig, "_set_private_attr", wraps=directory._set_private_attr
-    ) as mock_set_private_attr:
-        directory._add_file(file)
-        mock_set_private_attr.assert_called_once_with("_files", [file])
-        mock_set_private_attr.reset_mock()
-        directory._add_file(new_file)
-        mock_set_private_attr.assert_not_called()
+    directory._add_file(file)
+    directory._add_file(new_file)
 
     assert directory._files == [file, new_file]
 
@@ -132,14 +100,8 @@ def test_add_file_ignores_known_file(directory: Directory, file: File) -> None:
 
     assert isinstance(directory._files, FieldInfo)
 
-    with patch.object(
-        GenericModelWithConfig, "_set_private_attr", wraps=directory._set_private_attr
-    ) as mock_set_private_attr:
-        directory._add_file(file)
-        mock_set_private_attr.assert_called_once_with("_files", [file])
-        mock_set_private_attr.reset_mock()
-        directory._add_file(file)
-        mock_set_private_attr.assert_not_called()
+    directory._add_file(file)
+    directory._add_file(file)
 
     assert directory._files == [file]
 
@@ -147,12 +109,9 @@ def test_add_file_ignores_known_file(directory: Directory, file: File) -> None:
 def test_add_file_raises_type_error_for_wrong_type(directory: Directory) -> None:
     """Test that `_add_file` raises a `TypeError` if the wrong type is passed."""
 
-    with patch.object(
-        GenericModelWithConfig, "_set_private_attr", wraps=directory._set_private_attr
-    ) as mock_set_private_attr, raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         directory._add_file(directory)
 
-    mock_set_private_attr.assert_not_called()
     assert str(exc_info.value) == "Cannot add `Directory` instance to `self.files`."
 
 
@@ -188,15 +147,15 @@ def test_add_child_method_directory(drive: Drive, directory: Directory) -> None:
 def test_add_child_invalid_type(drive: Drive) -> None:
     """Test that `add_child` raises a `TypeError` if the wrong type is passed."""
 
-    with raises(TypeError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         drive.add_child("not a file or directory")  # type: ignore[arg-type]
 
     assert str(exc_info.value) == "Cannot add `str` instance to My Drive's children."
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("navigate_path", "instance_path"),
-    (
+    [
         # pylint: disable=line-too-long
         (
             ".",
@@ -278,7 +237,7 @@ def test_add_child_invalid_type(drive: Drive) -> None:
             "~/Archives/Old Documents/School Reports.zip",
             "/My Drive/Archives/Old Documents/School Reports.zip",
         ),
-    ),
+    ],
 )
 def test_navigate_method(
     directory: Directory,
@@ -310,9 +269,9 @@ def test_navigate_method(
     assert actual == expected
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("navigate_path", "exception_message"),
-    (
+    [
         (
             "MacBook Clones//128GB SD Card - Old MacBook.zip",
             "Path cannot contain `//`.",
@@ -320,14 +279,14 @@ def test_navigate_method(
         ("../../../..", "Cannot navigate to parent of Drive."),
         ("/..", "Cannot navigate to Drive '..' from `My Drive`."),
         ("/Another Drive", "Cannot navigate to Drive 'Another Drive' from `My Drive`."),
-    ),
+    ],
 )
 def test_navigate_method_raises_value_error_for_invalid_path(
     directory: Directory, navigate_path: str, exception_message: str
 ) -> None:
     """Test that `navigate` raises a `ValueError` if an invalid path is passed."""
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         directory.navigate(navigate_path)
 
     assert str(exc_info.value) == exception_message
@@ -344,32 +303,37 @@ def test_navigate_method_no_results_found(
         json={"files": []},
     )
 
-    with raises(ValueError, match="^Invalid path: 'path/to/nowhere.jpg'$"):
+    with pytest.raises(ValueError, match="^Invalid path: 'path/to/nowhere.jpg'$"):
         directory.navigate("path/to/nowhere.jpg")
 
 
 def test_reset_known_children(directory: Directory) -> None:
-    """Test that `reset_known_children` resets the `known_children` attribute."""
+    """Test that `reset_known_children` resets the file/directories attributes."""
 
-    with patch.object(_CanHaveChildren, "_set_private_attr") as mock_set_private_attr:
-        directory.reset_known_children()
+    _ = directory.directories
+    _ = directory.files
 
-    assert mock_set_private_attr.call_args_list == [
-        call("_directories", None),
-        call("_directories_loaded", False),
-        call("_files", None),
-        call("_files_loaded", False),
-    ]
+    assert directory._directories != []
+    assert directory._directories_loaded is not False
+    assert directory._files != []
+    assert directory._files_loaded is not False
+
+    directory.reset_known_children()
+
+    assert directory._directories == []
+    assert directory._directories_loaded is False
+    assert directory._files == []
+    assert directory._files_loaded is False
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     (
         "include_files",
         "archive_files_only_tree",
         "archive_directories_tree",
         "complete_tree",
     ),
-    (
+    [
         (
             True,
             "My Drive\n└─── Archives\n     └──> Archive Log",
@@ -416,7 +380,7 @@ def test_reset_known_children(directory: Directory) -> None:
                 """
             ).strip(),
         ),
-    ),
+    ],
 )
 def test_tree_method_local_only(
     drive: Drive,
@@ -459,9 +423,9 @@ def test_tree_not_local_only(drive: Drive) -> None:
     assert drive.tree(include_files=True, local_only=False) == expected
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("preload_paths", "expected"),
-    (
+    [
         (
             [],
             [],
@@ -486,7 +450,7 @@ def test_tree_not_local_only(drive: Drive) -> None:
             ["Old Documents/Harvard Transcripts.zip"],
             ["Old Documents"],
         ),
-    ),
+    ],
 )
 def test_all_known_children_property(
     directory: Directory,

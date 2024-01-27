@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from pytest import mark
+import pytest
 
 from wg_utilities.functions import try_float
 
 
-@mark.parametrize(
-    "user_input,should_convert",
+@pytest.mark.parametrize(
+    ("user_input", "should_convert"),
     [
         ("1", True),
         ("1.0", True),

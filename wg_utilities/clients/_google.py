@@ -5,9 +5,10 @@ from collections.abc import Callable, Iterable, Mapping
 from copy import deepcopy
 from json import dumps
 from logging import DEBUG, getLogger
-from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias, TypedDict, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, TypeAlias, TypeVar
 
 from requests import Response, get
+from typing_extensions import TypedDict
 
 from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import OAuthClient
@@ -72,11 +73,13 @@ class GoogleClient(
 ):
     """Custom client for interacting with the Google APIs."""
 
-    ACCESS_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
+    ACCESS_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"  # noqa: S105
     AUTH_LINK_BASE = "https://accounts.google.com/o/oauth2/v2/auth"
     BASE_URL: str
 
-    DEFAULT_PARAMS: dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None] = {
+    DEFAULT_PARAMS: ClassVar[
+        dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None]
+    ] = {
         "pageSize": "50",
     }
 
@@ -84,7 +87,9 @@ class GoogleClient(
         self,
         url: str,
         *,
-        list_key: Literal["albums", "drives", "files", "items", "point"] = "items",
+        list_key: Literal[
+            "albums", "drives", "files", "items", "mediaItems", "point"
+        ] = "items",
         params: dict[
             StrBytIntFlt,
             StrBytIntFlt | Iterable[StrBytIntFlt] | None,

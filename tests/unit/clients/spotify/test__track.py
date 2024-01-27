@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import date
 from http import HTTPStatus
 
-from pytest import raises
+import pytest
 from requests import HTTPError
 from requests_mock import Mocker
 
@@ -86,7 +86,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
             "is_local": False,
             "name": "These Things Will Come To Be",
             "popularity": 56,
-            "preview_url": "https://p.scdn.co/mp3-preview/6e7e31ce91fa7523d807ef6aee98d93e4fe4c8ba?cid=230c2ac940f14f9aa4294af862300e9b",  # pylint: disable=line-too-long  # noqa: E501
+            "preview_url": "https://p.scdn.co/mp3-preview/6e7e31ce91fa7523d807ef6aee98d93e4fe4c8ba?cid=230c2ac940f14f9aa4294af862300e9b",  # pylint: disable=line-too-long
             "track_number": 6,
             "type": "track",
             "uri": "spotify:track:27cgqh0VRhVeM61ugTnorD",
@@ -153,7 +153,8 @@ def test_audio_features_property(
         "time_signature": 4,
     }
 
-    assert spotify_track.audio_features == expected
+    assert spotify_track.audio_features
+    assert spotify_track.audio_features.model_dump() == expected
 
     assert_mock_requests_request_history(
         mock_requests.request_history,
@@ -173,7 +174,8 @@ def test_audio_features_property(
     assert mock_requests.call_count == 1
 
     # Check subsequent calls don't make a new request
-    assert spotify_track.audio_features == expected
+    assert spotify_track.audio_features
+    assert spotify_track.audio_features.model_dump() == expected
     assert mock_requests.call_count == 1
 
 
@@ -194,7 +196,7 @@ def test_audio_features_not_found(
         reason=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
     )
 
-    with raises(HTTPError) as exc_info:
+    with pytest.raises(HTTPError) as exc_info:
         _ = track.audio_features
 
     assert str(exc_info.value) == (

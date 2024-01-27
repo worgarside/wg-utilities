@@ -8,7 +8,7 @@ from random import choice
 from typing import Any
 from unittest.mock import Mock, call, patch
 
-from pytest import mark, param, raises
+import pytest
 
 from tests.conftest import read_json_file
 from wg_utilities.clients import GoogleDriveClient
@@ -22,17 +22,17 @@ from wg_utilities.clients.google_drive import (
 )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     "drive_json",
-    (
-        param(
+    [
+        pytest.param(
             read_json_file(
                 "v3/files/root/fields=%2a.json",
                 host_name="google/drive",
             ),
             id="My Drive",
         ),
-        param(
+        pytest.param(
             read_json_file(  # type: ignore[index]
                 "v3/drives/pagesize=50&fields=%2a.json",
                 host_name="google/drive",
@@ -41,7 +41,7 @@ from wg_utilities.clients.google_drive import (
             ],
             id="Shared Drive 1",
         ),
-        param(
+        pytest.param(
             read_json_file(  # type: ignore[index]
                 "v3/drives/pagesize=50&fields=%2a.json",
                 host_name="google/drive",
@@ -50,7 +50,7 @@ from wg_utilities.clients.google_drive import (
             ],
             id="Shared Drive 2",
         ),
-    ),
+    ],
 )
 def test_from_json_response(
     drive_json: Mapping[str, Any], google_drive_client: GoogleDriveClient
@@ -92,7 +92,7 @@ def test_kind_validation(google_drive_client: GoogleDriveClient) -> None:
 
     drive_json["kind"] = EntityKind.USER
 
-    with raises(ValueError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         Drive.from_json_response(
             drive_json,
             google_client=google_drive_client,
@@ -104,9 +104,9 @@ def test_kind_validation(google_drive_client: GoogleDriveClient) -> None:
     )
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("cls", "entity_id", "expected_path"),
-    (
+    [
         (
             File,
             "1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B",
@@ -117,7 +117,7 @@ def test_kind_validation(google_drive_client: GoogleDriveClient) -> None:
             "3yz1SpGR2YtgnocrGzphb-qkKTfU4htSx",
             "/My Drive/Archives/Old Documents",
         ),
-    ),
+    ],
 )
 def test_get_entity_by_id(
     drive: Drive, cls: type[File | Directory], entity_id: str, expected_path: str
@@ -169,14 +169,12 @@ def test_get_directory_by_id_no_matching_children(
 
     assert directory not in drive._all_directories
 
-    # `patch.object` doesn't seem to work, maybe because it's a private method?
-    mock_get_entity_by_id = Mock(wraps=drive._get_entity_by_id)
-    drive._set_private_attr(
+    with patch.object(
+        drive,
         "_get_entity_by_id",
-        mock_get_entity_by_id,
-    )
-
-    assert drive.get_directory_by_id(directory.id) == directory
+        wraps=drive._get_entity_by_id,
+    ) as mock_get_entity_by_id:
+        assert drive.get_directory_by_id(directory.id) == directory
 
     mock_get_entity_by_id.assert_called_once_with(Directory, directory.id)
 
@@ -189,14 +187,12 @@ def test_get_directory_by_id_known_child(directory: Directory, drive: Drive) -> 
 
     assert directory in drive.all_known_children
 
-    # `patch.object` doesn't seem to work, maybe because it's a private method?
-    mock_get_entity_by_id = Mock(wraps=drive._get_entity_by_id)
-    drive._set_private_attr(
+    with patch.object(
+        drive,
         "_get_entity_by_id",
-        mock_get_entity_by_id,
-    )
-
-    assert drive.get_directory_by_id(directory.id) == directory
+        wraps=drive._get_entity_by_id,
+    ) as mock_get_entity_by_id:
+        assert drive.get_directory_by_id(directory.id) == directory
 
     mock_get_entity_by_id.assert_not_called()
 
@@ -209,14 +205,12 @@ def test_get_file_by_id_no_matching_children(file: File, drive: Drive) -> None:
 
     assert file not in drive.all_known_children
 
-    # `patch.object` doesn't seem to work, maybe because it's a private method?
-    mock_get_entity_by_id = Mock(wraps=drive._get_entity_by_id)
-    drive._set_private_attr(
+    with patch.object(
+        drive,
         "_get_entity_by_id",
-        mock_get_entity_by_id,
-    )
-
-    assert drive.get_file_by_id(file.id) == file
+        wraps=drive._get_entity_by_id,
+    ) as mock_get_entity_by_id:
+        assert drive.get_file_by_id(file.id) == file
 
     mock_get_entity_by_id.assert_called_once_with(
         File,
@@ -230,14 +224,12 @@ def test_get_file_by_id_known_child(drive: Drive) -> None:
     # This will inherently populate the `_files` attribute
     expected = choice(drive.files)
 
-    # `patch.object` doesn't seem to work, maybe because it's a private method?
-    mock_get_entity_by_id = Mock(wraps=drive._get_entity_by_id)
-    drive._set_private_attr(
+    with patch.object(
+        drive,
         "_get_entity_by_id",
-        mock_get_entity_by_id,
-    )
-
-    assert drive.get_file_by_id(expected.id) == expected
+        wraps=drive._get_entity_by_id,
+    ) as mock_get_entity_by_id:
+        assert drive.get_file_by_id(expected.id) == expected
 
     mock_get_entity_by_id.assert_not_called()
 
@@ -249,18 +241,18 @@ def test_map_directories_only(drive: Drive) -> None:
 
     _ = drive.directories
 
-    mock_get_items = Mock(
+    with patch.object(
+        drive.google_client,
+        "get_items",
         wraps=drive.google_client.get_items,
-    )
-    drive.google_client.get_items = mock_get_items
+    ) as mock_get_items:
+        mock_get_directory_by_id = Mock(wraps=drive.get_directory_by_id)
+        object.__setattr__(drive, "get_directory_by_id", mock_get_directory_by_id)
 
-    mock_get_directory_by_id = Mock(wraps=drive.get_directory_by_id)
-    object.__setattr__(drive, "get_directory_by_id", mock_get_directory_by_id)
+        mock_get_file_by_id = Mock(wraps=drive.get_file_by_id)
+        object.__setattr__(drive, "get_file_by_id", mock_get_file_by_id)
 
-    mock_get_file_by_id = Mock(wraps=drive.get_file_by_id)
-    object.__setattr__(drive, "get_file_by_id", mock_get_file_by_id)
-
-    drive.map(EntityType.DIRECTORY)
+        drive.map(EntityType.DIRECTORY)
 
     assert drive._directories_mapped is True
 
@@ -300,22 +292,22 @@ def test_map_directories_and_files(drive: Drive) -> None:
 
     assert drive.all_known_children != []
 
-    mock_get_items = Mock(
+    with patch.object(
+        drive.google_client,
+        "get_items",
         wraps=drive.google_client.get_items,
-    )
-    drive.google_client.get_items = mock_get_items
+    ) as mock_get_items:
+        mock_get_directory_by_id = Mock(wraps=drive.get_directory_by_id)
+        object.__setattr__(drive, "get_directory_by_id", mock_get_directory_by_id)
 
-    mock_get_directory_by_id = Mock(wraps=drive.get_directory_by_id)
-    object.__setattr__(drive, "get_directory_by_id", mock_get_directory_by_id)
+        mock_get_file_by_id = Mock(wraps=drive.get_file_by_id)
+        object.__setattr__(drive, "get_file_by_id", mock_get_file_by_id)
 
-    mock_get_file_by_id = Mock(wraps=drive.get_file_by_id)
-    object.__setattr__(drive, "get_file_by_id", mock_get_file_by_id)
+        drive.google_client.item_metadata_retrieval = ItemMetadataRetrieval.ON_DEMAND
+        drive.map(EntityType.FILE)
 
-    drive.google_client.item_metadata_retrieval = ItemMetadataRetrieval.ON_DEMAND
-    drive.map(EntityType.FILE)
-
-    assert drive._directories_mapped is True
-    assert drive._files_mapped is True
+        assert drive._directories_mapped is True
+        assert drive._files_mapped is True
 
     mock_get_items.assert_called_once_with(
         "/files",
@@ -345,32 +337,36 @@ def test_map_directories_and_files(drive: Drive) -> None:
 def test_map_files_already_mapped(drive: Drive) -> None:
     """Test the `map` method when the files are already mapped."""
 
-    drive._set_private_attr("_files_mapped", True)
+    drive._files_mapped = True
     assert drive._files_mapped is True
 
-    mock_get_items = Mock(wraps=drive.google_client.get_items)
-    drive.google_client.get_items = mock_get_items
+    with patch.object(
+        drive.google_client,
+        "get_items",
+        wraps=drive.google_client.get_items,
+    ) as mock_get_items:
+        drive.map(EntityType.FILE)
 
-    drive.map(EntityType.FILE)
-
-    mock_get_items.assert_not_called()
+        mock_get_items.assert_not_called()
 
 
 def test_map_directories_already_mapped(drive: Drive) -> None:
     """Test the `map` method when the directories are already mapped."""
 
-    drive._set_private_attr("_directories_mapped", True)
+    drive._directories_mapped = True
     assert drive._directories_mapped is True
 
-    mock_get_items = Mock(wraps=drive.google_client.get_items)
-    drive.google_client.get_items = mock_get_items
-
-    drive.map(EntityType.DIRECTORY)
+    with patch.object(
+        drive.google_client,
+        "get_items",
+        wraps=drive.google_client.get_items,
+    ) as mock_get_items:
+        drive.map(EntityType.DIRECTORY)
 
     mock_get_items.assert_not_called()
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     (
         "term",
         "entity_type",
@@ -379,7 +375,7 @@ def test_map_directories_already_mapped(drive: Drive) -> None:
         "created_range",
         "expected_params",
     ),
-    (
+    [
         (
             "test",
             EntityType.FILE,
@@ -481,7 +477,7 @@ def test_map_directories_already_mapped(drive: Drive) -> None:
                 " createdTime <= '2020-01-02T00:00:00'",
             },
         ),
-    ),
+    ],
 )
 def test_search(
     drive: Drive,
@@ -494,16 +490,19 @@ def test_search(
 ) -> None:
     """Test the `search` method."""
 
-    mock_get_items = Mock(return_value=[])
-    drive.google_client.get_items = mock_get_items
+    with patch.object(
+        drive.google_client,
+        "get_items",
+    ) as mock_get_items:
+        mock_get_items.return_value = []
 
-    results = drive.search(
-        term,
-        entity_type=entity_type,
-        max_results=max_results,
-        exact_match=exact_match,
-        created_range=created_range,
-    )
+        results = drive.search(
+            term,
+            entity_type=entity_type,
+            max_results=max_results,
+            exact_match=exact_match,
+            created_range=created_range,
+        )
 
     assert results == []
 
@@ -517,7 +516,7 @@ def test_search(
 def test_search_invalid_entity_type(drive: Drive) -> None:
     """Test the `search` method with an invalid entity type."""
 
-    with raises(
+    with pytest.raises(
         ValueError,
         match="`entity_type` must be either EntityType.FILE or EntityType.DIRECTORY,"
         " or None to search for both",
@@ -537,8 +536,8 @@ def test_all_known_descendents(
     assert drive._all_files == []
     assert drive._all_directories == []
 
-    drive._set_private_attr("_all_files", [file, simple_file])
-    drive._set_private_attr("_all_directories", [directory])
+    drive._all_files = [file, simple_file]
+    drive._all_directories = [directory]
 
     assert drive.all_known_descendents == [file, simple_file, directory]
 

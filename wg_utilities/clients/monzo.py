@@ -4,10 +4,11 @@ from __future__ import annotations
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 from logging import DEBUG, getLogger
-from typing import Any, Literal, TypedDict, final
+from typing import Any, ClassVar, Literal, final
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from requests import put
+from typing_extensions import TypedDict
 
 from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
@@ -79,6 +80,7 @@ TransactionCategory = Literal[
     "eating_out",
     "entertainment",
     "general",
+    "gifts",
     "groceries",
     "holidays",
     "income",
@@ -113,7 +115,7 @@ class TransactionJson(TypedDict):
     ]
     category: TransactionCategory
     counterparty: dict[str, str]
-    created: str
+    created: datetime
     currency: str
     decline_reason: str | None
     dedupe_id: str
@@ -127,6 +129,7 @@ class TransactionJson(TypedDict):
     local_amount: int
     local_currency: str
     merchant: str | None
+    merchant_feedback_uri: str | None
     metadata: dict[str, str]
     notes: str
     originator: bool
@@ -134,7 +137,7 @@ class TransactionJson(TypedDict):
     scheme: str
     settled: str
     tab: dict[str, object] | None
-    updated: str
+    updated: datetime
     user_id: str
 
 
@@ -144,8 +147,8 @@ class Transaction(BaseModelWithConfig):
     account_id: str
     amount: int
     amount_is_pending: bool
-    atm_fees_detailed: dict[str, int | str | None] | None
-    attachments: None
+    atm_fees_detailed: dict[str, int | str | None] | None = None
+    attachments: None = None
     can_add_to_tab: bool
     can_be_excluded_from_breakdown: bool
     can_be_made_subscription: bool
@@ -157,28 +160,29 @@ class Transaction(BaseModelWithConfig):
     ]
     category: TransactionCategory
     counterparty: dict[str, str]
-    created: str
+    created: datetime
     currency: str
-    decline_reason: str | None
+    decline_reason: str | None = None
     dedupe_id: str
     description: str
-    fees: dict[str, Any] | None
-    id: str
+    fees: dict[str, Any] | None = None
+    id: str  # noqa: A003
     include_in_spending: bool
-    international: bool | None
+    international: bool | None = None
     is_load: bool
-    labels: list[str] | None
+    labels: list[str] | None = None
     local_amount: int
     local_currency: str
     merchant: str | None
+    merchant_feedback_uri: str | None = None
     metadata: dict[str, str]
     notes: str
     originator: bool
     parent_account_id: str
     scheme: str
     settled: str
-    tab: dict[str, object] | None
-    updated: str
+    tab: dict[str, object] | None = None
+    updated: datetime
     user_id: str
 
 
@@ -203,38 +207,59 @@ class AccountOwner(TypedDict):
     user_id: str
 
 
+SORT_CODE_LEN = 6
+
+
 class Account(BaseModelWithConfig):
     """Class for managing individual bank accounts."""
 
-    account_number: str | None
+    account_number: str
     closed: bool
     country_code: str
     created: datetime
     currency: Literal["GBP"]
     description: str
-    id: str
-    initial_balance: int | None = Field(alias="balance")
+    id: str  # noqa: A003
+    initial_balance: int | None = Field(None, validation_alias="balance")
     initial_balance_including_flexible_savings: int | None = Field(
-        alias="balance_including_flexible_savings"
+        None, validation_alias="balance_including_flexible_savings"
     )
-    initial_spend_today: int | None = Field(alias="spend_today")
-    initial_total_balance: int | None = Field(alias="total_balance")
+    initial_spend_today: int | None = Field(None, validation_alias="spend_today")
+    initial_total_balance: int | None = Field(None, validation_alias="total_balance")
     owners: list[AccountOwner]
-    payment_details: dict[str, dict[str, str]] | None
-    sort_code: str | None
-    type: Literal["uk_monzo_flex", "uk_retail", "uk_retail_joint"]
+    payment_details: dict[str, dict[str, str]] | None = None
+    sort_code: str = Field(min_length=6, max_length=6)
+    type: Literal["uk_monzo_flex", "uk_retail", "uk_retail_joint"]  # noqa: A003
 
     monzo_client: MonzoClient = Field(exclude=True)
     balance_update_threshold: int = Field(15, exclude=True)
     last_balance_update: datetime = Field(datetime(1970, 1, 1), exclude=True)
     _balance_variables: BalanceVariables
 
+    @field_validator("sort_code", mode="before")
+    @classmethod
+    def validate_sort_code(cls, sort_code: str | int) -> str:
+        """Ensure that the sort code is a 6-digit integer.
+
+        Represented as a string so leading zeroes aren't lost.
+        """
+
+        if isinstance(sort_code, int):
+            sort_code = str(sort_code)
+
+        if len(sort_code) != SORT_CODE_LEN:
+            sort_code.ljust(SORT_CODE_LEN, "0")
+
+        if not sort_code.isdigit():
+            raise ValueError("Sort code must be a 6-digit integer")
+
+        return sort_code
+
     @classmethod
     def from_json_response(
         cls,
         value: AccountJson,
         monzo_client: MonzoClient,
-        _waive_validation: bool = False,
     ) -> Account:
         """Create an account from a JSON response."""
 
@@ -243,12 +268,7 @@ class Account(BaseModelWithConfig):
             **value,
         }
 
-        instance = cls.parse_obj(value_data)
-
-        if not _waive_validation:
-            instance._validate()  # pylint: disable=protected-access
-
-        return instance
+        return cls.model_validate(value_data)
 
     def list_transactions(
         self,
@@ -270,8 +290,12 @@ class Account(BaseModelWithConfig):
             list[dict[str, object]]: the list of transactions
         """
 
-        from_datetime = from_datetime or datetime.utcnow() - timedelta(days=89)
-        to_datetime = to_datetime or datetime.utcnow()
+        from_datetime = (
+            from_datetime or (datetime.utcnow() - timedelta(days=89))
+        ).replace(microsecond=0, tzinfo=None)
+        to_datetime = (to_datetime or datetime.utcnow()).replace(
+            microsecond=0, tzinfo=None
+        )
 
         return [
             Transaction(**item)
@@ -302,14 +326,8 @@ class Account(BaseModelWithConfig):
                 "Balance variable update threshold crossed, getting new values"
             )
 
-            object.__setattr__(
-                self,
-                "_balance_variables",
-                BalanceVariables.parse_obj(
-                    self.monzo_client.get_json_response(
-                        f"/balance?account_id={self.id}"
-                    )
-                ),
+            self._balance_variables = BalanceVariables.model_validate(
+                self.monzo_client.get_json_response(f"/balance?account_id={self.id}")
             )
 
             self.last_balance_update = datetime.utcnow()
@@ -340,7 +358,7 @@ class Account(BaseModelWithConfig):
 
         Returns:
             float: the currently available balance of the account, including flexible
-             savings pots
+                savings pots
         """
         return self.balance_variables.balance_including_flexible_savings
 
@@ -350,7 +368,7 @@ class Account(BaseModelWithConfig):
 
         Returns:
             int: the amount spent from this account today (considered from approx
-             4am onwards)
+                4am onwards)
         """
         return self.balance_variables.spend_today
 
@@ -360,7 +378,7 @@ class Account(BaseModelWithConfig):
 
         Returns:
             str: the sum of the currently available balance of the account and the
-             combined total of all the user's pots
+                combined total of all the user's pots
         """
         return self.balance_variables.total_balance
 
@@ -381,26 +399,26 @@ class Pot(BaseModelWithConfig):
 
     available_for_bills: bool
     balance: float
-    charity_id: str | None
+    charity_id: str | None = None
     cover_image_url: str
     created: datetime
     currency: str
     current_account_id: str
     deleted: bool
-    goal_amount: float | None
+    goal_amount: float | None = None
     has_virtual_cards: bool
-    id: str
+    id: str  # noqa: A003
     is_tax_pot: bool
     isa_wrapper: str
-    lock_type: Literal["until_date"] | None
+    lock_type: Literal["until_date"] | None = None
     locked: bool
-    locked_until: datetime | None
+    locked_until: datetime | None = None
     name: str
     product_id: str
     round_up: bool
-    round_up_multiplier: float | None
+    round_up_multiplier: float | None = None
     style: str
-    type: str
+    type: str  # noqa: A003
     updated: datetime
 
 
@@ -415,12 +433,12 @@ class MonzoGJR(TypedDict):
 class MonzoClient(OAuthClient[MonzoGJR]):
     """Custom client for interacting with Monzo's API."""
 
-    ACCESS_TOKEN_ENDPOINT = "https://api.monzo.com/oauth2/token"
+    ACCESS_TOKEN_ENDPOINT = "https://api.monzo.com/oauth2/token"  # noqa: S105
     AUTH_LINK_BASE = "https://auth.monzo.com"
     BASE_URL = "https://api.monzo.com"
 
-    DEFAULT_PARAMS: dict[
-        StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None
+    DEFAULT_PARAMS: ClassVar[
+        dict[StrBytIntFlt, StrBytIntFlt | Iterable[StrBytIntFlt] | None]
     ] = {}
 
     _current_account: Account
@@ -434,7 +452,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
             pot (Pot): the target pot
             amount_pence (int): the amount of money to deposit, in pence
             dedupe_id (str): unique string used to de-duplicate deposits. Will be
-             created if not provided
+                created if not provided
         """
 
         dedupe_id = dedupe_id or "|".join(
@@ -449,6 +467,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
                 "amount": amount_pence,
                 "dedupe_id": dedupe_id,
             },
+            timeout=10,
         )
         res.raise_for_status()
 
@@ -460,7 +479,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         Args:
             include_closed (bool): whether to include closed accounts in the response
             account_type (str): the type of account(s) to find; submitted as param in
-             request
+                request
 
         Returns:
             list: Account instances, containing all related info
@@ -511,13 +530,16 @@ class MonzoClient(OAuthClient[MonzoGJR]):
 
         return None
 
-    def get_pot_by_name(self, pot_name: str, exact_match: bool = False) -> Pot | None:
+    def get_pot_by_name(
+        self, pot_name: str, *, exact_match: bool = False, include_deleted: bool = False
+    ) -> Pot | None:
         """Get a pot from its name.
 
         Args:
             pot_name (str): the name of the pot to find
             exact_match (bool): if False, all pot names will be cleansed before
-             evaluation
+                evaluation
+            include_deleted (bool): whether to include deleted pots in the response
 
         Returns:
             Pot: the Pot instance
@@ -525,7 +547,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         if not exact_match:
             pot_name = cleanse_string(pot_name)
 
-        for pot in self.list_pots(include_deleted=True):
+        for pot in self.list_pots(include_deleted=include_deleted):
             found_name = pot.name if exact_match else cleanse_string(pot.name)
             if found_name.lower() == pot_name.lower():
                 return pot
@@ -558,4 +580,4 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         }
 
 
-Account.update_forward_refs()
+Account.model_rebuild()
