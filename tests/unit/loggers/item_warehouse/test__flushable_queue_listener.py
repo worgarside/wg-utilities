@@ -1,6 +1,5 @@
 """Unit tests for the FlushableQueueListener class."""
 
-
 from __future__ import annotations
 
 from logging import NullHandler

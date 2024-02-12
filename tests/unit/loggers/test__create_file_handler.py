@@ -1,4 +1,5 @@
 """Unit Tests for the `create_file_handler` function."""
+
 from __future__ import annotations
 
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, getLevelName

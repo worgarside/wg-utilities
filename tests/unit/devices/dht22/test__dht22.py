@@ -1,4 +1,5 @@
 """Unit Tests for the `wg_utilities.devices.dht22.dht22_lib.DHT22Sensor` class."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, call

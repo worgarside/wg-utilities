@@ -85,11 +85,11 @@ def test_single_item_list() -> None:
         (
             ["ab", b"bcd", "bcd", "cd", b"cd", "def"],
             (str, bytes),
-            lambda value, **_: (value.decode() if isinstance(value, bytes) else value)[
-                ::-1
-            ]
-            if len(value) > 2
-            else value,
+            lambda value, **_: (
+                (value.decode() if isinstance(value, bytes) else value)[::-1]
+                if len(value) > 2
+                else value
+            ),
             ["ab", "dcb", "dcb", "cd", b"cd", "fed"],
         ),
     ],
@@ -397,25 +397,25 @@ def test_nested_dicts_are_passed_to_traverse_dict(
         (
             ["a", "b", "c", 1, 2, 3, "d", "e", "f"],
             str,
-            lambda value, list_index=None, **_: value.upper()
-            if list_index % 2 == 0
-            else value,
+            lambda value, list_index=None, **_: (
+                value.upper() if list_index % 2 == 0 else value
+            ),
             ["A", "b", "C", 1, 2, 3, "D", "e", "F"],
         ),
         (
             ["a", "b", "c", 1, 2, 3, "d", "e", "f"],
             str,
-            lambda value, list_index=None, **_: value.upper()
-            if (value in "abc" and list_index % 2 == 0)
-            else value,
+            lambda value, list_index=None, **_: (
+                value.upper() if (value in "abc" and list_index % 2 == 0) else value
+            ),
             ["A", "b", "C", 1, 2, 3, "d", "e", "f"],
         ),
         (
             ["ab", b"bcd", "bcd", "cd", b"cd", "def"],
             bytes,
-            lambda value, list_index=None, **_: value.decode()[::-1]
-            if list_index == 1
-            else value,
+            lambda value, list_index=None, **_: (
+                value.decode()[::-1] if list_index == 1 else value
+            ),
             ["ab", "dcb", "bcd", "cd", b"cd", "def"],
         ),
     ],

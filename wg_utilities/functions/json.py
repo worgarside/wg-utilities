@@ -1,4 +1,5 @@
 """Useful functions for working with JSON/dictionaries."""
+
 from __future__ import annotations
 
 from collections.abc import MutableMapping, Sequence

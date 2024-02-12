@@ -1,4 +1,5 @@
 """Fixtures for DHT22 sensor tests."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock

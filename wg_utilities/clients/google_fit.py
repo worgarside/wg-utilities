@@ -1,4 +1,5 @@
 """Custom client for interacting with Google's Fit API."""
+
 from __future__ import annotations
 
 from datetime import datetime

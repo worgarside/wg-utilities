@@ -694,17 +694,19 @@ def test_tracks_property(
 )
 def test_reset_properties(
     spotify_user: User,
-    properties_to_reset: list[
-        Literal[
-            "albums",
-            "artists",
-            "playlists",
-            "top_artists",
-            "top_tracks",
-            "tracks",
+    properties_to_reset: (
+        list[
+            Literal[
+                "albums",
+                "artists",
+                "playlists",
+                "top_artists",
+                "top_tracks",
+                "tracks",
+            ]
         ]
-    ]
-    | None,
+        | None
+    ),
     mock_requests: Mocker,
 ) -> None:
     """Test that `reset_properties` resets the properties of the user."""

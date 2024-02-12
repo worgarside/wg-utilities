@@ -1,4 +1,5 @@
 """Unit tests for the `wg_utilities.clients.google_drive.Directory` class."""
+
 from __future__ import annotations
 
 import pytest

@@ -279,21 +279,25 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         *,
         params: None | dict[str, str | int | float | bool | dict[str, Any]] = None,
         hard_limit: int = 1000000,
-        limit_func: Callable[
-            [dict[str, Any] | SpotifyEntityJson],
-            bool,
-        ]
-        | None = None,
-        top_level_key: Literal[
-            "albums",
-            "artists",
-            "audiobooks",
-            "episodes",
-            "playlists",
-            "shows",
-            "tracks",
-        ]
-        | None = None,
+        limit_func: (
+            Callable[
+                [dict[str, Any] | SpotifyEntityJson],
+                bool,
+            ]
+            | None
+        ) = None,
+        top_level_key: (
+            Literal[
+                "albums",
+                "artists",
+                "audiobooks",
+                "episodes",
+                "playlists",
+                "shows",
+                "tracks",
+            ]
+            | None
+        ) = None,
         list_key: Literal["items", "devices"] = "items",
     ) -> list[SpotifyEntityJson]:
         """Retrieve a list of items from a given URL, including pagination.
@@ -338,20 +342,22 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
             limit = min(50, hard_limit - len(items))
             next_url = sub(r"(?<=limit=)(\d{1,2})(?=&?)", str(limit), next_url)
 
-            res: (
-                SearchResponse | AnyPaginatedResponse
-            ) = self.get_json_response(  # type: ignore[assignment]
+            res: SearchResponse | AnyPaginatedResponse = self.get_json_response(
                 next_url
-            )
+            )  # type: ignore[assignment]
             page = (
                 cast(SearchResponse, res)[top_level_key]
                 if top_level_key
                 else cast(AnyPaginatedResponse, res)
             )
 
-            page_items: list[AlbumSummaryJson] | list[DeviceJson] | list[
-                ArtistSummaryJson
-            ] | list[PlaylistSummaryJson] | list[TrackFullJson] = page.get(list_key, [])
+            page_items: (
+                list[AlbumSummaryJson]
+                | list[DeviceJson]
+                | list[ArtistSummaryJson]
+                | list[PlaylistSummaryJson]
+                | list[TrackFullJson]
+            ) = page.get(list_key, [])
             if limit_func is None:
                 items.extend(page_items)
             else:
@@ -414,8 +420,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         *,
         entity_types: Sequence[Literal["album", "artist", "playlist", "track"]] = (),
         get_best_match_only: Literal[True],
-    ) -> Artist | Playlist | Track | Album | None:
-        ...
+    ) -> Artist | Playlist | Track | Album | None: ...
 
     @overload
     def search(
@@ -424,8 +429,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         *,
         entity_types: Sequence[Literal["album", "artist", "playlist", "track"]] = (),
         get_best_match_only: Literal[False] = False,
-    ) -> ParsedSearchResponse:
-        ...
+    ) -> ParsedSearchResponse: ...
 
     def search(
         self,
@@ -489,9 +493,9 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
             | PaginatedResponseTracks
         )
         for res_entity_type, entities_json in res.items():  # type: ignore[assignment]
-            instance_class: type[Album] | type[Artist] | type[Playlist] | type[
-                Track
-            ] = {  # type: ignore[assignment]
+            instance_class: (
+                type[Album] | type[Artist] | type[Playlist] | type[Track]
+            ) = {  # type: ignore[assignment]
                 "albums": Album,
                 "artists": Artist,
                 "playlists": Playlist,
@@ -1154,14 +1158,12 @@ class User(SpotifyEntity[UserSummaryJson]):
     @overload
     def get_playlists_by_name(
         self, name: str, *, return_all: Literal[False] = False
-    ) -> Playlist | None:
-        ...
+    ) -> Playlist | None: ...
 
     @overload
     def get_playlists_by_name(
         self, name: str, *, return_all: Literal[True]
-    ) -> list[Playlist]:
-        ...
+    ) -> list[Playlist]: ...
 
     def get_playlists_by_name(
         self, name: str, *, return_all: bool = False
@@ -1206,10 +1208,13 @@ class User(SpotifyEntity[UserSummaryJson]):
         """
 
         if not day_limit:
-            limit_func: Callable[
-                [SpotifyEntityJson | dict[str, Any]],
-                bool,
-            ] | None = None
+            limit_func: (
+                Callable[
+                    [SpotifyEntityJson | dict[str, Any]],
+                    bool,
+                ]
+                | None
+            ) = None
 
         else:
 
@@ -1544,17 +1549,19 @@ class User(SpotifyEntity[UserSummaryJson]):
 
     def reset_properties(
         self,
-        property_names: Iterable[
-            Literal[
-                "albums",
-                "artists",
-                "playlists",
-                "top_artists",
-                "top_tracks",
-                "tracks",
+        property_names: (
+            Iterable[
+                Literal[
+                    "albums",
+                    "artists",
+                    "playlists",
+                    "top_artists",
+                    "top_tracks",
+                    "tracks",
+                ]
             ]
-        ]
-        | None = None,
+            | None
+        ) = None,
     ) -> None:
         """Reset all list properties."""
 

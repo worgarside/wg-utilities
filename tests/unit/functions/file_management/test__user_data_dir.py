@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.functions.file_management.user_data_dir`."""
+
 from __future__ import annotations
 
 from os import environ

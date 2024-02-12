@@ -1,4 +1,5 @@
 """Unit tests for `wg_utilities.clients.google_calendar._StartEndDatetime`."""
+
 from __future__ import annotations
 
 from datetime import date, datetime

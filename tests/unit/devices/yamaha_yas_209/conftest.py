@@ -1,4 +1,5 @@
 """Fixtures and functions for the Yamaha YAS-209 tests."""
+
 from __future__ import annotations
 
 from http import HTTPStatus

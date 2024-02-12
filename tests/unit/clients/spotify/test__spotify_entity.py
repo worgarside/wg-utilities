@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.clients.spotify.SpotifyEntity`."""
+
 from __future__ import annotations
 
 import pytest

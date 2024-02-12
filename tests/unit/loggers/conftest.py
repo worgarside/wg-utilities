@@ -1,4 +1,5 @@
 """Unit test fixtures for the loggers module."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime

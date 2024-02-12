@@ -1,4 +1,5 @@
 """Unit tests for `wg_utilities.clients.google_drive._GoogleDriveEntity`."""
+
 from __future__ import annotations
 
 from json import loads

@@ -3,6 +3,7 @@
 When the function is called, it should send a POST request to the Home Assistant
 containing useful exception information.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable

@@ -4,6 +4,7 @@ This module might be overkill and can likely be implemented in a better way, idk
 not sure if there's anything functional that is done with these types, but they
 are used for type hinting and to make the code more readable.
 """
+
 from __future__ import annotations
 
 from datetime import date
@@ -350,9 +351,13 @@ class PaginatedResponseTracks(_PaginatedResponseBase, total=False):
 class PaginatedResponseGeneral(_PaginatedResponseBase):
     """TypedDict for paginated responses which I haven't implemented yet."""
 
-    items: list[AlbumSummaryJson] | list[ArtistSummaryJson] | list[DeviceJson] | list[
-        PlaylistSummaryJson
-    ] | list[TrackFullJson]
+    items: (
+        list[AlbumSummaryJson]
+        | list[ArtistSummaryJson]
+        | list[DeviceJson]
+        | list[PlaylistSummaryJson]
+        | list[TrackFullJson]
+    )
 
 
 AnyPaginatedResponse: TypeAlias = (

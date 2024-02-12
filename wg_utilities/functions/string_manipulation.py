@@ -1,6 +1,5 @@
 """Set of functions for string manipulation."""
 
-
 from __future__ import annotations
 
 from re import sub

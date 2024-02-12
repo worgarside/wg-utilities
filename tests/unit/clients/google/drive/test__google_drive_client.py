@@ -1,4 +1,5 @@
 """Unit tests for `wg_utilities.clients.google_drive.GoogleDriveClient`."""
+
 from __future__ import annotations
 
 from unittest.mock import patch

@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.clients.spotify.Track`."""
+
 from __future__ import annotations
 
 from datetime import date

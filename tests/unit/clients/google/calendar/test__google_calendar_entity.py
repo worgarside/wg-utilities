@@ -1,4 +1,5 @@
 """Unit tests for `wg_utilities.clients.google_calendar.GoogleCalendarEntity`."""
+
 from __future__ import annotations
 
 from copy import deepcopy
