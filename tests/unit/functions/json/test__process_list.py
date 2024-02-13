@@ -435,3 +435,35 @@ def test_list_index_parameter_for_target_processor_func(
     )
 
     assert in_list == expected
+
+
+def test_target_type_is_dict() -> None:
+    """Test that when the target type is `dict`, the whole object is still processed.
+
+    Before the fix, the output would have been the same as the input because the processor
+    `continue`d after finding the first dict ({"a": ...}) and then again after the second
+    dict ({"d": ...}) instead of traversing the {"b": "c"} and {"i": "j"} dicts too.
+    """
+
+    data: list[JSONVal] = [{"a": {"b": "c"}, "d": "e"}, {"f": "g", "h": {"i": "j"}}]
+
+    found = []
+
+    def _cb(value: dict[str, Any], **_: Any) -> dict[str, Any]:
+        found.append(value)
+        return value
+
+    process_list(  # type: ignore[misc]
+        data,
+        target_type=dict,
+        target_processor_func=_cb,
+        pass_on_fail=False,
+    )
+
+    # Should contain _every_ dict in the list
+    assert found == [
+        {"a": {"b": "c"}, "d": "e"},
+        {"b": "c"},
+        {"f": "g", "h": {"i": "j"}},
+        {"i": "j"},
+    ]
