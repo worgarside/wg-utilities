@@ -105,6 +105,18 @@ def process_list(
                 if not pass_on_fail:
                     raise
 
+            # If the new(?) value is a dict/list, then it needs to be processed
+            # before continuing to the next elem in this list
+            if isinstance(lst[i], dict | list):
+                process_json_object(
+                    lst[i],  # type: ignore[arg-type]
+                    target_type=target_type,
+                    target_processor_func=target_processor_func,
+                    pass_on_fail=pass_on_fail,
+                    log_op_func_failures=log_op_func_failures,
+                    single_keys_to_remove=single_keys_to_remove,
+                )
+
             continue
 
         if isinstance(elem, dict):
@@ -171,7 +183,7 @@ def traverse_dict(  # noqa: PLR0912
         if isinstance(v, target_type):
             try:
                 obj.update({k: target_processor_func(cast(V, v), dict_key=k)})
-                if isinstance(obj.get(k), dict):
+                if isinstance(obj[k], dict):
                     traverse_dict(
                         # If a dict has been created from a non-dict type (e.g. `loads("{...}")`,
                         # then we need to traverse the current object again, as the new dict may
