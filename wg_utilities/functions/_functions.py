@@ -1,4 +1,5 @@
 """One-off functions that are useful across many different projects/use-cases."""
+
 from __future__ import annotations
 
 from collections.abc import Generator

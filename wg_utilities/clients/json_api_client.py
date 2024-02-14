@@ -1,4 +1,5 @@
 """Generic no-auth JSON API client to simplify interactions."""
+
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping
@@ -45,13 +46,15 @@ class JsonApiClient(Generic[GetJsonResponse]):
         self,
         url: str,
         *,
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
+        params: (
+            dict[
+                StrBytIntFlt,
+                StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+            ]
+            | None
+        ) = None,
         header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
+        timeout: float | tuple[float, float] | tuple[float, None] | None = None,
         json: Any | None = None,
         data: Any | None = None,
     ) -> Response:
@@ -84,13 +87,15 @@ class JsonApiClient(Generic[GetJsonResponse]):
         self,
         url: str,
         *,
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
+        params: (
+            dict[
+                StrBytIntFlt,
+                StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+            ]
+            | None
+        ) = None,
         header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
+        timeout: float | tuple[float, float] | tuple[float, None] | None = None,
         json: Any | None = None,
         data: Any | None = None,
     ) -> Response:
@@ -125,13 +130,15 @@ class JsonApiClient(Generic[GetJsonResponse]):
         *,
         method: Callable[..., Response],
         url: str,
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
+        params: (
+            dict[
+                StrBytIntFlt,
+                StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+            ]
+            | None
+        ) = None,
         header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
+        timeout: float | tuple[float, float] | tuple[float, None] | None = None,
         json: Any | None = None,
         data: Any | None = None,
     ) -> Response:
@@ -167,9 +174,11 @@ class JsonApiClient(Generic[GetJsonResponse]):
 
         res = method(
             url,
-            headers=header_overrides
-            if header_overrides is not None
-            else self.request_headers,
+            headers=(
+                header_overrides
+                if header_overrides is not None
+                else self.request_headers
+            ),
             params=params,
             timeout=timeout,
             json=json,
@@ -186,13 +195,15 @@ class JsonApiClient(Generic[GetJsonResponse]):
         *,
         method: Callable[..., Response],
         url: str,
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
+        params: (
+            dict[
+                StrBytIntFlt,
+                StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+            ]
+            | None
+        ) = None,
         header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
+        timeout: float | tuple[float, float] | tuple[float, None] | None = None,
         json: Any | None = None,
         data: Any | None = None,
     ) -> GetJsonResponse:
@@ -221,11 +232,13 @@ class JsonApiClient(Generic[GetJsonResponse]):
         url: str,
         /,
         *,
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
+        params: (
+            dict[
+                StrBytIntFlt,
+                StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+            ]
+            | None
+        ) = None,
         header_overrides: Mapping[str, str | bytes] | None = None,
         timeout: float | None = None,
         json: Any | None = None,
@@ -263,13 +276,15 @@ class JsonApiClient(Generic[GetJsonResponse]):
         url: str,
         /,
         *,
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
+        params: (
+            dict[
+                StrBytIntFlt,
+                StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+            ]
+            | None
+        ) = None,
         header_overrides: Mapping[str, str | bytes] | None = None,
-        timeout: (float | tuple[float, float] | tuple[float, None] | None) = None,
+        timeout: float | tuple[float, float] | tuple[float, None] | None = None,
         json: Any | None = None,
         data: Any | None = None,
     ) -> GetJsonResponse:

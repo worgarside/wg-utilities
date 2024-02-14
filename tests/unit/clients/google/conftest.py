@@ -1,4 +1,5 @@
 """Fixtures for Google clients."""
+
 from __future__ import annotations
 
 from json import loads

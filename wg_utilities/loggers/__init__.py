@@ -1,4 +1,5 @@
 """Useful constants and functions for use in logging in other projects."""
+
 from __future__ import annotations
 
 from .file_handler import add_file_handler, create_file_handler

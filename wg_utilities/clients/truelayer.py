@@ -1,4 +1,5 @@
 """Custom client for interacting with TrueLayer's API."""
+
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
@@ -232,10 +233,13 @@ class TrueLayerEntity(BaseModelWithConfig):
             from_datetime = from_datetime or datetime.utcnow() - timedelta(days=90)
             to_datetime = to_datetime or datetime.utcnow()
 
-            params: dict[
-                StrBytIntFlt,
-                StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-            ] | None = {
+            params: (
+                dict[
+                    StrBytIntFlt,
+                    StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+                ]
+                | None
+            ) = {
                 "from": from_datetime.isoformat(),
                 "to": to_datetime.isoformat(),
             }
@@ -300,8 +304,7 @@ class TrueLayerEntity(BaseModelWithConfig):
     def _get_balance_property(
         self,
         prop_name: Literal["current_balance"],
-    ) -> float:
-        ...
+    ) -> float: ...
 
     @overload
     def _get_balance_property(
@@ -313,8 +316,7 @@ class TrueLayerEntity(BaseModelWithConfig):
             "last_statement_balance",
             "payment_due",
         ],
-    ) -> float | None:
-        ...
+    ) -> float | None: ...
 
     @overload
     def _get_balance_property(
@@ -323,8 +325,7 @@ class TrueLayerEntity(BaseModelWithConfig):
             "last_statement_date",
             "payment_due_date",
         ],
-    ) -> date | None:
-        ...
+    ) -> date | None: ...
 
     def _get_balance_property(
         self,

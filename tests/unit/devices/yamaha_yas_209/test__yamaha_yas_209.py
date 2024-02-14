@@ -1437,7 +1437,9 @@ def test_subscribe_creates_notify_server_with_correct_subscriptions(
             callback_url="http://192.168.1.2:12345/notify",
         )
 
-    assert (first_record := caplog.records.pop(0)).levelno == DEBUG
+    first_record = caplog.records.pop(0)
+
+    assert first_record.levelno == DEBUG
     assert first_record.message == dedent(
         f"""
         Listen IP:          192.168.1.2
@@ -1449,9 +1451,13 @@ def test_subscribe_creates_notify_server_with_correct_subscriptions(
         Server Listen Port: {fake_aiohttp_server.listen_port}
         """
     )
-    assert (second_record := caplog.records.pop(0)).levelno == INFO
+
+    second_record = caplog.records.pop(0)
+    assert second_record.levelno == INFO
     assert second_record.message == f"Subscribed to {Yas209Service.AVT.service_id}"
-    assert (third_record := caplog.records.pop(0)).levelno == INFO
+
+    third_record = caplog.records.pop(0)
+    assert third_record.levelno == INFO
     assert third_record.message == f"Subscribed to {Yas209Service.RC.service_id}"
 
     mock_aiohttp.requests.pop(
@@ -1491,9 +1497,12 @@ def test_subscribe_creates_notify_server_logs_subscription_errors(
     # Verbose debug log
     caplog.records.pop(0)
 
-    assert (second_record := caplog.records.pop(0)).levelno == INFO
+    second_record = caplog.records.pop(0)
+    assert second_record.levelno == INFO
     assert second_record.message == f"Subscribed to {Yas209Service.AVT.service_id}"
-    assert (third_record := caplog.records.pop(0)).levelno == ERROR
+
+    third_record = caplog.records.pop(0)
+    assert third_record.levelno == ERROR
     assert (
         third_record.message == f"Unable to subscribe to {Yas209Service.RC.service_id}"
     )

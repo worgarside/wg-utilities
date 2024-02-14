@@ -1,4 +1,5 @@
 """Unit tests for `wg_utilities.clients.google_calendar.Event`."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta

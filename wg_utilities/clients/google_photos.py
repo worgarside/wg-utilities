@@ -1,4 +1,5 @@
 """Custom client for interacting with Google's Photos API."""
+
 from __future__ import annotations
 
 from datetime import datetime

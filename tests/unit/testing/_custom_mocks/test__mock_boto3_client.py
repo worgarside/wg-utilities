@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.testing._custom_mocks.MockBoto3Client`."""
+
 from __future__ import annotations
 
 from datetime import datetime

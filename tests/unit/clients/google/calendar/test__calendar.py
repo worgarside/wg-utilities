@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.clients.google_calendar.Calendar`."""
+
 from __future__ import annotations
 
 from datetime import datetime, tzinfo

@@ -1,4 +1,5 @@
 """Helper class to allow retrieval of log records after the fact."""
+
 from __future__ import annotations
 
 from collections.abc import Callable

@@ -1,4 +1,5 @@
 """Custom mocks (classes or functions) for use in Unit Tests."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -45,8 +46,9 @@ class MockBoto3Client:
 
     def __init__(
         self,
-        mocked_operation_lookup: None
-        | dict[str, object | Callable[..., object]] = None,
+        mocked_operation_lookup: (
+            None | dict[str, object | Callable[..., object]]
+        ) = None,
     ):
         self.mocked_operation_lookup = mocked_operation_lookup or {}
 

@@ -1,4 +1,5 @@
 """Functions for the functions tests."""
+
 from __future__ import annotations
 
 from tests.conftest import read_json_file

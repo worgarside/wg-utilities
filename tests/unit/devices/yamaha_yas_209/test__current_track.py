@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.CurrentTrack`."""
+
 from __future__ import annotations
 
 from typing import Literal

@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.clients.google_fit.DataSource`."""
+
 from __future__ import annotations
 
 from datetime import datetime

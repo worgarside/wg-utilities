@@ -1,4 +1,5 @@
 """Fixtures for the Monzo client tests."""
+
 from __future__ import annotations
 
 from http import HTTPStatus
