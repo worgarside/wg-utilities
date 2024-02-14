@@ -97,7 +97,7 @@ repos:
           - --strict
         additional_dependencies:
           - aioresponses==0.7.6
-          - async-upnp-client==0.38.1
+          - async-upnp-client==0.38.2
           - boto3-stubs
           - lxml-stubs
           - mypy_boto3_lambda
