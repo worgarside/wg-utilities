@@ -589,7 +589,9 @@ def test_temp_auth_server_property(oauth_client: OAuthClient[dict[str, Any]]) ->
 
     assert not hasattr(oauth_client, "_temp_auth_server")
 
-    assert isinstance(oauth_tas := oauth_client.temp_auth_server, TempAuthServer)
+    oauth_tas = oauth_client.temp_auth_server
+
+    assert isinstance(oauth_tas, TempAuthServer)
     assert oauth_client.temp_auth_server.is_running is False
 
     assert hasattr(oauth_client, "_temp_auth_server")
