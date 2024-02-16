@@ -1,4 +1,5 @@
 """Fixtures and functions for OAuthClient tests."""
+
 from __future__ import annotations
 
 from http import HTTPStatus

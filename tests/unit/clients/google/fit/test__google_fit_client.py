@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.clients.google_fit.GoogleFitClient`."""
+
 from __future__ import annotations
 
 from unittest.mock import patch

@@ -1,4 +1,5 @@
 """Custom client for interacting with Google's Calendar API."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable

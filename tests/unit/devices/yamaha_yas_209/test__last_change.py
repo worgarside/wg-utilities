@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.LastChange`."""
+
 from __future__ import annotations
 
 from json import loads

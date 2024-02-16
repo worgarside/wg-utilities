@@ -18,7 +18,7 @@ repos:
       - id: pyupgrade
 
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 24.2.0
     hooks:
       - id: black
         language_version: python3.11
@@ -73,7 +73,7 @@ repos:
           - --preserve-quotes
 
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.33.0
+    rev: v1.34.0
     hooks:
       - id: yamllint
         args:
@@ -102,7 +102,7 @@ repos:
           - lxml-stubs
           - mypy_boto3_lambda
           - mypy_boto3_s3
-          - pydantic==2.6.0
+          - pydantic==2.6.1
           - pytest==7.4.4
           - python-dotenv==1.0.1
           - requests-mock==1.11.0
@@ -149,6 +149,6 @@ repos:
           - tomli
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.14
+    rev: v0.2.1
     hooks:
       - id: ruff

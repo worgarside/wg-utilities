@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.clients._google.GoogleClient`."""
+
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable

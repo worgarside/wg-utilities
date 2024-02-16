@@ -1,4 +1,5 @@
 """Unit Tests for the `create_file_handler` function."""
+
 from __future__ import annotations
 
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Logger, getLevelName
@@ -17,8 +18,11 @@ def test_target_directory_is_created() -> None:
     """Test that the target directory is created when requested."""
 
     with TemporaryDirectory() as tmp_dir:
-        assert not (dir_path := Path(tmp_dir, "foo", "bar")).is_dir()
-        assert not (file_path := dir_path / "baz.log").is_file()
+        dir_path = Path(tmp_dir, "foo", "bar")
+        file_path = dir_path / "baz.log"
+
+        assert not dir_path.is_dir()
+        assert not file_path.is_file()
 
         f_handler = create_file_handler(file_path, create_directory=True)
 

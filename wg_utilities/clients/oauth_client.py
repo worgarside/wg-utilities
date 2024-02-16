@@ -1,4 +1,5 @@
 """Generic OAuth client to allow for reusable authentication flows/checks etc."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -467,9 +468,11 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
                 }
             },
             # Stops recursive call to `self.request_headers`
-            header_overrides={"Content-Type": "application/x-www-form-urlencoded"}
-            if self.__class__.__name__ in ("MonzoClient", "SpotifyClient")
-            else {},
+            header_overrides=(
+                {"Content-Type": "application/x-www-form-urlencoded"}
+                if self.__class__.__name__ in ("MonzoClient", "SpotifyClient")
+                else {}
+            ),
         )
 
         credentials = res.json()

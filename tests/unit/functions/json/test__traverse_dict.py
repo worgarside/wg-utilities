@@ -1,4 +1,5 @@
 """Unit Tests for the `wg_utilities.functions.json.traverse_dict` function."""
+
 from __future__ import annotations
 
 from json import dumps, loads
@@ -688,9 +689,9 @@ def test_single_keys_of_target_type_have_exceptions_raised(
                 "key3": 3,
             },
             str,
-            lambda value, dict_key=None, **_: value.upper()
-            if dict_key == "key"
-            else value,
+            lambda value, dict_key=None, **_: (
+                value.upper() if dict_key == "key" else value
+            ),
             {
                 "key": "VALUE",
                 "key2": "value2",
@@ -705,9 +706,9 @@ def test_single_keys_of_target_type_have_exceptions_raised(
                 "key4": b"value4",
             },
             bytes,
-            lambda value, dict_key=None, **_: value.decode().upper()
-            if dict_key == "key4"
-            else value,
+            lambda value, dict_key=None, **_: (
+                value.decode().upper() if dict_key == "key4" else value
+            ),
             {
                 "key": "value",
                 "key2": b"value2",
@@ -718,9 +719,9 @@ def test_single_keys_of_target_type_have_exceptions_raised(
         (
             random_nested_json(),
             bool,
-            lambda value, dict_key=None, **_: str(value)[::-1].upper()
-            if dict_key in ("pretty", "effort")
-            else value,
+            lambda value, dict_key=None, **_: (
+                str(value)[::-1].upper() if dict_key in ("pretty", "effort") else value
+            ),
             loads(
                 dumps(random_nested_json())
                 .replace('"pretty": true', '"pretty": "EURT"')

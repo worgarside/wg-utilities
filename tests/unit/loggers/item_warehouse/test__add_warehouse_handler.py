@@ -1,4 +1,5 @@
 """Unit Tests for the `add_warehouse_handler` function."""
+
 from __future__ import annotations
 
 from logging import CRITICAL, DEBUG, ERROR, FATAL, INFO, NOTSET, WARN, WARNING, Logger

@@ -1,4 +1,5 @@
 """Classes etc. for subscribing to YAS-209 updates."""
+
 from __future__ import annotations
 
 from asyncio import new_event_loop, run
@@ -253,9 +254,11 @@ class CurrentTrack:
         )
 
         return CurrentTrack(
-            album_art_uri=metadata_item.upnp_albumArtURI
-            if metadata_item.upnp_albumArtURI != "un_known"
-            else None,
+            album_art_uri=(
+                metadata_item.upnp_albumArtURI
+                if metadata_item.upnp_albumArtURI != "un_known"
+                else None
+            ),
             media_album_name=metadata_item.upnp_album,
             media_artist=metadata_item.dc_creator,
             media_duration=duration_delta.total_seconds(),

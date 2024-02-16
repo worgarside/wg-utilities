@@ -1,4 +1,5 @@
 """Generic Google Client - having one client for all APIs is way too big."""
+
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping
@@ -90,11 +91,13 @@ class GoogleClient(
         list_key: Literal[
             "albums", "drives", "files", "items", "mediaItems", "point"
         ] = "items",
-        params: dict[
-            StrBytIntFlt,
-            StrBytIntFlt | Iterable[StrBytIntFlt] | None,
-        ]
-        | None = None,
+        params: (
+            dict[
+                StrBytIntFlt,
+                StrBytIntFlt | Iterable[StrBytIntFlt] | None,
+            ]
+            | None
+        ) = None,
         method_override: Callable[..., Response] | None = None,
     ) -> list[GetJsonResponseGoogleClient]:
         """List generic items on Google's API(s).

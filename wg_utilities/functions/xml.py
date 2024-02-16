@@ -1,6 +1,5 @@
 """Helper functions specifically for parsing/manipulating XML."""
 
-
 from __future__ import annotations
 
 from logging import DEBUG, getLogger

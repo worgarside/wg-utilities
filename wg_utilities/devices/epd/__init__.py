@@ -1,4 +1,5 @@
 """Drivers obtained from https://github.com/waveshare/e-Paper/."""
+
 from __future__ import annotations
 
 from logging import DEBUG, Formatter, StreamHandler, getLogger

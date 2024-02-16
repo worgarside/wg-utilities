@@ -1,4 +1,5 @@
 """Unit Tests for the `flatten_dict` function."""
+
 from __future__ import annotations
 
 from json import loads

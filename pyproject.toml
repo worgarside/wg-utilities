@@ -171,7 +171,7 @@ no_gitignore = false
 
 [tool.ruff]
 line-length = 120
-select = [
+lint.select = [
   # https://github.com/astral-sh/ruff#supported-rules
   "A",   # https://beta.ruff.rs/docs/rules/#flake8-builtins-a
   "ARG", # https://beta.ruff.rs/docs/rules/#flake8-unused-arguments-arg
@@ -203,7 +203,7 @@ select = [
   "UP",  # https://beta.ruff.rs/docs/rules/#pyupgrade-up
   "W",   # https://beta.ruff.rs/docs/rules/#warning-w
 ]
-ignore = [
+lint.ignore = [
   "COM812", # https://beta.ruff.rs/docs/rules/missing-trailing-comma/
   "D107",   # https://beta.ruff.rs/docs/rules/undocumented-public-init/
   "D202",   # https://beta.ruff.rs/docs/rules/no-blank-line-after-function/
@@ -212,7 +212,7 @@ ignore = [
 ]
 
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["D104"]
 "tests/**/*.py" = [
   "FBT001",  # https://beta.ruff.rs/docs/rules/boolean-type-hint-positional-argument/
@@ -229,8 +229,8 @@ ignore = [
   "S324",    # https://beta.ruff.rs/docs/rules/hashlib-insecure-hash-function/
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.pylint]
+[tool.ruff.lint.pylint]
 max-args = 10
