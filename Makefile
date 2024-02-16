@@ -4,5 +4,8 @@ clean:
 install:
 	poetry install --sync
 
+test:
+	poetry run pytest
+
 vscode-shortcut-9:
 	ruff check .
