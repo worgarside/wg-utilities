@@ -10,7 +10,15 @@ LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
 
 JSONVal = Union[
-    None, object, bool, str, float, int, list["JSONVal"], "JSONObj", dict[str, object]
+    None,
+    object,
+    bool,
+    str,
+    float,
+    int,
+    list["JSONVal"],
+    "JSONObj",
+    dict[str, object],
 ]
 JSONObj = MutableMapping[str, JSONVal]
 JSONArr = Sequence[JSONVal]
@@ -99,7 +107,7 @@ def process_list(
         if isinstance(elem, target_type):
             try:
                 lst[i] = target_processor_func(cast(V, elem), list_index=i)
-            except Exception:  # pylint: disable=broad-except
+            except Exception:
                 if log_op_func_failures:
                     LOGGER.exception("Unable to process item at index %i", i)
 
@@ -172,7 +180,7 @@ def traverse_dict(  # noqa: PLR0912
                         log_op_func_failures=log_op_func_failures,
                         single_keys_to_remove=single_keys_to_remove,
                     )
-            except Exception:  # pylint: disable=broad-except
+            except Exception:
                 if log_op_func_failures:
                     LOGGER.exception("Unable to process item with key %s", k)
                 if not pass_on_fail:
@@ -191,7 +199,7 @@ def traverse_dict(  # noqa: PLR0912
                 if isinstance(value := v.get(only_key), target_type):
                     try:
                         value = target_processor_func(cast(V, value), dict_key=only_key)
-                    except Exception:  # pylint: disable=broad-except
+                    except Exception:
                         if log_op_func_failures:
                             LOGGER.exception(
                                 "Unable to process item with key %s",

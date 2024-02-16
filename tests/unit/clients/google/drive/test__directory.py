@@ -46,12 +46,13 @@ def test_kind_validation(drive: Drive, google_drive_client: GoogleDriveClient) -
             parent=drive,
         )
     assert "Invalid kind for Directory: drive#user" in str(
-        exc_info.value
+        exc_info.value,
     ) or "Invalid kind for Directory: EntityKind.USER" in str(exc_info.value)
 
 
 def test_mime_type_validation(
-    drive: Drive, google_drive_client: GoogleDriveClient
+    drive: Drive,
+    google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test that the `mimeType` value is validated."""
 
@@ -64,7 +65,9 @@ def test_mime_type_validation(
 
     with pytest.raises(ValidationError) as exc_info:
         Directory.from_json_response(
-            directory_json, google_client=google_drive_client, host_drive=drive
+            directory_json,
+            google_client=google_drive_client,
+            host_drive=drive,
         )
 
     assert "Input should be 'application/vnd.google-apps.folder'" in str(exc_info.value)

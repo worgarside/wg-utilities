@@ -35,7 +35,8 @@ def test_my_drive_property(google_drive_client: GoogleDriveClient) -> None:
     assert my_drive.google_client is google_drive_client
 
     mock_get_json_response.assert_called_once_with(
-        "/files/root", params={"fields": "*", "pageSize": None}
+        "/files/root",
+        params={"fields": "*", "pageSize": None},
     )
 
     assert my_drive.id == "6HP-cwhAzI78zEi4NNZ"
@@ -45,7 +46,9 @@ def test_shared_drives_property(google_drive_client: GoogleDriveClient) -> None:
     """Test that the `shared_drives` property returns a list of `Drive` objects."""
 
     with patch.object(
-        google_drive_client, "get_items", wraps=google_drive_client.get_items
+        google_drive_client,
+        "get_items",
+        wraps=google_drive_client.get_items,
     ) as mock_get_items:
         shared_drives = google_drive_client.shared_drives
 
@@ -54,7 +57,9 @@ def test_shared_drives_property(google_drive_client: GoogleDriveClient) -> None:
     assert all(d.google_client is google_drive_client for d in shared_drives)
 
     mock_get_items.assert_called_once_with(
-        "/drives", list_key="drives", params={"fields": "*"}
+        "/drives",
+        list_key="drives",
+        params={"fields": "*"},
     )
 
     assert len(shared_drives) == 2

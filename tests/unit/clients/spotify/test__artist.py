@@ -10,14 +10,13 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
     """Test instantiation of the Artist class."""
     artist_json: ArtistFullJson = {
         "external_urls": {
-            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF",
         },
         "followers": {"href": None, "total": 147955},
         "genres": ["deep house", "electronica", "float house", "lo-fi house"],
         "href": f"{SpotifyClient.BASE_URL}/artists/1Ma3pJzPIrAyYPNRkp3SUF",
         "id": "1Ma3pJzPIrAyYPNRkp3SUF",
         "images": [
-            # pylint: disable=line-too-long
             {
                 "height": 640,
                 "url": "https://i.scdn.co/image/ab6761610000e5eb220be919258c7391c5c0727b",

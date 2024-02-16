@@ -48,7 +48,8 @@ class _Attendee(BaseModelWithConfig):
     organizer: bool = False
     resource: bool = False
     response_status: ResponseStatus = Field(
-        alias="responseStatus", default=ResponseStatus.UNKNOWN
+        alias="responseStatus",
+        default=ResponseStatus.UNKNOWN,
     )
     self: bool = False
 
@@ -120,7 +121,8 @@ class _StartEndDatetime(BaseModelWithConfig):
 
         if dt is None:
             dttm = datetime_.strptime(
-                dttm, "%Y-%m-%dT%H:%M:%S%z"  # type: ignore[arg-type]
+                dttm,  # type: ignore[arg-type]
+                "%Y-%m-%dT%H:%M:%S%z",
             ).replace(tzinfo=values["timeZone"])
             dt = dttm.date()
         else:
@@ -206,7 +208,11 @@ class _Notification(BaseModelWithConfig):
 
     method: Literal["email", "sms"]
     type: Literal[
-        "eventCreation", "eventChange", "eventCancellation", "eventResponse", "agenda"
+        "eventCreation",
+        "eventChange",
+        "eventCancellation",
+        "eventResponse",
+        "agenda",
     ]
 
 
@@ -214,7 +220,8 @@ class Calendar(GoogleCalendarEntity):
     """Class for Google calendar instances."""
 
     access_role: Literal["freeBusyReader", "reader", "writer", "owner"] | None = Field(
-        None, alias="accessRole"
+        None,
+        alias="accessRole",
     )
     background_color: str | None = Field(None, alias="backgroundColor")
     color_id: str | None = Field(None, alias="colorId")
@@ -223,7 +230,8 @@ class Calendar(GoogleCalendarEntity):
         list[Literal["eventHangout", "eventNamedHangout", "hangoutsMeet"]],
     ] = Field(alias="conferenceProperties")
     default_reminders: list[_Reminder] = Field(
-        alias="defaultReminders", default_factory=list
+        alias="defaultReminders",
+        default_factory=list,
     )
     deleted: bool = False
     foreground_color: str | None = Field(None, alias="foregroundColor")
@@ -233,7 +241,8 @@ class Calendar(GoogleCalendarEntity):
         Literal["notifications"],
         list[_Notification],
     ] = Field(
-        alias="notificationSettings", default_factory=list  # type: ignore[assignment]
+        alias="notificationSettings",
+        default_factory=list,  # type: ignore[assignment]
     )
     primary: bool = False
     selected: bool = False
@@ -308,15 +317,11 @@ class Calendar(GoogleCalendarEntity):
         }
         if from_datetime or to_datetime or day_limit:
             to_datetime = to_datetime or datetime_.utcnow()
-            from_datetime = from_datetime or to_datetime - timedelta(
-                days=day_limit or 90
-            )
+            from_datetime = from_datetime or to_datetime - timedelta(days=day_limit or 90)
 
             if day_limit is not None:
                 # Force the to_datetime to be within the day_limit
-                to_datetime = min(
-                    to_datetime, from_datetime + timedelta(days=day_limit)
-                )
+                to_datetime = min(to_datetime, from_datetime + timedelta(days=day_limit))
 
             if from_datetime.tzinfo is None:
                 from_datetime = from_datetime.replace(tzinfo=UTC)
@@ -329,7 +334,9 @@ class Calendar(GoogleCalendarEntity):
 
         return [
             Event.from_json_response(
-                item, calendar=self, google_client=self.google_client
+                item,
+                calendar=self,
+                google_client=self.google_client,
             )
             for item in self.google_client.get_items(
                 f"{self.google_client.base_url}/calendars/{self.id}/events",
@@ -406,12 +413,14 @@ class Event(GoogleCalendarEntity):
     end_time_unspecified: bool | None = Field(None, alias="endTimeUnspecified")
     event_type: EventType = Field(alias="eventType")
     extended_properties: dict[str, dict[str, str]] | None = Field(
-        None, alias="extendedProperties"
+        None,
+        alias="extendedProperties",
     )
     guests_can_invite_others: bool | None = Field(None, alias="guestsCanInviteOthers")
     guests_can_modify: bool | None = Field(None, alias="guestsCanModify")
     guests_can_see_other_guests: bool | None = Field(
-        None, alias="guestsCanSeeOtherGuests"
+        None,
+        alias="guestsCanSeeOtherGuests",
     )
     hangout_link: str | None = Field(None, alias="hangoutLink")
     html_link: str = Field(alias="htmlLink")
@@ -571,13 +580,9 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
             params={"maxResults": None},
         )
 
-        return Event.from_json_response(
-            event_json, calendar=calendar, google_client=self
-        )
+        return Event.from_json_response(event_json, calendar=calendar, google_client=self)
 
-    def delete_event_by_id(
-        self, event_id: str, calendar: Calendar | None = None
-    ) -> None:
+    def delete_event_by_id(self, event_id: str, calendar: Calendar | None = None) -> None:
         """Delete an event from a calendar.
 
         Args:
@@ -595,7 +600,10 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         res.raise_for_status()
 
     def get_event_by_id(
-        self, event_id: str, *, calendar: Calendar | None = None
+        self,
+        event_id: str,
+        *,
+        calendar: Calendar | None = None,
     ) -> Event:
         """Get a specific event by ID.
 
@@ -641,9 +649,7 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         """
         if not hasattr(self, "_primary_calendar"):
             self._primary_calendar = Calendar.from_json_response(
-                self.get_json_response(
-                    "/calendars/primary", params={"maxResults": None}
-                ),
+                self.get_json_response("/calendars/primary", params={"maxResults": None}),
                 google_client=self,
             )
 

@@ -27,7 +27,7 @@ def test_default_call_permanent_failure() -> None:
         raise ValueError
 
     with pytest.raises(ValueError), patch(
-        "wg_utilities.functions.decorators.sleep"
+        "wg_utilities.functions.decorators.sleep",
     ) as mock_sleep:
         test_func()
 
@@ -79,7 +79,7 @@ def test_custom_call_correct_exception() -> None:
         raise ValueError
 
     with pytest.raises(ValueError), patch(
-        "wg_utilities.functions.decorators.sleep"
+        "wg_utilities.functions.decorators.sleep",
     ) as mock_sleep:
         test_func()
 
@@ -110,7 +110,7 @@ def test_custom_call_incorrect_exception() -> None:
         raise RuntimeError
 
     with pytest.raises(RuntimeError), patch(
-        "wg_utilities.functions.decorators.sleep"
+        "wg_utilities.functions.decorators.sleep",
     ) as mock_sleep:
         test_func()
 

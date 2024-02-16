@@ -106,14 +106,14 @@ class DataSource:
                 datetime.today()
                 .replace(hour=0, minute=0, second=0, microsecond=0)
                 .timestamp()
-                / DFUnit.NANOSECOND.value
-            )
+                / DFUnit.NANOSECOND.value,
+            ),
         )
 
         to_nano = int(
             int(to_datetime.timestamp() * 1000000000)
             if to_datetime
-            else utcnow(DFUnit.NANOSECOND)
+            else utcnow(DFUnit.NANOSECOND),
         )
 
         data_points: list[_GoogleFitDataPointInfo] = self.google_client.get_items(
@@ -142,13 +142,7 @@ class DataSource:
 
         ```
         Literal[
-            "blob",
-            "floatList",
-            "floatPoint",
-            "integer",
-            "integerList",
-            "map",
-            "string"
+            "blob", "floatList", "floatPoint", "integer", "integerList", "map", "string"
         ]
         ```
 
@@ -162,7 +156,7 @@ class DataSource:
         if len(data_type_fields) != 1:
             raise ValueError(
                 f"Unexpected number of dataType fields ({len(data_type_fields)}): "
-                + ", ".join(f["name"] for f in data_type_fields)
+                + ", ".join(f["name"] for f in data_type_fields),
             )
 
         return data_type_fields[0]["format"]

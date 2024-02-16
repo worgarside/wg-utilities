@@ -32,7 +32,8 @@ def oauth_client_(
 
     (
         creds_cache_path := force_mkdir(
-            temp_dir / "oauth_credentials" / "test_client_id.json", path_is_file=True
+            temp_dir / "oauth_credentials" / "test_client_id.json",
+            path_is_file=True,
         )
     ).write_text(fake_oauth_credentials.model_dump_json(exclude_none=True))
 

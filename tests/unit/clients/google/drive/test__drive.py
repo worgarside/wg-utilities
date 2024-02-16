@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit tests for the `wg_utilities.clients.google_drive.Drive` class."""
 from __future__ import annotations
 
@@ -53,7 +52,8 @@ from wg_utilities.clients.google_drive import (
     ],
 )
 def test_from_json_response(
-    drive_json: Mapping[str, Any], google_drive_client: GoogleDriveClient
+    drive_json: Mapping[str, Any],
+    google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test that a `Drive` instance can be created from a JSON response."""
 
@@ -99,8 +99,7 @@ def test_kind_validation(google_drive_client: GoogleDriveClient) -> None:
         )
     assert "Invalid kind for Drive: drive#user" in str(exc_info.value) or (
         # Python 3.11
-        "Invalid kind for Drive: EntityKind.USER "
-        in str(exc_info.value)
+        "Invalid kind for Drive: EntityKind.USER " in str(exc_info.value)
     )
 
 
@@ -120,7 +119,10 @@ def test_kind_validation(google_drive_client: GoogleDriveClient) -> None:
     ],
 )
 def test_get_entity_by_id(
-    drive: Drive, cls: type[File | Directory], entity_id: str, expected_path: str
+    drive: Drive,
+    cls: type[File | Directory],
+    entity_id: str,
+    expected_path: str,
 ) -> None:
     """Test the generic `_get_entity_by_id` method."""
 
@@ -158,7 +160,8 @@ def test_get_entity_by_id(
 
 
 def test_get_directory_by_id_no_matching_children(
-    directory: Directory, drive: Drive
+    directory: Directory,
+    drive: Drive,
 ) -> None:
     """Test the `get_directory_by_id` method."""
 
@@ -525,7 +528,10 @@ def test_search_invalid_entity_type(drive: Drive) -> None:
 
 
 def test_all_known_descendents(
-    drive: Drive, file: File, simple_file: File, directory: Directory
+    drive: Drive,
+    file: File,
+    simple_file: File,
+    directory: Directory,
 ) -> None:
     """Test the `all_known_descendents` method."""
 

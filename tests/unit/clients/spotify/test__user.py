@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.clients.spotify.User`."""
 from __future__ import annotations
 
@@ -41,7 +40,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
                     "height": None,
                     "url": "https://via.placeholder.com/200x100",
                     "width": None,
-                }
+                },
             ],
             "product": "premium",
             "type": "user",
@@ -66,7 +65,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
                 "height": None,
                 "url": "https://via.placeholder.com/200x100",
                 "width": None,
-            }
+            },
         ],
         "product": "premium",
         "type": "user",
@@ -82,7 +81,8 @@ def test_set_user_name_value(spotify_user: User) -> None:
 
 
 def test_get_playlists_by_name_unique_names(
-    spotify_user: User, spotify_playlist: Playlist
+    spotify_user: User,
+    spotify_playlist: Playlist,
 ) -> None:
     """Test that the `get_playlists_by_name` searches the User's playlists correctly."""
 
@@ -92,7 +92,8 @@ def test_get_playlists_by_name_unique_names(
 
 
 def test_get_playlists_by_name_duplicate_names(
-    spotify_user: User, spotify_playlist: Playlist
+    spotify_user: User,
+    spotify_playlist: Playlist,
 ) -> None:
     """Test that the `get_playlists_by_name` searches the User's playlists correctly.
 
@@ -203,7 +204,6 @@ def test_get_recently_liked_tracks_day_limit(
                 "headers": {},
             },
         ),
-        # pylint: disable=line-too-long
         (
             "spotify_artist",
             {
@@ -240,9 +240,7 @@ def test_save_unsave_methods(
 
     spotify_user.save(entity=entity)
 
-    request_values["headers"][
-        "Authorization"
-    ] = f"Bearer {live_jwt_token}"  # type: ignore[index]
+    request_values["headers"]["Authorization"] = f"Bearer {live_jwt_token}"  # type: ignore[index]
     request_values["method"] = "PUT"
 
     assert_mock_requests_request_history(
@@ -270,7 +268,7 @@ def test_save_unsave_methods_with_invalid_type(spotify_user: User) -> None:
     device = Device.model_validate(
         read_json_file("spotify/v1/me/player/devices/limit=50.json")["devices"][
             0  # type: ignore[index]
-        ]
+        ],
     )
 
     with pytest.raises(TypeError) as exc_info:
@@ -291,7 +289,9 @@ def test_save_unsave_methods_with_invalid_type(spotify_user: User) -> None:
 
 
 def test_albums_property(
-    spotify_user: User, mock_requests: Mocker, live_jwt_token: str
+    spotify_user: User,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that `albums` property makes the expected request."""
 
@@ -338,9 +338,7 @@ def test_artists_property(
     assert spotify_user.artists == [
         Artist.from_json_response(artist_json, spotify_client=spotify_client)
         for artist_json in [  # type: ignore[misc]
-            *read_json_file(f"{prefix}limit=50.json")[
-                "artists"
-            ][  # type: ignore[call-overload]
+            *read_json_file(f"{prefix}limit=50.json")["artists"][  # type: ignore[call-overload]
                 "items"  # type: ignore[index]
             ],
             *read_json_file(f"{prefix}after=3iOvXCl6edW5Um0fXEBRXy&limit=50.json")[
@@ -359,7 +357,6 @@ def test_artists_property(
     assert_mock_requests_request_history(
         mock_requests.request_history,
         [
-            # pylint: disable=line-too-long
             {
                 "url": f"{SpotifyClient.BASE_URL}/me/following?type=artist&limit=50",
                 "method": "GET",
@@ -390,7 +387,7 @@ def test_current_track_property(
 
     assert spotify_user.current_track == Track.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/v1/tracks/6zJUp1ihdid6Kn3Ndgcy82.json"
+            "spotify/v1/tracks/6zJUp1ihdid6Kn3Ndgcy82.json",
         ),
         spotify_client=spotify_user.spotify_client,
     )
@@ -409,9 +406,7 @@ def test_current_track_property(
     assert mock_requests.call_count == 1
 
 
-def test_current_track_nothing_playing(
-    spotify_user: User, mock_requests: Mocker
-) -> None:
+def test_current_track_nothing_playing(spotify_user: User, mock_requests: Mocker) -> None:
     """Test that `current_track` property returns None if nothing is playing."""
     mock_requests.get(
         f"{SpotifyClient.BASE_URL}/me/player/currently-playing",
@@ -460,7 +455,8 @@ def test_current_playlist_property(
 
 
 def test_current_playlist_nothing_playing(
-    spotify_user: User, mock_requests: Mocker
+    spotify_user: User,
+    mock_requests: Mocker,
 ) -> None:
     """Test that `current_playlist` property returns None if nothing is playing."""
     mock_requests.get(
@@ -473,15 +469,15 @@ def test_current_playlist_nothing_playing(
 
 
 def test_devices_property(
-    spotify_user: User, mock_requests: Mocker, live_jwt_token: str
+    spotify_user: User,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that `devices` property makes the expected request."""
 
     assert spotify_user.devices == [
         Device.model_validate(device_json)
-        for device_json in read_json_file(
-            "spotify/v1/me/player/devices/limit=50.json"
-        )[  # type: ignore[union-attr]
+        for device_json in read_json_file("spotify/v1/me/player/devices/limit=50.json")[  # type: ignore[union-attr]
             "devices"
         ]
     ]
@@ -521,7 +517,6 @@ def test_playlist_property(
     assert_mock_requests_request_history(
         mock_requests.request_history,
         [
-            # pylint: disable=line-too-long
             {
                 "url": f"{SpotifyClient.BASE_URL}/me/playlists?limit=50",
                 "method": "GET",
@@ -568,7 +563,6 @@ def test_top_artists_property(
         mock_requests.request_history,
         [
             {
-                # pylint: disable=line-too-long
                 "url": f"{SpotifyClient.BASE_URL}/me/top/artists?time_range=short_term&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
@@ -595,7 +589,6 @@ def test_top_tracks_property(
         mock_requests.request_history,
         [
             {
-                # pylint: disable=line-too-long
                 "url": f"{SpotifyClient.BASE_URL}/me/top/tracks?time_range=short_term&limit=50",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},

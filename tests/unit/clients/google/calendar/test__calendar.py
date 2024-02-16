@@ -18,7 +18,8 @@ def test_instantiation(google_calendar_client: GoogleCalendarClient) -> None:
     """Test that the `Calendar` class can be instantiated."""
 
     calendar_json = read_json_file(
-        "v3/calendars/primary.json", host_name="google/calendar"
+        "v3/calendars/primary.json",
+        host_name="google/calendar",
     )
 
     calendar = Calendar.from_json_response(
@@ -38,7 +39,8 @@ def test_timezone_tzinfo_conversion(
     """Test that the `timeZone` field validator successfully converts str to tzinfo."""
 
     calendar_json = read_json_file(
-        "v3/calendars/primary.json", host_name="google/calendar"
+        "v3/calendars/primary.json",
+        host_name="google/calendar",
     )
 
     assert calendar_json["timeZone"] == "Europe/London"
@@ -184,7 +186,8 @@ def test_get_events_datetime_parameters(
     """Test that various to/from datetime parameters are handled correctly."""
 
     with freeze_time("2022-01-01T00:00:00"), patch.object(
-        calendar.google_client, "get_items"
+        calendar.google_client,
+        "get_items",
     ) as mock_get_items:
         calendar.get_events(
             from_datetime=from_datetime,

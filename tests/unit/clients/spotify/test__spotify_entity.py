@@ -76,9 +76,7 @@ def test_from_json_response_instantiation(spotify_client: SpotifyClient) -> None
 def test_url_property(spotify_entity: SpotifyEntity[SpotifyBaseEntityJson]) -> None:
     """Test the url property of the SpotifyEntity class."""
 
-    assert (
-        spotify_entity.url == "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt"
-    )
+    assert spotify_entity.url == "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt"
 
     del spotify_entity.external_urls["spotify"]
     assert (
@@ -88,16 +86,17 @@ def test_url_property(spotify_entity: SpotifyEntity[SpotifyBaseEntityJson]) -> N
 
 
 def test_eq(
-    spotify_entity: SpotifyEntity[SpotifyBaseEntityJson], spotify_client: SpotifyClient
+    spotify_entity: SpotifyEntity[SpotifyBaseEntityJson],
+    spotify_client: SpotifyClient,
 ) -> None:
     """Test the __eq__ method of the SpotifyEntity class."""
 
-    assert spotify_entity == spotify_entity  # pylint: disable=comparison-with-itself
+    assert spotify_entity == spotify_entity
     assert spotify_entity == SpotifyEntity[SpotifyBaseEntityJson].model_validate(
         {
             **spotify_entity.model_dump(exclude_none=True),
             "spotify_client": spotify_client,
-        }
+        },
     )
 
     assert spotify_entity != SpotifyEntity[SpotifyBaseEntityJson](
@@ -105,7 +104,7 @@ def test_eq(
         id="1Ma3pJzPIrAyYPNRkp3SUF",
         uri="spotify:artist:1Ma3pJzPIrAyYPNRkp3SUF",
         external_urls={
-            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF"
+            "spotify": "https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF",
         },
         spotify_client=spotify_client,
         metadata={},
@@ -142,7 +141,7 @@ def test_hash(spotify_entity: SpotifyEntity[SpotifyBaseEntityJson]) -> None:
     """Test the __hash__ method of the SpotifyEntity class."""
 
     assert hash(spotify_entity) == hash(
-        'SpotifyEntity(id="0gxyHStUsqpMadRV0Di1Qt", name="")'
+        'SpotifyEntity(id="0gxyHStUsqpMadRV0Di1Qt", name="")',
     )
 
 

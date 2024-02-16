@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.clients.oauth_client.OAuthClient`."""
 
 from __future__ import annotations
@@ -51,7 +50,7 @@ def test_oauth_credentials_parse_first_time_login_attributes(
             "expires_in": 3600,
             "scope": "test_scope",
             "token_type": "Bearer",
-        }
+        },
     )
 
     assert creds.access_token == live_jwt_token
@@ -80,7 +79,7 @@ def test_oauth_credentials_parse_first_time_login_expiry_mismatch() -> None:
                 "expires_in": 3600,
                 "scope": "test_scope",
                 "token_type": "Bearer",
-            }
+            },
         )
 
     assert fullmatch(
@@ -91,20 +90,25 @@ def test_oauth_credentials_parse_first_time_login_expiry_mismatch() -> None:
 
 
 def test_oauth_credentials_update_access_token(
-    oauth_client: OAuthClient[dict[str, Any]], fake_oauth_credentials: OAuthCredentials
+    oauth_client: OAuthClient[dict[str, Any]],
+    fake_oauth_credentials: OAuthCredentials,
 ) -> None:
     """Test the `update_access_token` method updates the access token."""
 
     assert oauth_client.access_token == fake_oauth_credentials.access_token
     assert oauth_client.credentials.expiry_epoch == pytest.approx(
-        int(time()) + 3600, abs=5
+        int(time()) + 3600,
+        abs=5,
     )
 
     oauth_client.credentials.update_access_token(
-        "new_access_token", expires_in=7200, refresh_token="new_refresh_token"
+        "new_access_token",
+        expires_in=7200,
+        refresh_token="new_refresh_token",
     )
     assert oauth_client.credentials.expiry_epoch == pytest.approx(
-        int(time()) + 7200, abs=5
+        int(time()) + 7200,
+        abs=5,
     )
 
     assert oauth_client.access_token == "new_access_token"
@@ -121,9 +125,7 @@ def test_oauth_credentials_is_expired_property(
         assert fake_oauth_credentials.is_expired is True
 
 
-def test_instantiation(
-    temp_dir: Path, fake_oauth_credentials: OAuthCredentials
-) -> None:
+def test_instantiation(temp_dir: Path, fake_oauth_credentials: OAuthCredentials) -> None:
     """Test instantiation."""
     client = OAuthClient[dict[str, Any]](
         client_id=fake_oauth_credentials.client_id,
@@ -143,8 +145,7 @@ def test_instantiation(
     assert client.ACCESS_TOKEN_EXPIRY_THRESHOLD == 150
     assert client.log_requests is True
     assert (
-        client.creds_cache_path
-        == temp_dir / "oauth_credentials" / "test_client_id.json"
+        client.creds_cache_path == temp_dir / "oauth_credentials" / "test_client_id.json"
     )
     assert client.auth_link_base == "https://api.example.com/oauth2/authorize"
 
@@ -209,16 +210,14 @@ def test_refresh_access_token(
 
 
 def test_refresh_access_token_with_no_local_credentials(
-    oauth_client: OAuthClient[dict[str, Any]]
+    oauth_client: OAuthClient[dict[str, Any]],
 ) -> None:
     """Test the `refresh_access_token` method runs the first time login."""
 
     oauth_client.creds_cache_path.unlink()
     del oauth_client._credentials
 
-    with patch.object(
-        oauth_client, "run_first_time_login"
-    ) as mock_run_first_time_login:
+    with patch.object(oauth_client, "run_first_time_login") as mock_run_first_time_login:
         oauth_client.refresh_access_token()
 
     mock_run_first_time_login.assert_called_once()
@@ -241,7 +240,6 @@ def test_run_first_time_login(
         nonlocal called
         sleep(1)
         res = get(
-            # pylint: disable=line-too-long
             f"{oauth_client.temp_auth_server.get_auth_code_url}?code=test_auth_code&state={'x' * 32}",
             timeout=5,
         )
@@ -266,7 +264,6 @@ def test_run_first_time_login(
         mock_requests.request_history,
         [
             {
-                # pylint: disable=line-too-long
                 "url": f"{oauth_client.temp_auth_server.get_auth_code_url}?code=test_auth_code&state={'x' * 32}",
                 "method": "GET",
                 "headers": {},
@@ -303,7 +300,6 @@ def test_run_time_first_login_validates_state_token(
         nonlocal called
         sleep(1)
         res = get(
-            # pylint: disable=line-too-long
             f"{oauth_client.temp_auth_server.get_auth_code_url}?code=test_auth_code&state=invalid_value",
             timeout=5,
         )
@@ -331,7 +327,8 @@ def test_run_time_first_login_validates_state_token(
 
 
 def test_access_token(
-    oauth_client: OAuthClient[dict[str, Any]], fake_oauth_credentials: OAuthCredentials
+    oauth_client: OAuthClient[dict[str, Any]],
+    fake_oauth_credentials: OAuthCredentials,
 ) -> None:
     """Test the `access_token` property returns the expected value."""
     assert oauth_client.access_token == fake_oauth_credentials.access_token
@@ -347,7 +344,9 @@ def test_access_token_with_expired_token(
     oauth_client.credentials.expiry_epoch = int(time()) - 1
 
     with patch.object(
-        oauth_client, "refresh_access_token", wraps=oauth_client.refresh_access_token
+        oauth_client,
+        "refresh_access_token",
+        wraps=oauth_client.refresh_access_token,
     ) as mock_refresh_access_token:
         assert oauth_client.access_token == live_jwt_token_alt
 
@@ -386,21 +385,24 @@ def test_access_token_has_expired_no_local_credentials(
 
 
 def test_client_id(
-    oauth_client: OAuthClient[dict[str, Any]], fake_oauth_credentials: OAuthCredentials
+    oauth_client: OAuthClient[dict[str, Any]],
+    fake_oauth_credentials: OAuthCredentials,
 ) -> None:
     """Test the `client_id` property returns the expected value."""
     assert oauth_client.client_id == fake_oauth_credentials.client_id
 
 
 def test_client_secret(
-    oauth_client: OAuthClient[dict[str, Any]], fake_oauth_credentials: OAuthCredentials
+    oauth_client: OAuthClient[dict[str, Any]],
+    fake_oauth_credentials: OAuthCredentials,
 ) -> None:
     """Test the `client_secret` property returns the expected value."""
     assert oauth_client.client_secret == fake_oauth_credentials.client_secret
 
 
 def test_credentials(
-    oauth_client: OAuthClient[dict[str, Any]], fake_oauth_credentials: OAuthCredentials
+    oauth_client: OAuthClient[dict[str, Any]],
+    fake_oauth_credentials: OAuthCredentials,
 ) -> None:
     """Test the `credentials` property returns the expected value."""
     assert oauth_client.credentials == fake_oauth_credentials
@@ -422,9 +424,7 @@ def test_credentials(
     def _side_effect() -> None:
         oauth_client._credentials = fake_oauth_credentials
 
-    with patch.object(
-        oauth_client, "run_first_time_login"
-    ) as mock_run_first_time_login:
+    with patch.object(oauth_client, "run_first_time_login") as mock_run_first_time_login:
         mock_run_first_time_login.side_effect = _side_effect
         assert oauth_client.credentials == fake_oauth_credentials
 
@@ -455,10 +455,10 @@ def test_credentials_setter_writes_local_cache(
 
     oauth_client.credentials = new_oauth_credentials
     assert fake_oauth_credentials.model_dump(exclude_none=True) != loads(
-        oauth_client.creds_cache_path.read_text()
+        oauth_client.creds_cache_path.read_text(),
     )
     assert new_oauth_credentials.model_dump(exclude_none=True) == loads(
-        oauth_client.creds_cache_path.read_text()
+        oauth_client.creds_cache_path.read_text(),
     )
 
 
@@ -547,9 +547,7 @@ def test_creds_cache_dir(fake_oauth_credentials: OAuthCredentials) -> None:
         base_url="https://api.example.com",
         access_token_endpoint="https://api.example.com/oauth2/token",
         log_requests=True,
-        creds_cache_dir=Path(__file__).parent
-        / ".wg-utilities"
-        / "a_different_directory",
+        creds_cache_dir=Path(__file__).parent / ".wg-utilities" / "a_different_directory",
         auth_link_base="https://api.example.com/oauth2/authorize",
     )
 
@@ -568,7 +566,8 @@ def test_creds_cache_dir(fake_oauth_credentials: OAuthCredentials) -> None:
 
 
 def test_request_headers(
-    oauth_client: OAuthClient[dict[str, Any]], live_jwt_token: str
+    oauth_client: OAuthClient[dict[str, Any]],
+    live_jwt_token: str,
 ) -> None:
     """Test the `request_headers` property returns the expected value."""
     assert oauth_client.request_headers == {
@@ -578,7 +577,8 @@ def test_request_headers(
 
 
 def test_refresh_token(
-    oauth_client: OAuthClient[dict[str, Any]], fake_oauth_credentials: OAuthCredentials
+    oauth_client: OAuthClient[dict[str, Any]],
+    fake_oauth_credentials: OAuthCredentials,
 ) -> None:
     """Test the `refresh_token` property returns the expected value."""
     assert oauth_client.refresh_token == fake_oauth_credentials.refresh_token
@@ -599,14 +599,15 @@ def test_temp_auth_server_property(oauth_client: OAuthClient[dict[str, Any]]) ->
     oauth_client.temp_auth_server.stop_server()
 
     with patch(
-        "wg_utilities.clients.oauth_client.TempAuthServer"
+        "wg_utilities.clients.oauth_client.TempAuthServer",
     ) as mock_temp_auth_server:
         assert oauth_client.temp_auth_server == oauth_tas
         mock_temp_auth_server.assert_not_called()
 
 
 @pytest.mark.parametrize(
-    "redirect_uri_override", [None, "https://some-proxy-site.com/path/to/stuff"]
+    "redirect_uri_override",
+    [None, "https://some-proxy-site.com/path/to/stuff"],
 )
 @patch.object(
     OAuthClient,
@@ -635,7 +636,6 @@ def test_headless_mode_first_time_login(
     def _cb(auth_link: str) -> None:
         nonlocal headless_cb_called, redirect_uri_override
 
-        # pylint: disable=line-too-long
         expected_redirect_uri = (
             redirect_uri_override
             or f"http://{oauth_client.oauth_login_redirect_host}:{oauth_client.temp_auth_server.port}/get_auth_code"
@@ -649,7 +649,7 @@ def test_headless_mode_first_time_login(
                 "state": "x" * 32,
                 "access_type": "offline",
                 "prompt": "consent",
-            }
+            },
         )
 
         sleep(1)
@@ -679,7 +679,6 @@ def test_headless_mode_first_time_login(
         mock_requests.request_history,
         [
             {
-                # pylint: disable=line-too-long
                 "url": f"{oauth_client.temp_auth_server.get_auth_code_url}?code=test_auth_code&state={'x' * 32}",
                 "method": "GET",
                 "headers": {},
@@ -749,9 +748,7 @@ def test_headless_mode_first_time_login_missing_callback(
     ) in caplog.text
 
 
-def test_use_existing_credentials_only(
-    oauth_client: OAuthClient[dict[str, Any]]
-) -> None:
+def test_use_existing_credentials_only(oauth_client: OAuthClient[dict[str, Any]]) -> None:
     """Test that the `use_existing_credentials_only` property works correctly."""
 
     oauth_client.use_existing_credentials_only = True
@@ -765,7 +762,7 @@ def test_use_existing_credentials_only(
 
 
 def test_creds_rel_file_path_no_client_id(
-    oauth_client: OAuthClient[dict[str, Any]]
+    oauth_client: OAuthClient[dict[str, Any]],
 ) -> None:
     """Test that `None` is returns when there is no client ID available."""
 

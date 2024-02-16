@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit tests for the `wg_utilities.clients.google_drive.File` class."""
 from __future__ import annotations
 
@@ -23,7 +22,8 @@ from wg_utilities.clients.google_drive import (
 
 
 def test_from_json_response_instantiation(
-    drive: Drive, google_drive_client: GoogleDriveClient
+    drive: Drive,
+    google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test that the `File` class can be instantiated."""
 
@@ -33,7 +33,9 @@ def test_from_json_response_instantiation(
     )
 
     file = File.from_json_response(
-        file_json, google_client=google_drive_client, host_drive=drive
+        file_json,
+        google_client=google_drive_client,
+        host_drive=drive,
     )
 
     assert isinstance(file, File)
@@ -42,7 +44,8 @@ def test_from_json_response_instantiation(
 
 
 def test_getattr_override_on_demand_retrieval(
-    google_drive_client: GoogleDriveClient, simple_file: File
+    google_drive_client: GoogleDriveClient,
+    simple_file: File,
 ) -> None:
     """Test that null attributes are retrieved individually for `ON_INIT` IMR."""
 
@@ -68,7 +71,8 @@ def test_getattr_override_on_demand_retrieval(
 
 
 def test_getattr_override_on_first_request_retrieval(
-    google_drive_client: GoogleDriveClient, simple_file: File
+    google_drive_client: GoogleDriveClient,
+    simple_file: File,
 ) -> None:
     """Test null attributes are retrieved individually for `ON_FIRST_REQUEST` IMR."""
 
@@ -78,7 +82,9 @@ def test_getattr_override_on_first_request_retrieval(
     assert simple_file.__dict__["size"] is None
 
     with patch.object(
-        File, "describe", wraps=simple_file.describe
+        File,
+        "describe",
+        wraps=simple_file.describe,
     ) as mock_describe, patch.object(
         simple_file.google_client,
         "get_json_response",
@@ -96,7 +102,6 @@ def test_getattr_override_on_first_request_retrieval(
             == _User(
                 kind=EntityKind.USER,
                 displayName="Google User",
-                # pylint: disable=line-too-long
                 photoLink="https://lh3.googleusercontent.com/a/ZPjPRv4wncXC5rJVs2U96b00Tdp85YYJq4FnPUyCLahXoMx=s64",
                 me=True,
                 permissionId="31838237028322295771",
@@ -106,7 +111,6 @@ def test_getattr_override_on_first_request_retrieval(
         assert (
             simple_file.web_view_link
             == simple_file.__dict__["web_view_link"]
-            # pylint: disable=line-too-long
             == "https://docs.google.com/spreadsheets/d/1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B/edit?usp=drivesdk"
         )
 
@@ -118,7 +122,8 @@ def test_getattr_override_on_first_request_retrieval(
 
 
 def test_mime_type_validation(
-    drive: Drive, google_drive_client: GoogleDriveClient
+    drive: Drive,
+    google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test that the `mimeType` value is validated."""
 
@@ -131,7 +136,9 @@ def test_mime_type_validation(
 
     with pytest.raises(ValueError) as exc_info:
         File.from_json_response(
-            file_json, google_client=google_drive_client, host_drive=drive
+            file_json,
+            google_client=google_drive_client,
+            host_drive=drive,
         )
 
     assert "Use `Directory` class to create a directory" in str(exc_info.value)
@@ -148,7 +155,9 @@ def test_mime_type_validation(
     ],
 )
 def test_parents_validation(
-    drive: Drive, google_drive_client: GoogleDriveClient, parents_value: list[str]
+    drive: Drive,
+    google_drive_client: GoogleDriveClient,
+    parents_value: list[str],
 ) -> None:
     """Test that the `parents` value is validated."""
 
@@ -161,14 +170,17 @@ def test_parents_validation(
 
     with pytest.raises(ValueError) as exc_info:
         File.from_json_response(
-            file_json, google_client=google_drive_client, host_drive=drive
+            file_json,
+            google_client=google_drive_client,
+            host_drive=drive,
         )
 
     assert "A File must have exactly one parent." in str(exc_info.value)
 
 
 def test_parent_instance_validation(
-    drive: Drive, google_drive_client: GoogleDriveClient
+    drive: Drive,
+    google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test that the `parent` value is validated."""
 
@@ -181,12 +193,14 @@ def test_parent_instance_validation(
 
     with pytest.raises(ValueError) as exc_info:
         File.from_json_response(
-            file_json, google_client=google_drive_client, host_drive=drive, parent=drive
+            file_json,
+            google_client=google_drive_client,
+            host_drive=drive,
+            parent=drive,
         )
 
-    assert (
-        f"Parent ID mismatch: {drive.id} != 3yz1SpGR2YtgnocrGzphb-qkKTfU4htSx"
-        in str(exc_info.value)
+    assert f"Parent ID mismatch: {drive.id} != 3yz1SpGR2YtgnocrGzphb-qkKTfU4htSx" in str(
+        exc_info.value,
     )
 
 
@@ -216,12 +230,18 @@ def test_describe(simple_file: File) -> None:
         mock_get_json_response.reset_mock()
 
         assert simple_file.created_time == datetime(
-            2022, 12, 22, 11, 34, 54, 221000, tzinfo=utc
+            2022,
+            12,
+            22,
+            11,
+            34,
+            54,
+            221000,
+            tzinfo=utc,
         )
         assert simple_file.size == 1024
         assert (
             simple_file.web_view_link
-            # pylint: disable=line-too-long
             == "https://docs.google.com/spreadsheets/d/1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B/edit?usp=drivesdk"
         )
 
@@ -274,7 +294,6 @@ def test_describe_with_invalid_field(simple_file: File, mock_requests: Mocker) -
     res["invalidField"] = "invalid_value"
 
     mock_requests.get(
-        # pylint: disable=line-too-long
         "https://www.googleapis.com/drive/v3/files/1X9XHqui0CHzAGahgr1d0lIOn2jj5MZO-WU7l5fhCn4B",
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
@@ -286,7 +305,6 @@ def test_describe_with_invalid_field(simple_file: File, mock_requests: Mocker) -
 
     assert (
         str(exc_info.value)
-        # pylint: disable=line-too-long
         == "Received unexpected field 'invalidField' with value 'invalid_value' from Google Drive API"
     )
 
@@ -299,7 +317,9 @@ def test_parent_property(simple_file: File, directory: Directory, drive: Drive) 
     assert directory.all_known_children == []
 
     with patch.object(
-        Drive, "get_directory_by_id", wraps=drive.get_directory_by_id
+        Drive,
+        "get_directory_by_id",
+        wraps=drive.get_directory_by_id,
     ) as mock_get_directory_by_id:
         assert simple_file.parent == directory
 
@@ -319,7 +339,6 @@ def test_parent_property(simple_file: File, directory: Directory, drive: Drive) 
 
 
 def test_gt(file: File, drive: Drive) -> None:
-    # pylint: disable=comparison-of-constants,comparison-with-itself
     """Test that the `>` behaves as expected."""
 
     assert "Archive Log" > "128GB SD Card - Old MacBook.zip"
@@ -329,7 +348,6 @@ def test_gt(file: File, drive: Drive) -> None:
 
 
 def test_lt(file: File, drive: Drive) -> None:
-    # pylint: disable=comparison-of-constants,comparison-with-itself
     """Test that the `<` behaves as expected."""
 
     assert "128GB SD Card - Old MacBook.zip" < "Archive Log"

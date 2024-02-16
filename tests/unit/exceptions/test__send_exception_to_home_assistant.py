@@ -39,7 +39,7 @@ def _send_fake_exception_to_home_assistant(
     expected_exc = None
     try:
         raise_func(*raise_args)
-    except Exception as exc:  # pylint: disable=broad-except
+    except Exception as exc:
         expected_exc = exc
 
     if exception_type != RequestsConnectionError:
@@ -63,7 +63,8 @@ def _send_fake_exception_to_home_assistant(
 
 
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_url_is_correct(
     exception_type: type[Exception],
@@ -80,17 +81,20 @@ def test_url_is_correct(
     mock_requests_root.post(f"http://{HA_LOG_ENDPOINT}/log/error", status_code=200)
 
     _send_fake_exception_to_home_assistant(
-        exception_type, raise_func, raise_args, mock_requests_root
+        exception_type,
+        raise_func,
+        raise_args,
+        mock_requests_root,
     )
 
     assert (
-        mock_requests_root.request_history[0].url
-        == f"http://{HA_LOG_ENDPOINT}/log/error"
+        mock_requests_root.request_history[0].url == f"http://{HA_LOG_ENDPOINT}/log/error"
     )
 
 
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_https_url_is_used_on_error(
     exception_type: type[Exception],
@@ -110,12 +114,14 @@ def test_https_url_is_used_on_error(
     )
 
     _send_fake_exception_to_home_assistant(
-        exception_type, raise_func, raise_args, mock_requests_root
+        exception_type,
+        raise_func,
+        raise_args,
+        mock_requests_root,
     )
 
     assert (
-        mock_requests_root.request_history[0].url
-        == f"http://{HA_LOG_ENDPOINT}/log/error"
+        mock_requests_root.request_history[0].url == f"http://{HA_LOG_ENDPOINT}/log/error"
     )
     assert (
         mock_requests_root.request_history[1].url
@@ -124,7 +130,8 @@ def test_https_url_is_used_on_error(
 
 
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_payload_is_correctly_formed(
     exception_type: type[Exception],
@@ -137,14 +144,18 @@ def test_payload_is_correctly_formed(
     mock_requests_root.post(f"http://{HA_LOG_ENDPOINT}/log/error", status_code=200)
 
     expected_payload = _send_fake_exception_to_home_assistant(
-        exception_type, raise_func, raise_args, mock_requests_root
+        exception_type,
+        raise_func,
+        raise_args,
+        mock_requests_root,
     )
 
     assert mock_requests_root.request_history[0].json() == expected_payload
 
 
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_send_failure_raises_exception(
     exception_type: type[Exception],
@@ -162,7 +173,10 @@ def test_send_failure_raises_exception(
 
     with pytest.raises(HTTPError) as exc_info:
         _send_fake_exception_to_home_assistant(
-            exception_type, raise_func, raise_args, mock_requests_root
+            exception_type,
+            raise_func,
+            raise_args,
+            mock_requests_root,
         )
 
     assert (
@@ -172,7 +186,8 @@ def test_send_failure_raises_exception(
 
 
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_unexpected_connection_error_exception_is_raised(
     exception_type: type[Exception],
@@ -191,7 +206,10 @@ def test_unexpected_connection_error_exception_is_raised(
 
     with pytest.raises(RequestsConnectionError) as exc_info:
         _send_fake_exception_to_home_assistant(
-            exception_type, raise_func, raise_args, mock_requests_root
+            exception_type,
+            raise_func,
+            raise_args,
+            mock_requests_root,
         )
 
     assert exc_info.value is unexpected_exc

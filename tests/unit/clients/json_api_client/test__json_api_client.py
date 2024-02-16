@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.clients.json_api_client.JsonApiClient`."""
 
 from __future__ import annotations
@@ -138,7 +137,8 @@ def test_request_method_sends_correct_request(
 
 
 def test_request_raises_exception_for_non_200_response(
-    json_api_client: JsonApiClient[dict[str, Any]], mock_requests: Mocker
+    json_api_client: JsonApiClient[dict[str, Any]],
+    mock_requests: Mocker,
 ) -> None:
     """Test that the `_request`` method raises an exception for non-200 responses."""
 
@@ -174,7 +174,8 @@ def test_request_raises_exception_for_non_200_response(
 
 
 def test_request_validate_request_success_false(
-    json_api_client: JsonApiClient[dict[str, Any]], mock_requests: Mocker
+    json_api_client: JsonApiClient[dict[str, Any]],
+    mock_requests: Mocker,
 ) -> None:
     """Test that the `_request`` method raises an exception for non-200 responses."""
 
@@ -195,7 +196,8 @@ def test_request_validate_request_success_false(
 
 
 def test_request_json_response(
-    json_api_client: JsonApiClient[dict[str, Any]], mock_requests: Mocker
+    json_api_client: JsonApiClient[dict[str, Any]],
+    mock_requests: Mocker,
 ) -> None:
     """Test that the request method returns a JSON response."""
 
@@ -230,7 +232,8 @@ def test_request_json_response(
 
 
 def test_request_json_response_defaults_to_empty_dict_for_no_content(
-    json_api_client: JsonApiClient[dict[str, Any]], mock_requests: Mocker
+    json_api_client: JsonApiClient[dict[str, Any]],
+    mock_requests: Mocker,
 ) -> None:
     """Test that the request method returns an empty dict for no content."""
 
@@ -249,7 +252,8 @@ def test_request_json_response_defaults_to_empty_dict_for_no_content(
 
 
 def test_request_json_response_defaults_to_empty_dict_with_json_decode_error(
-    json_api_client: JsonApiClient[dict[str, Any]], mock_requests: Mocker
+    json_api_client: JsonApiClient[dict[str, Any]],
+    mock_requests: Mocker,
 ) -> None:
     """Test that the request method returns an empty dict for JSON decode errors."""
 
@@ -269,7 +273,8 @@ def test_request_json_response_defaults_to_empty_dict_with_json_decode_error(
 
 
 def test_request_json_response_raises_exception_with_invalid_json(
-    json_api_client: JsonApiClient[dict[str, Any]], mock_requests: Mocker
+    json_api_client: JsonApiClient[dict[str, Any]],
+    mock_requests: Mocker,
 ) -> None:
     """Test that the request method returns an empty dict for JSON decode errors."""
 
@@ -295,7 +300,8 @@ def test_get_json_response_calls_request_json_response(
     """Test the `get_json_response` method calls `_request_json_response` correctly."""
 
     with patch.object(
-        json_api_client, "_request_json_response"
+        json_api_client,
+        "_request_json_response",
     ) as mock_request_json_response:
         json_api_client.get_json_response(
             "/test_endpoint",
@@ -322,7 +328,8 @@ def test_post_json_response_calls_request_json_response(
     """Test the `post_json_response` method calls `_request_json_response` correctly."""
 
     with patch.object(
-        json_api_client, "_request_json_response"
+        json_api_client,
+        "_request_json_response",
     ) as mock_request_json_response:
         json_api_client.post_json_response(
             "/test_endpoint",

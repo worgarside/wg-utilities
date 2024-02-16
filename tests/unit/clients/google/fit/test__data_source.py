@@ -16,7 +16,6 @@ def test_instantiation(google_fit_client: GoogleFitClient) -> None:
     """Test that the `DataSource` class can be instantiated."""
 
     data_source = DataSource(
-        # pylint: disable=line-too-long
         data_source_id="derived:com.google.step_count.delta:com.google.android.gms:estimated_steps",
         google_client=google_fit_client,
     )
@@ -41,7 +40,7 @@ def test_description_property(data_source: DataSource) -> None:
         description = data_source.description
 
     mock_get_json_response.assert_called_once_with(
-        f"/users/me/dataSources/{data_source.data_source_id}"
+        f"/users/me/dataSources/{data_source.data_source_id}",
     )
 
     assert description == {
@@ -100,7 +99,6 @@ def test_sum_data_points_in_range(
         )
 
     mock_get_items.assert_called_once_with(
-        # pylint: disable=line-too-long
         "/users/me/dataSources/derived:com.google.step_count.delta:com.google.android.gms:estimated_steps/datasets/"
         + expected_url_range,
         list_key="point",
@@ -120,7 +118,7 @@ def test_data_type_field_format_property(data_source: DataSource) -> None:
         data_type_field_format = data_source.data_type_field_format
 
     mock_get_json_response.assert_called_once_with(
-        f"/users/me/dataSources/{data_source.data_source_id}"
+        f"/users/me/dataSources/{data_source.data_source_id}",
     )
 
     assert data_type_field_format == "integer"
@@ -152,5 +150,5 @@ def test_test_data_type_field_format_property_invalid_description(
             _ = data_source.data_type_field_format
 
     mock_get_json_response.assert_called_once_with(
-        f"/users/me/dataSources/{data_source.data_source_id}"
+        f"/users/me/dataSources/{data_source.data_source_id}",
     )

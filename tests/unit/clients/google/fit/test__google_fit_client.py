@@ -31,7 +31,8 @@ def test_get_data_source(google_fit_client: GoogleFitClient) -> None:
     assert google_fit_client.data_sources == {}
 
     with patch(
-        "wg_utilities.clients.google_fit.DataSource", wraps=DataSource
+        "wg_utilities.clients.google_fit.DataSource",
+        wraps=DataSource,
     ) as mock_data_source:
         data_source = google_fit_client.get_data_source(data_source_id=expected_id)
 

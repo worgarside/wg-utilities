@@ -11,7 +11,9 @@ from wg_utilities.functions.json import InvalidJsonObjectError, JSONVal
 
 
 def target_proc_func(  # pragma: no cover
-    value: JSONVal, dict_key: str | None = None, list_index: int | None = None
+    value: JSONVal,
+    dict_key: str | None = None,
+    list_index: int | None = None,
 ) -> JSONVal:
     """Dummy function for processing items."""
     _ = dict_key, list_index
@@ -21,10 +23,8 @@ def target_proc_func(  # pragma: no cover
 def test_dict() -> None:
     """Test that a dictionary is processed correctly."""
 
-    with patch(
-        "wg_utilities.functions.json.traverse_dict"
-    ) as mock_traverse_dict, patch(
-        "wg_utilities.functions.json.process_list"
+    with patch("wg_utilities.functions.json.traverse_dict") as mock_traverse_dict, patch(
+        "wg_utilities.functions.json.process_list",
     ) as mock_process_list:
         process_json_object(
             {"key": "value"},
@@ -49,10 +49,8 @@ def test_dict() -> None:
 def test_list() -> None:
     """Test that a list is processed correctly."""
 
-    with patch(
-        "wg_utilities.functions.json.traverse_dict"
-    ) as mock_traverse_dict, patch(
-        "wg_utilities.functions.json.process_list"
+    with patch("wg_utilities.functions.json.traverse_dict") as mock_traverse_dict, patch(
+        "wg_utilities.functions.json.process_list",
     ) as mock_process_list:
         process_json_object(
             ["value"],
@@ -88,6 +86,5 @@ def test_invalid_type() -> None:
         )
 
     assert (
-        exc_info.value.args[0]
-        == "Input object must be a dict or list, not <class 'int'>"
+        exc_info.value.args[0] == "Input object must be a dict or list, not <class 'int'>"
     )

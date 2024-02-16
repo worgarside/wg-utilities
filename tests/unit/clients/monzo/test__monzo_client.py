@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.clients.monzo.MonzoClient`."""
 from __future__ import annotations
 
@@ -42,12 +41,14 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     assert client.access_token_endpoint == "https://api.monzo.com/oauth2/token"
     assert client.log_requests is False
     assert client.creds_cache_path == user_data_dir(
-        file_name=f"oauth_credentials/MonzoClient/{client.client_id}.json"
+        file_name=f"oauth_credentials/MonzoClient/{client.client_id}.json",
     )
 
 
 def test_deposit_into_pot_makes_correct_request(
-    monzo_client: MonzoClient, monzo_pot: Pot, mock_requests: Mocker
+    monzo_client: MonzoClient,
+    monzo_pot: Pot,
+    mock_requests: Mocker,
 ) -> None:
     """Test that the `deposit_into_pot` method makes the correct request."""
 
@@ -66,12 +67,14 @@ def test_deposit_into_pot_makes_correct_request(
             "source_account_id": "acc_0000000000000000000000",
             "amount": 100,
             "dedupe_id": "pot_0000000000000000000014|100|1577836800",
-        }
+        },
     )
 
 
 def test_deposit_into_pot_raises_error_on_failure(
-    monzo_client: MonzoClient, monzo_pot: Pot, mock_requests: Mocker
+    monzo_client: MonzoClient,
+    monzo_pot: Pot,
+    mock_requests: Mocker,
 ) -> None:
     """Test that the `deposit_into_pot` method raises an error on failure."""
 
@@ -118,13 +121,14 @@ def test_list_accounts_method(
 
     for acc in expected_accounts:
         acc["created"] = datetime.fromisoformat(  # type: ignore[typeddict-item]
-            acc["created"].rstrip("Z")
+            acc["created"].rstrip("Z"),
         ).replace(tzinfo=timezone.utc)
 
     assert [
         acc.model_dump(exclude_none=True)
         for acc in monzo_client.list_accounts(
-            include_closed=include_closed, account_type=account_type
+            include_closed=include_closed,
+            account_type=account_type,
         )
     ] == expected_accounts
 
@@ -133,7 +137,7 @@ def test_list_accounts_method(
             "url": f"https://api.monzo.com/accounts?account_type={account_type}",
             "method": "GET",
             "headers": {"Authorization": f"Bearer {live_jwt_token}"},
-        }
+        },
     ]
 
     assert_mock_requests_request_history(
@@ -143,7 +147,8 @@ def test_list_accounts_method(
     assert all(
         acc.type == account_type
         for acc in monzo_client.list_accounts(
-            include_closed=include_closed, account_type=account_type
+            include_closed=include_closed,
+            account_type=account_type,
         )
     )
 
@@ -156,7 +161,8 @@ def test_list_accounts_method(
         assert all(
             acc.closed is False
             for acc in monzo_client.list_accounts(
-                include_closed=include_closed, account_type=account_type
+                include_closed=include_closed,
+                account_type=account_type,
             )
         )
 
@@ -170,7 +176,8 @@ def test_list_pots_method(
     all_pots = [
         Pot(**pot_json)
         for pot_json in read_json_file(
-            "current_account_id=acc_0000000000000000000000.json", host_name="monzo/pots"
+            "current_account_id=acc_0000000000000000000000.json",
+            host_name="monzo/pots",
         )["pots"]
     ]
 
@@ -185,7 +192,7 @@ def test_list_pots_method(
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
-        {"current_account_id": "acc_0000000000000000000000"}
+        {"current_account_id": "acc_0000000000000000000000"},
     )
 
 
@@ -202,7 +209,7 @@ def test_get_pot_by_id_method(
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
-        {"current_account_id": "acc_0000000000000000000000"}
+        {"current_account_id": "acc_0000000000000000000000"},
     )
 
     assert monzo_client.get_pot_by_id("invalid_id") is None
@@ -222,7 +229,7 @@ def test_get_pot_by_name_exact_match_true(
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
-        {"current_account_id": "acc_0000000000000000000000"}
+        {"current_account_id": "acc_0000000000000000000000"},
     )
 
     assert monzo_client.get_pot_by_name("!!!Ibiza-Mad-One!!!", exact_match=True) is None
@@ -248,12 +255,13 @@ def test_get_pot_by_name_exact_match_false(
     assert mock_requests.request_history[
         -1
     ].url == "https://api.monzo.com/pots?" + urlencode(
-        {"current_account_id": "acc_0000000000000000000000"}
+        {"current_account_id": "acc_0000000000000000000000"},
     )
 
 
 def test_current_account_property(
-    monzo_client: MonzoClient, monzo_account: Account
+    monzo_client: MonzoClient,
+    monzo_account: Account,
 ) -> None:
     """Test that the `current_account` property returns the expected value."""
 
@@ -270,14 +278,16 @@ def test_transaction_json_annotations_vs_transaction_fields() -> None:
         assert ak in Transaction.model_fields
 
         if str(annotation := Transaction.model_fields[ak].annotation).startswith(
-            "<class"
+            "<class",
         ):
             tx_field_type = annotation.__name__  # type: ignore[union-attr]
         else:
             tx_field_type = str(annotation)
 
         if tx_field_type == "Literal":  # pragma: no cover
-            tx_field_type = f"Literal{list(Transaction.model_fields[ak].annotation.__args__)!r}"  # type: ignore[union-attr]
+            tx_field_type = (
+                f"Literal{list(Transaction.model_fields[ak].annotation.__args__)!r}"  # type: ignore[union-attr]
+            )
 
         tx_field_type = tx_field_type.replace("typing.", "").replace("NoneType", "None")
 

@@ -27,7 +27,7 @@ LOGGER.setLevel(DEBUG)
 BACKOFF_MAX_TRIES = int(getenv("WAREHOUSE_HANDLER_BACKOFF_MAX_TRIES", "0"))
 BACKOFF_TIMEOUT = int(getenv("WAREHOUSE_HANDLER_BACKOFF_TIMEOUT", "0"))
 
-LOG_QUEUE: Queue[LogRecord | None] = Queue()  # pylint: disable=unsubscriptable-object
+LOG_QUEUE: Queue[LogRecord | None] = Queue()
 
 
 class WarehouseHandler(BaseWarehouseHandler):
@@ -78,7 +78,8 @@ class WarehouseHandler(BaseWarehouseHandler):
         """Create a new warehouse or validate an existing one."""
         try:
             schema: WarehouseSchema = self.get_json_response(  # type: ignore[assignment]
-                self.WAREHOUSE_ENDPOINT, timeout=5
+                self.WAREHOUSE_ENDPOINT,
+                timeout=5,
             )
         except HTTPError as exc:
             if (
@@ -86,10 +87,12 @@ class WarehouseHandler(BaseWarehouseHandler):
                 and exc.response.status_code == HTTPStatus.NOT_FOUND
             ):
                 schema = self.post_json_response(  # type: ignore[assignment]
-                    "/warehouses", json=self._WAREHOUSE_SCHEMA, timeout=5
+                    "/warehouses",
+                    json=self._WAREHOUSE_SCHEMA,
+                    timeout=5,
                 )
                 LOGGER.info("Created new Warehouse: %r", schema)
-        except Exception:  # pylint: disable=broad-except
+        except Exception:
             LOGGER.exception("Error creating Warehouse")
         else:
             LOGGER.info(
@@ -112,7 +115,7 @@ class WarehouseHandler(BaseWarehouseHandler):
                             if v != schema_types.get(k)
                         },
                         default=str,
-                    )
+                    ),
                 )
 
     @backoff(
@@ -153,7 +156,7 @@ class _QueueHandler(QueueHandler):
 
     def __init__(
         self,
-        queue: Queue[LogRecord | None],  # pylint: disable=unsubscriptable-object
+        queue: Queue[LogRecord | None],
         warehouse_handler: WarehouseHandler,
     ) -> None:
         super().__init__(queue)
@@ -194,23 +197,20 @@ def add_warehouse_handler(
     if disable_queue:
         for handler in logger.handlers:
             if isinstance(
-                handler, WarehouseHandler
+                handler,
+                WarehouseHandler,
             ) and handler.base_url == WarehouseHandler.get_base_url(
-                warehouse_host, warehouse_port
+                warehouse_host,
+                warehouse_port,
             ):
-                LOGGER.warning(
-                    "WarehouseHandler already exists for %s", handler.base_url
-                )
+                LOGGER.warning("WarehouseHandler already exists for %s", handler.base_url)
                 return handler
 
         logger.addHandler(wh_handler)
         return wh_handler
 
     for handler in logger.handlers:
-        if (
-            isinstance(handler, _QueueHandler)
-            and handler.warehouse_handler == wh_handler
-        ):
+        if isinstance(handler, _QueueHandler) and handler.warehouse_handler == wh_handler:
             LOGGER.warning(
                 "WarehouseHandler already exists for %s",
                 handler.warehouse_handler.base_url,

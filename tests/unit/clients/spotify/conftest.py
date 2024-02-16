@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Fixtures for the Spotify client tests."""
 from __future__ import annotations
 
@@ -39,7 +38,8 @@ def snapshot_id_request(playlist_id: str, jwt: str) -> dict[str, str | dict[str,
 
 
 def spotify_create_playlist_callback(
-    request: _RequestObjectProxy, _: _Context
+    request: _RequestObjectProxy,
+    _: _Context,
 ) -> JSONObj:
     """Provide fake responses for mock requests to create a new playlist.
 
@@ -118,7 +118,7 @@ def spotify_entity_(
             "id": "0gxyHStUsqpMadRV0Di1Qt",
             "uri": "spotify:artist:0gxyHStUsqpMadRV0Di1Qt",
             "external_urls": {
-                "spotify": "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt"
+                "spotify": "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt",
             },
         },
         spotify_client=spotify_client,
@@ -182,27 +182,23 @@ def spotify_user_(spotify_client: SpotifyClient) -> User:
 def mock_requests_(mock_requests_root: Mocker) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
 
-    for path_object in (
-        spotify_dir := FLAT_FILES_DIR / "json" / "spotify" / "v1"
-    ).rglob("*"):
+    for path_object in (spotify_dir := FLAT_FILES_DIR / "json" / "spotify" / "v1").rglob(
+        "*",
+    ):
         if path_object.is_dir():
             mock_requests_root.get(
-                SpotifyClient.BASE_URL
-                + "/"
-                + str(path_object.relative_to(spotify_dir)),
+                SpotifyClient.BASE_URL + "/" + str(path_object.relative_to(spotify_dir)),
                 json=get_flat_file_from_url,
             )
 
     for pattern in (
         # Matches `https://api.spotify.com/v1/<entity_type>s/<entity_id>`
         compile_regex(
-            # pylint: disable=line-too-long
             r"^https:\/\/api\.spotify\.com\/v1\/(playlists|tracks|albums|artists|audio\-features|users)\/([a-z0-9]{4,22})$",
             flags=IGNORECASE,
         ),
         # Matches `https://api.spotify.com/v1/artists/<entity_id>/albums`
         compile_regex(
-            # pylint: disable=line-too-long
             r"^https:\/\/api\.spotify\.com\/v1\/artists/([a-z0-9]{22})/albums(\?limit=50)?$",
             flags=IGNORECASE,
         ),

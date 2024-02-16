@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.clients.spotify.Playlist`."""
 
 from __future__ import annotations
@@ -30,7 +29,8 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
     playlist_json = read_json_file("spotify/v1/playlists/37i9dqzf1e8pj76jxe3egf.json")
 
     playlist = Playlist.from_json_response(
-        playlist_json, spotify_client=spotify_client  # type: ignore[arg-type]
+        playlist_json,  # type: ignore[arg-type]
+        spotify_client=spotify_client,
     )
 
     assert isinstance(playlist, Playlist)
@@ -38,7 +38,9 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
 
 
 def test_owner_property(
-    spotify_playlist: Playlist, spotify_user: User, spotify_client: SpotifyClient
+    spotify_playlist: Playlist,
+    spotify_user: User,
+    spotify_client: SpotifyClient,
 ) -> None:
     """Test that the `owner` property returns the correct value."""
 
@@ -70,7 +72,6 @@ def test_tracks_property(
 
     expected_requests = [
         {
-            # pylint: disable=line-too-long
             "url": f"{SpotifyClient.BASE_URL}/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks?offset={(i+1)*50}&limit=50",
             "method": "GET",
             "headers": {"Authorization": f"Bearer {live_jwt_token}"},
@@ -80,7 +81,6 @@ def test_tracks_property(
     expected_requests.insert(
         0,
         {
-            # pylint: disable=line-too-long
             "url": f"{SpotifyClient.BASE_URL}/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks?limit=50",
             "method": "GET",
             "headers": {"Authorization": f"Bearer {live_jwt_token}"},
@@ -88,7 +88,8 @@ def test_tracks_property(
     )
 
     assert_mock_requests_request_history(
-        mock_requests.request_history, expected_requests  # type: ignore[arg-type]
+        mock_requests.request_history,
+        expected_requests,  # type: ignore[arg-type]
     )
 
     # Check subsequent calls to property don't make additional requests
@@ -121,7 +122,7 @@ def test_contains_method(
     """Test that `track in playlist` statements work as expected."""
     track = Track.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            f"spotify/v1/tracks/{track_response_filename}"
+            f"spotify/v1/tracks/{track_response_filename}",
         ),
         spotify_client=spotify_client,
     )
@@ -135,25 +136,24 @@ def test_contains_method(
 
 
 def test_gt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) -> None:
-    # pylint: disable=comparison-with-itself
     """Test that `playlist > playlist` statements work as expected."""
     spotify_owned_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/v1/playlists/37i9dqzf1e8pj76jxe3egf.json"
+            "spotify/v1/playlists/37i9dqzf1e8pj76jxe3egf.json",
         ),
         spotify_client=spotify_client,
     )
 
     my_other_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/v1/playlists/4vv023mazsc8ntwz4wjvil.json"
+            "spotify/v1/playlists/4vv023mazsc8ntwz4wjvil.json",
         ),
         spotify_client=spotify_client,
     )
 
     another_third_party_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/v1/playlists/2wsnkxlm217jpznkagyzph.json"
+            "spotify/v1/playlists/2wsnkxlm217jpznkagyzph.json",
         ),
         spotify_client=spotify_client,
     )
@@ -186,25 +186,24 @@ def test_iter_method(spotify_playlist: Playlist) -> None:
 
 
 def test_lt_method(spotify_playlist: Playlist, spotify_client: SpotifyClient) -> None:
-    # pylint: disable=comparison-with-itself
     """Test that `playlist < playlist` statements work as expected."""
     spotify_owned_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/v1/playlists/37i9dqzf1e8pj76jxe3egf.json"
+            "spotify/v1/playlists/37i9dqzf1e8pj76jxe3egf.json",
         ),
         spotify_client=spotify_client,
     )
 
     my_other_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/v1/playlists/4vv023mazsc8ntwz4wjvil.json"
+            "spotify/v1/playlists/4vv023mazsc8ntwz4wjvil.json",
         ),
         spotify_client=spotify_client,
     )
 
     another_third_party_playlist = Playlist.from_json_response(
         read_json_file(  # type: ignore[arg-type]
-            "spotify/v1/playlists/2wsnkxlm217jpznkagyzph.json"
+            "spotify/v1/playlists/2wsnkxlm217jpznkagyzph.json",
         ),
         spotify_client=spotify_client,
     )
@@ -254,13 +253,14 @@ def test_live_snapshot_id(
 
 
 def test_tracks_property_updates_snapshot_id(
-    spotify_playlist_alt: Playlist, mock_requests: Mocker, live_jwt_token: str
+    spotify_playlist_alt: Playlist,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that the `Playlist.tracks` property updates the snapshot ID correctly."""
 
     track_requests: list[dict[str, str | dict[str, str]]] = [
         {
-            # pylint: disable=line-too-long
             "url": f"{SpotifyClient.BASE_URL}/playlists/{spotify_playlist_alt.id}/tracks?limit=50",
             "method": "GET",
             "headers": {"Authorization": f"Bearer {live_jwt_token}"},
@@ -270,13 +270,12 @@ def test_tracks_property_updates_snapshot_id(
     track_requests.extend(
         [
             {
-                # pylint: disable=line-too-long
                 "url": f"{SpotifyClient.BASE_URL}/playlists/{spotify_playlist_alt.id}/tracks?offset={(i+1)*50}&limit=50",  # noqa: E501
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             }
             for i in range(7)
-        ]
+        ],
     )
 
     assert spotify_playlist_alt.snapshot_id == SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID

@@ -43,7 +43,7 @@ def get_nsmap(
     prefix: str
     url: str
     for prefix, url in root.xpath(  # type: ignore[misc,assignment,union-attr]
-        "//namespace::*"
+        "//namespace::*",
     ):
         if url in processed_urls:
             continue

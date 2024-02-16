@@ -21,7 +21,6 @@ from wg_utilities.functions.json import JSONObj
 def test_instantiation() -> None:
     """Test that the class can be instantiated."""
     current_track = CurrentTrack(
-        # pylint: disable=line-too-long
         album_art_uri="https://i.scdn.co/image/ab67616d0000b273dc30583ba717007b00cceb25",
         media_album_name="Abbey Road",
         media_artist="The Beatles",
@@ -45,7 +44,6 @@ def test_json_property() -> None:
     """Test that `json` property returns the expected values."""
 
     current_track = CurrentTrack(
-        # pylint: disable=line-too-long
         album_art_uri="https://i.scdn.co/image/ab67616d0000b273dc30583ba717007b00cceb25",
         media_album_name="Abbey Road",
         media_artist="The Beatles",
@@ -54,7 +52,6 @@ def test_json_property() -> None:
     )
 
     assert current_track.json == {
-        # pylint: disable=line-too-long
         "album_art_uri": "https://i.scdn.co/image/ab67616d0000b273dc30583ba717007b00cceb25",
         "media_album_name": "Abbey Road",
         "media_artist": "The Beatles",
@@ -67,7 +64,6 @@ def test_json_property() -> None:
     ("media_info_dict", "json_values"),
     yamaha_yas_209_get_media_info_responses(
         other_test_parameters={
-            # pylint: disable=line-too-long
             "aura_avoure_spotify.json": {
                 "album_art_uri": "https://i.scdn.co/image/ab67616d0000b2735889215746f6e9de26b85d60",
                 "media_album_name": "U",
@@ -89,7 +85,7 @@ def test_json_property() -> None:
                 "media_duration": 0,
                 "media_title": None,
             },
-        }
+        },
     ),
 )
 def test_from_get_media_info(
@@ -99,7 +95,7 @@ def test_from_get_media_info(
     """Test that `from_get_media_info` returns the expected values."""
 
     current_track = CurrentTrack.from_get_media_info(
-        GetMediaInfoResponse.model_validate(media_info_dict)
+        GetMediaInfoResponse.model_validate(media_info_dict),
     )
 
     assert current_track.json == json_values
@@ -109,7 +105,6 @@ def test_from_get_media_info(
     ("last_change_dict", "json_values"),
     yamaha_yas_209_last_change_av_transport_events(
         other_test_parameters={
-            # pylint: disable=line-too-long
             "payload_20220913163159429624.json": {
                 "album_art_uri": "https://i.scdn.co/image/ab67616d0000b2737bf7d3c5b31ebe3c7a885a9f",
                 "media_album_name": "GANG",
@@ -250,7 +245,7 @@ def test_from_get_media_info(
                 "media_duration": (6 * 60) + 40,
                 "media_title": "What They Say",
             },
-        }
+        },
     ),
 )
 def test_from_last_change_av_transport(
@@ -274,13 +269,12 @@ def test_str() -> None:
     assert (
         str(
             CurrentTrack(
-                # pylint: disable=line-too-long
                 album_art_uri="https://i.scdn.co/image/ab67616d0000b273f56d363d03630bf3ee50b705",
                 media_album_name="Clara (the night is dark)",
                 media_artist="Fred again..",
                 media_duration=278,
                 media_title="Clara (the night is dark)",
-            )
+            ),
         )
         == "'Clara (the night is dark)' by Fred again.."
     )
@@ -293,7 +287,7 @@ def test_str() -> None:
                 media_artist=None,
                 media_duration=0,
                 media_title=None,
-            )
+            ),
         )
         == "NULL"
     )
@@ -304,13 +298,12 @@ def test_repr() -> None:
     assert (
         repr(
             CurrentTrack(
-                # pylint: disable=line-too-long
                 album_art_uri="https://i.scdn.co/image/ab67616d0000b273f56d363d03630bf3ee50b705",
                 media_album_name="Clara (the night is dark)",
                 media_artist="Fred again..",
                 media_duration=278,
                 media_title="Clara (the night is dark)",
-            )
+            ),
         )
         == "CurrentTrack(\"'Clara (the night is dark)' by Fred again..\")"
     )
@@ -323,7 +316,7 @@ def test_repr() -> None:
                 media_artist=None,
                 media_duration=0,
                 media_title=None,
-            )
+            ),
         )
         == "CurrentTrack('NULL')"
     )
@@ -333,7 +326,6 @@ def test_eq() -> None:
     """Test that `__eq__` returns the expected values."""
 
     clara = CurrentTrack(
-        # pylint: disable=line-too-long
         album_art_uri="https://i.scdn.co/image/ab67616d0000b273f56d363d03630bf3ee50b705",
         media_album_name="Clara (the night is dark)",
         media_artist="Fred again..",
@@ -350,7 +342,6 @@ def test_eq() -> None:
     )
 
     assert clara == CurrentTrack(
-        # pylint: disable=line-too-long
         album_art_uri="https://i.scdn.co/image/ab67616d0000b273f56d363d03630bf3ee50b705",
         media_album_name="Clara (the night is dark)",
         media_artist="Fred again..",
@@ -373,5 +364,5 @@ def test_eq() -> None:
     assert null_track != clara
 
     assert clara != "wrong type"
-    # pylint: disable=unnecessary-dunder-call
+
     assert clara.__eq__("wrong type") is NotImplemented

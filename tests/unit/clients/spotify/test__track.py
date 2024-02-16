@@ -14,7 +14,6 @@ from wg_utilities.clients.spotify import Album, Artist, SpotifyClient, Track
 
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:
-    # pylint: disable=line-too-long
     """Test instantiation of the Track class."""
     track = Track.from_json_response(
         {
@@ -23,18 +22,18 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
                 "artists": [
                     {
                         "external_urls": {
-                            "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+                            "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q",
                         },
                         "href": f"{SpotifyClient.BASE_URL}/artists/37YzpfBeFju8QRZ3g0Ha1Q",
                         "id": "37YzpfBeFju8QRZ3g0Ha1Q",
                         "name": "DJ Seinfeld",
                         "type": "artist",
                         "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q",
-                    }
+                    },
                 ],
                 "available_markets": [],
                 "external_urls": {
-                    "spotify": "https://open.spotify.com/album/7FvnTARvgjUyWnUT0flUN7"
+                    "spotify": "https://open.spotify.com/album/7FvnTARvgjUyWnUT0flUN7",
                 },
                 "href": f"{SpotifyClient.BASE_URL}/albums/7FvnTARvgjUyWnUT0flUN7",
                 "id": "7FvnTARvgjUyWnUT0flUN7",
@@ -65,14 +64,14 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
             "artists": [
                 {
                     "external_urls": {
-                        "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q"
+                        "spotify": "https://open.spotify.com/artist/37YzpfBeFju8QRZ3g0Ha1Q",
                     },
                     "href": f"{SpotifyClient.BASE_URL}/artists/37YzpfBeFju8QRZ3g0Ha1Q",
                     "id": "37YzpfBeFju8QRZ3g0Ha1Q",
                     "name": "DJ Seinfeld",
                     "type": "artist",
                     "uri": "spotify:artist:37YzpfBeFju8QRZ3g0Ha1Q",
-                }
+                },
             ],
             "available_markets": [],
             "disc_number": 1,
@@ -80,14 +79,14 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
             "explicit": False,
             "external_ids": {"isrc": "GBCFB2100390"},
             "external_urls": {
-                "spotify": "https://open.spotify.com/track/27cgqh0VRhVeM61ugTnorD"
+                "spotify": "https://open.spotify.com/track/27cgqh0VRhVeM61ugTnorD",
             },
             "href": f"{SpotifyClient.BASE_URL}/tracks/27cgqh0VRhVeM61ugTnorD",
             "id": "27cgqh0VRhVeM61ugTnorD",
             "is_local": False,
             "name": "These Things Will Come To Be",
             "popularity": 56,
-            "preview_url": "https://p.scdn.co/mp3-preview/6e7e31ce91fa7523d807ef6aee98d93e4fe4c8ba?cid=230c2ac940f14f9aa4294af862300e9b",  # pylint: disable=line-too-long
+            "preview_url": "https://p.scdn.co/mp3-preview/6e7e31ce91fa7523d807ef6aee98d93e4fe4c8ba?cid=230c2ac940f14f9aa4294af862300e9b",
             "track_number": 6,
             "type": "track",
             "uri": "spotify:track:27cgqh0VRhVeM61ugTnorD",
@@ -128,7 +127,9 @@ def test_artists_property(spotify_track: Track) -> None:
 
 
 def test_audio_features_property(
-    spotify_track: Track, mock_requests: Mocker, live_jwt_token: str
+    spotify_track: Track,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that the `audio_features` property makes the correct request."""
 
@@ -148,7 +149,6 @@ def test_audio_features_property(
         "id": "27cgqh0VRhVeM61ugTnorD",
         "uri": "spotify:track:27cgqh0VRhVeM61ugTnorD",
         "track_href": f"{SpotifyClient.BASE_URL}/tracks/27cgqh0VRhVeM61ugTnorD",
-        # pylint: disable=line-too-long
         "analysis_url": f"{SpotifyClient.BASE_URL}/audio-analysis/27cgqh0VRhVeM61ugTnorD",
         "duration_ms": 296360,
         "time_signature": 4,
@@ -161,14 +161,13 @@ def test_audio_features_property(
         mock_requests.request_history,
         [
             {
-                # pylint: disable=line-too-long
                 "url": f"{SpotifyClient.BASE_URL}/audio-features/27cgqh0VRhVeM61ugTnorD",
                 "method": "GET",
                 "headers": {
                     "Authorization": f"Bearer {live_jwt_token}",
                     "Content-Type": "application/json",
                 },
-            }
+            },
         ],
     )
 
@@ -181,7 +180,8 @@ def test_audio_features_property(
 
 
 def test_audio_features_not_found(
-    spotify_client: SpotifyClient, mock_requests: Mocker
+    spotify_client: SpotifyClient,
+    mock_requests: Mocker,
 ) -> None:
     """Test that when a track doesn't have audio features, no exceptions are raised."""
 

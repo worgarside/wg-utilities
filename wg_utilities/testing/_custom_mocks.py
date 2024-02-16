@@ -10,10 +10,7 @@ from botocore.client import BaseClient
 
 from wg_utilities.functions import traverse_dict
 
-# pylint: disable=protected-access
-ORIG_API_CALL: Callable[
-    ..., dict[str, str]
-] = BaseClient._make_api_call  # type: ignore[attr-defined]
+ORIG_API_CALL: Callable[..., dict[str, str]] = BaseClient._make_api_call  # type: ignore[attr-defined]
 
 
 class MockBoto3Client:
@@ -35,7 +32,7 @@ class MockBoto3Client:
         >>>         MockBoto3Client.PATCH_METHOD,
         >>>         mock_boto3_client.build_api_call(),
         >>>     ):
-        >>>         # Do something that calls the mocked operation
+        >>> # Do something that calls the mocked operation
         >>>         assert mock_boto3_client.boto3_calls == {
         >>>             "operation_name": [{"kwarg": "value"}],
         >>>         }
@@ -81,7 +78,9 @@ class MockBoto3Client:
             self.reset_boto3_calls()
 
         def api_call(
-            client: BaseClient, operation_name: str, kwargs: dict[str, Any]
+            client: BaseClient,
+            operation_name: str,
+            kwargs: dict[str, Any],
         ) -> object:
             """Inner function of this mock, which is the actual mock function itself.
 
@@ -134,7 +133,7 @@ class MockBoto3Client:
             except KeyError as exc:  # pragma: no cover
                 if str(exc) == "'DEFAULT'":
                     raise NotImplementedError(
-                        f"Operation `{operation_name}` not supported by moto yet"
+                        f"Operation `{operation_name}` not supported by moto yet",
                     ) from exc
                 raise
 

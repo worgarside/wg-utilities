@@ -198,7 +198,8 @@ class BaseWarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPag
         Handler.__init__(self, level=level)
 
         JsonApiClient.__init__(
-            self, base_url=self.get_base_url(warehouse_host, warehouse_port)
+            self,
+            base_url=self.get_base_url(warehouse_host, warehouse_port),
         )
 
     def emit(self, _: LogRecord) -> None:  # noqa: D102
@@ -270,7 +271,7 @@ class BaseWarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPag
             log_payload["exception_message"] = str(record.exc_info[1])
             log_payload["exception_type"] = record.exc_info[0].__name__
             log_payload["exception_traceback"] = "".join(
-                format_exception(record.exc_info[1])
+                format_exception(record.exc_info[1]),
             )
 
         return log_payload

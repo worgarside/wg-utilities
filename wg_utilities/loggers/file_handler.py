@@ -16,7 +16,10 @@ FORMATTER.converter = gmtime
 
 
 def create_file_handler(
-    logfile_path: Path, level: int = DEBUG, *, create_directory: bool = True
+    logfile_path: Path,
+    level: int = DEBUG,
+    *,
+    create_directory: bool = True,
 ) -> FileHandler:
     """Create a file handler for use in other loggers.
 
@@ -61,7 +64,9 @@ def add_file_handler(
     """
 
     f_handler = create_file_handler(
-        logfile_path=logfile_path, level=level, create_directory=create_directory
+        logfile_path=logfile_path,
+        level=level,
+        create_directory=create_directory,
     )
 
     logger.addHandler(f_handler)
