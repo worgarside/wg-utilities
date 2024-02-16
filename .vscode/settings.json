@@ -2,13 +2,9 @@
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
   "python.envFile": "${workspaceFolder}/.env",
-  "python.linting.pylintEnabled": true,
   "python.terminal.activateEnvInCurrentTerminal": true,
   "python.analysis.typeCheckingMode": "off",
   "python.analysis.autoImportCompletions": true,
-  "python.formatting.provider": "black",
-  "python.formatting.blackPath": "black",
-  "python.linting.mypyEnabled": false,
   "python.analysis.diagnosticSeverityOverrides": {
     "reportUnusedFunction": "none"
   },
