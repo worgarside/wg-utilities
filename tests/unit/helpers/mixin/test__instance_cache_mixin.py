@@ -43,8 +43,8 @@ def test_class_attributes_are_set(kwargs: dict[str, str | None]) -> None:
     class MyClass(InstanceCacheMixin, **kwargs):
         __test__ = False
 
-    assert isinstance(MyClass._INSTANCES, dict)
-    assert {} == MyClass._INSTANCES
+    assert isinstance(getattr(MyClass, "_INSTANCES"), dict)  # noqa: B009
+    assert {} == getattr(MyClass, "_INSTANCES")  # noqa: B009
 
     assert kwargs.get("cache_id_attr") == getattr(MyClass, "_CACHE_ID_ATTR", None)
 
