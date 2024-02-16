@@ -43,8 +43,8 @@ def test_class_attributes_are_set(kwargs: dict[str, str | None]) -> None:
     class MyClass(InstanceCacheMixin, **kwargs):
         __test__ = False
 
-    assert isinstance(MyClass._INSTANCES, dict)  # type: ignore[misc]
-    assert {} == MyClass._INSTANCES  # type: ignore[misc]
+    assert isinstance(MyClass._INSTANCES, dict)
+    assert {} == MyClass._INSTANCES
 
     assert kwargs.get("cache_id_attr") == getattr(MyClass, "_CACHE_ID_ATTR", None)
 
@@ -105,7 +105,10 @@ def test_cache_retrieval(TestCacheableClass: type[InstanceCacheMixin]) -> None:
     assert instance_1 is not TestCacheableClass.from_cache("two")
     assert instance_2 is not TestCacheableClass.from_cache("one")
 
-    with pytest.raises(InstanceCacheIdError, match="Unable to process cache ID: `three`"):
+    with pytest.raises(
+        InstanceCacheIdError,
+        match="No matching 'TestCacheableClass' instance for cache ID: `three`",
+    ):
         TestCacheableClass.from_cache("three")
 
 
