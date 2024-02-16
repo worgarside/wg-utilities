@@ -30,7 +30,7 @@ THE SOFTWARE.
 """
 from __future__ import annotations
 
-# pylint: disable=missing-function-docstring,missing-class-docstring,no-member
+
 from logging import debug
 
 from PIL.Image import Image

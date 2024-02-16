@@ -253,14 +253,14 @@ def test_media_type_property(
     """Test the media_type property."""
 
     media_item_json = read_json_file(
-        # pylint: disable=line-too-long
         ":search/pagesize=100&albumid=aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json",
         host_name="google/photos/v1/mediaitems",
     )["mediaItems"][0]
     media_item_json["mimeType"] = mime_type
 
     media_item = MediaItem.from_json_response(
-        media_item_json, google_client=google_photos_client
+        media_item_json,
+        google_client=google_photos_client,
     )
 
     assert media_item.media_type == expected_media_type

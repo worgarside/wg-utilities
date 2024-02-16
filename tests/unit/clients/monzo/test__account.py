@@ -56,7 +56,9 @@ def test_instantiation(monzo_client: MonzoClient) -> None:
 
 
 def test_list_transactions(
-    monzo_account: Account, mock_requests: Mocker, live_jwt_token: str
+    monzo_account: Account,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that the `list_transactions` method returns a list of transactions."""
 
@@ -79,20 +81,20 @@ def test_list_transactions(
                             - timedelta(days=89)
                         ).isoformat()
                         + "Z",
-                        # pylint: disable=line-too-long
                         "before": frozen_datetime.time_to_freeze.isoformat() + "Z",  # type: ignore[union-attr]
                         "limit": 100,
-                    }
+                    },
                 ),
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
-            }
+            },
         ],
     )
 
 
 def test_list_transactions_with_limit(
-    monzo_account: Account, mock_requests: Mocker
+    monzo_account: Account,
+    mock_requests: Mocker,
 ) -> None:
     """Test `list_transactions` with a limit parameter."""
 
@@ -121,16 +123,19 @@ def test_list_transactions_with_limit(
                 .replace(microsecond=0)
                 .isoformat()
                 + "Z",
-                # pylint: disable=line-too-long
-                "before": frozen_datetime.time_to_freeze.replace(microsecond=0).isoformat() + "Z",  # type: ignore[union-attr]
+                "before": frozen_datetime.time_to_freeze.replace(  # type: ignore[union-attr]
+                    microsecond=0,
+                ).isoformat()
+                + "Z",
                 "limit": 20,
-            }
+            },
         )
     )
 
 
 def test_list_transactions_with_time_parameters(
-    monzo_account: Account, mock_requests: Mocker
+    monzo_account: Account,
+    mock_requests: Mocker,
 ) -> None:
     """Test `list_transactions` with to and from parameters.."""
 
@@ -156,14 +161,12 @@ def test_list_transactions_with_time_parameters(
                 "since": datetime(2022, 4, 20).isoformat() + "Z",
                 "before": datetime(2022, 11, 15).isoformat() + "Z",
                 "limit": 100,
-            }
+            },
         )
     )
 
 
-def test_update_balance_variables(
-    monzo_account: Account, mock_requests: Mocker
-) -> None:
+def test_update_balance_variables(monzo_account: Account, mock_requests: Mocker) -> None:
     """Test that the balance variables are updated correctly."""
 
     assert monzo_account.last_balance_update == datetime(1970, 1, 1)
@@ -185,58 +188,54 @@ def test_update_balance_variables(
     assert mock_requests.request_history[
         0
     ].url == f"{monzo_account.monzo_client.base_url}/balance?" + urlencode(
-        {"account_id": monzo_account.id}
+        {"account_id": monzo_account.id},
     )
     assert mock_requests.request_history[0].method == "GET"
 
 
 def test_balance_property(
-    monzo_account: Account, caplog: pytest.LogCaptureFixture
+    monzo_account: Account,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the `balance` property returns the correct value."""
 
     assert monzo_account.balance == 177009
-    assert (
-        "Balance variable update threshold crossed, getting new values" in caplog.text
-    )
+    assert "Balance variable update threshold crossed, getting new values" in caplog.text
 
 
 def test_balance_including_flexible_savings_property(
-    monzo_account: Account, caplog: pytest.LogCaptureFixture
+    monzo_account: Account,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `balance_including_flexible_savings` property."""
 
     assert monzo_account.balance_including_flexible_savings == 41472
-    assert (
-        "Balance variable update threshold crossed, getting new values" in caplog.text
-    )
+    assert "Balance variable update threshold crossed, getting new values" in caplog.text
 
 
 def test_spend_today_property(
-    monzo_account: Account, caplog: pytest.LogCaptureFixture
+    monzo_account: Account,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the `spend_today` property returns the correct value."""
 
     assert monzo_account.spend_today == -12
-    assert (
-        "Balance variable update threshold crossed, getting new values" in caplog.text
-    )
+    assert "Balance variable update threshold crossed, getting new values" in caplog.text
 
 
 def test_total_balance_property(
-    monzo_account: Account, caplog: pytest.LogCaptureFixture
+    monzo_account: Account,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the `total_balance` property returns the correct value."""
 
     assert monzo_account.total_balance == 41472
-    assert (
-        "Balance variable update threshold crossed, getting new values" in caplog.text
-    )
+    assert "Balance variable update threshold crossed, getting new values" in caplog.text
 
 
 def test_eq(monzo_account: Account, monzo_client: MonzoClient) -> None:
     """Test the equality operator."""
-    assert monzo_account == monzo_account  # pylint: disable=comparison-with-itself
+    assert monzo_account == monzo_account
     assert monzo_account != Account.from_json_response(
         read_json_file("account_type=uk_retail_joint.json", host_name="monzo/accounts")[
             "accounts"

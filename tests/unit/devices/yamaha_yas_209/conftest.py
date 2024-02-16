@@ -74,7 +74,7 @@ def fix_colon_keys(json_obj: JSONObj | SpotifyEntityJson) -> JSONObj:
 
 
 def yamaha_yas_209_get_media_info_responses(
-    other_test_parameters: dict[str, CurrentTrack.Info]
+    other_test_parameters: dict[str, CurrentTrack.Info],
 ) -> YieldFixture[tuple[JSONObj | SpotifyEntityJson, CurrentTrack.Info | None]]:
     """Yield values for testing against GetMediaInfo responses.
 
@@ -89,7 +89,7 @@ def yamaha_yas_209_get_media_info_responses(
 
 
 def yamaha_yas_209_last_change_av_transport_events(
-    other_test_parameters: dict[str, CurrentTrack.Info] | None = None
+    other_test_parameters: dict[str, CurrentTrack.Info] | None = None,
 ) -> YieldFixture[tuple[JSONObj, CurrentTrack.Info | None] | JSONObj]:
     """Yield values for testing against AVTransport payloads.
 
@@ -107,13 +107,13 @@ def yamaha_yas_209_last_change_av_transport_events(
             / "json"
             / "yamaha_yas_209"
             / "event_payloads"
-            / "av_transport"
-        )
+            / "av_transport",
+        ),
     ):
         json_obj = cast(
             JSONObj,
             fix_colon_keys(
-                read_json_file(f"yamaha_yas_209/event_payloads/av_transport/{file}")
+                read_json_file(f"yamaha_yas_209/event_payloads/av_transport/{file}"),
             )["last_change"],
         )
 
@@ -142,15 +142,13 @@ def yamaha_yas_209_last_change_rendering_control_events() -> YieldFixture[JSONOb
             / "json"
             / "yamaha_yas_209"
             / "event_payloads"
-            / "rendering_control"
-        )
+            / "rendering_control",
+        ),
     ):
         json_obj = cast(
             JSONObj,
             fix_colon_keys(
-                read_json_file(
-                    f"yamaha_yas_209/event_payloads/rendering_control/{file}"
-                )
+                read_json_file(f"yamaha_yas_209/event_payloads/rendering_control/{file}"),
             )["last_change"],
         )
 
@@ -206,7 +204,6 @@ def upnp_service_av_transport_() -> UpnpService:
             service_type="urn:schemas-upnp-org:service:AVTransport:1",
             xml=ElementTree.fromstring(
                 dedent(
-                    # pylint: disable=line-too-long
                     """
                         <ns0:service xmlns:ns0="urn:schemas-upnp-org:device-1-0">
                             <ns0:serviceType>urn:schemas-upnp-org:service:AVTransport:1
@@ -216,8 +213,8 @@ def upnp_service_av_transport_() -> UpnpService:
                             <ns0:controlURL>/upnp/control/rendertransport1</ns0:controlURL>
                             <ns0:eventSubURL>/upnp/event/rendertransport1</ns0:eventSubURL>
                         </ns0:service>
-                    """
-                ).strip()
+                    """,
+                ).strip(),
             ),
         ),
         state_variables=[],
@@ -247,8 +244,8 @@ def upnp_service_rendering_control_() -> UpnpService:
                 <ns0:controlURL>/upnp/control/rendercontrol1</ns0:controlURL>
                 <ns0:eventSubURL>/upnp/event/rendercontrol1</ns0:eventSubURL>
             </ns0:service>
-                    """
-                ).strip()
+                    """,
+                ).strip(),
             ),
         ),
         state_variables=[],
@@ -272,14 +269,13 @@ def upnp_state_variable_(request: pytest.FixtureRequest) -> UpnpStateVariable[st
                 xml=(
                     last_change_xml := ElementTree.fromstring(
                         dedent(
-                            # pylint: disable=line-too-long
                             """
                                 <ns0:stateVariable xmlns:ns0="urn:schemas-upnp-org:service-1-0" sendEvents="yes">
                                     <ns0:name>LastChange</ns0:name>
                                     <ns0:dataType>string</ns0:dataType>
                                 </ns0:stateVariable>
-                            """
-                        ).strip()
+                            """,
+                        ).strip(),
                     )
                 ),
             ),
@@ -310,7 +306,7 @@ def yamaha_yas_209_() -> YieldFixture[YamahaYas209]:
 
     yield yas_209
 
-    yas_209._logging = False  # pylint: disable=protected-access
+    yas_209._logging = False
 
     if yas_209.is_listening:  # pragma: no cover
         yas_209.stop_listening()

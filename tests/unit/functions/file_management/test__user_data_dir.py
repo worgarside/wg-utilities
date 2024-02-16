@@ -55,7 +55,9 @@ def test_correct_value_returned_per_system(platform: str, expected: str) -> None
     ],
 )
 def test_project_name_processed_correctly(
-    platform: str, project_name: str, expected: str
+    platform: str,
+    project_name: str,
+    expected: str,
 ) -> None:
     """Test that the value passed in `project_name` is added to the path."""
 
@@ -89,7 +91,9 @@ def test_project_name_processed_correctly(
     ],
 )
 def test_file_name_processed_correctly(
-    platform: str, file_name: str, expected: Path
+    platform: str,
+    file_name: str,
+    expected: Path,
 ) -> None:
     """Test that the value passed in `project_name` is added to the path."""
 

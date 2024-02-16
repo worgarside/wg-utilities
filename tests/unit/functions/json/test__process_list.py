@@ -24,7 +24,6 @@ def test_empty_list_doesnt_raise_exception() -> None:
         pass_on_fail=False,
     )
 
-    # pylint: disable=use-implicit-booleaness-not-comparison
     assert in_list == []
 
 
@@ -120,7 +119,7 @@ def test_varying_inputs_processed_as_expected(
             "exception_type",
             "exception_message",
             "expected",
-        ]
+        ],
     ),
     [
         (
@@ -179,7 +178,7 @@ def test_exceptions_are_raised_correctly(
             "target_processor_func",
             "exception_indexes",
             "expected",
-        ]
+        ],
     ),
     [
         (
@@ -283,7 +282,8 @@ def test_exceptions_are_logged_correctly(
     ],
 )
 def test_nested_lists_are_processed_correctly(
-    in_list: list[JSONVal], expected: list[JSONVal]
+    in_list: list[JSONVal],
+    expected: list[JSONVal],
 ) -> None:
     """Test that nested lists are processed correctly."""
 
@@ -378,7 +378,9 @@ def test_nested_lists_are_processed_correctly(
 )
 @patch("wg_utilities.functions.json.traverse_dict")
 def test_nested_dicts_are_passed_to_traverse_dict(
-    mock_traverse_dict: MagicMock, in_list: list[JSONVal], call_args_list: list[_Call]
+    mock_traverse_dict: MagicMock,
+    in_list: list[JSONVal],
+    call_args_list: list[_Call],
 ) -> None:
     """Test that nested dicts are passed to traverse_dict."""
 

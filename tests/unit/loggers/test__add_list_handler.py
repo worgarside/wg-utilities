@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit Tests for the `add_list_handler` function."""
 from __future__ import annotations
 
@@ -9,7 +8,6 @@ from logging import (
     FATAL,
     INFO,
     NOTSET,
-    WARN,
     WARNING,
     Logger,
     LogRecord,
@@ -43,7 +41,6 @@ def test_handler_is_applied_to_logger_correctly(logger: Logger) -> None:
         FATAL,
         ERROR,
         WARNING,
-        WARN,
         INFO,
         DEBUG,
         NOTSET,
@@ -63,7 +60,8 @@ def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
 
 
 def test_log_list_can_be_passed_in_then_used_without_accessing_from_handler(
-    logger: Logger, sample_log_record_messages_with_level: list[tuple[int, str]]
+    logger: Logger,
+    sample_log_record_messages_with_level: list[tuple[int, str]],
 ) -> None:
     """Test the `log_list` parameter works as expected.
 

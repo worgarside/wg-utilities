@@ -55,7 +55,6 @@ class BaseModelWithConfig(BaseModel):
         round_trip: bool = False,
         warnings: bool = True,
     ) -> dict[str, Any]:
-        # pylint: disable=useless-parent-delegation
         """Create a dictionary representation of the model.
 
         Overrides the standard `BaseModel.dict` method, so we can always return the
@@ -95,7 +94,6 @@ class BaseModelWithConfig(BaseModel):
         round_trip: bool = False,
         warnings: bool = True,
     ) -> str:
-        # pylint: disable=useless-parent-delegation
         """Create a JSON string representation of the model.
 
         Overrides the standard `BaseModel.json` method, so we can always return the
@@ -194,7 +192,7 @@ class OAuthCredentials(BaseModelWithConfig):
                 if abs(expiry_epoch - expiry_time.timestamp()) > 60:  # noqa: PLR2004
                     raise ValueError(
                         "`expiry` and `expires_in` are not consistent with each other:"
-                        f" expiry: {expiry_time_str}, expires_in: {expiry_epoch}"
+                        f" expiry: {expiry_time_str}, expires_in: {expiry_epoch}",
                     ) from None
 
         value["expiry_epoch"] = expiry_epoch
@@ -202,7 +200,10 @@ class OAuthCredentials(BaseModelWithConfig):
         return cls(**value)
 
     def update_access_token(
-        self, new_token: str, expires_in: int, refresh_token: str | None = None
+        self,
+        new_token: str,
+        expires_in: int,
+        refresh_token: str | None = None,
     ) -> None:
         """Update the access token and expiry time.
 
@@ -337,7 +338,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         """
         try:
             self._credentials = OAuthCredentials.model_validate_json(
-                self.creds_cache_path.read_text()
+                self.creds_cache_path.read_text(),
             )
         except FileNotFoundError:
             return False
@@ -380,7 +381,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         )
 
         self.creds_cache_path.write_text(
-            self.credentials.model_dump_json(exclude_none=True)
+            self.credentials.model_dump_json(exclude_none=True),
         )
 
     def run_first_time_login(self) -> None:
@@ -398,7 +399,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         if self.use_existing_credentials_only:
             raise RuntimeError(
                 "No existing credentials found, and `use_existing_credentials_only` "
-                "is set to True"
+                "is set to True",
             )
 
         LOGGER.info("Performing first time login")
@@ -410,7 +411,6 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         if self.oauth_redirect_uri_override:
             redirect_uri = self.oauth_redirect_uri_override
         else:
-            # pylint: disable=line-too-long
             redirect_uri = f"http://{self.oauth_login_redirect_host}:{self.temp_auth_server.port}/get_auth_code"
 
         auth_link_params = {
@@ -431,7 +431,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
             if self.headless_auth_link_callback is None:
                 LOGGER.warning(
                     "Headless mode is enabled, but no headless auth link callback "
-                    "has been set. The auth link will not be opened."
+                    "has been set. The auth link will not be opened.",
                 )
                 LOGGER.debug("Auth link: %s", auth_link)
             else:
@@ -441,13 +441,14 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
             open_browser(auth_link)
 
         request_args = self.temp_auth_server.wait_for_request(
-            "/get_auth_code", kill_on_request=True
+            "/get_auth_code",
+            kill_on_request=True,
         )
 
         if state_token != request_args.get("state"):
             raise ValueError(
                 "State token received in request doesn't match expected value: "
-                f"`{request_args.get('state')}` != `{state_token}`"
+                f"`{request_args.get('state')}` != `{state_token}`",
             )
 
         payload_key = (
@@ -465,7 +466,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
                     "client_id": self._client_id,
                     "client_secret": self._client_secret,
                     "redirect_uri": redirect_uri,
-                }
+                },
             },
             # Stops recursive call to `self.request_headers`
             header_overrides=(
@@ -569,7 +570,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         self._credentials = value
 
         self.creds_cache_path.write_text(
-            dumps(self._credentials.model_dump(exclude_none=True))
+            dumps(self._credentials.model_dump(exclude_none=True)),
         )
 
     @property
@@ -588,7 +589,7 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
 
         if not self._creds_rel_file_path:
             raise ValueError(
-                "Unable to get client ID to generate path for credentials cache file."
+                "Unable to get client ID to generate path for credentials cache file.",
             )
 
         return force_mkdir(

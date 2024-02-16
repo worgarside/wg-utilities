@@ -35,7 +35,7 @@ def test_flush_and_stop() -> None:
     listener = FlushableQueueListener(log_queue, NullHandler())
 
     with patch(
-        "wg_utilities.loggers.item_warehouse.flushable_queue_listener.sleep"
+        "wg_utilities.loggers.item_warehouse.flushable_queue_listener.sleep",
     ) as mock_sleep, patch.object(listener, "stop") as mock_stop:
         listener.flush_and_stop()
 

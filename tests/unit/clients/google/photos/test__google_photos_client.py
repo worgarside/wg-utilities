@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.clients.google_photos.GooglePhotosClient`."""
 from __future__ import annotations
 
@@ -113,8 +112,7 @@ def test_get_album_by_name_bad_name(
         google_photos_client.get_album_by_name(album_name="Naughty Pics of My Cat")
 
     assert (
-        str(exc_info.value)
-        == "Unable to find album with name 'Naughty Pics of My Cat'."
+        str(exc_info.value) == "Unable to find album with name 'Naughty Pics of My Cat'."
     )
 
 
@@ -169,5 +167,5 @@ def test_albums_property_some_known_albums(
     # Extra test to ensure it isn't a dumb appendment of all albums onto pre-cached
     # albums (i.e. no duplicates)
     assert len([album.id for album in google_photos_client._albums]) == len(
-        {album.id for album in google_photos_client._albums}
+        {album.id for album in google_photos_client._albums},
     )

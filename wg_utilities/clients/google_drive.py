@@ -1,4 +1,3 @@
-# pylint: disable=too-many-lines
 """Custom client for interacting with Google's Drive API."""
 from __future__ import annotations
 
@@ -106,9 +105,7 @@ class _Permission(BaseModelWithConfig):
     display_name: str | None = Field(None, alias="displayName")
     photo_link: str | None = Field(None, alias="photoLink")
     expiration_time: datetime | None = Field(None, alias="expirationTime")
-    permission_details: _PermissionDetails | None = Field(
-        None, alias="permissionDetails"
-    )
+    permission_details: _PermissionDetails | None = Field(None, alias="permissionDetails")
     deleted: bool | None = None
     pending_owner: bool | None = Field(None, alias="pendingOwner")
 
@@ -263,7 +260,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
         if not isinstance(directory, Directory):
             raise TypeError(
                 f"Cannot add `{directory.__class__.__name__}` instance to "
-                "`self.directories`."
+                "`self.directories`.",
             )
 
         if not isinstance(self._directories, list):
@@ -272,7 +269,6 @@ class _CanHaveChildren(_GoogleDriveEntity):
             self._directories.append(directory)
 
         if isinstance(self, Drive):
-            # pylint: disable=access-member-before-definition,attribute-defined-outside-init
             if not isinstance(self._all_directories, list):
                 self._all_directories = [directory]
             elif directory not in self._all_directories:
@@ -288,13 +284,13 @@ class _CanHaveChildren(_GoogleDriveEntity):
             TypeError: if the file is not a File
         """
 
-        if type(file) is not File:  # pylint: disable=unidiomatic-typecheck
+        if type(file) is not File:
             # This isn't an `isinstance` check because we don't want to allow
             # subclasses of `File` to be added to the list. Yes, according to the
             # Liskov substitution principle, you should be able to process a Directory
             # as a File, but that would be illogical here.
             raise TypeError(
-                f"Cannot add `{file.__class__.__name__}` instance to `self.files`."
+                f"Cannot add `{file.__class__.__name__}` instance to `self.files`.",
             )
 
         if not isinstance(self._files, list):
@@ -303,7 +299,6 @@ class _CanHaveChildren(_GoogleDriveEntity):
             self._files.append(file)
 
         if isinstance(self, Drive):
-            # pylint: disable=access-member-before-definition,attribute-defined-outside-init
             if not isinstance(self._all_files, list):
                 self._all_files = [file]
             elif file not in self._all_files:
@@ -319,11 +314,10 @@ class _CanHaveChildren(_GoogleDriveEntity):
         else:
             raise TypeError(
                 f"Cannot add `{child.__class__.__name__}` instance to {self.name}'s "
-                "children."
+                "children.",
             )
 
     def navigate(self, path: str) -> _CanHaveChildren | File:  # noqa: PLR0911
-        # pylint: disable=too-many-return-statements
         """Navigate to a directory within this directory.
 
         Args:
@@ -353,7 +347,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
                 return self.navigate("/".join(rest))
             case ["..", *rest]:  # ../<potential>/<values>
                 return self.parent.navigate(  # type: ignore[attr-defined,no-any-return]
-                    "/".join(rest)
+                    "/".join(rest),
                 )
             case ["~", *rest]:  # ~/<potential>/<values>
                 return self.host_drive.navigate("/".join(rest))
@@ -364,7 +358,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
                 if drive_name != self.host_drive.name:
                     raise ValueError(
                         f"Cannot navigate to Drive {drive_name!r} from "
-                        f"`{self.host_drive.name}`."
+                        f"`{self.host_drive.name}`.",
                     )
 
                 return self.host_drive.navigate("/".join(rest))
@@ -444,7 +438,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
 
         if not local_only:
             self.host_drive.map(
-                map_type=EntityType.FILE if include_files else EntityType.DIRECTORY
+                map_type=EntityType.FILE if include_files else EntityType.DIRECTORY,
             )
 
         output = self.name
@@ -569,7 +563,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
                             "fields": f"nextPageToken, files({file_fields})",
                         },
                     )
-                ]
+                ],
             )
 
             self._directories_loaded = True
@@ -625,10 +619,12 @@ class File(_GoogleDriveEntity):
     capabilities: _DriveCapabilities | None = None
     content_hints: _ContentHints | None = Field(None, alias="contentHints")
     content_restrictions: list[_ContentRestriction] | None = Field(
-        None, alias="contentRestrictions"
+        None,
+        alias="contentRestrictions",
     )
     copy_requires_writer_permission: bool | None = Field(
-        None, alias="copyRequiresWriterPermission"
+        None,
+        alias="copyRequiresWriterPermission",
     )
     created_time: datetime | None = Field(None, alias="createdTime")
     description: str | None = None
@@ -638,22 +634,23 @@ class File(_GoogleDriveEntity):
     folder_color_rgb: str | None = Field(None, alias="folderColorRgb")
     file_extension: str | None = Field(None, alias="fileExtension")
     full_file_extension: str | None = Field(None, alias="fullFileExtension")
-    has_augmented_permissions: bool | None = Field(
-        None, alias="hasAugmentedPermissions"
-    )
+    has_augmented_permissions: bool | None = Field(None, alias="hasAugmentedPermissions")
     has_thumbnail: bool | None = Field(None, alias="hasThumbnail")
     head_revision_id: str | None = Field(None, alias="headRevisionId")
     icon_link: str | None = Field(None, alias="iconLink")
     image_media_metadata: _ImageMediaMetadata | None = Field(
-        None, alias="imageMediaMetadata"
+        None,
+        alias="imageMediaMetadata",
     )
     is_app_authorized: bool | None = Field(None, alias="isAppAuthorized")
     label_info: dict[Literal["labels"], list[_Label]] = Field(
-        alias="labelInfo", default_factory=dict
+        alias="labelInfo",
+        default_factory=dict,
     )
     last_modifying_user: _User | None = Field(None, alias="lastModifyingUser")
     link_share_metadata: dict[
-        Literal["securityUpdateEligible", "securityUpdateEnabled"], bool
+        Literal["securityUpdateEligible", "securityUpdateEnabled"],
+        bool,
     ] = Field(alias="linkShareMetadata", default_factory=dict)
     md5_checksum: str | None = Field(None, alias="md5Checksum")
     modified_by_me: bool | None = Field(None, alias="modifiedByMe")
@@ -691,7 +688,8 @@ class File(_GoogleDriveEntity):
     trashing_user: _User | None = Field(None, alias="trashingUser")
     version: int | None = None
     video_media_metadata: _VideoMediaMetadata | None = Field(
-        None, alias="videoMediaMetadata"
+        None,
+        alias="videoMediaMetadata",
     )
     viewed_by_me: bool | None = Field(None, alias="viewedByMe")
     viewed_by_me_time: datetime | None = Field(None, alias="viewedByMeTime")
@@ -761,7 +759,9 @@ class File(_GoogleDriveEntity):
     @field_validator("parent_")
     @classmethod
     def _validate_parent_instance(
-        cls, value: Directory | Drive | None, info: ValidationInfo
+        cls,
+        value: Directory | Drive | None,
+        info: ValidationInfo,
     ) -> Directory | Drive | None:
         """Validate that the parent instance's ID matches the expected parent ID.
 
@@ -782,7 +782,7 @@ class File(_GoogleDriveEntity):
 
         if value.id != info.data["parents"][0]:
             raise ValueError(
-                f"Parent ID mismatch: {value.id} != {info.data['parents'][0]}"
+                f"Parent ID mismatch: {value.id} != {info.data['parents'][0]}",
             )
 
         return value
@@ -820,7 +820,7 @@ class File(_GoogleDriveEntity):
                 except ValueError as exc:
                     raise ValueError(
                         f"Received unexpected field {key!r} with value {value!r}"
-                        " from Google Drive API"
+                        " from Google Drive API",
                     ) from exc
 
         return self._description
@@ -858,13 +858,14 @@ class File(_GoogleDriveEntity):
 class Directory(File, _CanHaveChildren):
     """A Google Drive directory - basically a File with extended functionality."""
 
-    MIME_TYPE: ClassVar[Literal["application/vnd.google-apps.folder"]] = (
-        "application/vnd.google-apps.folder"
-    )
+    MIME_TYPE: ClassVar[
+        Literal["application/vnd.google-apps.folder"]
+    ] = "application/vnd.google-apps.folder"
 
     kind: Literal[EntityKind.DIRECTORY] = Field(default=EntityKind.DIRECTORY)
     mime_type: Literal["application/vnd.google-apps.folder"] = Field(
-        alias="mimeType", default=MIME_TYPE
+        alias="mimeType",
+        default=MIME_TYPE,
     )
 
     host_drive_: Drive = Field(exclude=True)
@@ -896,29 +897,37 @@ class _DriveCapabilities(BaseModelWithConfig):
     can_accept_ownership: bool | None = Field(None, alias="canAcceptOwnership")
     can_add_children: bool | None = Field(None, alias="canAddChildren")
     can_add_folder_from_another_drive: bool | None = Field(
-        None, alias="canAddFolderFromAnotherDrive"
+        None,
+        alias="canAddFolderFromAnotherDrive",
     )
     can_add_my_drive_parent: bool | None = Field(None, alias="canAddMyDriveParent")
     can_change_copy_requires_writer_permission: bool | None = Field(
-        None, alias="canChangeCopyRequiresWriterPermission"
+        None,
+        alias="canChangeCopyRequiresWriterPermission",
     )
     can_change_copy_requires_writer_permission_restriction: bool | None = Field(
-        None, alias="canChangeCopyRequiresWriterPermissionRestriction"
+        None,
+        alias="canChangeCopyRequiresWriterPermissionRestriction",
     )
     can_change_domain_users_only_restriction: bool | None = Field(
-        None, alias="canChangeDomainUsersOnlyRestriction"
+        None,
+        alias="canChangeDomainUsersOnlyRestriction",
     )
     can_change_drive_background: bool | None = Field(
-        None, alias="canChangeDriveBackground"
+        None,
+        alias="canChangeDriveBackground",
     )
     can_change_drive_members_only_restriction: bool | None = Field(
-        None, alias="canChangeDriveMembersOnlyRestriction"
+        None,
+        alias="canChangeDriveMembersOnlyRestriction",
     )
     can_change_security_update_enabled: bool | None = Field(
-        None, alias="canChangeSecurityUpdateEnabled"
+        None,
+        alias="canChangeSecurityUpdateEnabled",
     )
     can_change_viewers_can_copy_content: bool | None = Field(
-        None, alias="canChangeViewersCanCopyContent"
+        None,
+        alias="canChangeViewersCanCopyContent",
     )
     can_comment: bool | None = Field(None, alias="canComment")
     can_copy: bool | None = Field(None, alias="canCopy")
@@ -931,33 +940,34 @@ class _DriveCapabilities(BaseModelWithConfig):
     can_manage_members: bool | None = Field(None, alias="canManageMembers")
     can_modify_content: bool | None = Field(None, alias="canModifyContent")
     can_modify_content_restriction: bool | None = Field(
-        None, alias="canModifyContentRestriction"
+        None,
+        alias="canModifyContentRestriction",
     )
     can_modify_labels: bool | None = Field(None, alias="canModifyLabels")
     can_move_children_out_of_drive: bool | None = Field(
-        None, alias="canMoveChildrenOutOfDrive"
+        None,
+        alias="canMoveChildrenOutOfDrive",
     )
     can_move_children_within_drive: bool | None = Field(
-        None, alias="canMoveChildrenWithinDrive"
+        None,
+        alias="canMoveChildrenWithinDrive",
     )
     can_move_item_into_team_drive: bool | None = Field(
-        None, alias="canMoveItemIntoTeamDrive"
+        None,
+        alias="canMoveItemIntoTeamDrive",
     )
     can_move_item_out_of_drive: bool | None = Field(None, alias="canMoveItemOutOfDrive")
-    can_move_item_within_drive: bool | None = Field(
-        None, alias="canMoveItemWithinDrive"
-    )
+    can_move_item_within_drive: bool | None = Field(None, alias="canMoveItemWithinDrive")
     can_read_labels: bool | None = Field(None, alias="canReadLabels")
     can_read_revisions: bool | None = Field(None, alias="canReadRevisions")
     can_read_drive: bool | None = Field(None, alias="canReadDrive")
     can_remove_children: bool | None = Field(None, alias="canRemoveChildren")
-    can_remove_my_drive_parent: bool | None = Field(
-        None, alias="canRemoveMyDriveParent"
-    )
+    can_remove_my_drive_parent: bool | None = Field(None, alias="canRemoveMyDriveParent")
     can_rename: bool | None = Field(None, alias="canRename")
     can_rename_drive: bool | None = Field(None, alias="canRenameDrive")
     can_reset_drive_restrictions: bool | None = Field(
-        None, alias="canResetDriveRestrictions"
+        None,
+        alias="canResetDriveRestrictions",
     )
     can_share: bool | None = Field(None, alias="canShare")
     can_trash: bool | None = Field(None, alias="canTrash")
@@ -987,18 +997,21 @@ class Drive(_CanHaveChildren):
 
     kind: Literal[EntityKind.DRIVE] = Field(default=EntityKind.DRIVE)
     mime_type: Literal["application/vnd.google-apps.folder"] = Field(
-        alias="mimeType", default=Directory.MIME_TYPE
+        alias="mimeType",
+        default=Directory.MIME_TYPE,
     )
 
     # Optional, can be retrieved with the `describe` method or by getting the attribute
     background_image_file: _DriveBackgroundImageFile | None = Field(
-        None, alias="backgroundImageFile"
+        None,
+        alias="backgroundImageFile",
     )
     background_image_link: str | None = Field(None, alias="backgroundImageLink")
     capabilities: _DriveCapabilities | None = None
     color_rgb: str | None = Field(None, alias="colorRgb")
     copy_requires_writer_permission: bool | None = Field(
-        None, alias="copyRequiresWriterPermission"
+        None,
+        alias="copyRequiresWriterPermission",
     )
     created_time: datetime | None = Field(None, alias="createdTime")
     explicitly_trashed: bool | None = Field(None, alias="explicitlyTrashed")
@@ -1009,7 +1022,8 @@ class Drive(_CanHaveChildren):
     is_app_authorized: bool | None = Field(None, alias="isAppAuthorized")
     last_modifying_user: _User | None = Field(None, alias="lastModifyingUser")
     link_share_metadata: dict[
-        Literal["securityUpdateEligible", "securityUpdateEnabled"], bool
+        Literal["securityUpdateEligible", "securityUpdateEnabled"],
+        bool,
     ] = Field(alias="linkShareMetadata", default_factory=dict)
     modified_by_me: bool | None = Field(None, alias="modifiedByMe")
     modified_by_me_time: datetime | None = Field(None, alias="modifiedByMeTime")
@@ -1053,7 +1067,9 @@ class Drive(_CanHaveChildren):
         return EntityKind.DRIVE
 
     def _get_entity_by_id(
-        self, cls: type[DriveSubEntity], entity_id: str
+        self,
+        cls: type[DriveSubEntity],
+        entity_id: str,
     ) -> DriveSubEntity:
         """Get either a Directory or File by its ID.
 
@@ -1434,7 +1450,8 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
         if not hasattr(self, "_my_drive"):
             self._my_drive = Drive.from_json_response(
                 self.get_json_response(
-                    "/files/root", params={"fields": "*", "pageSize": None}
+                    "/files/root",
+                    params={"fields": "*", "pageSize": None},
                 ),
                 google_client=self,
             )
@@ -1454,7 +1471,9 @@ class GoogleDriveClient(GoogleClient[JSONObj]):
                 google_client=self,
             )
             for drive in self.get_items(
-                "/drives", list_key="drives", params={"fields": "*"}
+                "/drives",
+                list_key="drives",
+                params={"fields": "*"},
             )
         ]
 

@@ -35,7 +35,7 @@ def process_exception(
     if default_return_value is not None and raise_after_processing:
         raise ValueError(
             "The `default_return_value` parameter can only be set when"
-            " `raise_after_processing` is False."
+            " `raise_after_processing` is False.",
         )
 
     def _decorator(func: Callable[[Any], Any]) -> Callable[[Any, Any], Any]:
@@ -56,7 +56,7 @@ def process_exception(
 
             try:
                 return func(*args, **kwargs)
-            except exceptions as exc:  # pylint: disable=broad-except
+            except exceptions as exc:
                 if logger is not None:
                     logger.exception(
                         "%s %s in %s.%s: %s",

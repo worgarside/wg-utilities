@@ -34,19 +34,21 @@ def _generate_single_key_dict(_depth: int = 0, max_depth: int = 5) -> JSONObj:
             "siblingKey": {
                 # This niblingKey should be removed, as it has no siblings
                 "niblingKey": _generate_single_key_dict(
-                    _depth=_depth + 1, max_depth=max_depth
+                    _depth=_depth + 1,
+                    max_depth=max_depth,
                 ),
             },
             "adjacentKey": {
                 # These keys should not be removed, as they have siblings
                 "niblingKey": _generate_single_key_dict(
-                    _depth=_depth + 1, max_depth=max_depth
+                    _depth=_depth + 1,
+                    max_depth=max_depth,
                 ),
                 "innerKey": "adjacentInnerValue",
             },
             "outerKey": {
                 # This innerKey should be removed, as it has no siblings
-                "innerKey": "innerValue"
+                "innerKey": "innerValue",
             },
         }
 
@@ -58,7 +60,7 @@ def _generate_single_key_dict(_depth: int = 0, max_depth: int = 5) -> JSONObj:
         },
         "outerKey": {
             # This innerKey should be removed, as it has no siblings
-            "innerKey": "innerValue"
+            "innerKey": "innerValue",
         },
     }
 
@@ -72,7 +74,6 @@ def test_empty_dict_doesnt_raise_exception() -> None:
         target_processor_func=lambda value, **_: value,
     )
 
-    # pylint: disable=use-implicit-booleaness-not-comparison
     assert in_dict == {}
 
 
@@ -154,7 +155,7 @@ def test_empty_dict_doesnt_raise_exception() -> None:
             loads(
                 dumps(random_nested_json())
                 .replace("true", '"EURT"')
-                .replace("false", '"ESLAF"')
+                .replace("false", '"ESLAF"'),
             ),
         ),
     ],
@@ -232,7 +233,7 @@ def test_traversing_dict_resursion_error() -> None:
             "exception_type",
             "exception_message",
             "expected",
-        ]
+        ],
     ),
     [
         (
@@ -315,7 +316,7 @@ def test_exceptions_are_raised_correctly(
             "target_processor_func",
             "exception_keys",
             "expected",
-        ]
+        ],
     ),
     [
         (
@@ -386,7 +387,7 @@ def test_exceptions_are_raised_correctly(
                     r": \"[a-z]{3}([a-z])[a-z]*\"",
                     r': "\1"',
                     dumps(random_nested_json()),
-                )
+                ),
             ),
         ),
     ],
@@ -445,9 +446,7 @@ def test_single_keys_are_removed_as_expected_one_key() -> None:
             elif _parent_key is not None and v is not None:
                 # Avoid the start/end cases for simplicity
                 assert (
-                    _parent_key == "niblingKey"
-                    and k == "outerKey"
-                    and v == "INNERVALUE"
+                    _parent_key == "niblingKey" and k == "outerKey" and v == "INNERVALUE"
                 ) or (
                     _parent_key == "adjacentKey"
                     and k == "innerKey"
@@ -549,7 +548,8 @@ def test_complex_object() -> None:
     )
 
     assert dumps(in_dict) == dumps(random_nested_json_with_arrays()).replace(
-        "true", '"YES"'
+        "true",
+        '"YES"',
     ).replace("false", '"NO"')
 
 
@@ -582,12 +582,11 @@ def test_that_new_dicts_are_handled_correctly() -> None:
     )
 
     assert dumps(in_dict) == dumps(
-        random_nested_json_with_arrays_and_stringified_json()
+        random_nested_json_with_arrays_and_stringified_json(),
     ).replace("true", '"YES"').replace("false", '"NO"').replace("\\", "").replace(
-        '"{', "{"
-    ).replace(
-        '}"', "}"
-    )
+        '"{',
+        "{",
+    ).replace('}"', "}")
 
 
 def test_single_keys_of_target_type_have_exceptions_logged(
@@ -725,7 +724,7 @@ def test_single_keys_of_target_type_have_exceptions_raised(
             loads(
                 dumps(random_nested_json())
                 .replace('"pretty": true', '"pretty": "EURT"')
-                .replace('"effort": true', '"effort": "EURT"')
+                .replace('"effort": true', '"effort": "EURT"'),
                 # False isn't in the dict for these keys
             ),
         ),

@@ -9,7 +9,6 @@ from logging import (
     FATAL,
     INFO,
     NOTSET,
-    WARN,
     WARNING,
     Formatter,
     Logger,
@@ -29,7 +28,6 @@ from wg_utilities.loggers.stream_handler import FORMATTER, add_stream_handler
         FATAL,
         ERROR,
         WARNING,
-        WARN,
         INFO,
         DEBUG,
         NOTSET,
@@ -55,13 +53,12 @@ def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
         FORMATTER,
         Formatter(fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s"),
         Formatter(
-            fmt="a stupid format really - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            fmt="a stupid format really - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         ),
     ],
 )
-def test_formatter_is_set_correctly(
-    formatter: Formatter | None, logger: Logger
-) -> None:
+def test_formatter_is_set_correctly(formatter: Formatter | None, logger: Logger) -> None:
     """Test that the formatter is set correctly."""
 
     add_stream_handler(logger, formatter=formatter)

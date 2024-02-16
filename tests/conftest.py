@@ -69,7 +69,6 @@ EXCEPTION_GENERATORS: list[
     (KeyError, lambda arg1: arg1["missing"], ({"key": "value"},)),
     (LookupError, lambda arg1: arg1["missing"], ({"key": "value"},)),
     (MissingSchema, get, ("completely invalid",)),
-    # pylint: disable=undefined-variable
     (NameError, lambda: dog, ()),  # type: ignore[name-defined]  # noqa: F821
     (TypeError, lambda arg1, arg2: arg1 + arg2, ("string", 10)),
     (UnicodeError, lambda arg1: arg1.encode("ascii"), ("\u2013",)),
@@ -114,8 +113,7 @@ def assert_mock_requests_request_history(
     for i, expected_values in enumerate(expected):
         assert request_history[i].method == expected_values["method"]
         assert (
-            request_history[i].url.lower()
-            == expected_values["url"].lower()  # type: ignore[union-attr]
+            request_history[i].url.lower() == expected_values["url"].lower()  # type: ignore[union-attr]
         )
         for k, v in expected_values["headers"].items():  # type: ignore[union-attr]
             assert request_history[i].headers[k] == v
@@ -126,62 +124,81 @@ def assert_mock_requests_request_history(
 
 @overload
 def read_json_file(  # type: ignore[overload-overlap]
-    rel_file_path: str, host_name: Literal["google/calendar"]
-) -> CalendarJson: ...
+    rel_file_path: str,
+    host_name: Literal["google/calendar"],
+) -> CalendarJson:
+    ...
 
 
 @overload
 def read_json_file(  # type: ignore[overload-overlap]
-    rel_file_path: str, host_name: Literal["google/photos/v1/albums"]
-) -> AlbumJson: ...
+    rel_file_path: str,
+    host_name: Literal["google/photos/v1/albums"],
+) -> AlbumJson:
+    ...
 
 
 @overload
 def read_json_file(  # type: ignore[overload-overlap]
-    rel_file_path: str, host_name: Literal["google/photos/v1/mediaitems"]
-) -> dict[Literal["mediaItems"], list[MediaItemJson]]: ...
+    rel_file_path: str,
+    host_name: Literal["google/photos/v1/mediaitems"],
+) -> dict[Literal["mediaItems"], list[MediaItemJson]]:
+    ...
 
 
 @overload
 def read_json_file(  # type: ignore[overload-overlap]
-    rel_file_path: str, host_name: Literal["monzo", "monzo/accounts"]
-) -> dict[Literal["accounts"], list[MonzoAccountJson]]: ...
+    rel_file_path: str,
+    host_name: Literal["monzo", "monzo/accounts"],
+) -> dict[Literal["accounts"], list[MonzoAccountJson]]:
+    ...
 
 
 @overload
 def read_json_file(  # type: ignore[overload-overlap]
-    rel_file_path: str, host_name: Literal["monzo/pots"]
-) -> dict[Literal["pots"], list[PotJson]]: ...
+    rel_file_path: str,
+    host_name: Literal["monzo/pots"],
+) -> dict[Literal["pots"], list[PotJson]]:
+    ...
 
 
 @overload
 def read_json_file(  # type: ignore[overload-overlap]
-    rel_file_path: str, host_name: Literal["monzo/transactions"]
-) -> dict[Literal["transactions"], list[TransactionJson]]: ...
+    rel_file_path: str,
+    host_name: Literal["monzo/transactions"],
+) -> dict[Literal["transactions"], list[TransactionJson]]:
+    ...
 
 
 @overload
 def read_json_file(  # type: ignore[overload-overlap]
-    rel_file_path: str, host_name: Literal["spotify"]
-) -> SpotifyEntityJson: ...
+    rel_file_path: str,
+    host_name: Literal["spotify"],
+) -> SpotifyEntityJson:
+    ...
 
 
 @overload
 def read_json_file(  # type: ignore[overload-overlap]
-    rel_file_path: str, host_name: Literal["truelayer"]
-) -> dict[Literal["results"], list[TrueLayerAccountJson | CardJson]]: ...
+    rel_file_path: str,
+    host_name: Literal["truelayer"],
+) -> dict[Literal["results"], list[TrueLayerAccountJson | CardJson]]:
+    ...
 
 
 @overload
-def read_json_file(rel_file_path: str, host_name: str | None) -> JSONObj: ...
+def read_json_file(rel_file_path: str, host_name: str | None) -> JSONObj:
+    ...
 
 
 @overload
-def read_json_file(rel_file_path: str) -> JSONObj: ...
+def read_json_file(rel_file_path: str) -> JSONObj:
+    ...
 
 
 def read_json_file(
-    rel_file_path: str, host_name: str | None = None
+    rel_file_path: str,
+    host_name: str | None = None,
 ) -> (
     JSONObj
     | SpotifyEntityJson
@@ -219,7 +236,8 @@ def read_json_file(
 
 
 def get_flat_file_from_url(
-    request: _RequestObjectProxy, context: _Context
+    request: _RequestObjectProxy,
+    context: _Context,
 ) -> (
     JSONObj
     | SpotifyEntityJson
@@ -231,7 +249,6 @@ def get_flat_file_from_url(
     | dict[Literal["mediaItems"], list[MediaItemJson]]
     | dict[Literal["results"], list[TrueLayerAccountJson | CardJson]]
 ):
-    # pylint: disable=missing-raises-doc
     """Retrieve the content of a flat JSON file for a mocked request response.
 
     Args:
@@ -265,14 +282,15 @@ def get_flat_file_from_url(
     except FileNotFoundError as exc:  # pragma: no cover
         raise ValueError(
             "Unable to dynamically load JSON file for "
-            f"https://{request.hostname}{request.path}?{unquote(request.query)}"
+            f"https://{request.hostname}{request.path}?{unquote(request.query)}",
         ) from exc
     except OSError:
         if "pagetoken" in request.qs and len(request.qs["pagetoken"]) == 1:
             file_path = file_path.replace(
                 quote(request.qs["pagetoken"][0]).lower(),
                 md5(
-                    request.qs["pagetoken"][0].encode(), usedforsecurity=False
+                    request.qs["pagetoken"][0].encode(),
+                    usedforsecurity=False,
                 ).hexdigest(),
             )
             return read_json_file(file_path, host_name=host_name)
@@ -308,7 +326,7 @@ def live_jwt_token_() -> str:
                 "exp": int(time()) + 3600,
             },
             "test_access_token",
-        )
+        ),
     )
 
 
@@ -324,7 +342,7 @@ def live_jwt_token_alt() -> str:
                 "exp": int(time()) + 3600,
             },
             "new_test_access_token",
-        )
+        ),
     )
 
 
@@ -335,7 +353,6 @@ def mock_requests_root() -> YieldFixture[Mocker]:
     with Mocker(real_http=False, case_sensitive=False) as mock_requests:
         mock_requests.get(
             compile_regex(
-                # pylint: disable=line-too-long
                 r"^https?:\/\/(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+(\/.*)?$",
             ),
             real_http=True,

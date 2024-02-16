@@ -77,7 +77,6 @@ class DHT22Sensor:
         self.checksum: int  # checksum
 
     def _cb(self, _: int, level: int, tick: int) -> None:
-        # pylint: disable=too-many-branches,too-many-statements
         """Callback function for DHT22 Sensor.
 
         Accumulate the 40 data bits.  Format into 5 bytes, humidity high,
@@ -117,9 +116,7 @@ class DHT22Sensor:
 
                     self.no_response = 0
 
-                    total = (
-                        self.hum_high + self.hum_low + self.temp_high + self.temp_low
-                    )
+                    total = self.hum_high + self.hum_low + self.temp_high + self.temp_low
 
                     if (total & 255) == self.checksum:  # Is checksum ok?
                         self.humidity = ((self.hum_high << 8) + self.hum_low) * 0.1
@@ -130,9 +127,7 @@ class DHT22Sensor:
                         else:
                             mult = 0.1
 
-                        self.temperature = (
-                            (self.temp_high << 8) + self.temp_low
-                        ) * mult
+                        self.temperature = ((self.temp_high << 8) + self.temp_low) * mult
 
                         if self.led is not None:
                             self.pi.write(self.led, 0)

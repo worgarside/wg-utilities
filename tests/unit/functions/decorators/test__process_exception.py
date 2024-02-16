@@ -48,7 +48,8 @@ def test_decorated_functions_value_is_returned() -> None:
 
 
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_decorator_catches_exception_and_calls_callback_correctly(
     exception_type: (
@@ -93,7 +94,8 @@ def test_decorator_catches_exception_and_calls_callback_correctly(
 
 
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_false_raise_after_processing_does_not_raise(
     exception_type: type[Exception],
@@ -127,7 +129,8 @@ def test_false_raise_after_processing_does_not_raise(
 
 
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_exception_types(
     exception_type: type[Exception],
@@ -182,14 +185,15 @@ def test_default_return_value_with_raise_after_processing() -> None:
     with pytest.raises(ValueError) as exc_info:
 
         @process_exception(
-            TestError, raise_after_processing=True, default_return_value="default"
+            TestError,
+            raise_after_processing=True,
+            default_return_value="default",
         )
         def _() -> None:  # pragma: no cover
             raise TEST_EXCEPTION
 
     assert (
-        str(exc_info.value)
-        == "The `default_return_value` parameter can only be set when"
+        str(exc_info.value) == "The `default_return_value` parameter can only be set when"
         " `raise_after_processing` is False."
     )
 
@@ -198,7 +202,9 @@ def test_logging(caplog: pytest.LogCaptureFixture) -> None:
     """Test that the exception is logged correctly."""
 
     @process_exception(
-        TestError, logger=getLogger("test_logging"), raise_after_processing=False
+        TestError,
+        logger=getLogger("test_logging"),
+        raise_after_processing=False,
     )
     def worker() -> None:
         raise TEST_EXCEPTION
@@ -210,5 +216,5 @@ def test_logging(caplog: pytest.LogCaptureFixture) -> None:
             "test_logging",
             40,
             "TestError caught in test__process_exception.test_logging.<locals>.worker: Test Exception",
-        )
+        ),
     ]

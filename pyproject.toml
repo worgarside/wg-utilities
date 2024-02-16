@@ -37,7 +37,6 @@ pydantic = "<3.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
-pylint = "<4.0.0"
 pre-commit = "*"
 pytest = "*"
 pytest-env = "*"
@@ -77,26 +76,6 @@ clients = [
 
 # Tool Configs
 
-[tool.black]
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-
-[tool.isort]
-add_imports = ["from __future__ import annotations"]
-profile = "black"
-
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = [
@@ -127,10 +106,7 @@ markers = [
 exclude_lines = ["pragma: no cover", "def __repr__", "def __str__", "@overload"]
 
 [tool.coverage.run]
-omit = [
-    "wg_utilities/devices/epd/*",
-    "wg_utilities/devices/dht22/*"
-]
+omit = ["wg_utilities/devices/epd/*", "wg_utilities/devices/dht22/*"]
 relative_files = true
 
 [tool.mypy]
@@ -163,54 +139,47 @@ warn_untyped_fields = true
 [tool.codespell]
 skip = '*.json,*.csv,*.xml,*google_drive_tree.txt,*.lock'
 
-[tool.pycln]
-path = "*"
-expand_stars = true
-all = true
-no_gitignore = false
-
 [tool.ruff]
-line-length = 120
+fix = true
+line-length = 90
 lint.select = [
-  # https://github.com/astral-sh/ruff#supported-rules
-  "A",   # https://beta.ruff.rs/docs/rules/#flake8-builtins-a
-  "ARG", # https://beta.ruff.rs/docs/rules/#flake8-unused-arguments-arg
-  "B",   # https://beta.ruff.rs/docs/rules/#flake8-bugbear-b
-  "C4",  # https://beta.ruff.rs/docs/rules/#flake8-comprehensions-c4
-  "COM", # https://beta.ruff.rs/docs/rules/#flake8-commas-com
-  "D",   # https://beta.ruff.rs/docs/rules/#pydocstyle-d
-  "E",   # https://beta.ruff.rs/docs/rules/#error-e
-  "ERA", # https://beta.ruff.rs/docs/rules/#eradicate-era
-  "F",   # https://beta.ruff.rs/docs/rules/#pyflakes-f
-  "FA",  # https://beta.ruff.rs/docs/rules/#flake8-future-annotations-fa
-  "FBT", # https://beta.ruff.rs/docs/rules/#flake8-boolean-trap-fbt
-  "G",   # https://beta.ruff.rs/docs/rules/#flake8-logging-format-g
-  "I",   # https://beta.ruff.rs/docs/rules/#isort-i
-  "ICN", # https://beta.ruff.rs/docs/rules/#flake8-import-conventions-icn
-  "N",   # https://beta.ruff.rs/docs/rules/#pep8-naming-n
-  "PGH", # https://beta.ruff.rs/docs/rules/#pygrep-hooks-pgh
-  "PIE", # https://beta.ruff.rs/docs/rules/#flake8-pie-pie
-  "PL",  # https://beta.ruff.rs/docs/rules/#pylint-pl
-  "PT",  # https://beta.ruff.rs/docs/rules/#flake8-pytest-style-pt
-  "PTH", # https://beta.ruff.rs/docs/rules/#flake8-use-pathlib-pth
-  "Q",   # https://beta.ruff.rs/docs/rules/#flake8-quotes-q
-  "RET", # https://beta.ruff.rs/docs/rules/#flake8-return-ret
-  "RSE", # https://beta.ruff.rs/docs/rules/#flake8-raise-rse
-  "RUF", # https://beta.ruff.rs/docs/rules/#ruff-specific-rules-ruf
-  "S",   # https://beta.ruff.rs/docs/rules/#flake8-bandit-s
-  "SIM", # https://beta.ruff.rs/docs/rules/#flake8-simplify-sim
-  "TRY", # https://beta.ruff.rs/docs/rules/#tryceratops-try
-  "UP",  # https://beta.ruff.rs/docs/rules/#pyupgrade-up
-  "W",   # https://beta.ruff.rs/docs/rules/#warning-w
+  "A",   # https://docs.astral.sh/ruff/rules/#flake8-builtins-a
+  "ARG", # https://docs.astral.sh/ruff/rules/#flake8-unused-arguments-arg
+  "B",   # https://docs.astral.sh/ruff/rules/#flake8-bugbear-b
+  "C4",  # https://docs.astral.sh/ruff/rules/#flake8-comprehensions-c4
+  "COM", # https://docs.astral.sh/ruff/rules/#flake8-commas-com
+  "D",   # https://docs.astral.sh/ruff/rules/#pydocstyle-d
+  "E",   # https://docs.astral.sh/ruff/rules/#error-e
+  "ERA", # https://docs.astral.sh/ruff/rules/#eradicate-era
+  "F",   # https://docs.astral.sh/ruff/rules/#pyflakes-f
+  "FA",  # https://docs.astral.sh/ruff/rules/#flake8-future-annotations-fa
+  "FBT", # https://docs.astral.sh/ruff/rules/#flake8-boolean-trap-fbt
+  "G",   # https://docs.astral.sh/ruff/rules/#flake8-logging-format-g
+  "I",   # https://docs.astral.sh/ruff/rules/#isort-i
+  "ICN", # https://docs.astral.sh/ruff/rules/#flake8-import-conventions-icn
+  "LOG", # https://docs.astral.sh/ruff/rules/#flake8-logging-log
+  "N",   # https://docs.astral.sh/ruff/rules/#pep8-naming-n
+  "PGH", # https://docs.astral.sh/ruff/rules/#pygrep-hooks-pgh
+  "PIE", # https://docs.astral.sh/ruff/rules/#flake8-pie-pie
+  "PL",  # https://docs.astral.sh/ruff/rules/#pylint-pl
+  "PT",  # https://docs.astral.sh/ruff/rules/#flake8-pytest-style-pt
+  "PTH", # https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
+  "Q",   # https://docs.astral.sh/ruff/rules/#flake8-quotes-q
+  "RET", # https://docs.astral.sh/ruff/rules/#flake8-return-ret
+  "RSE", # https://docs.astral.sh/ruff/rules/#flake8-raise-rse
+  "RUF", # https://docs.astral.sh/ruff/rules/#ruff-specific-rules-ruf
+  "S",   # https://docs.astral.sh/ruff/rules/#flake8-bandit-s
+  "SIM", # https://docs.astral.sh/ruff/rules/#flake8-simplify-sim
+  "TRY", # https://docs.astral.sh/ruff/rules/#tryceratops-try
+  "UP",  # https://docs.astral.sh/ruff/rules/#pyupgrade-up
+  "W",   # https://docs.astral.sh/ruff/rules/#warning-w
 ]
 lint.ignore = [
-  "COM812", # https://beta.ruff.rs/docs/rules/missing-trailing-comma/
   "D107",   # https://beta.ruff.rs/docs/rules/undocumented-public-init/
   "D202",   # https://beta.ruff.rs/docs/rules/no-blank-line-after-function/
   "S314",   # https://beta.ruff.rs/docs/rules/suspicious-xml-element-tree-usage/
   "TRY003", # https://beta.ruff.rs/docs/rules/raise-vanilla-args/
 ]
-
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["D104"]
@@ -229,8 +198,22 @@ lint.ignore = [
   "S324",    # https://beta.ruff.rs/docs/rules/hashlib-insecure-hash-function/
 ]
 
+[tool.ruff.lint.pycodestyle]
+max-line-length = 115
+
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [tool.ruff.lint.pylint]
 max-args = 10
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"

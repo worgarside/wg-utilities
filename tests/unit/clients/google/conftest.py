@@ -42,7 +42,6 @@ def calendar_(google_calendar_client: GoogleCalendarClient) -> Calendar:
 def data_source_(google_fit_client: GoogleFitClient) -> DataSource:
     """Fixture for a Google Fit DataSource instance."""
     return DataSource(
-        # pylint: disable=line-too-long
         data_source_id="derived:com.google.step_count.delta:com.google.android.gms:estimated_steps",
         google_client=google_fit_client,
     )
@@ -50,7 +49,6 @@ def data_source_(google_fit_client: GoogleFitClient) -> DataSource:
 
 @pytest.fixture(name="directory")
 def directory_(drive: Drive, google_drive_client: GoogleDriveClient) -> Directory:
-    # pylint: disable=protected-access
     """Fixture for a Google Drive Directory instance."""
     diry = Directory.from_json_response(
         read_json_file(
@@ -74,7 +72,8 @@ def directory_(drive: Drive, google_drive_client: GoogleDriveClient) -> Director
 
 @pytest.fixture(name="drive_comparison_entity_lookup")
 def drive_comparison_entity_lookup_(
-    drive: Drive, google_drive_client: GoogleDriveClient
+    drive: Drive,
+    google_drive_client: GoogleDriveClient,
 ) -> dict[str, Drive | File | Directory]:
     """Lookup for Google Drive entities, makes assertions easier to write."""
 
@@ -127,9 +126,10 @@ def event_(google_calendar_client: GoogleCalendarClient, calendar: Calendar) -> 
 
 @pytest.fixture(name="file")
 def file_(
-    drive: Drive, directory: Directory, google_drive_client: GoogleDriveClient
+    drive: Drive,
+    directory: Directory,
+    google_drive_client: GoogleDriveClient,
 ) -> File:
-    # pylint: disable=protected-access
     """Fixture for a Google Drive File instance."""
 
     file = File.from_json_response(
@@ -215,7 +215,6 @@ def google_photos_album_(google_photos_client: GooglePhotosClient) -> Album:
 
     return Album.from_json_response(
         read_json_file(
-            # pylint: disable=line-too-long
             "aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json",
             host_name="google/photos/v1/albums",
         ),
@@ -232,8 +231,7 @@ def google_photos_client_(
     """Fixture for `GooglePhotosClient` instance."""
 
     (
-        creds_cache_path := temp_dir
-        / "oauth_credentials/google_photos_credentials.json"
+        creds_cache_path := temp_dir / "oauth_credentials/google_photos_credentials.json"
     ).write_text(fake_oauth_credentials.model_dump_json())
 
     return GooglePhotosClient(
@@ -252,8 +250,8 @@ def media_item_image_(
     image = MediaItem.from_json_response(
         read_json_file(
             (
-                # pylint: disable=line-too-long
-                json_path := ":search/pagesize=100&albumid=aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json"  # noqa: E501
+                json_path
+                := ":search/pagesize=100&albumid=aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json"  # noqa: E501
             ),
             host_name="google/photos/v1/mediaitems",
         )["mediaItems"][0],
@@ -270,7 +268,7 @@ def media_item_image_(
     # The `bytes` property downloads the file to the default location; this just cleans
     # it up
     (Path.cwd() / image.creation_datetime.strftime("%Y/%m/%d") / image.filename).unlink(
-        missing_ok=True
+        missing_ok=True,
     )
 
 
@@ -280,8 +278,9 @@ def media_item_video_(google_photos_client: GooglePhotosClient) -> MediaItem:
 
     video = MediaItem.from_json_response(
         read_json_file(
-            (  # pylint: disable=line-too-long
-                json_path := ":search/pagesize=100&albumid=aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json"  # noqa: E501
+            (
+                json_path
+                := ":search/pagesize=100&albumid=aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json"  # noqa: E501
             ),
             host_name="google/photos/v1/mediaitems",
         )["mediaItems"][15],
@@ -298,13 +297,14 @@ def media_item_video_(google_photos_client: GooglePhotosClient) -> MediaItem:
 
 @pytest.fixture(name="simple_file")
 def simple_file_(
-    drive: Drive, directory: Directory, google_drive_client: GoogleDriveClient
+    drive: Drive,
+    directory: Directory,
+    google_drive_client: GoogleDriveClient,
 ) -> File:
     """Fixture for a Google Drive File instance."""
 
     simple_file = File.from_json_response(
         read_json_file(
-            # pylint: disable=line-too-long
             "v3/files/1x9xhqui0chzagahgr1d0lion2jj5mzo-wu7l5fhcn4b/fields=id%2c+name%2c+parents%2c+mimetype%2c+kind.json",
             host_name="google/drive",
         ),
@@ -315,8 +315,9 @@ def simple_file_(
     )
 
     # Don't "dirty" the `directory` fixture
-    directory._files = Field(  # pylint: disable=protected-access
-        exclude=True, default_factory=list
+    directory._files = Field(
+        exclude=True,
+        default_factory=list,
     )
 
     return simple_file
@@ -403,7 +404,6 @@ def mock_requests_(
         ).read_bytes()
 
         mock_requests_root.get(
-            # pylint: disable=line-too-long
             "https://lh3.googleusercontent.com/lr/OJIb5lbwSSP1sLh0smnNn4t6NxEFCmE2_XhYPH2bOFAYgwSsQYsoooNCmkpa230eyef3yLiRGS8swyaKaOIkSXy74GrCcYcnAezDRHR9mGDo6HDpYHEZkXudGIs2rQm0MXnxdeEGF_OWBD5RJL3BfIU8Z8b32iDLbxCmZBDl30TDWHYwuZawJFHsQ0jFeUAQpFxkIofpVJ-UdgwS9PHhRj6tYtkmFaPN29EASKvNZel4COGYvxUGppOKZ20U-zaOIE-ZikXmGxsSFPWvytTDNfuC2trKk3z8kRG2nmWpPZRdoYASXWTMqNVdoEW4PRFZzo7HTVoNQcZHieHWype2InDFM7kof4l6tEhV645VUgWLOx0nwbpLDO9hCS0-abhSNdEFToadpAGWnXHAG8y6q34DjGbQMogYVcO1AyL2ZZH3Qr-aq69VWnJ0L-hCOvrwPT7CnWvBPrd2Nkzs2ZINvUOuHWZGzLUMmH-MzvBtvZKu_dJkRtCF45ua1gRJH3Lan6eWUaEsGFW5OIsIHtR-r8mIKq0angbEX0Il5K7HIFjp0paXVuLUE9Q4BJcSqmndZhiSkkM2GosvWPpsEP3Vk-9tV4YNPN98Pqg4zOaWjPbsBDmwRFxsLMfZOZDqpKLqRccdod-ef4Dl1LNdt3MVQCyv75yvXlxShzy4ph6xa0vvuBco9C211f4EhuxPz2FB1YoAV55P5C1_dM3oifLgPG5RLxaRlu_siC4Id3dhD2nsjaso_rl1ML2wwjW7caMx_uDEopO6iZGRtGYqbq8TLyI5mvcC-pGx0jsIoWeeKaGJf4mSchhC9UHPYuKt7qO-Nh6N4zvNscBEsD7suWElJ5Vq1psvr_Fx92ElHWAoJFvdRMJC6dKXJdsUyI4MvLGGZbi-w4BoQ1krTn0ag-cmIPRvXXjHsN2Jr8cQvtMaiWf8QZ9BBFmaD7T8z6B0Iz3fMYxL9k-BU0rycXe9NfAmBfUg1qI_M2IUfwRYpk0FmQZOmSLLAUYpZ2J7WG7TAGW-rjL-moej=w4640-h2610",
             content=image_bytes,
         )
@@ -413,7 +413,6 @@ def mock_requests_(
         ).read_bytes()
 
         mock_requests_root.get(
-            # pylint: disable=line-too-long
             "https://lh3.googleusercontent.com/lr/CWNg8lw8ttG1XAmhCFwe8tVcdTBme9dyDDOE5pc33fqZU26yrmO1i3qcLE90xW5u-pOnL9C1ODZhhUg3kP9P1xZEIwjFGeik3OZD-X7sKMXwsjVxuQ4MtoOY-uRhgo3HIPDsuDwu2KDJnGVlDDS8Ygad3SPDGzMDO2J44_-RnU8UWP0u966PqGF9-ApgVKX2SOldCn9I5v7mp0V_r7E7n_kgpHqLW2trukMKUu33RlBj8BYhQ8E6ds8OTS8SF88MKSeWBvrYdrjRbKbFwA41O5lKYhgUmWw0gq6vVIoNNdCBeov2Ait0aDR4uWVdTOlK7LFeAQb-0MAMNPVmbTas5hbeJt2Zm6Hw4pfIJAbeccgAxLDwAq4QpWDzsULaaIEJsHSIZL9WvwWMfxSv6nEVKiw8ggMJrTQ6ylj3UnsG4R_dzbD4G_E1WdH79JRn_ObKoVlumFrrFXx513-VreXkIL86wyVawiGOK-YEzvrFWZxNcWDPTuI3Advbq_k3MxFD5XJGliWyNqEq0DuZ2E-hidb8iByv5W6RC3ffXqQJ_e_ghpUYP5Tk68g3UzN_CI57mtXxwQ9ZzHMJJGVBndRp-xG2cdYMb_R6M6JDxQhvDoPgma0Uzu_Ih3wdHi1aeHDBxDXFyTB2H0n8kK4bPTMEUZqGimrEE7vzu0CS_jops8RnOJJFS773ToILVtTzmTrNoelNkw1W9SiWPrYSnWV8sI1iS2Z_qI4anqjBz8z7VVn8OJWeLGgH52SSAFA3xHXhTdrn8L3OMMKYSpVomIV9_Es2HHmCvH3U-SPgtzCPDM13C9qcrKetDpDzCz-XoS0mGElaMPFSQGrjJMp58dMD5uloMbtAkOqWwucrEfT6zZVe1UX25aDcJqO-sH_5_hRbtaWbzm1yp1izRSM8T3QCKW8H4iI6K8rQfitBP51Ur_Uk1MmxHuUMHqw9lOGMdDZxZFE8XH3Et01DY8EoRe7kqmfw9JevMxA2RADNjncXKyY5jco0QzjvW1t6TcPq4zNxkqcSrw6M=dv",
             content=video_bytes,
         )

@@ -74,7 +74,6 @@ def on_exception(
     default_return_value: Any | None = None,
     _suppress_ignorant_warnings: bool | None = None,
 ) -> Callable[[Any], Any]:
-    # pylint: disable=useless-type-doc,useless-param-doc
     """Allow simple cover-all exception handler callback behaviour.
 
     Args:
@@ -95,7 +94,7 @@ def on_exception(
     if default_return_value is not None and raise_after_callback:
         raise ValueError(
             "The `default_return_value` parameter can only be set when"
-            " `raise_after_callback` is False."
+            " `raise_after_callback` is False.",
         )
 
     def _decorator(func: Callable[[Any], Any]) -> Callable[[Any, Any], Any]:
@@ -122,11 +121,11 @@ def on_exception(
             Raises:
                 Exception: any exception from the decorated function
             """
-            global LOGGER  # pylint: disable=global-statement
+            global LOGGER
 
             try:
                 return func(*args, **kwargs)
-            except Exception as exc:  # pylint: disable=broad-except
+            except Exception as exc:
                 if ignore_exception_types and any(
                     isinstance(exc, exc_type) for exc_type in ignore_exception_types
                 ):

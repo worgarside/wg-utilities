@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit tests for `TrueLayerClient`."""
 
 from __future__ import annotations
@@ -26,7 +25,8 @@ from wg_utilities.functions.file_management import user_data_dir
     ],
 )
 def test_instantiation(
-    fake_oauth_credentials: OAuthCredentials, default_cache_dir: str | None
+    fake_oauth_credentials: OAuthCredentials,
+    default_cache_dir: str | None,
 ) -> None:
     """Test that a `TrueLayerClient` can be instantiated."""
 
@@ -94,7 +94,8 @@ def test_get_entity_by_id(
     expected_entity = request.getfixturevalue(entity)
 
     actual_entity = truelayer_client._get_entity_by_id(
-        expected_entity.id, expected_entity.__class__
+        expected_entity.id,
+        expected_entity.__class__,
     )
 
     assert actual_entity == expected_entity
@@ -144,7 +145,7 @@ def test_get_entity_by_id(
             HTTPStatus.INTERNAL_SERVER_ERROR,
             HTTPError(
                 "500 Server Error: Internal Server Error for url: "
-                "https://api.truelayer.com/data/v1/accounts/gabbagool"
+                "https://api.truelayer.com/data/v1/accounts/gabbagool",
             ),
         ),
     ],
@@ -194,9 +195,7 @@ def test_get_card_by_id(truelayer_client: TrueLayerClient) -> None:
     mock_get_entity_by_id.assert_called_once_with("gabbagool", Card)
 
 
-def test_list_accounts(
-    truelayer_client: TrueLayerClient, mock_requests: Mocker
-) -> None:
+def test_list_accounts(truelayer_client: TrueLayerClient, mock_requests: Mocker) -> None:
     """Test `list_accounts` returns a list of `Account` objects."""
 
     accounts = truelayer_client.list_accounts()
@@ -251,7 +250,7 @@ def test_list_cards(truelayer_client: TrueLayerClient, mock_requests: Mocker) ->
             HTTPStatus.INTERNAL_SERVER_ERROR,
             HTTPError(
                 "500 Server Error: Internal Server Error for url: "
-                "https://api.truelayer.com/data/v1/accounts"
+                "https://api.truelayer.com/data/v1/accounts",
             ),
         ),
     ],
@@ -288,7 +287,9 @@ def test_creds_rel_file_path(bank: Bank, truelayer_client: TrueLayerClient) -> N
     truelayer_client.bank = bank
 
     assert truelayer_client._creds_rel_file_path == Path(
-        "TrueLayerClient", "test_client_id", bank.name.lower()
+        "TrueLayerClient",
+        "test_client_id",
+        bank.name.lower(),
     ).with_suffix(".json")
 
 

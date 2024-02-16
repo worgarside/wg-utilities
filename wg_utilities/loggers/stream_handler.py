@@ -14,7 +14,10 @@ FORMATTER.converter = gmtime
 
 
 def add_stream_handler(
-    logger: Logger, *, formatter: Formatter | None = FORMATTER, level: int = DEBUG
+    logger: Logger,
+    *,
+    formatter: Formatter | None = FORMATTER,
+    level: int = DEBUG,
 ) -> Logger:
     """Add a FileHandler to an existing logger.
 

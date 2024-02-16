@@ -33,7 +33,8 @@ def test_trigger_method(dht22_sensor: DHT22Sensor, pigpio_pi: MagicMock) -> None
 
 
 def test_trigger_method_led_is_not_none(
-    dht22_sensor: DHT22Sensor, pigpio_pi: MagicMock
+    dht22_sensor: DHT22Sensor,
+    pigpio_pi: MagicMock,
 ) -> None:
     """Test that the trigger method updates the LED pin when a value is set."""
     dht22_sensor.led = 5

@@ -84,7 +84,7 @@ def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
             f"test_log_level_is_set_correctly[{level}]",
             f"[{getLevelName(level)}]",
             "Test",
-        ]
+        ],
     )
 
     log_path.unlink()

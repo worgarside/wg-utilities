@@ -22,7 +22,7 @@ except ImportError as exc:  # pragma: no cover
     if not TYPE_CHECKING:
         import_exc = exc
         _NOT_IMPLEMENTED_ERROR = NotImplementedError(
-            "This entity is not implemented, please install `wg-utilities[clients]`"
+            "This entity is not implemented, please install `wg-utilities[clients]`",
         )
 
         class _NotImplementedMeta(type):
