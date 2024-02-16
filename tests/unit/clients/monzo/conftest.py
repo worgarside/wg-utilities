@@ -55,7 +55,7 @@ def monzo_pot_() -> Pot:
         **read_json_file(
             "current_account_id=acc_0000000000000000000000.json",
             host_name="monzo/pots",
-        )["pots"][14]
+        )["pots"][14],
     )
 
 

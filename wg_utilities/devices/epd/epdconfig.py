@@ -30,7 +30,7 @@ THE SOFTWARE.
 """
 from __future__ import annotations
 
-# pylint: disable=missing-function-docstring,missing-class-docstring
+
 from logging import debug, exception
 from os import path
 from sys import modules
@@ -47,7 +47,7 @@ class RaspberryPi:
     BUSY_PIN = 24
 
     # noinspection PyUnresolvedReferences,PyPackageRequirements
-    # pylint: disable=import-outside-toplevel
+
     def __init__(self) -> None:
         from RPi import GPIO  # type: ignore[import-not-found]
         from spidev import SpiDev  # type: ignore[import-not-found]

@@ -157,7 +157,7 @@ class JsonApiClient(Generic[GetJsonResponse]):
         """
         if params is not None:
             params.update(
-                {k: v for k, v in self.DEFAULT_PARAMS.items() if k not in params}
+                {k: v for k, v in self.DEFAULT_PARAMS.items() if k not in params},
             )
         else:
             params = deepcopy(self.DEFAULT_PARAMS)
@@ -169,15 +169,16 @@ class JsonApiClient(Generic[GetJsonResponse]):
 
         if self.log_requests:
             LOGGER.debug(
-                "%s %s: %s", method.__name__.upper(), url, dumps(params, default=str)
+                "%s %s: %s",
+                method.__name__.upper(),
+                url,
+                dumps(params, default=str),
             )
 
         res = method(
             url,
             headers=(
-                header_overrides
-                if header_overrides is not None
-                else self.request_headers
+                header_overrides if header_overrides is not None else self.request_headers
             ),
             params=params,
             timeout=timeout,

@@ -36,7 +36,7 @@ def test_last_change_rendering_control_parsing(
     [event[0] for event in yamaha_yas_209_last_change_av_transport_events()],  # type: ignore[index]
 )
 def test_last_change_keeps_extra_data_av_transport(
-    last_change_dict: dict[Literal["Event"], object]
+    last_change_dict: dict[Literal["Event"], object],
 ) -> None:
     """Just testing Pydantic's `Extra.allow` feature really."""
 
@@ -55,7 +55,7 @@ def test_last_change_keeps_extra_data_av_transport(
     yamaha_yas_209_last_change_rendering_control_events(),
 )
 def test_last_change_keeps_extra_data_rendering_control(
-    last_change_dict: dict[Literal["Event"], object]
+    last_change_dict: dict[Literal["Event"], object],
 ) -> None:
     """Just testing Pydantic's `Extra.allow` feature really."""
 

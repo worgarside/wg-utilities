@@ -223,7 +223,8 @@ class Account(BaseModelWithConfig):
     id: str
     initial_balance: int | None = Field(None, validation_alias="balance")
     initial_balance_including_flexible_savings: int | None = Field(
-        None, validation_alias="balance_including_flexible_savings"
+        None,
+        validation_alias="balance_including_flexible_savings",
     )
     initial_spend_today: int | None = Field(None, validation_alias="spend_today")
     initial_total_balance: int | None = Field(None, validation_alias="total_balance")
@@ -295,7 +296,8 @@ class Account(BaseModelWithConfig):
             from_datetime or (datetime.utcnow() - timedelta(days=89))
         ).replace(microsecond=0, tzinfo=None)
         to_datetime = (to_datetime or datetime.utcnow()).replace(
-            microsecond=0, tzinfo=None
+            microsecond=0,
+            tzinfo=None,
         )
 
         return [
@@ -323,12 +325,10 @@ class Account(BaseModelWithConfig):
         if not hasattr(self, "_balance_variables") or self.last_balance_update <= (
             datetime.utcnow() - timedelta(minutes=self.balance_update_threshold)
         ):
-            LOGGER.debug(
-                "Balance variable update threshold crossed, getting new values"
-            )
+            LOGGER.debug("Balance variable update threshold crossed, getting new values")
 
             self._balance_variables = BalanceVariables.model_validate(
-                self.monzo_client.get_json_response(f"/balance?account_id={self.id}")
+                self.monzo_client.get_json_response(f"/balance?account_id={self.id}"),
             )
 
             self.last_balance_update = datetime.utcnow()
@@ -445,7 +445,10 @@ class MonzoClient(OAuthClient[MonzoGJR]):
     _current_account: Account
 
     def deposit_into_pot(
-        self, pot: Pot, amount_pence: int, dedupe_id: str | None = None
+        self,
+        pot: Pot,
+        amount_pence: int,
+        dedupe_id: str | None = None,
     ) -> None:
         """Move money from the user's account into one of their pots.
 
@@ -457,7 +460,7 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         """
 
         dedupe_id = dedupe_id or "|".join(
-            [pot.id, str(amount_pence), str(utcnow(DTU.SECOND))]
+            [pot.id, str(amount_pence), str(utcnow(DTU.SECOND))],
         )
 
         res = put(
@@ -473,7 +476,10 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         res.raise_for_status()
 
     def list_accounts(
-        self, *, include_closed: bool = False, account_type: str | None = None
+        self,
+        *,
+        include_closed: bool = False,
+        account_type: str | None = None,
     ) -> list[Account]:
         """Get a list of the user's accounts.
 
@@ -487,7 +493,8 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         """
 
         res = self.get_json_response(
-            "/accounts", params={"account_type": account_type} if account_type else None
+            "/accounts",
+            params={"account_type": account_type} if account_type else None,
         )
 
         return [
@@ -507,7 +514,8 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         """
 
         res = self.get_json_response(
-            "/pots", params={"current_account_id": self.current_account.id}
+            "/pots",
+            params={"current_account_id": self.current_account.id},
         )
 
         return [
@@ -532,7 +540,11 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         return None
 
     def get_pot_by_name(
-        self, pot_name: str, *, exact_match: bool = False, include_deleted: bool = False
+        self,
+        pot_name: str,
+        *,
+        exact_match: bool = False,
+        include_deleted: bool = False,
     ) -> Pot | None:
         """Get a pot from its name.
 

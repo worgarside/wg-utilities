@@ -10,10 +10,7 @@ def chunk_list(lst: list[Any], chunk_len: int) -> Generator[list[Any], None, Non
     """Yield successive n-sized chunks from lst.
 
     Examples:
-        >>> chunk_list(
-        ...     [1, 2, 3, 4, 5, 6, 7],
-        ...     2
-        ... )
+        >>> chunk_list([1, 2, 3, 4, 5, 6, 7], 2)
         [1, 2]
         [3, 4]
         [5, 6]
@@ -45,7 +42,6 @@ def flatten_dict(
     exact_keys: bool = False,
     _parent_key: str = "",
 ) -> dict[str, Any]:
-    # pylint: disable=useless-type-doc,useless-param-doc
     """Flatten a nested dictionary into a single level dictionary.
 
     This function recursively traverses a dictionary and flattens any nested JSON
@@ -60,10 +56,10 @@ def flatten_dict(
         ...             "three": 3,
         ...             "four": 4,
         ...         },
-        ...         "five": {"six": 6}
+        ...         "five": {"six": 6},
         ...     },
         ...     join_char="-",
-        ...     exclude_keys=["five"]
+        ...     exclude_keys=["five"],
         ... )
         {
             "one": 1,
@@ -79,15 +75,11 @@ def flatten_dict(
         ...             "three": 3,
         ...             "four": 4,
         ...         },
-        ...         "five": {
-        ...             "two": {
-        ...                 "six": 6
-        ...             }
-        ...         }
+        ...         "five": {"two": {"six": 6}},
         ...     },
         ...     join_char="-",
         ...     exclude_keys=["five-two"],
-        ...     exact_keys=True
+        ...     exact_keys=True,
         ... )
 
     Args:
@@ -109,9 +101,7 @@ def flatten_dict(
 
     for k, v in nested_dict.items():
         new_parent_key = (
-            k
-            if not _parent_key or (not exact_keys)
-            else join_char.join([_parent_key, k])
+            k if not _parent_key or (not exact_keys) else join_char.join([_parent_key, k])
         )
         if (
             isinstance(v, dict)
@@ -128,7 +118,7 @@ def flatten_dict(
                         exact_keys=exact_keys,
                         _parent_key=new_parent_key,
                     ).items()
-                }
+                },
             )
         else:
             output[k] = v

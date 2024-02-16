@@ -118,14 +118,18 @@ class TempAuthServer:
                         <span>Click anywhere to close this window.</span>
                     </body>
                     </html>
-                """
+                """,
                     ).strip(),
                     status=200,
                 ),
             )
 
     def wait_for_request(
-        self, endpoint: str, max_wait: int = 300, *, kill_on_request: bool = False
+        self,
+        endpoint: str,
+        max_wait: int = 300,
+        *,
+        kill_on_request: bool = False,
     ) -> dict[str, Any]:
         """Wait for a request.
 
@@ -155,7 +159,7 @@ class TempAuthServer:
 
         if time_elapsed > max_wait:
             raise TimeoutError(
-                f"No request received to {endpoint} within {max_wait} seconds"
+                f"No request received to {endpoint} within {max_wait} seconds",
             )
 
         if kill_on_request:
@@ -241,7 +245,9 @@ class TempAuthServer:
         """
         if not hasattr(self, "_server_thread"):
             self._server_thread = self.ServerThread(
-                self.app, host=self.host, port=self._user_port
+                self.app,
+                host=self.host,
+                port=self._user_port,
             )
 
         return self._server_thread

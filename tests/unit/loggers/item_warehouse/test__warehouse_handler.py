@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit tests for the WarehouseHandler class."""
 
 
@@ -45,7 +44,9 @@ def test_initialize_warehouse_new_warehouse(mock_requests: Mocker) -> None:
     )
 
     with patch.object(
-        WarehouseHandler, "post_json_response", return_value=WAREHOUSE_SCHEMA
+        WarehouseHandler,
+        "post_json_response",
+        return_value=WAREHOUSE_SCHEMA,
     ) as mock_post_json_response:
         _ = WarehouseHandler(
             warehouse_host=IWH_DOT_COM,
@@ -64,9 +65,9 @@ DEFAULT_ITEM_URL = "http://homeassistant.local:8002/v1/warehouses/lumberyard"
 
 
 def test_initialize_warehouse_already_exists(
-    caplog: pytest.LogCaptureFixture, mock_requests: Mocker
+    caplog: pytest.LogCaptureFixture,
+    mock_requests: Mocker,
 ) -> None:
-    # pylint: disable=import-outside-toplevel
     """Test that the _initialize_warehouse method works correctly."""
     from wg_utilities.loggers.item_warehouse.warehouse_handler import LOGGER
 
@@ -90,7 +91,7 @@ def test_initialize_warehouse_already_exists(
                 "url": DEFAULT_ITEM_URL,
                 "method": "GET",
                 "headers": {},
-            }
+            },
         ],
     )
 
@@ -123,7 +124,7 @@ def test_initialize_warehouse_already_exists_but_wrong_schema(
                 "url": DEFAULT_ITEM_URL,
                 "method": "GET",
                 "headers": {},
-            }
+            },
         ],
     )
 
@@ -151,7 +152,8 @@ def test_initialize_warehouse_already_exists_but_wrong_schema(
 
 
 def test_initialize_warehouse_exception(
-    mock_requests: Mocker, caplog: pytest.LogCaptureFixture
+    mock_requests: Mocker,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the _initialize_warehouse method works correctly."""
 
@@ -175,7 +177,8 @@ def test_initialize_warehouse_exception(
     [
         (level, message, record)
         for ((level, message), record) in zip(
-            SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL, SAMPLE_LOG_RECORDS
+            SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL,
+            SAMPLE_LOG_RECORDS,
         )
     ],
 )
@@ -200,9 +203,12 @@ def test_emit(level: int, message: str, logger: Logger, record: LogRecord) -> No
     }
 
     with patch.object(
-        WarehouseHandler, "get_log_payload", return_value=log_payload
+        WarehouseHandler,
+        "get_log_payload",
+        return_value=log_payload,
     ) as mock_get_log_payload, patch.object(
-        WarehouseHandler, "post_with_backoff"
+        WarehouseHandler,
+        "post_with_backoff",
     ) as mock_post_with_backoff:
         logger.log(level, message)
 
@@ -225,9 +231,7 @@ def test_emit(level: int, message: str, logger: Logger, record: LogRecord) -> No
 def test_post_with_backoff_duplicate_record(logger: Logger) -> None:
     """Test that the post_with_backoff method doesn't throw an error for duplicate records."""
 
-    with patch(
-        "wg_utilities.loggers.item_warehouse.warehouse_handler.post"
-    ) as mock_post:
+    with patch("wg_utilities.loggers.item_warehouse.warehouse_handler.post") as mock_post:
         mock_post.return_value.status_code = HTTPStatus.CONFLICT
 
         logger.info("Info log")
@@ -253,9 +257,7 @@ def test_post_with_backoff_duplicate_record(logger: Logger) -> None:
 def test_post_with_backoff(logger: Logger, response_status: HTTPStatus) -> None:
     """Test that the post_with_backoff works (ignoring actual backoff functionality)."""
 
-    with patch(
-        "wg_utilities.loggers.item_warehouse.warehouse_handler.post"
-    ) as mock_post:
+    with patch("wg_utilities.loggers.item_warehouse.warehouse_handler.post") as mock_post:
         mock_post.return_value.status_code = response_status
 
         logger.debug("Debug log")
@@ -300,12 +302,14 @@ def test_post_with_backoff(logger: Logger, response_status: HTTPStatus) -> None:
 )
 @pytest.mark.add_handler("warehouse_handler")
 def test_post_with_backoff_permanent_failure(
-    logger: Logger, caplog: pytest.LogCaptureFixture, response_status: HTTPStatus
+    logger: Logger,
+    caplog: pytest.LogCaptureFixture,
+    response_status: HTTPStatus,
 ) -> None:
     """Test that 4XX status codes aren't backed off."""
 
     with patch(
-        "wg_utilities.loggers.item_warehouse.warehouse_handler.post"
+        "wg_utilities.loggers.item_warehouse.warehouse_handler.post",
     ) as mock_post, caplog.at_level("ERROR"):
         mock_post.return_value.status_code = response_status
         mock_post.return_value.reason = response_status.phrase

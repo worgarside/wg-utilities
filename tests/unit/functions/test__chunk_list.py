@@ -17,7 +17,9 @@ from wg_utilities.functions import chunk_list
     ],
 )
 def test_chunk_list_with_varying_input(
-    user_input: list[int], chunk_len: int, want: list[list[int]]
+    user_input: list[int],
+    chunk_len: int,
+    want: list[list[int]],
 ) -> None:
     """Test `chunk_list` handles varying inputs correctly."""
 
@@ -33,10 +35,12 @@ def test_chunk_list_with_varying_input(
 
 
 @pytest.mark.parametrize(
-    ("chunk_len", "exception_expected"), [(i, i < 1) for i in range(-10, 10)]
+    ("chunk_len", "exception_expected"),
+    [(i, i < 1) for i in range(-10, 10)],
 )
 def test_chunk_len_less_than_one_throws_value_error(
-    chunk_len: int, exception_expected: bool
+    chunk_len: int,
+    exception_expected: bool,
 ) -> None:
     """Test that a `chunk_len` value <1 throws a ValueError."""
 

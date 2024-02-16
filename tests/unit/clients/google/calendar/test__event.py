@@ -22,7 +22,8 @@ from wg_utilities.clients.google_calendar import (
 
 
 def test_instantiation(
-    google_calendar_client: GoogleCalendarClient, calendar: Calendar
+    google_calendar_client: GoogleCalendarClient,
+    calendar: Calendar,
 ) -> None:
     """Test that the `Event` class can be instantiated."""
 
@@ -32,13 +33,20 @@ def test_instantiation(
     )
 
     event = Event.from_json_response(
-        event_json, google_client=google_calendar_client, calendar=calendar
+        event_json,
+        google_client=google_calendar_client,
+        calendar=calendar,
     )
 
     assert isinstance(event, Event)
     assert event.id == "jt171go86rkonwwkyd5q7m84mm"
     assert event.start.datetime == datetime(
-        2022, 12, 6, 10, 15, tzinfo=timezone("Europe/London")
+        2022,
+        12,
+        6,
+        10,
+        15,
+        tzinfo=timezone("Europe/London"),
     )
     assert event.google_client == google_calendar_client
 
@@ -77,7 +85,7 @@ def test_delete_method(
                     email="google-user@gmail.com",
                     responseStatus=ResponseStatus.ACCEPTED,
                     self=True,
-                )
+                ),
             ],
             None,
             ResponseStatus.ACCEPTED,
@@ -88,7 +96,7 @@ def test_delete_method(
                     email="google-user@gmail.com",
                     responseStatus=ResponseStatus.DECLINED,
                     self=True,
-                )
+                ),
             ],
             None,
             ResponseStatus.DECLINED,
@@ -99,7 +107,7 @@ def test_delete_method(
                     email="google-user@gmail.com",
                     responseStatus=ResponseStatus.TENTATIVE,
                     self=True,
-                )
+                ),
             ],
             None,
             ResponseStatus.TENTATIVE,
@@ -110,7 +118,7 @@ def test_delete_method(
                     email="google-user@gmail.com",
                     responseStatus=ResponseStatus.UNCONFIRMED,
                     self=True,
-                )
+                ),
             ],
             None,
             ResponseStatus.UNCONFIRMED,
@@ -121,7 +129,7 @@ def test_delete_method(
                     email="google-user@gmail.com",
                     responseStatus=ResponseStatus.UNKNOWN,
                     self=True,
-                )
+                ),
             ],
             None,
             ResponseStatus.UNKNOWN,
@@ -131,7 +139,7 @@ def test_delete_method(
                 _Attendee(
                     email="google-user@gmail.com",
                     responseStatus=ResponseStatus.DECLINED,
-                )
+                ),
             ],
             _Creator(email="google-user@gmail.com", self=True),
             ResponseStatus.ACCEPTED,
@@ -141,7 +149,7 @@ def test_delete_method(
                 _Attendee(
                     email="google-user@gmail.com",
                     responseStatus=ResponseStatus.DECLINED,
-                )
+                ),
             ],
             _Creator(email="google-user-2@gmail.com"),
             ResponseStatus.UNKNOWN,
@@ -178,15 +186,15 @@ def test_gt_method(event: Event) -> None:
                 {
                     "dateTime": (event.start.datetime + timedelta(days=1)).isoformat(),
                     "timeZone": "Europe/London",
-                }
+                },
             ),
             "end": _StartEndDatetime.model_validate(
                 {
                     "dateTime": (event.end.datetime + timedelta(days=1)).isoformat(),
                     "timeZone": "Europe/London",
-                }
+                },
             ),
-        }
+        },
     )
 
     # Ends 5 minutes later
@@ -196,16 +204,16 @@ def test_gt_method(event: Event) -> None:
                 {
                     "dateTime": (event.end.datetime + timedelta(minutes=5)).isoformat(),
                     "timeZone": "Europe/London",
-                }
-            )
-        }
+                },
+            ),
+        },
     )
 
     # Starts and ends at same time, but starts with a letter earlier in the alphabet
     before_third = event.model_copy(
         update={
             "summary": "Z test event",
-        }
+        },
     )
 
     assert before_first > before_second > before_third > event
@@ -224,9 +232,9 @@ def test_lt_method(event: Event) -> None:
                 {
                     "dateTime": (event.start.datetime - timedelta(days=1)).isoformat(),
                     "timeZone": "Europe/London",
-                }
-            )
-        }
+                },
+            ),
+        },
     )
 
     # Ends 5 minutes earlier
@@ -236,16 +244,16 @@ def test_lt_method(event: Event) -> None:
                 {
                     "dateTime": (event.end.datetime - timedelta(minutes=5)).isoformat(),
                     "timeZone": "Europe/London",
-                }
+                },
             ),
-        }
+        },
     )
 
     # Starts and ends at same time, but starts with a letter earlier in the alphabet
     before_third = event.model_copy(
         update={
             "summary": "A test event",
-        }
+        },
     )
 
     assert before_first < before_second < before_third < event

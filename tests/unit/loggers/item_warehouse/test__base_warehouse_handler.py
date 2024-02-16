@@ -60,7 +60,7 @@ def test_instantiation() -> None:
                 "9e821dc5cb3cc36a2c5c91ec9b18a3bd",
             ),
             strict=False,
-        )
+        ),
     ),
 )
 def test_get_log_hash(log_record: LogRecord, expected_hash: str) -> None:
@@ -140,7 +140,8 @@ _STANDARD_SAMPLE_LOG_RECORD_KWARGS = {
     ),
 )
 def test_get_log_payload(
-    log_record: LogRecord, expected_payload: LogPayload | None
+    log_record: LogRecord,
+    expected_payload: LogPayload | None,
 ) -> None:
     """Test that the get_log_payload method returns the expected value."""
 

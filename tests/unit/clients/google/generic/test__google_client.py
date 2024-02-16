@@ -63,11 +63,13 @@ def test_get_items_method(fake_oauth_credentials: OAuthCredentials) -> None:
             }
 
         raise ValueError(  # pragma: no cover
-            f"Unexpected request: {method!r}, {url}, {params!r}"
+            f"Unexpected request: {method!r}, {url}, {params!r}",
         )
 
     with patch.object(
-        client, "_request_json_response", wraps=_req_json_res_side_effect
+        client,
+        "_request_json_response",
+        wraps=_req_json_res_side_effect,
     ) as mock_request_json_response:
         items = client.get_items(
             f"{client.base_url}/endpoint",

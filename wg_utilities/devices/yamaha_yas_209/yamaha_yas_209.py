@@ -234,9 +234,7 @@ class CurrentTrack:
         self.media_title = media_title
 
     @classmethod
-    def _create_from_metadata_item(
-        cls, metadata_item: TrackMetaDataItem
-    ) -> CurrentTrack:
+    def _create_from_metadata_item(cls, metadata_item: TrackMetaDataItem) -> CurrentTrack:
         """Create a CurrentTrack instance from a response metadata item.
 
         Args:
@@ -288,7 +286,7 @@ class CurrentTrack:
             CurrentTrack: a CurrentTrack instance with relevant info
         """
         return cls._create_from_metadata_item(
-            last_change.Event.InstanceID.CurrentTrackMetaData.item
+            last_change.Event.InstanceID.CurrentTrackMetaData.item,
         )
 
     @classmethod
@@ -479,7 +477,11 @@ class Yas209Service(Enum):
     )
 
     def __init__(
-        self, value: str, service_id: str, service_name: str, actions: tuple[str]
+        self,
+        value: str,
+        service_id: str,
+        service_name: str,
+        actions: tuple[str],
     ):
         self._value_ = value
         self.service_id = service_id
@@ -488,7 +490,7 @@ class Yas209Service(Enum):
 
 
 def _needs_device(
-    func: Callable[[YamahaYas209], Coroutine[Any, Any, Mapping[str, Any] | None]]
+    func: Callable[[YamahaYas209], Coroutine[Any, Any, Mapping[str, Any] | None]],
 ) -> Callable[[YamahaYas209], Any]:
     """Use as a decorator to ensure the device is available.
 
@@ -518,7 +520,7 @@ def _needs_device(
 
             async def _create() -> None:
                 yas_209.device = await factory.async_create_device(
-                    yas_209.description_url
+                    yas_209.description_url,
                 )
 
             run(_create())
@@ -624,7 +626,7 @@ class YamahaYas209:
         if self._listen_ip is not None and self._listen_port is None:
             raise ValueError(
                 "Argument `listen_port` cannot be None when `listen_ip` is not None:"
-                f" {self._listen_ip!r}"
+                f" {self._listen_ip!r}",
             )
 
         if start_listener:
@@ -649,7 +651,7 @@ class YamahaYas209:
             nonlocal worker_exception
             try:
                 new_event_loop().run_until_complete(self._subscribe())
-            except Exception as exc:  # pylint: disable=broad-except
+            except Exception as exc:
                 worker_exception = exc
 
         listener_thread = Thread(target=_worker)
@@ -659,7 +661,7 @@ class YamahaYas209:
             sleep(0.01)
 
         if isinstance(worker_exception, BaseException):
-            raise worker_exception  # pylint: disable=raising-bad-type
+            raise worker_exception
 
         if self._logging:
             LOGGER.debug(
@@ -668,7 +670,9 @@ class YamahaYas209:
             )
 
     def on_event_wrapper(
-        self, service: UpnpService, service_variables: Sequence[UpnpStateVariable[str]]
+        self,
+        service: UpnpService,
+        service_variables: Sequence[UpnpStateVariable[str]],
     ) -> None:
         """Wrap the `on_event` callback to process the XML payload(s) first.
 
@@ -677,15 +681,13 @@ class YamahaYas209:
             service_variables (list): a list of state variables that have updated
         """
 
-        xml_payloads: dict[str, object] = {
-            sv.name: sv.value for sv in service_variables
-        }
+        xml_payloads: dict[str, object] = {sv.name: sv.value for sv in service_variables}
 
         # Convert any nested XML into JSON
         self._parse_xml_dict(xml_payloads)
 
         last_change = self.LAST_CHANGE_PAYLOAD_PARSERS[service.service_id](
-            xml_payloads.pop("LastChange")  # type: ignore[arg-type]
+            xml_payloads.pop("LastChange"),  # type: ignore[arg-type]
         )
 
         event_payload: YamahaYas209.EventPayloadInfo = {
@@ -709,7 +711,8 @@ class YamahaYas209:
         elif service.service_id == "urn:upnp-org:serviceId:RenderingControl":
             # The DLNA payload has volume as a string value between 0 and 100
             self.set_volume_level(
-                float(last_change.Event.InstanceID.Volume.val) / 100, local_only=True
+                float(last_change.Event.InstanceID.Volume.val) / 100,
+                local_only=True,
             )
 
         if self.on_event is not None:
@@ -717,7 +720,6 @@ class YamahaYas209:
 
     @_needs_device
     async def _subscribe(self) -> None:  # noqa: PLR0912
-        # pylint: disable=too-many-branches
         """Subscribe to service(s) and output updates."""
         # start notify server/event handler
         local_ip = get_local_ip(self.device.device_url)
@@ -729,7 +731,9 @@ class YamahaYas209:
             else f"http://{self._listen_ip or local_ip}:{self._listen_port}/notify"
         )
         server = AiohttpNotifyServer(
-            self.device.requester, source=source, callback_url=callback_url
+            self.device.requester,
+            source=source,
+            callback_url=callback_url,
         )
         await server.async_start_server()
 
@@ -744,7 +748,7 @@ class YamahaYas209:
             Callback URL:       %s
             Server Listen IP:   %s
             Server Listen Port: %s
-            """
+            """,
                 ),
                 self._listen_ip,
                 str(self._listen_port),
@@ -806,8 +810,7 @@ class YamahaYas209:
                     services_to_remove.append(service)
                 except UpnpCommunicationError as exc:
                     log_message = (
-                        f"Still unable to subscribe to {service.service_id}:"
-                        f" {exc!r}"
+                        f"Still unable to subscribe to {service.service_id}:" f" {exc!r}"
                     )
 
                     if self._logging:
@@ -838,7 +841,7 @@ class YamahaYas209:
         if action not in service.actions:
             raise ValueError(
                 f"Unexpected action {action!r} for service {service.value!r}. "
-                f"""Must be one of '{"', '".join(service.actions)}'"""
+                f"""Must be one of '{"', '".join(service.actions)}'""",
             )
 
         @_needs_device
@@ -873,7 +876,9 @@ class YamahaYas209:
             xml_dict,
             target_type=str,
             target_processor_func=lambda val, **_: parse_xml(  # type: ignore[arg-type]
-                pattern.sub("&amp;", val), attr_prefix="", cdata_key="text"
+                pattern.sub("&amp;", val),
+                attr_prefix="",
+                cdata_key="text",
             ),
             single_keys_to_remove=["val", "DIDL-Lite"],
         )
@@ -1021,7 +1026,7 @@ class YamahaYas209:
         if not hasattr(self, "_current_track"):
             media_info = self.get_media_info()
             self._current_track = CurrentTrack.from_get_media_info(
-                GetMediaInfoResponse.model_validate(media_info)
+                GetMediaInfoResponse.model_validate(media_info),
             )
 
         return self._current_track

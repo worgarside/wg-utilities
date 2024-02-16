@@ -39,10 +39,10 @@ INPUT_OUTPUT_COMBOS = [
             "one": {
                 "two": {
                     "three": {
-                        "four": {"five": {"six": {"seven": 7, "eight": 8, "nine": 9}}}
-                    }
-                }
-            }
+                        "four": {"five": {"six": {"seven": 7, "eight": 8, "nine": 9}}},
+                    },
+                },
+            },
         },
         {
             "one.two.three.four.five.six.seven": 7,
@@ -78,7 +78,8 @@ for _file in listdir(_json_dir := Path(__file__).parents[2] / "flat_files" / "js
     INPUT_OUTPUT_COMBOS,
 )
 def test_flatten_dict_with_varying_input_dicts(
-    user_input: dict[str, object], want: dict[str, object]
+    user_input: dict[str, object],
+    want: dict[str, object],
 ) -> None:
     """Test that the `flatten_dict` function handles various dictionaries correctly."""
 
@@ -90,7 +91,8 @@ def test_flatten_dict_with_varying_input_dicts(
     INPUT_OUTPUT_COMBOS,
 )
 def test_flatten_dict_uses_correct_join_char(
-    user_input: dict[str, object], want: dict[str, object]
+    user_input: dict[str, object],
+    want: dict[str, object],
 ) -> None:
     """Test that the `flatten_dict` function joins all keys with the correct character.
 
@@ -148,24 +150,25 @@ def test_flatten_dict_uses_correct_join_char(
                     "two": {
                         "three": {
                             "four": {
-                                "five": {"six": {"seven": 7, "eight": 8, "nine": 9}}
-                            }
-                        }
-                    }
-                }
+                                "five": {"six": {"seven": 7, "eight": 8, "nine": 9}},
+                            },
+                        },
+                    },
+                },
             },
             {
                 "one.two": {
                     "three": {
-                        "four": {"five": {"six": {"seven": 7, "eight": 8, "nine": 9}}}
-                    }
-                }
+                        "four": {"five": {"six": {"seven": 7, "eight": 8, "nine": 9}}},
+                    },
+                },
             },
         ),
     ],
 )
 def test_exclude_keys_with_exact_keys_false(
-    user_input: dict[str, object], want: dict[str, object]
+    user_input: dict[str, object],
+    want: dict[str, object],
 ) -> None:
     """Test that when `exact_keys` is False, the keys chosen for exclusion are excluded.
 
@@ -222,11 +225,11 @@ def test_exclude_keys_with_exact_keys_false(
                     "two": {
                         "three": {
                             "four": {
-                                "five": {"six": {"seven": 7, "eight": 8, "nine": 9}}
-                            }
-                        }
-                    }
-                }
+                                "five": {"six": {"seven": 7, "eight": 8, "nine": 9}},
+                            },
+                        },
+                    },
+                },
             },
             {
                 "one.two.three.four.five.six.seven": 7,
@@ -237,7 +240,8 @@ def test_exclude_keys_with_exact_keys_false(
     ],
 )
 def test_exclude_keys_with_exact_keys_true(
-    user_input: dict[str, object], want: dict[str, object]
+    user_input: dict[str, object],
+    want: dict[str, object],
 ) -> None:
     """Test that when `exact_keys` is False, the keys chosen for exclusion are excluded.
 

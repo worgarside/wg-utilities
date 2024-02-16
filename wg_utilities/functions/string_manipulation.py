@@ -6,7 +6,10 @@ from re import sub
 
 
 def cleanse_string(
-    value: str, *, whitespace_amount: int | None = None, preserve_newlines: bool = False
+    value: str,
+    *,
+    whitespace_amount: int | None = None,
+    preserve_newlines: bool = False,
 ) -> str:
     """Remove all non-alphanumeric characters from a string.
 
@@ -31,6 +34,4 @@ def cleanse_string(
     if whitespace_amount == 0:
         return sub(rf"[^{inner_pattern}\s]", "", value)
 
-    return sub(
-        r"\s+", " " * whitespace_amount, sub(rf"[^{inner_pattern}\s]", "", value)
-    )
+    return sub(r"\s+", " " * whitespace_amount, sub(rf"[^{inner_pattern}\s]", "", value))

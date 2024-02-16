@@ -63,7 +63,6 @@ def s3_client_() -> S3Client:
 
 
 def test_instantiation() -> None:
-    # pylint: disable=use-implicit-booleaness-not-comparison
     """Test that the class can be instantiated."""
     mb3c = MockBoto3Client()
 
@@ -86,10 +85,12 @@ def test_reset_boto3_calls(mb3c: MockBoto3Client) -> None:
         "CreateBucket": "done",
         "ListFunctions": {"Functions": ["foo", "bar", "baz"]},
         "CreateFunction": "done",
-    }
+    },
 )
 def test_boto3_calls_are_logged_correctly(
-    mb3c: MockBoto3Client, s3_client: S3Client, lambda_client: LambdaClient
+    mb3c: MockBoto3Client,
+    s3_client: S3Client,
+    lambda_client: LambdaClient,
 ) -> None:
     """Test that the API calls are recorded correctly."""
 
@@ -134,7 +135,7 @@ def test_boto3_calls_are_logged_correctly(
                 {
                     "Arn": "string",
                     "LocalMountPath": "string",
-                }
+                },
             ],
             DeadLetterConfig={"TargetArn": "string"},
             PackageType="Zip",
@@ -155,7 +156,7 @@ def test_boto3_calls_are_logged_correctly(
                 "GrantWriteACP": "string",
                 "ObjectLockEnabledForBucket": True,
                 "ObjectOwnership": "BucketOwnerPreferred",
-            }
+            },
         ],
         "ListFunctions": [{}],
         "CreateFunction": [
@@ -182,12 +183,12 @@ def test_boto3_calls_are_logged_correctly(
                     {
                         "Arn": "string",
                         "LocalMountPath": "string",
-                    }
+                    },
                 ],
                 "DeadLetterConfig": {"TargetArn": "string"},
                 "PackageType": "Zip",
                 "CodeSigningConfigArn": "string",
-            }
+            },
         ],
     }
 
@@ -198,10 +199,12 @@ def test_boto3_calls_are_logged_correctly(
         "CreateBucket": "done",
         "ListFunctions": {"Functions": ["foo", "bar", "baz"]},
         "CreateFunction": "done",
-    }
+    },
 )
 def test_boto3_calls_get_correct_responses(
-    mb3c: MockBoto3Client, s3_client: S3Client, lambda_client: LambdaClient
+    mb3c: MockBoto3Client,
+    s3_client: S3Client,
+    lambda_client: LambdaClient,
 ) -> None:
     """Test that the API calls are recorded correctly."""
 
@@ -257,21 +260,19 @@ def test_callable_override(mb3c: MockBoto3Client, lambda_client: LambdaClient) -
         for i in range(10):
             assert counter == i
 
-            res = lambda_client.get_function(
-                FunctionName="foo.bar.baz", Qualifier="TEST"
-            )
+            res = lambda_client.get_function(FunctionName="foo.bar.baz", Qualifier="TEST")
 
             assert counter == res == i + 1  # type: ignore[comparison-overlap]
 
 
 def test_callable_override_with_args_kwargs(
-    mb3c: MockBoto3Client, lambda_client: LambdaClient
+    mb3c: MockBoto3Client,
+    lambda_client: LambdaClient,
 ) -> None:
     """Test that a callable override works properly."""
 
     counter = 0
 
-    # pylint: disable=invalid-name
     def _override(FunctionName: str, Qualifier: str, Counter: int) -> int:  # noqa: N803
         nonlocal counter
 
@@ -298,12 +299,12 @@ def test_callable_override_with_args_kwargs(
                 Counter=counter,  # type: ignore[call-arg]
             )
 
-            # pylint: disable=line-too-long
             assert counter == res == (i + 1) * len("foo.bar.baz")  # type: ignore[comparison-overlap]
 
 
 def test_nested_callable_override(
-    mb3c: MockBoto3Client, lambda_client: LambdaClient
+    mb3c: MockBoto3Client,
+    lambda_client: LambdaClient,
 ) -> None:
     """Test that a callable override works properly."""
 
@@ -327,9 +328,7 @@ def test_nested_callable_override(
         for i in range(10):
             assert counter == i
 
-            res = lambda_client.get_function(
-                FunctionName="foo.bar.baz", Qualifier="TEST"
-            )
+            res = lambda_client.get_function(FunctionName="foo.bar.baz", Qualifier="TEST")
 
             assert counter == i + 1
             assert res == {"value": counter}  # type: ignore[comparison-overlap]
@@ -339,7 +338,7 @@ def test_nested_callable_override(
 @pytest.mark.mocked_operation_lookup(
     {
         "ListBuckets": {"Buckets": ["barry", "paul", "jimmy", "brian"]},
-    }
+    },
 )
 def test_non_mocked_calls_still_go_to_aws(
     mb3c: MockBoto3Client,
@@ -355,9 +354,7 @@ def test_non_mocked_calls_still_go_to_aws(
             CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
         )
 
-        assert s3_client.list_buckets()[
-            "Buckets"
-        ] == [  # type: ignore[comparison-overlap]
+        assert s3_client.list_buckets()["Buckets"] == [  # type: ignore[comparison-overlap]
             "barry",
             "paul",
             "jimmy",
@@ -369,7 +366,7 @@ def test_non_mocked_calls_still_go_to_aws(
         mb3c.mocked_operation_lookup = {}
 
         assert s3_client.list_buckets()["Buckets"] == [
-            {"CreationDate": frozen_time.replace(tzinfo=tzutc()), "Name": "test-bucket"}
+            {"CreationDate": frozen_time.replace(tzinfo=tzutc()), "Name": "test-bucket"},
         ]
 
 
@@ -377,16 +374,17 @@ def test_non_mocked_calls_still_go_to_aws(
 @pytest.mark.mocked_operation_lookup(
     {
         "ListBuckets": {"Buckets": ["barry", "paul", "jimmy", "brian"]},
-    }
+    },
 )
 def test_lookup_overrides_in_api_call_builder(
-    mb3c: MockBoto3Client, s3_client: S3Client
+    mb3c: MockBoto3Client,
+    s3_client: S3Client,
 ) -> None:
     """Test `lookup_overrides` work as expected when passed to `build_api_call`."""
 
     with patch(MockBoto3Client.PATCH_METHOD, mb3c.build_api_call()):
         assert s3_client.list_buckets() == {  # type: ignore[comparison-overlap]
-            "Buckets": ["barry", "paul", "jimmy", "brian"]
+            "Buckets": ["barry", "paul", "jimmy", "brian"],
         }
 
     with patch(
@@ -400,7 +398,7 @@ def test_lookup_overrides_in_api_call_builder(
 # method, but I couldn't get it to work (or I can't remember which moto operations
 # return "'DEFAULT'"), so I'm leaving it here for now
 
-# pylint: disable=pointless-string-statement
+
 """
 @mock_pinpoint  # type: ignore[misc]
 @pytest.mark.mocked_operation_lookup(

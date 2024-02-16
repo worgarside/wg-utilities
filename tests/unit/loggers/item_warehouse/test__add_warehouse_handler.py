@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from logging import CRITICAL, DEBUG, ERROR, FATAL, INFO, NOTSET, WARN, WARNING, Logger
+from logging import CRITICAL, DEBUG, ERROR, FATAL, INFO, NOTSET, WARNING, Logger
 from logging.handlers import QueueHandler
 from socket import gethostname
 from unittest.mock import patch
@@ -39,12 +39,14 @@ def test_queue_handler_is_applied_to_logger_correctly(
     """Test that the handler is applied to the logger correctly."""
 
     with patch(
-        "wg_utilities.loggers.item_warehouse.warehouse_handler.FlushableQueueListener"
+        "wg_utilities.loggers.item_warehouse.warehouse_handler.FlushableQueueListener",
     ) as mock_flushable_queue_listener, patch(
-        "wg_utilities.loggers.item_warehouse.warehouse_handler.atexit"
+        "wg_utilities.loggers.item_warehouse.warehouse_handler.atexit",
     ) as mock_atexit:
         wh_handler = add_warehouse_handler(
-            logger, warehouse_host=IWH_DOT_COM, level=WARNING
+            logger,
+            warehouse_host=IWH_DOT_COM,
+            level=WARNING,
         )
 
     assert len(logger.handlers) == 1
@@ -72,7 +74,7 @@ def test_queue_handler_is_applied_to_logger_correctly(
             FATAL,
             ERROR,
             WARNING,
-            WARN,
+            WARNING,
             INFO,
             DEBUG,
             NOTSET,

@@ -17,7 +17,7 @@ def test_file_handler_is_added_to_logger(temp_dir: Path) -> None:
     logger = getLogger("test_file_handler_is_added_to_logger")
 
     with patch(
-        "wg_utilities.loggers.file_handler.create_file_handler"
+        "wg_utilities.loggers.file_handler.create_file_handler",
     ) as mock_create_file_handler:
         mock_create_file_handler.return_value = file_handler
 
@@ -35,7 +35,7 @@ def test_create_file_handler_is_called(temp_dir: Path) -> None:
     logger = getLogger("test_create_file_handler_is_called")
 
     with patch(
-        "wg_utilities.loggers.file_handler.create_file_handler"
+        "wg_utilities.loggers.file_handler.create_file_handler",
     ) as mock_create_file_handler:
         mock_create_file_handler.return_value = file_handler
 

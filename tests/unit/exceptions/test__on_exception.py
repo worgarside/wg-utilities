@@ -61,13 +61,13 @@ def test_exception_is_sent_to_ha_by_default(mock_requests_root: Mocker) -> None:
     assert worker() is None
 
     assert (
-        mock_requests_root.request_history[0].url
-        == f"http://{HA_LOG_ENDPOINT}/log/error"
+        mock_requests_root.request_history[0].url == f"http://{HA_LOG_ENDPOINT}/log/error"
     )
 
 
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_decorator_catches_exception_and_calls_callback_correctly(
     exception_type: (
@@ -112,7 +112,8 @@ def test_decorator_catches_exception_and_calls_callback_correctly(
 
 
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_false_raise_after_callback_does_not_raise(
     exception_type: type[Exception],
@@ -146,7 +147,8 @@ def test_false_raise_after_callback_does_not_raise(
 
 
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_ignore_exception_types(
     exception_type: type[Exception],
@@ -175,7 +177,8 @@ def test_ignore_exception_types(
 
 
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_ignoring_exceptions_is_logged_as_warning(
     exception_type: type[Exception],
@@ -219,7 +222,8 @@ def test_ignoring_exceptions_is_logged_as_warning(
 
 @patch.dict(environ, {"SUPPRESS_WG_UTILS_IGNORANCE": "0"})
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_ignorant_warning_suppression_via_parameter(
     exception_type: type[Exception],
@@ -251,7 +255,8 @@ def test_ignorant_warning_suppression_via_parameter(
 
 @patch.dict(environ, {"SUPPRESS_WG_UTILS_IGNORANCE": "1"})
 @pytest.mark.parametrize(
-    ("exception_type", "raise_func", "raise_args"), EXCEPTION_GENERATORS
+    ("exception_type", "raise_func", "raise_args"),
+    EXCEPTION_GENERATORS,
 )
 def test_ignorant_warning_suppression_via_env_var(
     exception_type: type[Exception],
@@ -300,7 +305,6 @@ def test_default_return_value_with_raise_after_callback() -> None:
             raise TEST_EXCEPTION
 
     assert (
-        str(exc_info.value)
-        == "The `default_return_value` parameter can only be set when"
+        str(exc_info.value) == "The `default_return_value` parameter can only be set when"
         " `raise_after_callback` is False."
     )

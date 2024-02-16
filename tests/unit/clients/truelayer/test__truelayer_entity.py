@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit tests for `TrueLayerEntity`."""
 
 
@@ -33,7 +32,6 @@ def test_from_json_response_instantiation(truelayer_client: TrueLayerClient) -> 
             "display_name": "Xuccyyxl",
             "provider": {
                 "display_name": "account_provider",
-                # pylint: disable=line-too-long
                 "logo_uri": "https://truelayer-client-logos.s3-eu-west-1.amazonaws.com/banks/banks-icons/ft-ajxyecqs-icon.svg",
                 "provider_id": "ft-ajxyecqs",
             },
@@ -57,12 +55,15 @@ def test_from_json_response_instantiation(truelayer_client: TrueLayerClient) -> 
     ],
 )
 def test_get_transactions(
-    account: Account, from_datetime: datetime | None, to_datetime: datetime | None
+    account: Account,
+    from_datetime: datetime | None,
+    to_datetime: datetime | None,
 ) -> None:
     """Test that `get_transactions` returns a list of `Transaction` objects."""
 
     transactions = account.get_transactions(
-        from_datetime=from_datetime, to_datetime=to_datetime
+        from_datetime=from_datetime,
+        to_datetime=to_datetime,
     )
 
     to_datetime = to_datetime or datetime(2023, 3, 30)
@@ -95,7 +96,8 @@ def test_update_balance_values(account: Account) -> None:
 
 
 def test_update_balance_values_multiple_results(
-    account: Account, mock_requests: Mocker
+    account: Account,
+    mock_requests: Mocker,
 ) -> None:
     """Test that a `ValueError` is raised if the response has two result entries."""
 
@@ -117,8 +119,7 @@ def test_update_balance_values_multiple_results(
         account.update_balance_values()
 
     assert (
-        str(exc_info.value)
-        == "Unexpected number of results when getting balance info: 2"
+        str(exc_info.value) == "Unexpected number of results when getting balance info: 2"
     )
 
 
@@ -150,7 +151,9 @@ def test_get_balance_property_account(
     """Test that `TrueLayerEntity.get_balance` returns the correct balance value."""
 
     with patch.object(
-        TrueLayerEntity, "update_balance_values", wraps=account.update_balance_values
+        TrueLayerEntity,
+        "update_balance_values",
+        wraps=account.update_balance_values,
     ) as mock_update_balance_values:
         assert account._get_balance_property(property_name) == expected_value
 
@@ -200,7 +203,9 @@ def test_get_balance_property_card(
     """Test that `TrueLayerEntity.get_balance` returns the correct balance value."""
 
     with patch.object(
-        TrueLayerEntity, "update_balance_values", wraps=card.update_balance_values
+        TrueLayerEntity,
+        "update_balance_values",
+        wraps=card.update_balance_values,
     ) as mock_update_balance_values:
         assert card._get_balance_property(property_name) == expected_value
 
@@ -239,7 +244,9 @@ def test_account_balance_property(
     """Test that all balance properties call `_get_balance_property` correctly."""
 
     with patch.object(
-        TrueLayerEntity, "_get_balance_property", wraps=account._get_balance_property
+        TrueLayerEntity,
+        "_get_balance_property",
+        wraps=account._get_balance_property,
     ) as mock_get_balance_property:
         value = getattr(account, property_name)
 
@@ -264,7 +271,9 @@ def test_card_balance_property(
     """Test that all balance properties call `_get_balance_property` correctly."""
 
     with patch.object(
-        TrueLayerEntity, "_get_balance_property", wraps=card._get_balance_property
+        TrueLayerEntity,
+        "_get_balance_property",
+        wraps=card._get_balance_property,
     ) as mock_get_balance_property:
         value = getattr(card, property_name)
 
@@ -278,7 +287,9 @@ def test_balance_property(
     """Test the `balance` property works correctly."""
 
     with patch.object(
-        TrueLayerEntity, "_get_balance_property", wraps=account._get_balance_property
+        TrueLayerEntity,
+        "_get_balance_property",
+        wraps=account._get_balance_property,
     ) as mock_get_balance_property:
         value = account.balance
 

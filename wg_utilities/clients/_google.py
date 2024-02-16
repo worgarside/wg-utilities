@@ -26,7 +26,8 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 GetJsonResponseGoogleClient = TypeVar(
-    "GetJsonResponseGoogleClient", bound=Mapping[Any, Any]
+    "GetJsonResponseGoogleClient",
+    bound=Mapping[Any, Any],
 )
 
 
@@ -70,7 +71,8 @@ AnyPaginatedResponse: TypeAlias = (
 
 
 class GoogleClient(
-    Generic[GetJsonResponseGoogleClient], OAuthClient[GetJsonResponseGoogleClient]
+    Generic[GetJsonResponseGoogleClient],
+    OAuthClient[GetJsonResponseGoogleClient],
 ):
     """Custom client for interacting with the Google APIs."""
 
@@ -89,7 +91,12 @@ class GoogleClient(
         url: str,
         *,
         list_key: Literal[
-            "albums", "drives", "files", "items", "mediaItems", "point"
+            "albums",
+            "drives",
+            "files",
+            "items",
+            "mediaItems",
+            "point",
         ] = "items",
         params: (
             dict[
@@ -115,16 +122,18 @@ class GoogleClient(
         """
 
         params = (
-            {**self.DEFAULT_PARAMS, **params}
-            if params
-            else deepcopy(self.DEFAULT_PARAMS)
+            {**self.DEFAULT_PARAMS, **params} if params else deepcopy(self.DEFAULT_PARAMS)
         )
         LOGGER.info(
-            "Listing all items at endpoint `%s` with params %s", url, dumps(params)
+            "Listing all items at endpoint `%s` with params %s",
+            url,
+            dumps(params),
         )
 
         res: AnyPaginatedResponse = self._request_json_response(
-            method=method_override or get, url=url, params=params
+            method=method_override or get,
+            url=url,
+            params=params,
         )  # type: ignore[assignment]
 
         item_list: list[GetJsonResponseGoogleClient] = res[

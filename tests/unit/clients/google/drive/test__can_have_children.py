@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit tests for `wg_utilities.clients.google_drive._CanHaveChildren`."""
 from __future__ import annotations
 
@@ -62,7 +61,8 @@ def test_add_directory_ignores_known_directory(directory: Directory) -> None:
 
 
 def test_add_directory_raises_type_error_for_wrong_type(
-    directory: Directory, file: File
+    directory: Directory,
+    file: File,
 ) -> None:
     """Test that `_add_directory` raises a `TypeError` if the wrong type is passed."""
 
@@ -122,9 +122,13 @@ def test_add_child_method_file(
     """Test that `add_child` adds a File to the correct attribute."""
 
     with patch.object(
-        _CanHaveChildren, "_add_directory", wraps=drive._add_directory
+        _CanHaveChildren,
+        "_add_directory",
+        wraps=drive._add_directory,
     ) as mock_add_directory, patch.object(
-        _CanHaveChildren, "_add_file", wraps=drive._add_file
+        _CanHaveChildren,
+        "_add_file",
+        wraps=drive._add_file,
     ) as mock_add_file:
         drive.add_child(file)
         mock_add_directory.assert_not_called()
@@ -135,9 +139,13 @@ def test_add_child_method_directory(drive: Drive, directory: Directory) -> None:
     """Test that `add_child` adds a Directory to the correct attribute."""
 
     with patch.object(
-        _CanHaveChildren, "_add_directory", wraps=drive._add_directory
+        _CanHaveChildren,
+        "_add_directory",
+        wraps=drive._add_directory,
     ) as mock_add_directory, patch.object(
-        _CanHaveChildren, "_add_file", wraps=drive._add_file
+        _CanHaveChildren,
+        "_add_file",
+        wraps=drive._add_file,
     ) as mock_add_file:
         drive.add_child(directory)
         mock_add_directory.assert_called_once_with(directory)
@@ -156,7 +164,6 @@ def test_add_child_invalid_type(drive: Drive) -> None:
 @pytest.mark.parametrize(
     ("navigate_path", "instance_path"),
     [
-        # pylint: disable=line-too-long
         (
             ".",
             "/My Drive/Archives",
@@ -282,7 +289,9 @@ def test_navigate_method(
     ],
 )
 def test_navigate_method_raises_value_error_for_invalid_path(
-    directory: Directory, navigate_path: str, exception_message: str
+    directory: Directory,
+    navigate_path: str,
+    exception_message: str,
 ) -> None:
     """Test that `navigate` raises a `ValueError` if an invalid path is passed."""
 
@@ -293,12 +302,12 @@ def test_navigate_method_raises_value_error_for_invalid_path(
 
 
 def test_navigate_method_no_results_found(
-    directory: Directory, mock_requests: Mocker
+    directory: Directory,
+    mock_requests: Mocker,
 ) -> None:
     """Test that a zero-result response is handled correctly."""
 
     mock_requests.get(
-        # pylint: disable=line-too-long
         "https://www.googleapis.com/drive/v3/files?pagesize=1&fields=files(*)&q='7tqryz0a9oyjfzf1cpbmllsblj-ohbi1e'+in+parents+and+name+=+'path'",
         json={"files": []},
     )
@@ -344,7 +353,7 @@ def test_reset_known_children(directory: Directory) -> None:
                      ├──> Archive Log
                      ├─── MacBook Clones
                      └─── Old Documents
-                """
+                """,
             ).strip(),
             dedent(
                 """
@@ -357,7 +366,7 @@ def test_reset_known_children(directory: Directory) -> None:
                      └─── Old Documents
                           ├──> Harvard Transcripts.zip
                           └──> School Reports.zip
-                """
+                """,
             ).strip(),
         ),
         (
@@ -369,7 +378,7 @@ def test_reset_known_children(directory: Directory) -> None:
                 └─── Archives
                      ├─── MacBook Clones
                      └─── Old Documents
-                """
+                """,
             ).strip(),
             dedent(
                 """
@@ -377,7 +386,7 @@ def test_reset_known_children(directory: Directory) -> None:
                 └─── Archives
                      ├─── MacBook Clones
                      └─── Old Documents
-                """
+                """,
             ).strip(),
         ),
     ],
@@ -471,12 +480,14 @@ def test_all_known_children_property(
 
 
 def test_children_property(
-    directory: Directory, drive_comparison_entity_lookup: dict[str, _GoogleDriveEntity]
+    directory: Directory,
+    drive_comparison_entity_lookup: dict[str, _GoogleDriveEntity],
 ) -> None:
     """Test that the `children` property behaves as expected."""
 
     with patch.object(
-        _CanHaveChildren, "reset_known_children"
+        _CanHaveChildren,
+        "reset_known_children",
     ) as mock_reset_known_children, patch.object(
         _CanHaveChildren,
         "files",
@@ -510,7 +521,9 @@ def test_directories(
     assert directory._directories_loaded is not True
 
     with patch.object(
-        directory.google_client, "get_items", wraps=google_drive_client.get_items
+        directory.google_client,
+        "get_items",
+        wraps=google_drive_client.get_items,
     ) as mock_get_items:
         assert directory.directories == [
             drive_comparison_entity_lookup["MacBook Clones"],
@@ -542,7 +555,7 @@ def test_directories(
                 "url": f"https://www.googleapis.com/drive/v3/files?{urlencode(params)}",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
-            }
+            },
         ],
     )
 
@@ -559,7 +572,9 @@ def test_files(
     assert directory._files_loaded is not True
 
     with patch.object(
-        directory.google_client, "get_items", wraps=google_drive_client.get_items
+        directory.google_client,
+        "get_items",
+        wraps=google_drive_client.get_items,
     ) as mock_get_items:
         assert directory.files == [
             drive_comparison_entity_lookup["Archive Log"],
@@ -589,6 +604,6 @@ def test_files(
                 "url": f"https://www.googleapis.com/drive/v3/files?{urlencode(params)}",
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
-            }
+            },
         ],
     )

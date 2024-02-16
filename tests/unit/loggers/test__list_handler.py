@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit Tests for the `ListHandler` class and its methods."""
 from __future__ import annotations
 
@@ -23,7 +22,10 @@ def test_list_handler_instantiation() -> None:
         """Do something with the record."""
 
     l_handler = ListHandler(
-        record_list, log_ttl=60, on_record=on_record, on_expiry=on_record
+        record_list,
+        log_ttl=60,
+        on_record=on_record,
+        on_expiry=on_record,
     )
 
     assert l_handler is not None
@@ -34,7 +36,8 @@ def test_list_handler_instantiation() -> None:
 
 
 def test_emit_calls_expire_records(
-    list_handler: ListHandler, sample_log_record: LogRecord
+    list_handler: ListHandler,
+    sample_log_record: LogRecord,
 ) -> None:
     """Test that `expire_records` is called on `emit`."""
 
@@ -45,7 +48,8 @@ def test_emit_calls_expire_records(
 
 
 def test_emit_appends_to_record_list(
-    list_handler: ListHandler, sample_log_record: LogRecord
+    list_handler: ListHandler,
+    sample_log_record: LogRecord,
 ) -> None:
     """Test that `emit` appends to the record list."""
 
@@ -55,7 +59,8 @@ def test_emit_appends_to_record_list(
 
 
 def test_emit_calls_on_record(
-    list_handler: ListHandler, sample_log_record: LogRecord
+    list_handler: ListHandler,
+    sample_log_record: LogRecord,
 ) -> None:
     """Test that `on_record` is called on `emit`."""
 
@@ -88,7 +93,8 @@ def test_expire_records_does_nothing_if_ttl_is_none(list_handler: ListHandler) -
 
 @pytest.mark.add_handler("list_handler")
 def test_expire_records_remove_records_correctly(
-    list_handler: ListHandler, logger: Logger
+    list_handler: ListHandler,
+    logger: Logger,
 ) -> None:
     """Test that `expire_records` only removes old records."""
 
@@ -134,7 +140,8 @@ def test_expire_records_calls_on_expiry(list_handler_prepopulated: ListHandler) 
     ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", None],  # Used for "all records"
 )
 def test_record_properties_return_correct_items(
-    level_name: str, list_handler_prepopulated: ListHandler
+    level_name: str,
+    list_handler_prepopulated: ListHandler,
 ) -> None:
     """Test that each of the level-specific properties return only the expected records.
 
@@ -163,7 +170,8 @@ def test_record_properties_return_correct_items(
     ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", None],  # Used for "all records"
 )
 def test_record_properties_call_expire_records(
-    level_name: str | None, list_handler_prepopulated: ListHandler
+    level_name: str | None,
+    list_handler_prepopulated: ListHandler,
 ) -> None:
     """Test that each of the level-specific properties expires old records."""
 

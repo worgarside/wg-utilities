@@ -199,7 +199,10 @@ class TrueLayerEntity(BaseModelWithConfig):
 
     @classmethod
     def from_json_response(
-        cls, value: TrueLayerEntityJson, *, truelayer_client: TrueLayerClient
+        cls,
+        value: TrueLayerEntityJson,
+        *,
+        truelayer_client: TrueLayerClient,
     ) -> Self:
         """Create an account from a JSON response."""
 
@@ -264,7 +267,7 @@ class TrueLayerEntity(BaseModelWithConfig):
         """
 
         results = self.truelayer_client.get_json_response(
-            f"/data/v1/{self.__class__.__name__.lower()}s/{self.id}/balance"
+            f"/data/v1/{self.__class__.__name__.lower()}s/{self.id}/balance",
         ).get("results", [])
 
         if len(results) != 1:
@@ -285,7 +288,8 @@ class TrueLayerEntity(BaseModelWithConfig):
                 attr_name = f"_{k}"
                 if isinstance(v, str):
                     v = datetime.strptime(  # noqa: PLW2901
-                        v, "%Y-%m-%dT%H:%M:%SZ"
+                        v,
+                        "%Y-%m-%dT%H:%M:%SZ",
                     ).date()
             else:
                 attr_name = f"_{k}"
@@ -304,7 +308,8 @@ class TrueLayerEntity(BaseModelWithConfig):
     def _get_balance_property(
         self,
         prop_name: Literal["current_balance"],
-    ) -> float: ...
+    ) -> float:
+        ...
 
     @overload
     def _get_balance_property(
@@ -316,7 +321,8 @@ class TrueLayerEntity(BaseModelWithConfig):
             "last_statement_balance",
             "payment_due",
         ],
-    ) -> float | None: ...
+    ) -> float | None:
+        ...
 
     @overload
     def _get_balance_property(
@@ -325,7 +331,8 @@ class TrueLayerEntity(BaseModelWithConfig):
             "last_statement_date",
             "payment_due_date",
         ],
-    ) -> date | None: ...
+    ) -> date | None:
+        ...
 
     def _get_balance_property(
         self,
@@ -617,7 +624,7 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         """
         try:
             results = self.get_json_response(
-                f"/data/v1/{entity_class.__name__.lower()}s/{entity_id}"
+                f"/data/v1/{entity_class.__name__.lower()}s/{entity_id}",
             ).get("results", [])
         except HTTPError as exc:
             if (

@@ -9,7 +9,8 @@ from .epd7in5_v2 import EPD_HEIGHT, EPD_WIDTH
 from .epdconfig import TEST_MODE, implementation
 
 _FORMATTER = Formatter(
-    "%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s", "%Y-%m-%d %H:%M:%S"
+    "%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s",
+    "%Y-%m-%d %H:%M:%S",
 )
 
 _SH = StreamHandler(stdout)

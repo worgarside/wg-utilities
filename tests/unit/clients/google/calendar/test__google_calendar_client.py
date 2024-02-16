@@ -78,13 +78,11 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
                     "id": "test-calendar-id",
                     "etag": "",
                     "summary": "",
-                    "google_client": GoogleCalendarClient(
-                        client_id="", client_secret=""
-                    ),
+                    "google_client": GoogleCalendarClient(client_id="", client_secret=""),
                     "kind": "calendar#calendar",
                     "timeZone": "Africa/Johannesburg",
                     "conferenceProperties": {},
-                }
+                },
             ),
             {},
         ),
@@ -98,13 +96,11 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
                     "id": "test-calendar-id",
                     "etag": "",
                     "summary": "",
-                    "google_client": GoogleCalendarClient(
-                        client_id="", client_secret=""
-                    ),
+                    "google_client": GoogleCalendarClient(client_id="", client_secret=""),
                     "kind": "calendar#calendar",
                     "timeZone": "Africa/Johannesburg",
                     "conferenceProperties": {},
-                }
+                },
             ),
             {
                 "one": "one",
@@ -153,7 +149,8 @@ def test_create_event_request(
     _ = google_calendar_client.primary_calendar
 
     with patch.object(
-        google_calendar_client, "post_json_response"
+        google_calendar_client,
+        "post_json_response",
     ) as mock_post_json_response:
         mock_post_json_response.return_value = loads(event.model_dump_json())
 
@@ -173,7 +170,7 @@ def test_create_event_request(
                 "calendars",
                 (calendar_arg or google_calendar_client.primary_calendar).id,
                 "events",
-            ]
+            ],
         ),
         json={
             "summary": summary,
@@ -229,13 +226,11 @@ def test_create_event_request(
                     "id": "test-calendar-id",
                     "etag": "",
                     "summary": "",
-                    "google_client": GoogleCalendarClient(
-                        client_id="", client_secret=""
-                    ),
+                    "google_client": GoogleCalendarClient(client_id="", client_secret=""),
                     "kind": "calendar#calendar",
                     "timeZone": "Africa/Johannesburg",
                     "conferenceProperties": {},
-                }
+                },
             ),
             {},
         ),
@@ -249,13 +244,11 @@ def test_create_event_request(
                     "id": "test-calendar-id",
                     "etag": "",
                     "summary": "",
-                    "google_client": GoogleCalendarClient(
-                        client_id="", client_secret=""
-                    ),
+                    "google_client": GoogleCalendarClient(client_id="", client_secret=""),
                     "kind": "calendar#calendar",
                     "timeZone": "Africa/Johannesburg",
                     "conferenceProperties": {},
-                }
+                },
             ),
             {
                 "one": "one",
@@ -283,16 +276,16 @@ def test_create_event_response(
             {
                 "timeZone": tz.tzname(None),
                 "dateTime": start_datetime.replace(tzinfo=tz).strftime(
-                    "%Y-%m-%dT%H:%M:%S%z"
+                    "%Y-%m-%dT%H:%M:%S%z",
                 ),
-            }
+            },
         )
     else:
         start = _StartEndDatetime.model_validate(
             {
                 "timeZone": tz.tzname(None),
                 "date": start_datetime.isoformat(),
-            }
+            },
         )
 
     if isinstance(end_datetime, datetime):
@@ -300,16 +293,16 @@ def test_create_event_response(
             {
                 "timeZone": tz.tzname(None),
                 "dateTime": end_datetime.replace(tzinfo=tz).strftime(
-                    "%Y-%m-%dT%H:%M:%S%z"
+                    "%Y-%m-%dT%H:%M:%S%z",
                 ),
-            }
+            },
         )
     else:
         end = _StartEndDatetime.model_validate(
             {
                 "timeZone": tz.tzname(None),
                 "date": end_datetime.isoformat(),
-            }
+            },
         )
 
     expected_event = event.model_copy(
@@ -318,7 +311,7 @@ def test_create_event_response(
             "start": start,
             "end": end,
             "calendar": calendar_arg or google_calendar_client.primary_calendar,
-        }
+        },
     )
 
     mock_requests.post(
@@ -328,7 +321,7 @@ def test_create_event_response(
                 "calendars",
                 expected_event.calendar.id,
                 "events",
-            ]
+            ],
         ),
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
@@ -376,7 +369,8 @@ def test_create_event_type_validation(
     """Test `create_event` raises a `TypeError` if either datetime param is invalid."""
 
     with patch.object(
-        google_calendar_client, "post_json_response"
+        google_calendar_client,
+        "post_json_response",
     ) as mock_post_json_response:
         mock_post_json_response.return_value = loads(event.model_dump_json())
 
@@ -448,7 +442,8 @@ def test_delete_event_by_id_raises_exception(
 
 
 def test_get_event_by_id(
-    google_calendar_client: GoogleCalendarClient, calendar: Calendar
+    google_calendar_client: GoogleCalendarClient,
+    calendar: Calendar,
 ) -> None:
     """Test that the `get_event_by_id` method returns an `Event` object."""
     with patch.object(
@@ -457,7 +452,8 @@ def test_get_event_by_id(
         wraps=google_calendar_client.get_json_response,
     ) as mock_get_json_response:
         event = google_calendar_client.get_event_by_id(
-            "jt171go86rkonwwkyd5q7m84mm", calendar=calendar
+            "jt171go86rkonwwkyd5q7m84mm",
+            calendar=calendar,
         )
 
     mock_get_json_response.assert_called_once_with(
@@ -473,12 +469,15 @@ def test_get_event_by_id(
 def test_calendar_list(google_calendar_client: GoogleCalendarClient) -> None:
     """Test that the `calendar_list` method returns a list of `Calendar` objects."""
     with patch.object(
-        google_calendar_client, "get_items", wraps=google_calendar_client.get_items
+        google_calendar_client,
+        "get_items",
+        wraps=google_calendar_client.get_items,
     ) as mock_get_items:
         calendars = google_calendar_client.calendar_list
 
     mock_get_items.assert_called_once_with(
-        "/users/me/calendarList", params={"maxResults": None}
+        "/users/me/calendarList",
+        params={"maxResults": None},
     )
 
     assert isinstance(calendars, list)
@@ -499,7 +498,8 @@ def test_primary_calendar(google_calendar_client: GoogleCalendarClient) -> None:
         primary_calendar = google_calendar_client.primary_calendar
 
     mock_get_json_response.assert_called_once_with(
-        "/calendars/primary", params={"maxResults": None}
+        "/calendars/primary",
+        params={"maxResults": None},
     )
 
     assert isinstance(primary_calendar, Calendar)

@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.api.temp_auth_server.TempAuthServer`."""
 
 from __future__ import annotations
@@ -87,7 +86,7 @@ def test_create_endpoints(temp_auth_server: TempAuthServer) -> None:
 def test_start_server_starts_thread(temp_auth_server: TempAuthServer) -> None:
     """Test that the `start_server` method starts a thread."""
     with patch(
-        "wg_utilities.api.temp_auth_server.TempAuthServer.server_thread"
+        "wg_utilities.api.temp_auth_server.TempAuthServer.server_thread",
     ) as mock_server:
         temp_auth_server.start_server()
 
@@ -105,8 +104,7 @@ def test_start_server_starts_server(temp_auth_server: TempAuthServer) -> None:
     assert hasattr(temp_auth_server, "_server_thread")
     assert temp_auth_server.server_thread.is_alive()
     assert (
-        get(temp_auth_server.get_auth_code_url, timeout=2.5).status_code
-        == HTTPStatus.OK
+        get(temp_auth_server.get_auth_code_url, timeout=2.5).status_code == HTTPStatus.OK
     )
     assert (
         "Authentication Complete"
@@ -119,8 +117,7 @@ def test_server_can_be_started_multiple_times(temp_auth_server: TempAuthServer) 
 
     temp_auth_server.start_server()
     assert (
-        get(temp_auth_server.get_auth_code_url, timeout=2.5).status_code
-        == HTTPStatus.OK
+        get(temp_auth_server.get_auth_code_url, timeout=2.5).status_code == HTTPStatus.OK
     )
     assert (
         "Authentication Complete"
@@ -134,8 +131,7 @@ def test_server_can_be_started_multiple_times(temp_auth_server: TempAuthServer) 
 
     temp_auth_server.start_server()
     assert (
-        get(temp_auth_server.get_auth_code_url, timeout=2.5).status_code
-        == HTTPStatus.OK
+        get(temp_auth_server.get_auth_code_url, timeout=2.5).status_code == HTTPStatus.OK
     )
     assert (
         "Authentication Complete"
@@ -180,9 +176,7 @@ def test_wait_for_request_timeout(temp_auth_server: TempAuthServer) -> None:
     with pytest.raises(TimeoutError) as exc_info:
         temp_auth_server.wait_for_request("/get_auth_code", max_wait=1)
 
-    assert (
-        str(exc_info.value) == "No request received to /get_auth_code within 1 seconds"
-    )
+    assert str(exc_info.value) == "No request received to /get_auth_code within 1 seconds"
 
 
 def test_wait_for_request_kill_on_request(temp_auth_server: TempAuthServer) -> None:
@@ -196,7 +190,9 @@ def test_wait_for_request_kill_on_request(temp_auth_server: TempAuthServer) -> N
         nonlocal called
         assert temp_auth_server.is_running
         assert temp_auth_server.wait_for_request(
-            "/get_auth_code", max_wait=5, kill_on_request=True
+            "/get_auth_code",
+            max_wait=5,
+            kill_on_request=True,
         ) == {
             "code": "abcdefghijklmnopqrstuvwxyz",
         }

@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 """Unit Tests for `wg_utilities.clients.spotify.SpotifyClient`."""
 from __future__ import annotations
 
@@ -93,7 +92,7 @@ def test_get_method_with_sample_responses(
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {live_jwt_token}",
                 },
-            }
+            },
         ],
     )
 
@@ -157,7 +156,7 @@ def test_get_method_without_leading_slash(
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {live_jwt_token}",
                 },
-            }
+            },
         ],
     )
 
@@ -168,7 +167,9 @@ def test_get_method_without_leading_slash(
 
 @pytest.mark.parametrize("http_status", HTTPStatus)
 def test_get_method_with_exception(
-    spotify_client: SpotifyClient, mock_requests: Mocker, http_status: HTTPStatus
+    spotify_client: SpotifyClient,
+    mock_requests: Mocker,
+    http_status: HTTPStatus,
 ) -> None:
     """Test that when a non-2XX code is returned, an exception is raised."""
     mock_requests.get(
@@ -209,12 +210,14 @@ def test_get_method_with_exception(
 
 
 def test_get_items_from_url_no_pagination(
-    spotify_client: SpotifyClient, spotify_artist: Artist, mock_requests: Mocker
+    spotify_client: SpotifyClient,
+    spotify_artist: Artist,
+    mock_requests: Mocker,
 ) -> None:
     """Test that the `get_items_from_url` method processes a single page correctly."""
 
     items = spotify_client.get_items(
-        url=f"{SpotifyClient.BASE_URL}/artists/1ma3pjzpirayypnrkp3suf/albums"
+        url=f"{SpotifyClient.BASE_URL}/artists/1ma3pjzpirayypnrkp3suf/albums",
     )
     assert len(mock_requests.request_history) == 1
 
@@ -222,12 +225,14 @@ def test_get_items_from_url_no_pagination(
 
 
 def test_get_items_from_url_with_pagination(
-    spotify_client: SpotifyClient, spotify_playlist: Playlist, mock_requests: Mocker
+    spotify_client: SpotifyClient,
+    spotify_playlist: Playlist,
+    mock_requests: Mocker,
 ) -> None:
     """Test that the `get_items_from_url` method processes multiple pages correctly."""
 
     items = spotify_client.get_items(
-        url=f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks"
+        url=f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
     )
     # Not testing all request details as it's covered by
     # `tests.unit.clients.spotify.test__playlist.test_tracks_property`
@@ -245,7 +250,9 @@ def test_get_items_from_url_with_pagination(
 
 
 def test_get_items_from_url_handles_params_correctly(
-    spotify_client: SpotifyClient, mock_requests: Mocker, live_jwt_token: str
+    spotify_client: SpotifyClient,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that the `params` dict are turned into a query string correctly."""
 
@@ -267,13 +274,15 @@ def test_get_items_from_url_handles_params_correctly(
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {live_jwt_token}",
                 },
-            }
+            },
         ],
     )
 
 
 def test_get_items_from_url_hard_limit(
-    spotify_client: SpotifyClient, mock_requests: Mocker, live_jwt_token: str
+    spotify_client: SpotifyClient,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test the `hard_limit` argument works correctly."""
 
@@ -287,7 +296,6 @@ def test_get_items_from_url_hard_limit(
     assert_mock_requests_request_history(
         mock_requests.request_history,
         [
-            # pylint: disable=line-too-long
             {
                 "url": f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?limit=50",
                 "method": "GET",
@@ -311,7 +319,9 @@ def test_get_items_from_url_hard_limit(
 
 
 def test_get_items_from_url_limit_func(
-    spotify_client: SpotifyClient, mock_requests: Mocker, live_jwt_token: str
+    spotify_client: SpotifyClient,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that a limit function can be passed to `get_items_from_url`."""
 
@@ -332,7 +342,7 @@ def test_get_items_from_url_limit_func(
                 "added_at_datetime": datetime.strptime(
                     item["added_at"],  # type: ignore[typeddict-item]
                     spotify_client.DATETIME_FORMAT,
-                )
+                ),
             },
         )
         for item in items
@@ -347,7 +357,6 @@ def test_get_items_from_url_limit_func(
     assert_mock_requests_request_history(
         mock_requests.request_history,
         [
-            # pylint: disable=line-too-long
             {
                 "url": f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks?limit=50",
                 "method": "GET",
@@ -413,7 +422,7 @@ def test_get_items_from_url_limit_func(
                     spotify_client.DATETIME_FORMAT,
                 )
                 >= datetime(2020, 1, 1),
-            )
+            ),
         )
         == 75
     )
@@ -455,7 +464,8 @@ def test_get_items_from_url_with_top_level_key(spotify_client: SpotifyClient) ->
 
 
 def test_get_json_response_returns_json(
-    spotify_client: SpotifyClient, mock_requests: Mocker
+    spotify_client: SpotifyClient,
+    mock_requests: Mocker,
 ) -> None:
     """Test that the JSON content of the response is returned as a dict."""
 
@@ -505,7 +515,6 @@ def test_get_json_response_returns_json(
             f"{SpotifyClient.BASE_URL}/search?query=mirrors&type=album&limit=1",
             "v1/albums/7FvnTARvgjUyWnUT0flUN7.json",
         ),
-        # pylint: disable=line-too-long
         (
             "Ross from Friends",
             Artist,
@@ -542,7 +551,9 @@ def test_search_method_get_best_match_only(
     """Test the `search` method processes the request and response correctly."""
 
     search_result = spotify_client.search(
-        search_term, entity_types=[entity_type_str], get_best_match_only=True
+        search_term,
+        entity_types=[entity_type_str],
+        get_best_match_only=True,
     )
 
     assert search_result == entity_type.from_json_response(
@@ -561,13 +572,14 @@ def test_search_method_get_best_match_only(
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {live_jwt_token}",
                 },
-            }
+            },
         ],
     )
 
 
 def test_search_method_get_best_match_only_multiple_entity_types_throws_error(
-    spotify_client: SpotifyClient, mock_requests: Mocker
+    spotify_client: SpotifyClient,
+    mock_requests: Mocker,
 ) -> None:
     """Test the `search` method returns `None` when no results are found."""
 
@@ -602,7 +614,8 @@ def test_search_method_invalid_entity_type(spotify_client: SpotifyClient) -> Non
 
     with pytest.raises(ValueError) as exc_info:
         spotify_client.search(
-            "Mirrors", entity_types=["album", "foo"]  # type: ignore[list-item]
+            "Mirrors",
+            entity_types=["album", "foo"],  # type: ignore[list-item]
         )
 
     assert str(exc_info.value) == (
@@ -612,19 +625,22 @@ def test_search_method_invalid_entity_type(spotify_client: SpotifyClient) -> Non
 
 
 def test_search_method_with_pagination(
-    spotify_client: SpotifyClient, mock_requests: Mocker, live_jwt_token: str
+    spotify_client: SpotifyClient,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that when >50 results are returned, they paginate correctly."""
 
     # An uncommon search, so I don't have to manually reduce the number of files
     results: ParsedSearchResponse = spotify_client.search(
-        "uncommon search", entity_types=["track"], get_best_match_only=False
+        "uncommon search",
+        entity_types=["track"],
+        get_best_match_only=False,
     )
 
     assert_mock_requests_request_history(
         mock_requests.request_history,
         [
-            # pylint: disable=line-too-long
             {
                 "url": f"{SpotifyClient.BASE_URL}/search?query=uncommon+search&type=track&limit=50",
                 "method": "GET",
@@ -672,7 +688,6 @@ def test_search_no_results(spotify_client: SpotifyClient) -> None:
 
     assert (
         spotify_client.search(
-            # pylint: disable=line-too-long
             "S6aoG9N@zsyeCr@3m@WhtgB$2LL%XYIA6r0yWmt0ZECc1MoRx%zCB$BW6lKTZHaMe6XBMQiiyenkPt!jpnLvoV4sUq35X9u7!uA",
             entity_types=["track"],
             get_best_match_only=True,
@@ -681,7 +696,6 @@ def test_search_no_results(spotify_client: SpotifyClient) -> None:
     )
 
     assert spotify_client.search(
-        # pylint: disable=line-too-long
         "S6aoG9N@zsyeCr@3m@WhtgB$2LL%XYIA6r0yWmt0ZECc1MoRx%zCB$BW6lKTZHaMe6XBMQiiyenkPt!jpnLvoV4sUq35X9u7!uA",
         entity_types=["track"],
         get_best_match_only=False,
@@ -691,7 +705,8 @@ def test_search_no_results(spotify_client: SpotifyClient) -> None:
 
 
 def test_access_token_property(
-    spotify_client: SpotifyClient, live_jwt_token: str
+    spotify_client: SpotifyClient,
+    live_jwt_token: str,
 ) -> None:
     """Test that the `access_token` leverages the SpotifyOAuth instance."""
 
@@ -721,7 +736,7 @@ def test_current_user_property(
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {live_jwt_token}",
                 },
-            }
+            },
         ],
     )
 
@@ -760,14 +775,13 @@ def test_add_tracks_to_playlist(
         mock_requests.request_history,
         [
             {
-                # pylint: disable=line-too-long
                 "url": f"{SpotifyClient.BASE_URL}/playlists/4Vv023MaZsc8NTWZ4WJvIL/tracks",
                 "method": "POST",
                 "headers": {
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {live_jwt_token}",
                 },
-            }
+            },
         ]
         * 4,
     )
@@ -790,7 +804,9 @@ def test_add_tracks_to_playlist(
 
 
 def test_add_tracks_to_playlist_ignores_tracks_already_in_playlist(
-    spotify_client: SpotifyClient, mock_requests: Mocker, live_jwt_token: str
+    spotify_client: SpotifyClient,
+    mock_requests: Mocker,
+    live_jwt_token: str,
 ) -> None:
     """Test that tracks which are already in the playlist are ignored."""
 
@@ -830,7 +846,9 @@ def test_add_tracks_to_playlist_ignores_tracks_already_in_playlist(
     ],
 )
 def test_create_playlist_method(
-    spotify_client: SpotifyClient, public: bool, collaborative: bool
+    spotify_client: SpotifyClient,
+    public: bool,
+    collaborative: bool,
 ) -> None:
     """Test that the `create_playlist` method makes the correct requests."""
 
@@ -850,9 +868,7 @@ def test_create_playlist_method(
     assert new_playlist.tracks == []
 
 
-@pytest.mark.parametrize(
-    "album_id", ["4julBAGYv4WmRXwhjJ2LPD", "7FvnTARvgjUyWnUT0flUN7"]
-)
+@pytest.mark.parametrize("album_id", ["4julBAGYv4WmRXwhjJ2LPD", "7FvnTARvgjUyWnUT0flUN7"])
 def test_get_album_by_id_method(
     spotify_client: SpotifyClient,
     album_id: str,
@@ -876,13 +892,14 @@ def test_get_album_by_id_method(
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {live_jwt_token}",
                 },
-            }
+            },
         ],
     )
 
 
 @pytest.mark.parametrize(
-    "artist_id", ["0q8eApZJs5WDBxayY9769C", "1Ma3pJzPIrAyYPNRkp3SUF"]
+    "artist_id",
+    ["0q8eApZJs5WDBxayY9769C", "1Ma3pJzPIrAyYPNRkp3SUF"],
 )
 def test_get_artist_by_id_method(
     spotify_client: SpotifyClient,
@@ -907,7 +924,7 @@ def test_get_artist_by_id_method(
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {live_jwt_token}",
                 },
-            }
+            },
         ],
     )
 
@@ -944,16 +961,19 @@ def test_get_playlist_by_id_method(
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {live_jwt_token}",
                 },
-            }
+            },
         ],
     )
 
 
 @pytest.mark.parametrize(
-    "playlist_id", ["2lMx8FU0SeQ7eA5kcMlNpX", "4Vv023MaZsc8NTWZ4WJvIL"]
+    "playlist_id",
+    ["2lMx8FU0SeQ7eA5kcMlNpX", "4Vv023MaZsc8NTWZ4WJvIL"],
 )
 def test_get_playlist_by_id_after_property_accessed(
-    spotify_client: SpotifyClient, playlist_id: str, mock_requests: Mocker
+    spotify_client: SpotifyClient,
+    playlist_id: str,
+    mock_requests: Mocker,
 ) -> None:
     """Test that the correct Playlist instance is returned."""
 
@@ -1002,6 +1022,6 @@ def test_get_track_by_id_method(
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {live_jwt_token}",
                 },
-            }
+            },
         ],
     )

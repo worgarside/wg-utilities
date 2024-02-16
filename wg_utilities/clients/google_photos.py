@@ -176,9 +176,7 @@ class MediaItem(GooglePhotosEntity):
     """Class for representing a MediaItem and its metadata/content."""
 
     base_url: str = Field(alias="baseUrl")
-    contributor_info: dict[str, str] | None = Field(
-        alias="contributorInfo", default=None
-    )
+    contributor_info: dict[str, str] | None = Field(alias="contributorInfo", default=None)
     description: str | None = Field(default=None)
     filename: str
     media_metadata: _MediaItemMetadata = Field(alias="mediaMetadata")
@@ -196,8 +194,9 @@ class MediaItem(GooglePhotosEntity):
             MediaType.VIDEO: "=dv",
         }.get(self.media_type, "")
 
-        return self.google_client._get(  # pylint: disable=protected-access
-            f"{self.base_url}{param_str}", params={"pageSize": None}
+        return self.google_client._get(
+            f"{self.base_url}{param_str}",
+            params={"pageSize": None},
         ).content
 
     def download(
@@ -247,8 +246,9 @@ class MediaItem(GooglePhotosEntity):
         else:
             force_mkdir(self.local_path, path_is_file=True).write_bytes(
                 self.as_bytes(
-                    width_override=width_override, height_override=height_override
-                )
+                    width_override=width_override,
+                    height_override=height_override,
+                ),
             )
 
         return self.local_path
@@ -423,7 +423,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
                         params={"pageSize": 50},
                     )
                     if item["id"] not in album_ids
-                ]
+                ],
             )
 
             self._album_count = len(self._albums)

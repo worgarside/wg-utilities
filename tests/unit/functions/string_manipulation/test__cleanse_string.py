@@ -54,7 +54,9 @@ def test_varying_inputs(in_str: str, expected: str) -> None:
     ],
 )
 def test_newline_preservation(
-    in_str: str, preserve_newlines: bool, expected: str
+    in_str: str,
+    preserve_newlines: bool,
+    expected: str,
 ) -> None:
     """Test that newlines are preserved as expected."""
 
@@ -62,7 +64,6 @@ def test_newline_preservation(
 
 
 @pytest.mark.parametrize(
-    # pylint: disable=unused-variable,undefined-variable
     ("in_str", "whitespace_amount", "expected"),
     [
         ("a b c", None, "abc"),
@@ -100,7 +101,9 @@ def test_newline_preservation(
     ],
 )
 def test_whitespace_amounts(
-    in_str: str, whitespace_amount: int | None, expected: str
+    in_str: str,
+    whitespace_amount: int | None,
+    expected: str,
 ) -> None:
     """Test preserving different amounts of spaces."""
 
