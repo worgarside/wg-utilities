@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any, ClassVar, Self, final
 
 from wg_utilities.exceptions._exception import WGUtilitiesError
+from wg_utilities.helpers.meta.post_init import PostInitMeta
 
 CacheIdType = object | tuple[object, object]
 
@@ -73,7 +74,7 @@ class CacheIdGenerationError(InstanceCacheIdError):
         )
 
 
-class InstanceCacheMixin:
+class InstanceCacheMixin(metaclass=PostInitMeta):
     """Mixin class to provide instance caching functionality.
 
     Args:
@@ -132,22 +133,16 @@ class InstanceCacheMixin:
         if cache_id_func:
             cls._CACHE_ID_FUNC = cache_id_func
 
-    def __new__(cls, *args: Any, **kwargs: Any) -> Self:
-        """Instantiate the class and add it to the cache.
+    def __post_init__(self) -> None:
+        """Add the instance to the cache.
 
         Raises:
             InstanceCacheDuplicateError: If the instance already exists in the cache.
         """
-        obj = super().__new__(cls)
-        obj.__init__(*args, **kwargs)  # type: ignore[misc]
+        if (instance_id := cache_id(self)) in self._INSTANCES:
+            raise InstanceCacheDuplicateError(self.__class__, instance_id)
 
-        if (instance_id := cache_id(obj)) in cls._INSTANCES:
-            del obj
-            raise InstanceCacheDuplicateError(cls, instance_id)
-
-        cls._INSTANCES[instance_id] = obj
-
-        return obj
+        self._INSTANCES[instance_id] = self  # type: ignore[assignment]
 
     @final
     @classmethod

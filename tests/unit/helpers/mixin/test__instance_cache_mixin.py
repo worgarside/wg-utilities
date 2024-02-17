@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Any
 from uuid import UUID
 
 import pytest
@@ -60,7 +61,7 @@ def test_invalid_cache_id_attr() -> None:
 
     with pytest.raises(InstanceCacheSubclassError, match="Invalid cache ID attribute: "):
 
-        class InvalidCacheIdAttr(InstanceCacheMixin, cache_id_attr=123):  # type: ignore[arg-type]
+        class InvalidCacheIdAttr(InstanceCacheMixin, cache_id_attr=123):
             pass
 
 
@@ -69,11 +70,11 @@ def test_invalid_cache_id_func() -> None:
 
     with pytest.raises(InstanceCacheSubclassError, match="Invalid cache ID function: "):
 
-        class InvalidCacheIdFunc(InstanceCacheMixin, cache_id_func=123):  # type: ignore[arg-type]
+        class InvalidCacheIdFunc(InstanceCacheMixin, cache_id_func=123):
             pass
 
 
-def test_caching(TestCacheableClass: type[InstanceCacheMixin]) -> None:
+def test_caching(TestCacheableClass: type[Any]) -> None:
     """Test that instances are cached correctly."""
     instance_1 = TestCacheableClass("one")
     instance_2 = TestCacheableClass("two")
@@ -84,7 +85,7 @@ def test_caching(TestCacheableClass: type[InstanceCacheMixin]) -> None:
     } == TestCacheableClass._INSTANCES
 
 
-def test_cache_collision(TestCacheableClass: type[InstanceCacheMixin]) -> None:
+def test_cache_collision(TestCacheableClass: type[Any]) -> None:
     """Test an error is thrown when a cache ID collision occurs."""
     _ = TestCacheableClass("one")
 
@@ -95,7 +96,7 @@ def test_cache_collision(TestCacheableClass: type[InstanceCacheMixin]) -> None:
         TestCacheableClass("one")
 
 
-def test_cache_retrieval(TestCacheableClass: type[InstanceCacheMixin]) -> None:
+def test_cache_retrieval(TestCacheableClass: type[Any]) -> None:
     """Test that instances are retrieved from the cache correctly."""
     instance_1 = TestCacheableClass("one")
     instance_2 = TestCacheableClass("two")
@@ -112,7 +113,7 @@ def test_cache_retrieval(TestCacheableClass: type[InstanceCacheMixin]) -> None:
         TestCacheableClass.from_cache("three")
 
 
-def test_cache_entry_check(TestCacheableClass: type[InstanceCacheMixin]) -> None:
+def test_cache_entry_check(TestCacheableClass: type[Any]) -> None:
     """Test that the cache entry check works correctly."""
     TestCacheableClass("one")
 
@@ -120,7 +121,7 @@ def test_cache_entry_check(TestCacheableClass: type[InstanceCacheMixin]) -> None
     assert not TestCacheableClass.has_cache_entry("two")
 
 
-def test_cache_id(TestCacheableClass: type[InstanceCacheMixin]) -> None:
+def test_cache_id(TestCacheableClass: type[Any]) -> None:
     """Test that the cache ID function works correctly."""
     instance = TestCacheableClass("one")
 
