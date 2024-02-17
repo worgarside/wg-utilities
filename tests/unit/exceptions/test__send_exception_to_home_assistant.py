@@ -19,7 +19,10 @@ from requests_mock import Mocker
 from typing_extensions import TypedDict
 
 from tests.conftest import EXCEPTION_GENERATORS
-from wg_utilities.exceptions import HA_LOG_ENDPOINT, send_exception_to_home_assistant
+from wg_utilities.exceptions._deprecated import (
+    HA_LOG_ENDPOINT,
+    send_exception_to_home_assistant,
+)
 
 
 class PayloadInfo(TypedDict):

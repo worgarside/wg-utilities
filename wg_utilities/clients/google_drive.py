@@ -1104,9 +1104,6 @@ class Drive(_CanHaveChildren):
 
         Returns:
             Directory: the directory with the given ID
-
-        Raises:
-            ResourceNotFoundError: if a directory with the given ID does not exist
         """
         if isinstance(self._all_directories, list):
             for directory in self._all_directories:
@@ -1123,9 +1120,6 @@ class Drive(_CanHaveChildren):
 
         Returns:
             File: the file with the given ID
-
-        Raises:
-            ResourceNotFoundError: if a file with the given ID does not exist
         """
         if isinstance(self._all_files, list):
             for file in self._all_files:

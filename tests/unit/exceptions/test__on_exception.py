@@ -10,7 +10,7 @@ import pytest
 from requests_mock import Mocker
 
 from tests.conftest import EXCEPTION_GENERATORS, TEST_EXCEPTION
-from wg_utilities.exceptions import HA_LOG_ENDPOINT, on_exception
+from wg_utilities.exceptions._deprecated import HA_LOG_ENDPOINT, on_exception
 
 
 def test_decorated_function_is_called_correctly_without_exception() -> None:
