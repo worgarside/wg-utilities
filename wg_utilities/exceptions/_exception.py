@@ -5,4 +5,8 @@ class WGUtilitiesError(Exception):
     """Base class for all exceptions raised by wg_utilities."""
 
 
-__all__ = ["WGUtilitiesError"]
+class BadDefinitionError(WGUtilitiesError):
+    """Raised when some kind of definition is invalid."""
+
+
+__all__ = ["WGUtilitiesError", "BadDefinitionError"]
