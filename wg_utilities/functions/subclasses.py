@@ -27,14 +27,14 @@ def subclasses_recursive(
     """
 
     for subclass in typ.__subclasses__():
+        if track_visited:
+            __visited = __visited or set()
+            if subclass in __visited:
+                continue
+
+            __visited.add(subclass)
+
         if class_filter is None or class_filter(subclass):
-            if track_visited:
-                __visited = __visited or set()
-                if subclass in __visited:
-                    continue
-
-                __visited.add(subclass)
-
             yield subclass
 
         yield from subclasses_recursive(
