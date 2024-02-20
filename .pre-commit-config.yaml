@@ -12,6 +12,35 @@ repos:
       - id: ruff
       - id: ruff-format
 
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        args:
+          - --strict
+        additional_dependencies:
+          - aioresponses==0.7.6
+          - async-upnp-client==0.38.2
+          - boto3-stubs
+          - lxml-stubs
+          - mypy_boto3_lambda
+          - mypy_boto3_s3
+          - pydantic==2.6.1
+          - pytest==7.4.4
+          - python-dotenv==1.0.1
+          - requests-mock==1.11.0
+          - types-Pillow
+          - types-PyYAML
+          - types-flask
+          - types-freezegun
+          - types-pyjwt
+          - types-python-dateutil
+          - types-requests
+          - types-setuptools
+          - types-tzlocal
+          - types-xmltodict
+          - voluptuous-stubs
+
   - repo: https://github.com/python-poetry/poetry
     rev: 1.7.0
     hooks:
@@ -63,35 +92,6 @@ repos:
           - --format
           - parsable
           - --strict
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
-    hooks:
-      - id: mypy
-        args:
-          - --strict
-        additional_dependencies:
-          - aioresponses==0.7.6
-          - async-upnp-client==0.38.2
-          - boto3-stubs
-          - lxml-stubs
-          - mypy_boto3_lambda
-          - mypy_boto3_s3
-          - pydantic==2.6.1
-          - pytest==7.4.4
-          - python-dotenv==1.0.1
-          - requests-mock==1.11.0
-          - types-Pillow
-          - types-PyYAML
-          - types-flask
-          - types-freezegun
-          - types-pyjwt
-          - types-python-dateutil
-          - types-requests
-          - types-setuptools
-          - types-tzlocal
-          - types-xmltodict
-          - voluptuous-stubs
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
