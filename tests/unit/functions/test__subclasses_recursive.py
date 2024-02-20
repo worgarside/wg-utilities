@@ -97,3 +97,34 @@ def test_nested_subclasses() -> None:
         NestedSubclassC201,
         NestedSubclassC202,
     ]
+
+
+def test_visit_tracking() -> None:
+    """Test that visit tracking works as expected."""
+
+    assert list(
+        subclasses_recursive(
+            BaseClassC,
+            track_visited=False,
+            __visited={DirectSubclassC2},  # type: ignore[call-arg]
+        ),
+    ) == [
+        DirectSubclassC1,
+        NestedSubclassC101,
+        NestedSubclassC102,
+        DirectSubclassC2,
+        NestedSubclassC201,
+        NestedSubclassC202,
+    ]
+
+    assert list(
+        subclasses_recursive(
+            BaseClassC,
+            track_visited=True,
+            __visited={DirectSubclassC2},  # type: ignore[call-arg]
+        ),
+    ) == [
+        DirectSubclassC1,
+        NestedSubclassC101,
+        NestedSubclassC102,
+    ]
