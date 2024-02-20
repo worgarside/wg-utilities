@@ -9,6 +9,7 @@ from .file_management import force_mkdir, user_data_dir
 from .json import process_json_object, process_list, set_nested_value, traverse_dict
 from .processes import run_cmd
 from .string_manipulation import cleanse_string
+from .subclasses import subclasses_recursive
 
 __all__ = [
     "chunk_list",
@@ -22,6 +23,7 @@ __all__ = [
     "process_json_object",
     "run_cmd",
     "set_nested_value",
+    "subclasses_recursive",
     "traverse_dict",
     "try_float",
     "user_data_dir",
@@ -32,6 +34,6 @@ try:
     __all__.append(
         "get_nsmap",
     )
-except ImportError as _exc:  # pragma: no cover
-    if str(_exc) == "No module named 'lxml'":
+except ImportError as __exc:  # pragma: no cover
+    if str(__exc) == "No module named 'lxml'":
         pass
