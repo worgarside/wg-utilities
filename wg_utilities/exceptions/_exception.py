@@ -12,6 +12,7 @@ class WGUtilitiesError(Exception):
     @classmethod
     @lru_cache
     def subclasses(cls) -> list[type[Self]]:
+        """Return a list of all subclasses of this error, cached for performance."""
         return list(subclasses_recursive(cls))
 
 
