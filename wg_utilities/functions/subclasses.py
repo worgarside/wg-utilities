@@ -22,7 +22,7 @@ def subclasses_recursive(
         type: a subclass of the given class
     """
     for subclass in typ.__subclasses__():
-        if class_filter is None or class_filter(subclass) is True:
+        if class_filter is None or class_filter(subclass):
             yield subclass
 
         yield from subclasses_recursive(subclass, class_filter=class_filter)
