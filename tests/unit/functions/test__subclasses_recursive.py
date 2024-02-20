@@ -128,3 +128,33 @@ def test_visit_tracking() -> None:
         NestedSubclassC101,
         NestedSubclassC102,
     ]
+
+
+def test_it_all_together() -> None:
+    """Test that everything works together as expected."""
+
+    assert list(
+        subclasses_recursive(
+            BaseClassC,
+            class_filter=lambda cls: cls.__name__.startswith("Nested"),
+            track_visited=True,
+            __visited={DirectSubclassC2},  # type: ignore[call-arg]
+        ),
+    ) == [
+        NestedSubclassC101,
+        NestedSubclassC102,
+    ]
+
+    assert list(
+        subclasses_recursive(
+            BaseClassC,
+            class_filter=lambda cls: cls.__name__.startswith("Nested"),
+            track_visited=False,
+            __visited={DirectSubclassC2},  # type: ignore[call-arg]
+        ),
+    ) == [
+        NestedSubclassC101,
+        NestedSubclassC102,
+        NestedSubclassC201,
+        NestedSubclassC202,
+    ]
