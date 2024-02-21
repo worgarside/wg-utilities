@@ -20,15 +20,6 @@ from wg_utilities.helpers.mixin.instance_cache import (
 UID = UUID("e9545fd5-efd0-4d0c-a55a-f04dd03fbe4b")
 
 
-def test_one_id_value_required() -> None:
-    """Test an error is thrown when a subclass has both cache ID fields as null."""
-
-    with pytest.raises(InstanceCacheSubclassError):
-
-        class NoIdValue(InstanceCacheMixin, cache_id_attr=None, cache_id_func=None):
-            pass
-
-
 @pytest.mark.parametrize(
     "kwargs",
     [
@@ -49,7 +40,7 @@ def test_class_attributes_are_set(kwargs: dict[str, str | None]) -> None:
 
     assert kwargs.get("cache_id_attr") == getattr(MyClass, "_CACHE_ID_ATTR", None)
 
-    assert kwargs.get("cache_id_func", "__hash__") == getattr(
+    assert kwargs.get("cache_id_func") == getattr(
         MyClass,
         "_CACHE_ID_FUNC",
         None,
@@ -131,8 +122,8 @@ def test_cache_id(TestCacheableClass: type[Any]) -> None:
 @pytest.mark.parametrize(
     ("kwargs", "expected_id"),
     [
-        ({"cache_id_attr": "uid"}, (UID, 1234)),
-        ({"cache_id_attr": "uid", "cache_id_func": None}, UID),
+        ({}, 1234),
+        ({"cache_id_attr": "uid"}, UID),
         ({"cache_id_func": "func"}, f"one|{UID}"),
         ({"cache_id_attr": "name", "cache_id_func": "func"}, ("one", f"one|{UID}")),
     ],
