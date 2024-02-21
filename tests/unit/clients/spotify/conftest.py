@@ -1,7 +1,7 @@
 """Fixtures for the Spotify client tests."""
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from pathlib import Path
 from re import IGNORECASE
@@ -143,7 +143,7 @@ def spotify_playlist_(spotify_client: SpotifyClient) -> Playlist:
     )
 
     playlist._live_snapshot_id = playlist.snapshot_id
-    playlist._live_snapshot_id_timestamp = datetime.utcnow() + timedelta(hours=21)
+    playlist._live_snapshot_id_timestamp = datetime.now(UTC) + timedelta(hours=21)
 
     return playlist
 

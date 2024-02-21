@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Literal
 from unittest.mock import call, patch
@@ -86,7 +86,7 @@ def test_update_balance_values(account: Account) -> None:
     assert not hasattr(account, "_current_balance")
     assert not hasattr(account, "_overdraft")
 
-    with freeze_time(frozen_datetime := datetime.utcnow()):
+    with freeze_time(frozen_datetime := datetime.now(UTC)):
         account.update_balance_values()
 
     assert not hasattr(account, "_available_balance")
@@ -166,7 +166,7 @@ def test_get_balance_property_account(
             mock_update_balance_values.assert_called_once()
 
             # Third call should trigger updates because we're now outside the threshold
-            account.last_balance_update = datetime.utcnow() - timedelta(hours=1e6)
+            account.last_balance_update = datetime.now(UTC) - timedelta(hours=1e6)
             _ = account._get_balance_property(property_name)
 
             assert mock_update_balance_values.call_count == 2
@@ -221,7 +221,7 @@ def test_get_balance_property_card(
             mock_update_balance_values.assert_called_once()
 
             # Third call should trigger updates because we're now outside the threshold
-            card.last_balance_update = datetime.utcnow() - timedelta(hours=1e6)
+            card.last_balance_update = datetime.now(UTC) - timedelta(hours=1e6)
             _ = card._get_balance_property(property_name)
 
             assert mock_update_balance_values.call_count == 2

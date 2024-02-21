@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import date, datetime  # noqa: TCH003
 from enum import StrEnum
 from re import sub
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, TypeVar
@@ -14,7 +15,6 @@ from wg_utilities.functions.json import JSONObj
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping
-    from datetime import date, datetime
     from pathlib import Path
 
     from wg_utilities.clients.json_api_client import StrBytIntFlt

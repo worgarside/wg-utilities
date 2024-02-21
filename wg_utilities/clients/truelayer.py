@@ -1,8 +1,7 @@
 """Custom client for interacting with TrueLayer's API."""
-
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from enum import Enum, StrEnum, auto
 from logging import DEBUG, getLogger
 from pathlib import Path
@@ -245,8 +244,8 @@ class TrueLayerEntity(BaseModelWithConfig):
         """
 
         if from_datetime or to_datetime:
-            from_datetime = from_datetime or datetime.utcnow() - timedelta(days=90)
-            to_datetime = to_datetime or datetime.utcnow()
+            from_datetime = from_datetime or datetime.now(UTC) - timedelta(days=90)
+            to_datetime = to_datetime or datetime.now(UTC)
 
             params: (
                 dict[
@@ -314,7 +313,7 @@ class TrueLayerEntity(BaseModelWithConfig):
 
             setattr(self, attr_name, v)
 
-        self.last_balance_update = datetime.utcnow()
+        self.last_balance_update = datetime.now(UTC)
 
     @overload
     def _get_balance_property(
@@ -379,7 +378,7 @@ class TrueLayerEntity(BaseModelWithConfig):
             not hasattr(self, f"_{prop_name}")
             or getattr(self, f"_{prop_name}") is None
             or self.last_balance_update
-            <= (datetime.utcnow() - self.balance_update_threshold)
+            <= (datetime.now(UTC) - self.balance_update_threshold)
         ):
             self.update_balance_values()
 

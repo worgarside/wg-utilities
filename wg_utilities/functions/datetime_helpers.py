@@ -1,12 +1,9 @@
 """Helper functions for all things date and time related."""
-
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import overload
-
-from pytz import utc
 
 
 class DatetimeFixedUnit(Enum):
@@ -52,9 +49,9 @@ def utcnow(unit: DatetimeFixedUnit | None = None) -> datetime | int:
     """
 
     if not unit:
-        return datetime.utcnow().replace(tzinfo=utc)
+        return datetime.now(UTC)
 
-    return int(datetime.utcnow().replace(tzinfo=utc).timestamp() / unit.value)
+    return int(datetime.now(UTC).timestamp() / unit.value)
 
 
 __all__ = [

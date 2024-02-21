@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from logging import DEBUG, getLogger
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, final
 
@@ -296,9 +296,9 @@ class Account(BaseModelWithConfig):
         """
 
         from_datetime = (
-            from_datetime or (datetime.utcnow() - timedelta(days=89))
+            from_datetime or (datetime.now(UTC) - timedelta(days=89))
         ).replace(microsecond=0, tzinfo=None)
-        to_datetime = (to_datetime or datetime.utcnow()).replace(
+        to_datetime = (to_datetime or datetime.now(UTC)).replace(
             microsecond=0,
             tzinfo=None,
         )
@@ -326,7 +326,7 @@ class Account(BaseModelWithConfig):
         """
 
         if not hasattr(self, "_balance_variables") or self.last_balance_update <= (
-            datetime.utcnow() - timedelta(minutes=self.balance_update_threshold)
+            datetime.now(UTC) - timedelta(minutes=self.balance_update_threshold)
         ):
             LOGGER.debug("Balance variable update threshold crossed, getting new values")
 
@@ -334,7 +334,7 @@ class Account(BaseModelWithConfig):
                 self.monzo_client.get_json_response(f"/balance?account_id={self.id}"),
             )
 
-            self.last_balance_update = datetime.utcnow()
+            self.last_balance_update = datetime.now(UTC)
 
     @property
     def balance(self) -> int | None:

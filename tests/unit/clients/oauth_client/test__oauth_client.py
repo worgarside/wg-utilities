@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from json import loads
 from pathlib import Path
@@ -64,7 +64,7 @@ def test_oauth_credentials_parse_first_time_login_attributes(
     assert creds.client_secret == "test_client_secret"
     assert creds.is_expired is False
 
-    with freeze_time(datetime.utcnow() + timedelta(seconds=3600)):
+    with freeze_time(datetime.now(UTC) + timedelta(seconds=3600)):
         assert creds.is_expired is True
 
 
@@ -77,7 +77,7 @@ def test_oauth_credentials_parse_first_time_login_expiry_mismatch() -> None:
                 "access_token": "test_access_token",
                 "refresh_token": "test_refresh_token",
                 # This is after the JWT token expiry
-                "expiry": ((datetime.utcnow() + timedelta(seconds=3700)).isoformat()),
+                "expiry": ((datetime.now(UTC) + timedelta(seconds=3700)).isoformat()),
                 "expires_in": 3600,
                 "scope": "test_scope",
                 "token_type": "Bearer",
@@ -86,7 +86,7 @@ def test_oauth_credentials_parse_first_time_login_expiry_mismatch() -> None:
 
     assert fullmatch(
         r"^`expiry` and `expires_in` are not consistent with each other: expiry:"
-        r" \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3,6}, expires_in: \d+\.?\d*$",
+        r" \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3,6}\+00:00, expires_in: \d+\.?\d*$",
         str(exc_info.value),
     )
 

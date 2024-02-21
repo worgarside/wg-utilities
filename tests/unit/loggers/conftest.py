@@ -270,3 +270,9 @@ def mock_requests_(
     )
 
     return mock_requests_root
+
+
+@pytest.fixture(autouse=True)
+def _mock_atexit(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Fixture for mocking atexit.register."""
+    monkeypatch.setattr("atexit.register", lambda *_, **__: None)

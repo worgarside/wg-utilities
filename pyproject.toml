@@ -92,7 +92,7 @@ log_cli_level = "warning"
 pythonpath = ["wg_utilities"]
 testpaths = ["tests"]
 env = []
-filterwarnings = ["ignore::DeprecationWarning:boto.*:"]
+filterwarnings = ["ignore::DeprecationWarning:dateutil.tz:37"]
 markers = [
   "mocked_operation_lookup: allows setting the mocks in the `mb3c` fixture",
   "upnp_value_path: file with content to set as the value in a `upnp_state_variable` fixture",

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from asyncio import new_event_loop, run
 from asyncio import sleep as async_sleep
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from functools import wraps
 from logging import DEBUG, getLogger
@@ -694,7 +694,7 @@ class YamahaYas209:
         )
 
         event_payload: YamahaYas209.EventPayloadInfo = {
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(UTC),
             "service_id": service.service_id,
             "service_type": service.service_type,
             "last_change": last_change,
@@ -811,7 +811,7 @@ class YamahaYas209:
                     await server.event_handler.async_subscribe(service)
                     self._active_service_ids.append(service.service_id)
                     services_to_remove.append(service)
-                except UpnpCommunicationError as exc:
+                except UpnpCommunicationError as exc:  # noqa: PERF203
                     log_message = (
                         f"Still unable to subscribe to {service.service_id}: {exc!r}"
                     )

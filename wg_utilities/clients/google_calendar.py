@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+from datetime import UTC, timedelta, tzinfo
 from datetime import date as date_
 from datetime import datetime as datetime_
-from datetime import timedelta, tzinfo
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, TypeAlias
 
 from pydantic import Field, field_serializer, field_validator, model_validator
-from pytz import UTC, timezone
+from pytz import timezone
 from requests import delete
 from typing_extensions import NotRequired, TypedDict
 from tzlocal import get_localzone
