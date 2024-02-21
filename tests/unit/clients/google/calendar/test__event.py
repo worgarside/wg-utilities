@@ -4,13 +4,12 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from http import HTTPStatus
+from typing import TYPE_CHECKING
 
 import pytest
 from pytz import timezone
-from requests_mock import Mocker
 
 from tests.conftest import read_json_file
-from wg_utilities.clients import GoogleCalendarClient
 from wg_utilities.clients.google_calendar import (
     Calendar,
     Event,
@@ -19,6 +18,11 @@ from wg_utilities.clients.google_calendar import (
     _Creator,
     _StartEndDatetime,
 )
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
+
+    from wg_utilities.clients import GoogleCalendarClient
 
 
 def test_instantiation(

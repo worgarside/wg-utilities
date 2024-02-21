@@ -5,12 +5,11 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from http import HTTPStatus
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 from unittest.mock import call, patch
 
 import pytest
 from freezegun import freeze_time
-from requests_mock import Mocker
 
 from tests.conftest import read_json_file
 from wg_utilities.clients.truelayer import (
@@ -20,6 +19,9 @@ from wg_utilities.clients.truelayer import (
     TrueLayerClient,
     TrueLayerEntity,
 )
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
 
 
 def test_from_json_response_instantiation(truelayer_client: TrueLayerClient) -> None:

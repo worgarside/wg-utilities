@@ -5,7 +5,7 @@ from __future__ import annotations
 from json import dumps, loads
 from logging import ERROR
 from re import sub
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import ANY
 
 import pytest
@@ -16,7 +16,9 @@ from tests.unit.functions import (
     random_nested_json_with_arrays_and_stringified_json,
 )
 from wg_utilities.functions import traverse_dict
-from wg_utilities.functions.json import JSONObj, JSONVal, TargetProcessorFunc
+
+if TYPE_CHECKING:
+    from wg_utilities.functions.json import JSONObj, JSONVal, TargetProcessorFunc
 
 
 def _generate_single_key_dict(_depth: int = 0, max_depth: int = 5) -> JSONObj:
@@ -225,15 +227,13 @@ def test_traversing_dict_resursion_error() -> None:
 
 
 @pytest.mark.parametrize(
-    ",".join(
-        [
-            "in_dict",
-            "target_type",
-            "target_processor_func",
-            "exception_type",
-            "exception_message",
-            "expected",
-        ],
+    (
+        "in_dict",
+        "target_type",
+        "target_processor_func",
+        "exception_type",
+        "exception_message",
+        "expected",
     ),
     [
         (
@@ -309,15 +309,7 @@ def test_exceptions_are_raised_correctly(
 
 
 @pytest.mark.parametrize(
-    ",".join(
-        [
-            "in_dict",
-            "target_type",
-            "target_processor_func",
-            "exception_keys",
-            "expected",
-        ],
-    ),
+    ("in_dict", "target_type", "target_processor_func", "exception_keys", "expected"),
     [
         (
             {"a": "b", "c": 1, 2: 3, "d": "e", "f": "g"},

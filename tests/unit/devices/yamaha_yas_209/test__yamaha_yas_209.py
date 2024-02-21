@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from asyncio import new_event_loop
-from collections.abc import Mapping
 from copy import deepcopy
 from datetime import datetime
 from http import HTTPStatus
@@ -10,11 +9,11 @@ from logging import DEBUG, ERROR, INFO, WARNING
 from textwrap import dedent
 from threading import Thread
 from time import sleep
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 from xml.etree import ElementTree
 
 import pytest
-from aioresponses import aioresponses
 from aioresponses.core import RequestCall
 from async_upnp_client.aiohttp import AiohttpNotifyServer
 from async_upnp_client.client import (
@@ -43,6 +42,11 @@ from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import (
     Yas209State,
     _needs_device,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from aioresponses import aioresponses
 
 ON_TOP = CurrentTrack(
     album_art_uri="https://i.scdn.co/image/ab67616d0000b2733198dc8920850509e8a07d8c",

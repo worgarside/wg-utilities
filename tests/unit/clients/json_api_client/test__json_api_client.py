@@ -4,14 +4,16 @@ from __future__ import annotations
 
 from http import HTTPStatus
 from logging import DEBUG
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import call, patch
 
 import pytest
 from requests import HTTPError, get, post
-from requests_mock import Mocker
 
-from wg_utilities.clients.json_api_client import JsonApiClient
+if TYPE_CHECKING:
+    from requests_mock import Mocker
+
+    from wg_utilities.clients.json_api_client import JsonApiClient
 
 
 def test_get_method_calls_request_correctly(

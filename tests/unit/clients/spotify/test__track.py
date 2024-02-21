@@ -4,13 +4,16 @@ from __future__ import annotations
 
 from datetime import date
 from http import HTTPStatus
+from typing import TYPE_CHECKING
 
 import pytest
 from requests import HTTPError
-from requests_mock import Mocker
 
 from tests.conftest import assert_mock_requests_request_history
 from wg_utilities.clients.spotify import Album, Artist, SpotifyClient, Track
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
 
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:

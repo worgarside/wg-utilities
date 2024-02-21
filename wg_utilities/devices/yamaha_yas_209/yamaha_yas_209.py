@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from asyncio import new_event_loop, run
 from asyncio import sleep as async_sleep
-from collections.abc import Callable, Coroutine, Mapping, MutableMapping, Sequence
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
@@ -13,10 +12,9 @@ from re import compile as re_compile
 from textwrap import dedent
 from threading import Thread
 from time import sleep, strptime
-from typing import Any, ClassVar, Literal, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, TypeVar
 
 from async_upnp_client.aiohttp import AiohttpNotifyServer, AiohttpRequester
-from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable
 from async_upnp_client.client_factory import UpnpFactory
 from async_upnp_client.exceptions import UpnpCommunicationError
 from async_upnp_client.utils import get_local_ip
@@ -26,6 +24,11 @@ from xmltodict import parse as parse_xml
 
 from wg_utilities.functions import traverse_dict
 from wg_utilities.loggers import add_stream_handler
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Coroutine, Mapping, MutableMapping, Sequence
+
+    from async_upnp_client.client import UpnpDevice, UpnpService, UpnpStateVariable
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)

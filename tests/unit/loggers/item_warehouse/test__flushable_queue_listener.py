@@ -5,14 +5,16 @@ from __future__ import annotations
 from logging import NullHandler
 from random import choice
 from time import sleep
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from tests.unit.loggers.conftest import SAMPLE_LOG_RECORDS
 from wg_utilities.loggers.item_warehouse.flushable_queue_listener import (
     FlushableQueueListener,
 )
+
+if TYPE_CHECKING:
+    import pytest
 
 
 def test_flush_and_stop() -> None:

@@ -5,17 +5,20 @@ from __future__ import annotations
 from datetime import date, datetime, tzinfo
 from http import HTTPStatus
 from json import loads
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
 import pytest
 from pytz import timezone
 from requests import HTTPError
-from requests_mock import Mocker
 
 from wg_utilities.clients import GoogleCalendarClient
 from wg_utilities.clients.google_calendar import Calendar, Event, _StartEndDatetime
-from wg_utilities.clients.oauth_client import OAuthCredentials
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
+
+    from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
 def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
@@ -164,14 +167,7 @@ def test_create_event_request(
         )
 
     mock_post_json_response.assert_called_once_with(
-        "/".join(
-            [
-                "",
-                "calendars",
-                (calendar_arg or google_calendar_client.primary_calendar).id,
-                "events",
-            ],
-        ),
+        f"/calendars/{(calendar_arg or google_calendar_client.primary_calendar).id}/events",
         json={
             "summary": summary,
             "start": start_params,
@@ -315,14 +311,7 @@ def test_create_event_response(
     )
 
     mock_requests.post(
-        "/".join(
-            [
-                google_calendar_client.base_url,
-                "calendars",
-                expected_event.calendar.id,
-                "events",
-            ],
-        ),
+        f"{google_calendar_client.base_url}/calendars/{expected_event.calendar.id}/events",
         status_code=HTTPStatus.OK,
         reason=HTTPStatus.OK.phrase,
         json=loads(expected_event.model_dump_json()),

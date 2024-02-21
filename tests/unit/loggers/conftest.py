@@ -15,14 +15,17 @@ from logging import (
     getLevelName,
     getLogger,
 )
+from typing import TYPE_CHECKING
 
 import pytest
 from freezegun import freeze_time
 from requests_mock import ANY as REQUESTS_MOCK_ANY
 from requests_mock import Mocker
 
-from tests.conftest import YieldFixture
 from wg_utilities.loggers import ListHandler, WarehouseHandler
+
+if TYPE_CHECKING:
+    from tests.conftest import YieldFixture
 
 
 @pytest.fixture(name="list_handler")
@@ -226,14 +229,7 @@ def mock_requests_(
 ) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
 
-    lumberyard_url = "/".join(
-        [
-            IWH_DOT_COM,
-            "v1",
-            "warehouses",
-            "lumberyard",
-        ],
-    )
+    lumberyard_url = f"{IWH_DOT_COM}/v1/warehouses/lumberyard"
 
     mock_requests_root.get(
         lumberyard_url,

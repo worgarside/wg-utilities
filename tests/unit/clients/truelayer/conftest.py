@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
-from requests_mock import Mocker
 
 from tests.conftest import FLAT_FILES_DIR, get_flat_file_from_url, read_json_file
-from wg_utilities.clients.oauth_client import OAuthCredentials
 from wg_utilities.clients.truelayer import Account, Bank, Card, TrueLayerClient
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from requests_mock import Mocker
+
+    from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
 @pytest.fixture(name="account")

@@ -3,14 +3,13 @@ from __future__ import annotations
 
 from datetime import datetime
 from http import HTTPStatus
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
 from pytz import utc
-from requests_mock import Mocker
 
 from tests.conftest import read_json_file
-from wg_utilities.clients import GoogleDriveClient
 from wg_utilities.clients.google_drive import (
     Directory,
     Drive,
@@ -19,6 +18,11 @@ from wg_utilities.clients.google_drive import (
     ItemMetadataRetrieval,
     _User,
 )
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
+
+    from wg_utilities.clients import GoogleDriveClient
 
 
 def test_from_json_response_instantiation(

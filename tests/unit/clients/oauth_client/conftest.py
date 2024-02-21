@@ -4,17 +4,20 @@ from __future__ import annotations
 
 from http import HTTPStatus
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from flask import Flask
 from jwt import decode
-from requests_mock import Mocker
 
-from tests.conftest import YieldFixture
 from wg_utilities.api import TempAuthServer
 from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
 from wg_utilities.functions.file_management import force_mkdir
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
+
+    from tests.conftest import YieldFixture
 
 
 def get_jwt_expiry(token: str) -> float:

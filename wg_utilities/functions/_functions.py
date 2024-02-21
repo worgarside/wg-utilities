@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Generator
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 
 def chunk_list(lst: list[Any], chunk_len: int) -> Generator[list[Any], None, None]:

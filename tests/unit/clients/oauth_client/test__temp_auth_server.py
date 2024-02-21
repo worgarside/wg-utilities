@@ -5,14 +5,17 @@ from __future__ import annotations
 from http import HTTPStatus
 from threading import Thread
 from time import sleep
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
-from flask import Flask
 from requests import get
 from werkzeug.serving import BaseWSGIServer, make_server
 
 from wg_utilities.api import TempAuthServer
+
+if TYPE_CHECKING:
+    from flask import Flask
 
 
 def test_server_thread_instantiation(flask_app: Flask) -> None:

@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from logging import getLogger
+from typing import TYPE_CHECKING
 
 import pytest
 
 from tests.conftest import EXCEPTION_GENERATORS, TEST_EXCEPTION, TestError
 from wg_utilities.decorators import process_exception
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def test_decorated_function_is_called_correctly_without_exception() -> None:

@@ -1,20 +1,23 @@
 """Custom client for interacting with Google's Drive API."""
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Mapping
 from copy import deepcopy
-from datetime import date, datetime
 from enum import StrEnum
-from pathlib import Path
 from re import sub
-from typing import Any, ClassVar, Literal, Self, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, TypeVar
 
 from pydantic import Field, PrivateAttr, ValidationInfo, field_validator
 
 from wg_utilities.clients._google import GoogleClient
-from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import BaseModelWithConfig
 from wg_utilities.functions.json import JSONObj
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Mapping
+    from datetime import date, datetime
+    from pathlib import Path
+
+    from wg_utilities.clients.json_api_client import StrBytIntFlt
 
 
 class EntityKind(StrEnum):
@@ -224,7 +227,7 @@ class _GoogleDriveEntity(BaseModelWithConfig):
         parent_dir: _GoogleDriveEntity = self
 
         while hasattr(parent_dir, "parent") and (parent_dir := parent_dir.parent):
-            current_path = "/".join([parent_dir.name, current_path])
+            current_path = f"{parent_dir.name}/{current_path}"
 
         return "/" + current_path
 

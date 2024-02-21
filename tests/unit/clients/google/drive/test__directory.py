@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 from pydantic import ValidationError
 
 from tests.conftest import read_json_file
-from wg_utilities.clients import GoogleDriveClient
 from wg_utilities.clients.google_drive import Directory, Drive, EntityKind
+
+if TYPE_CHECKING:
+    from wg_utilities.clients import GoogleDriveClient
 
 
 def test_kind_validation(drive: Drive, google_drive_client: GoogleDriveClient) -> None:

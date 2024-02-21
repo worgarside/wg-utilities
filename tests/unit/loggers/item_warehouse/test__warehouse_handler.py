@@ -8,10 +8,10 @@ from http import HTTPStatus
 from json import dumps
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Handler, Logger, LogRecord
 from socket import gethostname
+from typing import TYPE_CHECKING
 from unittest.mock import ANY, patch
 
 import pytest
-from requests_mock import Mocker
 
 from tests.conftest import TestError, assert_mock_requests_request_history
 from tests.unit.loggers.conftest import (
@@ -22,6 +22,9 @@ from tests.unit.loggers.conftest import (
 )
 from wg_utilities.clients.json_api_client import JsonApiClient
 from wg_utilities.loggers import WarehouseHandler
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
 
 
 def test_instantiation() -> None:

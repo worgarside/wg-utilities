@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 from enum import Enum
 from logging import DEBUG, getLogger
 from pathlib import Path
-from typing import Any, ClassVar, Literal, Self, TypeAlias
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, TypeAlias
 
 from pydantic import Field, field_validator
 from requests import post
@@ -16,6 +15,9 @@ from wg_utilities.clients._google import GoogleClient
 from wg_utilities.clients.oauth_client import BaseModelWithConfig
 from wg_utilities.functions import force_mkdir
 from wg_utilities.loggers import add_stream_handler
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)

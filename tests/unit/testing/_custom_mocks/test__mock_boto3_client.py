@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from os import environ
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
@@ -11,11 +12,14 @@ from boto3 import client
 from dateutil.tz import tzutc
 from freezegun import freeze_time
 from moto import mock_s3  # type: ignore[import-not-found]
-from mypy_boto3_lambda import LambdaClient
-from mypy_boto3_s3 import S3Client
 
-from tests.conftest import YieldFixture
 from wg_utilities.testing import MockBoto3Client
+
+if TYPE_CHECKING:
+    from mypy_boto3_lambda import LambdaClient
+    from mypy_boto3_s3 import S3Client
+
+    from tests.conftest import YieldFixture
 
 
 @pytest.fixture(scope="module", autouse=True)

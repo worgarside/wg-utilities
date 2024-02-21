@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from datetime import datetime
 from json import dumps
 from logging import DEBUG, getLogger
@@ -24,6 +23,8 @@ from wg_utilities.functions import user_data_dir
 from wg_utilities.functions.file_management import force_mkdir
 
 if TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Callable
+
     from pydantic.main import IncEx
 
 else:

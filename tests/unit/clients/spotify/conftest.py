@@ -6,15 +6,11 @@ from http import HTTPStatus
 from pathlib import Path
 from re import IGNORECASE
 from re import compile as compile_regex
+from typing import TYPE_CHECKING
 
 import pytest
-from requests_mock import Mocker
-from requests_mock.request import _RequestObjectProxy
-from requests_mock.response import _Context
 
 from tests.conftest import FLAT_FILES_DIR, get_flat_file_from_url, read_json_file
-from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson
-from wg_utilities.clients.oauth_client import OAuthCredentials
 from wg_utilities.clients.spotify import Album as SpotifyAlbum
 from wg_utilities.clients.spotify import (
     Artist,
@@ -24,7 +20,15 @@ from wg_utilities.clients.spotify import (
     Track,
     User,
 )
-from wg_utilities.functions.json import JSONObj
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
+    from requests_mock.request import _RequestObjectProxy
+    from requests_mock.response import _Context
+
+    from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson
+    from wg_utilities.clients.oauth_client import OAuthCredentials
+    from wg_utilities.functions.json import JSONObj
 
 
 def snapshot_id_request(playlist_id: str, jwt: str) -> dict[str, str | dict[str, str]]:

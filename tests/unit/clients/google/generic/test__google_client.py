@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import call, patch
 
 from requests import Response, post
 
 from wg_utilities.clients._google import GoogleClient
-from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from wg_utilities.clients.json_api_client import StrBytIntFlt
 
 
 def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:

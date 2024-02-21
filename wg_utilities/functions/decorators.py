@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from functools import wraps
-from logging import Logger
 from random import random
 from time import sleep, time
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from logging import Logger
 
 
 def backoff(

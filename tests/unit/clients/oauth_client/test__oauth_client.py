@@ -9,14 +9,13 @@ from pathlib import Path
 from re import fullmatch
 from threading import Thread
 from time import sleep, time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import ANY, MagicMock, patch
 from urllib.parse import urlencode
 
 import pytest
 from freezegun import freeze_time
 from requests import get
-from requests_mock import Mocker
 
 from tests.conftest import assert_mock_requests_request_history
 from tests.unit.clients.oauth_client.conftest import get_jwt_expiry
@@ -27,6 +26,9 @@ from wg_utilities.clients.oauth_client import (
     OAuthCredentials,
 )
 from wg_utilities.functions import user_data_dir
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
 
 
 def test_x_model_with_config_has_correct_config() -> None:

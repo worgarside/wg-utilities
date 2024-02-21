@@ -2,18 +2,21 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from datetime import datetime, timedelta
 from logging import DEBUG, getLogger
-from typing import Any, ClassVar, Literal, final
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, final
 
 from pydantic import Field, field_validator
 from requests import put
 from typing_extensions import TypedDict
 
-from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
 from wg_utilities.functions import DTU, cleanse_string, utcnow
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from wg_utilities.clients.json_api_client import StrBytIntFlt
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)

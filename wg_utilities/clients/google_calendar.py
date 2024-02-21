@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from datetime import date as date_
 from datetime import datetime as datetime_
 from datetime import timedelta, tzinfo
 from enum import StrEnum
-from typing import Any, ClassVar, Literal, Self, TypeAlias
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, TypeAlias
 
 from pydantic import Field, field_serializer, field_validator, model_validator
 from pytz import UTC, timezone
@@ -16,8 +15,12 @@ from typing_extensions import NotRequired, TypedDict
 from tzlocal import get_localzone
 
 from wg_utilities.clients._google import GoogleClient
-from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import BaseModelWithConfig
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from wg_utilities.clients.json_api_client import StrBytIntFlt
 
 
 class ResponseStatus(StrEnum):
