@@ -810,7 +810,7 @@ class YamahaYas209:
                     services_to_remove.append(service)
                 except UpnpCommunicationError as exc:
                     log_message = (
-                        f"Still unable to subscribe to {service.service_id}:" f" {exc!r}"
+                        f"Still unable to subscribe to {service.service_id}: {exc!r}"
                     )
 
                     if self._logging:
