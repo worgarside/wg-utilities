@@ -1,7 +1,7 @@
 """Unit Tests for `wg_utilities.clients.spotify.User`."""
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from typing import Literal
 from unittest.mock import patch
@@ -174,11 +174,11 @@ def test_get_recently_liked_tracks_day_limit(
     assert all(isinstance(track, Track) for track in result)
     assert all(track.spotify_client == spotify_client for track in result)
     assert all(
-        track.metadata["saved_at"] > datetime.utcnow() - timedelta(days=7)
+        track.metadata["saved_at"] > datetime.now(UTC) - timedelta(days=7)
         for track in result
     )
     assert not any(
-        track.metadata["saved_at"] <= datetime.utcnow() - timedelta(days=7)
+        track.metadata["saved_at"] <= datetime.now(UTC) - timedelta(days=7)
         for track in result
     )
 
@@ -751,7 +751,7 @@ def test_playlist_refresh_time(spotify_user: User, mock_requests: Mocker) -> Non
 
     assert not mock_requests.request_history
 
-    with freeze_time(frozen_time := datetime.utcnow()):
+    with freeze_time(frozen_time := datetime.now(UTC)):
         assert not hasattr(spotify_user, "_playlist_refresh_time")
         _ = spotify_user.playlists
 

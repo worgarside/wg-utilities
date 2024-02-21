@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from os import environ
 from unittest.mock import patch
 
@@ -348,7 +348,7 @@ def test_non_mocked_calls_still_go_to_aws(
     with patch(
         MockBoto3Client.PATCH_METHOD,
         mb3c.build_api_call(),
-    ), freeze_time(frozen_time := datetime.utcnow().replace(microsecond=0)):
+    ), freeze_time(frozen_time := datetime.now(UTC).replace(microsecond=0)):
         s3_client.create_bucket(
             Bucket="test-bucket",
             CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
@@ -421,7 +421,7 @@ def test_non_moto_supported_operations_raise_exception(
     with patch(
         MockBoto3Client.PATCH_METHOD,
         mb3c.build_api_call(),
-    ), freeze_time(frozen_time := datetime.utcnow().replace(microsecond=0)):
+    ), freeze_time(frozen_time := datetime.now(UTC).replace(microsecond=0)):
         # Prove moto is working
         res = pinpoint_client.create_app(
             CreateApplicationRequest={

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from os import listdir
 
 import pytest
@@ -238,7 +238,7 @@ def test_live_snapshot_id(
     assert not hasattr(spotify_playlist_alt, "_live_snapshot_id")
     assert not hasattr(spotify_playlist_alt, "_live_snapshot_id_timestamp")
 
-    with freeze_time(frozen_time := datetime.utcnow()):
+    with freeze_time(frozen_time := datetime.now(UTC)):
         # Because a different value is in the `fields=snapshot_id.json` stub
         assert spotify_playlist_alt.live_snapshot_id != spotify_playlist_alt.snapshot_id
 
@@ -318,7 +318,7 @@ def test_tracks_property_updates_snapshot_id(
 
     # After a minute the only call should be to check the snapshot ID
 
-    with freeze_time(frozen_time := datetime.utcnow() + timedelta(minutes=1)):
+    with freeze_time(frozen_time := datetime.now(UTC) + timedelta(minutes=1)):
         _ = spotify_playlist_alt.tracks
 
     assert spotify_playlist_alt._live_snapshot_id_timestamp == frozen_time

@@ -1,11 +1,9 @@
 """Provide a class for creating a temporary server during an authentication flow."""
-
 from __future__ import annotations
 
-from datetime import datetime
 from textwrap import dedent
 from threading import Thread
-from time import sleep
+from time import sleep, time
 from typing import Any, cast
 
 from flask import Flask, Response, request
@@ -151,9 +149,9 @@ class TempAuthServer:
         if not self.is_running:
             self.start_server()
 
-        start_time = datetime.utcnow()
+        start_time = time()
         while (
-            time_elapsed := (datetime.utcnow() - start_time).seconds
+            time_elapsed := time() - start_time
         ) <= max_wait and not self._request_args.get(endpoint):
             sleep(0.5)
 
