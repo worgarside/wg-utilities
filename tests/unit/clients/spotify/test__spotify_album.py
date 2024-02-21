@@ -4,13 +4,16 @@ from __future__ import annotations
 
 from datetime import datetime
 from json import loads
+from typing import TYPE_CHECKING
 
 import pytest
 from pydantic import ValidationError
-from requests_mock import Mocker
 
 from tests.conftest import assert_mock_requests_request_history, read_json_file
 from wg_utilities.clients.spotify import Album, AlbumType, Artist, SpotifyClient, Track
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
 
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:

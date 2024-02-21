@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from functools import wraps
-from logging import Logger
 from random import random
 from time import sleep, time
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from logging import Logger
 
 
 def backoff(
@@ -79,7 +81,7 @@ def backoff(
             while True:
                 try:
                     return func(*args, **kwargs)
-                except exceptions as exc:
+                except exceptions as exc:  # noqa: PERF203
                     if logger is not None:
                         logger.warning(
                             "Exception caught in backoff decorator (attempt %i/%i, waiting for %fs): %s %s",

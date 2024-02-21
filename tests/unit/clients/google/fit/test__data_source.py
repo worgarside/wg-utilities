@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
 from freezegun import freeze_time
 
-from wg_utilities.clients import GoogleFitClient
 from wg_utilities.clients.google_fit import DataSource
+
+if TYPE_CHECKING:
+    from wg_utilities.clients import GoogleFitClient
 
 
 def test_instantiation(google_fit_client: GoogleFitClient) -> None:

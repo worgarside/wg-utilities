@@ -4,17 +4,20 @@ from __future__ import annotations
 
 from http import HTTPStatus
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
 import pytest
 from requests import HTTPError
-from requests_mock import Mocker
 
 from tests.conftest import assert_mock_requests_request_history
-from wg_utilities.clients.oauth_client import OAuthCredentials
 from wg_utilities.clients.truelayer import Account, Bank, Card, TrueLayerClient
 from wg_utilities.functions.file_management import user_data_dir
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
+
+    from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
 @pytest.mark.parametrize(

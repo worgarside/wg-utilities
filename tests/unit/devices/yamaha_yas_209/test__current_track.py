@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import pytest
 
@@ -15,7 +15,9 @@ from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import (
     GetMediaInfoResponse,
     LastChangeAVTransport,
 )
-from wg_utilities.functions.json import JSONObj
+
+if TYPE_CHECKING:
+    from wg_utilities.functions.json import JSONObj
 
 
 def test_instantiation() -> None:

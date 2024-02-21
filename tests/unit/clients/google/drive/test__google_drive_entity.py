@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from json import loads
+from typing import TYPE_CHECKING
 
 import pytest
 
-from wg_utilities.clients import GoogleDriveClient
 from wg_utilities.clients.google_drive import _GoogleDriveEntity
+
+if TYPE_CHECKING:
+    from wg_utilities.clients import GoogleDriveClient
 
 
 def test_model_dump_method(

@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
-from requests_mock import Mocker
 
 from wg_utilities.clients.json_api_client import JsonApiClient
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
 
 
 @pytest.fixture(name="json_api_client")

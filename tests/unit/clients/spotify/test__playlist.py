@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from os import listdir
+from typing import TYPE_CHECKING
 
 import pytest
 from freezegun import freeze_time
-from requests_mock import Mocker
 
 from tests.conftest import (
     FLAT_FILES_DIR,
@@ -17,6 +17,9 @@ from tests.conftest import (
 from tests.unit.clients.spotify.conftest import snapshot_id_request
 from wg_utilities.clients import SpotifyClient
 from wg_utilities.clients.spotify import Playlist, Track, User
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
 
 SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID = (
     "MzI1LGE0MDI4NzhiZGUzYWU3ZDY0MzFjYmI5ZGVjOGFmMDhlMGE0N2Y4ZTE="

@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
 import pytest
 from pigpio import _callback  # type: ignore[import-not-found]
 
-from tests.conftest import YieldFixture
 from wg_utilities.devices.dht22 import DHT22Sensor
+
+if TYPE_CHECKING:
+    from tests.conftest import YieldFixture
 
 
 @pytest.fixture(name="dht22_sensor")

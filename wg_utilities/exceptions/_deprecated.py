@@ -1,7 +1,6 @@
 """Deprecated exception handling utilities."""
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
 from functools import wraps
 from inspect import stack
 from logging import Logger, getLogger
@@ -9,13 +8,16 @@ from os import getenv
 from socket import gethostname
 from sys import exc_info
 from traceback import format_exc
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from dotenv import load_dotenv
 from requests import post
 from requests.exceptions import ConnectionError as RequestsConnectionError
 
 from wg_utilities.loggers import add_stream_handler
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
 
 load_dotenv()
 

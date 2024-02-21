@@ -1,19 +1,31 @@
 """Custom client for interacting with TrueLayer's API."""
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
 from datetime import UTC, date, datetime, timedelta
 from enum import Enum, StrEnum, auto
 from logging import DEBUG, getLogger
 from pathlib import Path
-from typing import Any, ClassVar, Literal, Self, TypeAlias, TypeVar, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Literal,
+    Self,
+    TypeAlias,
+    TypeVar,
+    overload,
+)
 
 from pydantic import Field, field_validator
 from requests import HTTPError
 from typing_extensions import NotRequired, TypedDict
 
-from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from wg_utilities.clients.json_api_client import StrBytIntFlt
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)

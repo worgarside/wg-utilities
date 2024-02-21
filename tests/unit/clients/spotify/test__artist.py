@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
-from wg_utilities.clients._spotify_types import ArtistFullJson
+from typing import TYPE_CHECKING
+
 from wg_utilities.clients.spotify import Album, Artist, SpotifyClient
+
+if TYPE_CHECKING:
+    from wg_utilities.clients._spotify_types import ArtistFullJson
 
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:

@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from logging import CRITICAL, getLogger
-from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 from wg_utilities.loggers.file_handler import add_file_handler, create_file_handler
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_file_handler_is_added_to_logger(temp_dir: Path) -> None:

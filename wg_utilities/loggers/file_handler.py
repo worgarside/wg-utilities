@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from logging import DEBUG, FileHandler, Formatter, Logger
-from pathlib import Path
 from time import gmtime
+from typing import TYPE_CHECKING
 
 from wg_utilities.functions import force_mkdir
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 FORMATTER = Formatter(
     fmt="%(asctime)s\t%(name)s\t[%(levelname)s]\t%(message)s",

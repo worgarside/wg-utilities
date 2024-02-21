@@ -8,7 +8,7 @@ from os import listdir
 from pathlib import Path
 from textwrap import dedent
 from time import sleep
-from typing import cast
+from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
 
 import pytest
@@ -22,12 +22,14 @@ from async_upnp_client.const import (
 from voluptuous import All, Schema
 
 from tests.conftest import FLAT_FILES_DIR, YieldFixture, read_json_file
-from wg_utilities.clients._spotify_types import SpotifyEntityJson
 from wg_utilities.devices.yamaha_yas_209.yamaha_yas_209 import (
     CurrentTrack,
     YamahaYas209,
 )
 from wg_utilities.functions.json import JSONObj
+
+if TYPE_CHECKING:
+    from wg_utilities.clients._spotify_types import SpotifyEntityJson
 
 YAS_209_IP = "192.168.1.1"
 YAS_209_HOST = f"http://{YAS_209_IP}:49152"

@@ -1,9 +1,6 @@
 """Custom client for interacting with Spotify's Web API."""
 from __future__ import annotations
 
-from builtins import dict as dict_
-from builtins import type as type_
-from collections.abc import Callable, Iterable, Iterator, Sequence
 from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
 from http import HTTPStatus
@@ -11,6 +8,7 @@ from json import dumps
 from logging import DEBUG, getLogger
 from re import sub
 from typing import (
+    TYPE_CHECKING,
     Any,
     ClassVar,
     Generic,
@@ -52,6 +50,9 @@ from wg_utilities.clients._spotify_types import (
 )
 from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
 from wg_utilities.functions import chunk_list
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Sequence
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -555,13 +556,13 @@ class SpotifyEntity(BaseModelWithConfig, Generic[SJ]):
     """Base model for Spotify entities."""
 
     description: str = ""
-    external_urls: dict_[Literal["spotify"], str]
+    external_urls: dict[Literal["spotify"], str]
     href: str
     id: str
     name: str = ""
     uri: str
 
-    metadata: dict_[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
     spotify_client: SpotifyClient = Field(exclude=True)
 
     summary_json: SJ = Field(default_factory=dict, frozen=True, exclude=True)  # type: ignore[assignment]
@@ -569,7 +570,7 @@ class SpotifyEntity(BaseModelWithConfig, Generic[SJ]):
 
     @model_validator(mode="before")
     @classmethod
-    def _set_summary_json(cls, values: dict_[str, Any]) -> Any:
+    def _set_summary_json(cls, values: dict[str, Any]) -> Any:
         values["summary_json"] = {
             k: v for k, v in values.items() if k in cls.sj_type.__annotations__
         }
@@ -593,8 +594,8 @@ class SpotifyEntity(BaseModelWithConfig, Generic[SJ]):
         cls,
         value: SpotifyEntityJson,
         spotify_client: SpotifyClient,
-        additional_fields: dict_[str, Any] | None = None,
-        metadata: dict_[str, object] | None = None,
+        additional_fields: dict[str, Any] | None = None,
+        metadata: dict[str, object] | None = None,
     ) -> Self:
         """Parse a JSON response from the API into the given entity type model.
 
@@ -663,6 +664,10 @@ class SpotifyEntity(BaseModelWithConfig, Generic[SJ]):
         return self.name or f"{type(self).__name__} ({self.id})"
 
 
+# Avoids mypy naming conflicts with `Album.type` and `type[...]`
+SpotifyEntityJsonType = type[SpotifyEntityJson]
+
+
 class Album(SpotifyEntity[AlbumSummaryJson]):
     """An album on Spotify."""
 
@@ -687,7 +692,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
     _artists: list[Artist]
     _tracks: list[Track]
 
-    sj_type: ClassVar[type_[SpotifyEntityJson]] = AlbumSummaryJson
+    sj_type: ClassVar[SpotifyEntityJsonType] = AlbumSummaryJson
 
     @field_validator("release_date", mode="before")
     @classmethod
@@ -805,7 +810,7 @@ class Artist(SpotifyEntity[ArtistSummaryJson]):
 
     _albums: list[Album]
 
-    sj_type: ClassVar[type_[SpotifyEntityJson]] = ArtistSummaryJson
+    sj_type: ClassVar[SpotifyEntityJsonType] = ArtistSummaryJson
 
     @property
     def albums(self) -> list[Album]:
@@ -854,7 +859,7 @@ class Track(SpotifyEntity[TrackFullJson]):
     _album: Album
     _audio_features: TrackAudioFeatures | None
 
-    sj_type: ClassVar[type_[SpotifyEntityJson]] = TrackFullJson
+    sj_type: ClassVar[SpotifyEntityJsonType] = TrackFullJson
 
     @property
     def album(self) -> Album:
@@ -973,7 +978,7 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
     _tracks: list[Track]
     _owner: User
 
-    sj_type: ClassVar[type_[SpotifyEntityJson]] = PlaylistSummaryJson
+    sj_type: ClassVar[SpotifyEntityJsonType] = PlaylistSummaryJson
     _live_snapshot_id_timestamp: datetime
     _live_snapshot_id: str
 
@@ -1130,7 +1135,7 @@ class User(SpotifyEntity[UserSummaryJson]):
 
     _playlist_refresh_time: datetime
 
-    sj_type: ClassVar[type_[SpotifyEntityJson]] = UserSummaryJson
+    sj_type: ClassVar[SpotifyEntityJsonType] = UserSummaryJson
 
     @field_validator("display_name", mode="before")
     @classmethod

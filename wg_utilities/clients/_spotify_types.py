@@ -7,11 +7,13 @@ are used for type hinting and to make the code more readable.
 
 from __future__ import annotations
 
-from datetime import date
 from logging import DEBUG, getLogger
-from typing import Literal, TypeAlias, final
+from typing import TYPE_CHECKING, Literal, TypeAlias, final
 
 from typing_extensions import NotRequired, TypedDict
+
+if TYPE_CHECKING:
+    from datetime import date
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)

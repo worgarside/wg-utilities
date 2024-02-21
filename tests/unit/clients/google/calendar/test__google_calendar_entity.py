@@ -5,9 +5,12 @@ from __future__ import annotations
 from copy import deepcopy
 from json import loads
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from wg_utilities.clients import GoogleCalendarClient
 from wg_utilities.clients.google_calendar import GoogleCalendarEntity
+
+if TYPE_CHECKING:
+    from wg_utilities.clients import GoogleCalendarClient
 
 GoogleCalendarEntity.model_rebuild()
 

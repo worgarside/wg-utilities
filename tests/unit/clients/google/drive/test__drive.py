@@ -1,16 +1,14 @@
 """Unit tests for the `wg_utilities.clients.google_drive.Drive` class."""
 from __future__ import annotations
 
-from collections.abc import Mapping
 from datetime import datetime
 from random import choice
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import Mock, call, patch
 
 import pytest
 
 from tests.conftest import read_json_file
-from wg_utilities.clients import GoogleDriveClient
 from wg_utilities.clients.google_drive import (
     Directory,
     Drive,
@@ -19,6 +17,11 @@ from wg_utilities.clients.google_drive import (
     File,
     ItemMetadataRetrieval,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from wg_utilities.clients import GoogleDriveClient
 
 
 @pytest.mark.parametrize(

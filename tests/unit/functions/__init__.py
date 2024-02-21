@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from tests.conftest import read_json_file
-from wg_utilities.functions.json import JSONObj
+
+if TYPE_CHECKING:
+    from wg_utilities.functions.json import JSONObj
 
 
 def random_nested_json() -> JSONObj:

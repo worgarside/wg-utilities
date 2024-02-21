@@ -1,12 +1,17 @@
 """Unit Tests for `wg_utilities.clients.google_photos.GooglePhotosClient`."""
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
-from requests_mock import Mocker
 
 from wg_utilities.clients import GooglePhotosClient
 from wg_utilities.clients.google_photos import Album
-from wg_utilities.clients.oauth_client import OAuthCredentials
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
+
+    from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
 def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:

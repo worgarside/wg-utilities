@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from os import environ
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
-from requests_mock import Mocker
 
 from tests.conftest import EXCEPTION_GENERATORS, TEST_EXCEPTION
 from wg_utilities.exceptions._deprecated import HA_LOG_ENDPOINT, on_exception
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from requests_mock import Mocker
 
 
 def test_decorated_function_is_called_correctly_without_exception() -> None:
