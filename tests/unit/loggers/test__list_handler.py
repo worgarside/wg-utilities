@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from logging import Logger, LogRecord, getLevelName
 from unittest.mock import MagicMock, patch
 
@@ -102,7 +102,7 @@ def test_expire_records_remove_records_correctly(
 
     for i in range(-1, 25):
         with freeze_time(BASE_TIME + timedelta(seconds=i * 5)):
-            message = f"Created at {datetime.utcnow()}. Valid: {i >= 12}"
+            message = f"Created at {datetime.now(UTC)}. Valid: {i >= 12}"
             logger.info(message)
 
     with freeze_time(BASE_TIME):
@@ -112,7 +112,7 @@ def test_expire_records_remove_records_correctly(
         assert record.created >= (BASE_TIME.timestamp() + 60)
         assert (
             record.msg
-            == f"Created at {datetime.fromtimestamp(record.created)}. Valid: True"
+            == f"Created at {datetime.fromtimestamp(record.created, tz=UTC)}. Valid: True"
         )
 
 
