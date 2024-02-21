@@ -14,6 +14,10 @@ from tests.unit.functions import (
     random_nested_json,
     random_nested_json_with_arrays,
 )
+from wg_utilities.helpers.mixin.instance_cache import (
+    CacheIdNotFoundError,
+    InstanceCacheDuplicateError,
+)
 from wg_utilities.helpers.processor import JProc
 from wg_utilities.helpers.processor.json import (
     Callback,
@@ -856,3 +860,17 @@ def test_missing_args_and_kwargs() -> None:
     ):
         # Extra kw/args will be filtered out
         jproc.process(obj, arg=1, arg2=2, either=1, kwarg=1, kwarg2=2)
+
+
+def test_instance_caching() -> None:
+    """Test that JProcs are cached correctly."""
+
+    jproc1 = JProc(identifier="one")
+
+    with pytest.raises(InstanceCacheDuplicateError):
+        JProc(identifier="one")
+
+    assert JProc.from_cache("one") is jproc1
+
+    with pytest.raises(CacheIdNotFoundError):
+        JProc.from_cache("two")
