@@ -15,7 +15,7 @@ def mock_cb_() -> Callback[..., Any]:
     """Create a callback that does nothing."""
 
     @JProc.callback()
-    def _cb(_value_: Any) -> Any:
+    def _cb(_value_: Any) -> Any:  # pragma: no cover
         return _value_
 
     return _cb
@@ -26,7 +26,7 @@ def mock_cb_two_() -> Callback[..., Any]:
     """Create a second callback that does nothing."""
 
     @JProc.callback()
-    def _cb2(_value_: Any) -> Any:
+    def _cb2(_value_: Any) -> Any:  # pragma: no cover
         return _value_
 
     return _cb2
@@ -37,7 +37,7 @@ def mock_cb_three_() -> Callback[..., Any]:
     """Create a third callback that does nothing."""
 
     @JProc.callback()
-    def _cb3(_value_: Any) -> Any:
+    def _cb3(_value_: Any) -> Any:  # pragma: no cover
         return _value_
 
     return _cb3
@@ -48,7 +48,7 @@ def mock_cb_four_() -> Callback[..., Any]:
     """Create a fourth callback that does nothing."""
 
     @JProc.callback()
-    def _cb4(_value_: Any) -> Any:
+    def _cb4(_value_: Any) -> Any:  # pragma: no cover
         return _value_
 
     return _cb4

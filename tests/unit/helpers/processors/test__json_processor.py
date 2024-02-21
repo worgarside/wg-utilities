@@ -577,13 +577,13 @@ def test_callback_decorator_cache() -> None:
     assert not JProc._DECORATED_CALLBACKS
 
     @JProc.callback()
-    def my_callback(my_custom_kwarg: float) -> float:
+    def my_callback(my_custom_kwarg: float) -> float:  # pragma: no cover
         return my_custom_kwarg * 2
 
     assert {my_callback} == JProc._DECORATED_CALLBACKS
 
     @JProc.callback()
-    def my_second_callback(my_custom_kwarg: float) -> float:
+    def my_second_callback(my_custom_kwarg: float) -> float:  # pragma: no cover
         return my_custom_kwarg * 2
 
     assert {my_callback, my_second_callback} == JProc._DECORATED_CALLBACKS
