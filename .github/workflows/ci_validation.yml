@@ -17,6 +17,6 @@ jobs:
       build-branch: '${{ github.ref }}'
       build-type: 'python'
       node-build-directory: ''
-      python-version: '3.11'
+      python-version: '3.12'
       unit-test: 'true'
     secrets: inherit
