@@ -194,9 +194,9 @@ class JSONProcessor(InstanceCache, cache_id_attr="identifier"):
                             # Partial (or full) CallbackDefinition
                             cb_list.append(self.cb(*cb))
                         else:
-                            raise InvalidCallbackError(cb, type(cb))
+                            raise InvalidCallbackError(cb, type(cb), callback=cb)
                 else:
-                    raise InvalidCallbackError(cb_val, type(cb_val), callback=None)
+                    raise InvalidCallbackError(cb_val, type(cb_val), callback=cb_val)
 
                 for cb_def in cb_list:
                     self.register_callback(target_type, cb_def)
