@@ -100,7 +100,7 @@ markers = [
 ]
 
 [tool.coverage.report]
-exclude_lines = ["pragma: no cover", "def __repr__", "def __str__", "@overload"]
+exclude_lines = ["pragma: no cover", "def __repr__", "def __str__", "@overload", "if TYPE_CHECKING"]
 
 [tool.coverage.run]
 omit = ["wg_utilities/devices/epd/*", "wg_utilities/devices/dht22/*"]
