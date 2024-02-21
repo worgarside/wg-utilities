@@ -4,7 +4,7 @@ from __future__ import annotations
 from asyncio import new_event_loop
 from collections.abc import Mapping
 from copy import deepcopy
-from datetime import datetime
+from datetime import UTC, datetime
 from http import HTTPStatus
 from logging import DEBUG, ERROR, INFO, WARNING
 from textwrap import dedent
@@ -694,8 +694,8 @@ def test_on_event_callback_called_correctly(
         yamaha_yas_209._parse_xml_dict(something_else_value)  # type: ignore[arg-type]
 
         assert payload == {
-            # This whole test has frozen time, so we can just use `datetime.utcnow()`
-            "timestamp": datetime.utcnow(),
+            # This whole test has frozen time, so we can just use `datetime.now(UTC)`
+            "timestamp": datetime.now(UTC),
             "service_id": upnp_service_rendering_control.service_id,
             "service_type": upnp_service_rendering_control.service_type,
             # The last change will be a `LastChange` instance

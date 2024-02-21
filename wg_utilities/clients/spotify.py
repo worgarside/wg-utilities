@@ -4,7 +4,7 @@ from __future__ import annotations
 from builtins import dict as dict_
 from builtins import type as type_
 from collections.abc import Callable, Iterable, Iterator, Sequence
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
 from http import HTTPStatus
 from json import dumps
@@ -1004,7 +1004,7 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
         if (
             not hasattr(self, "_live_snapshot_id_timestamp")
             or not hasattr(self, "_live_snapshot_id")
-            or datetime.utcnow() - self._live_snapshot_id_timestamp > timedelta(minutes=1)
+            or datetime.now(UTC) - self._live_snapshot_id_timestamp > timedelta(minutes=1)
         ):
             self._live_snapshot_id = self.spotify_client.get_json_response(
                 f"/playlists/{self.id}",
@@ -1013,7 +1013,7 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
                 "snapshot_id"  # type: ignore[typeddict-item]
             ]
 
-            self._live_snapshot_id_timestamp = datetime.utcnow()
+            self._live_snapshot_id_timestamp = datetime.now(UTC)
 
         return self._live_snapshot_id
 
@@ -1233,8 +1233,8 @@ class User(SpotifyEntity[UserSummaryJson]):
                     datetime.strptime(
                         item["added_at"],
                         self.spotify_client.DATETIME_FORMAT,
-                    )
-                    < (datetime.utcnow() - timedelta(days=day_limit)),
+                    ).replace(tzinfo=UTC)
+                    < (datetime.now(UTC) - timedelta(days=day_limit)),
                 )
 
         return [
@@ -1245,7 +1245,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                     "saved_at": datetime.strptime(
                         item["added_at"],
                         self.spotify_client.DATETIME_FORMAT,
-                    ),
+                    ).replace(tzinfo=UTC),
                 },
             )
             for item in cast(
@@ -1456,12 +1456,12 @@ class User(SpotifyEntity[UserSummaryJson]):
 
         if (
             hasattr(self, "_playlist_refresh_time")
-            and (datetime.utcnow() - self._playlist_refresh_time)
+            and (datetime.now(UTC) - self._playlist_refresh_time)
             < self.PLAYLIST_REFRESH_INTERVAL
         ):
             return self._playlists
 
-        self._playlist_refresh_time = datetime.utcnow()
+        self._playlist_refresh_time = datetime.now(UTC)
 
         all_playlist_json = cast(
             list[PlaylistSummaryJson],
@@ -1551,7 +1551,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                         "saved_at": datetime.strptime(
                             item["added_at"],
                             self.spotify_client.DATETIME_FORMAT,
-                        ),
+                        ).replace(tzinfo=UTC),
                     },
                 )
                 for item in cast(
