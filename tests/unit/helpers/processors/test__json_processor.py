@@ -495,14 +495,24 @@ def test_processing_type_changes(
     assert no_type_changed_obj == {"a": 1, "b": 4, "c": 3}
 
 
-def test_lambdas_cant_be_callbacks() -> None:
-    """Test that a lambda can't be wrapped in a CallbackDefinition."""
+def test_lambdas_get_wrapped() -> None:
+    """Test that a lambda is automatically "decorated" (wrapped) when registered."""
 
-    with pytest.raises(
-        InvalidCallbackError,
-        match="Callback `test__json_processor.<lambda>` is a lambda function and cannot be registered.",
-    ):
-        JProc.cb(lambda x: x)  # type: ignore[misc]
+    obj = {"a": "b", "c": "d"}
+
+    JProc(
+        {
+            str: lambda _value_, arg, /, *, kwarg: _value_.upper() + arg + kwarg,  # type: ignore[misc]
+        },
+    ).process(
+        obj,
+        arg="arg",
+        discarded_arg="discarded_arg",
+        kwarg="kwarg",
+        discarded_kwarg="discarded_kwarg",
+    )
+
+    assert obj == {"a": "Bargkwarg", "c": "Dargkwarg"}
 
 
 def test_callback_with_no_args_or_kwargs() -> None:

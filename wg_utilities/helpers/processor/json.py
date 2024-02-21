@@ -189,11 +189,8 @@ class JSONProcessor(InstanceCache, cache_id_attr="identifier"):
     ) -> CallbackDefinition:
         """Create a CallbackDefinition for the given callback."""
 
-        if (cb_name := callback.__name__) == "<lambda>":
-            raise InvalidCallbackError(
-                f"Callback `{callback.__module__}.{cb_name}` is a lambda function and cannot be registered.",
-                callback=callback,
-            )
+        if callback.__name__ == "<lambda>":
+            callback = JSONProcessor.callback(callback)
 
         if item_filter and not callable(item_filter):
             raise InvalidItemFilterError(item_filter, callback=callback)
