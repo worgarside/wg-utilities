@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 from logging import ERROR
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import ANY, MagicMock, _Call, call, patch
 
 import pytest
 
 from wg_utilities.functions import process_list
-from wg_utilities.functions.json import JSONVal, TargetProcessorFunc
+
+if TYPE_CHECKING:
+    from wg_utilities.functions.json import JSONVal, TargetProcessorFunc
 
 
 def test_empty_list_doesnt_raise_exception() -> None:
@@ -111,15 +113,13 @@ def test_varying_inputs_processed_as_expected(
 
 
 @pytest.mark.parametrize(
-    ",".join(
-        [
-            "in_list",
-            "target_type",
-            "target_processor_func",
-            "exception_type",
-            "exception_message",
-            "expected",
-        ],
+    (
+        "in_list",
+        "target_type",
+        "target_processor_func",
+        "exception_type",
+        "exception_message",
+        "expected",
     ),
     [
         (
@@ -171,15 +171,7 @@ def test_exceptions_are_raised_correctly(
 
 
 @pytest.mark.parametrize(
-    ",".join(
-        [
-            "in_list",
-            "target_type",
-            "target_processor_func",
-            "exception_indexes",
-            "expected",
-        ],
-    ),
+    ("in_list", "target_type", "target_processor_func", "exception_indexes", "expected"),
     [
         (
             ["a", "b", "c", 1, 2, 3, "d", "e", "f"],

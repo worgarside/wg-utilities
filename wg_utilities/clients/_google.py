@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, TypeAlias, Ty
 from requests import Response, get
 from typing_extensions import TypedDict
 
-from wg_utilities.clients.json_api_client import StrBytIntFlt
 from wg_utilities.clients.oauth_client import OAuthClient
 from wg_utilities.loggers import add_stream_handler
 
@@ -23,6 +22,7 @@ add_stream_handler(LOGGER)
 if TYPE_CHECKING:  # pragma: no cover
     from wg_utilities.clients.google_calendar import GoogleCalendarEntityJson
     from wg_utilities.clients.google_photos import GooglePhotosEntityJson
+    from wg_utilities.clients.json_api_client import StrBytIntFlt
 
 
 GetJsonResponseGoogleClient = TypeVar(

@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 from wg_utilities.clients import GoogleFitClient
 from wg_utilities.clients.google_fit import DataSource
-from wg_utilities.clients.oauth_client import OAuthCredentials
+
+if TYPE_CHECKING:
+    from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
 def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:

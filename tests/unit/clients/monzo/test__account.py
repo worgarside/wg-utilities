@@ -4,15 +4,18 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
+from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
-import pytest
 from freezegun import freeze_time
 from pytz import utc
-from requests_mock import Mocker
 
 from tests.conftest import assert_mock_requests_request_history, read_json_file
 from wg_utilities.clients.monzo import Account, MonzoClient
+
+if TYPE_CHECKING:
+    import pytest
+    from requests_mock import Mocker
 
 
 def test_instantiation(monzo_client: MonzoClient) -> None:

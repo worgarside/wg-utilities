@@ -5,10 +5,10 @@ from __future__ import annotations
 from json import loads
 from pathlib import Path
 from re import fullmatch
+from typing import TYPE_CHECKING
 
 import pytest
 from pydantic.fields import Field
-from requests_mock import Mocker
 
 from tests.conftest import (
     FLAT_FILES_DIR,
@@ -26,7 +26,11 @@ from wg_utilities.clients.google_drive import (
 )
 from wg_utilities.clients.google_fit import DataSource, GoogleFitClient
 from wg_utilities.clients.google_photos import Album, GooglePhotosClient, MediaItem
-from wg_utilities.clients.oauth_client import OAuthCredentials
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
+
+    from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
 @pytest.fixture(name="calendar")

@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING, Handler, Logger, LogRecord
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from wg_utilities.functions.datetime_helpers import utcnow
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class ListHandler(Handler):

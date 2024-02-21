@@ -6,16 +6,14 @@ containing useful exception information.
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from inspect import stack
 from socket import gethostname
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import ANY
 
 import pytest
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import HTTPError
-from requests_mock import Mocker
 from typing_extensions import TypedDict
 
 from tests.conftest import EXCEPTION_GENERATORS
@@ -23,6 +21,11 @@ from wg_utilities.exceptions._deprecated import (
     HA_LOG_ENDPOINT,
     send_exception_to_home_assistant,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from requests_mock import Mocker
 
 
 class PayloadInfo(TypedDict):

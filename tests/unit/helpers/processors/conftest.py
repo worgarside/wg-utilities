@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Generator
+from typing import TYPE_CHECKING, Any, Callable, Generator
 
 import pytest
 
 from wg_utilities.helpers.processor import JProc
-from wg_utilities.helpers.processor.json import Callback
+
+if TYPE_CHECKING:
+    from wg_utilities.helpers.processor.json import Callback
 
 
 @pytest.fixture(name="mock_cb")

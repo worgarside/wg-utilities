@@ -3,12 +3,11 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 from unittest.mock import patch
 
 import pytest
 from freezegun import freeze_time
-from requests_mock import Mocker
 
 from tests.conftest import assert_mock_requests_request_history, read_json_file
 from wg_utilities.clients.spotify import (
@@ -20,6 +19,9 @@ from wg_utilities.clients.spotify import (
     Track,
     User,
 )
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
 
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:

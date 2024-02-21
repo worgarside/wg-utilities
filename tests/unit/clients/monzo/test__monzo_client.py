@@ -3,12 +3,12 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from http import HTTPStatus
+from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
 import pytest
 from freezegun import freeze_time
 from requests.exceptions import HTTPError
-from requests_mock import Mocker
 
 from tests.conftest import assert_mock_requests_request_history, read_json_file
 from wg_utilities.clients import MonzoClient
@@ -22,6 +22,9 @@ from wg_utilities.clients.monzo import (
 )
 from wg_utilities.clients.oauth_client import OAuthClient, OAuthCredentials
 from wg_utilities.functions import user_data_dir
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
 
 
 def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:

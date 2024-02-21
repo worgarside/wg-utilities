@@ -3,15 +3,20 @@
 from __future__ import annotations
 
 from http import HTTPStatus
-from pathlib import Path
-from unittest.mock import MagicMock
+from typing import TYPE_CHECKING
 
 import pytest
-from requests_mock import Mocker
 
 from tests.conftest import FLAT_FILES_DIR, get_flat_file_from_url, read_json_file
 from wg_utilities.clients.monzo import Account, MonzoClient, Pot
-from wg_utilities.clients.oauth_client import OAuthCredentials
+
+if TYPE_CHECKING:
+    from pathlib import Path
+    from unittest.mock import MagicMock
+
+    from requests_mock import Mocker
+
+    from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
 @pytest.fixture(name="monzo_account")

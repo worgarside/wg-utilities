@@ -2,12 +2,12 @@
 from __future__ import annotations
 
 from textwrap import dedent
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 from urllib.parse import urlencode
 
 import pytest
 from pydantic.fields import FieldInfo
-from requests_mock import Mocker
 
 from tests.conftest import FLAT_FILES_DIR, assert_mock_requests_request_history
 from wg_utilities.clients.google_drive import (
@@ -19,6 +19,9 @@ from wg_utilities.clients.google_drive import (
     _CanHaveChildren,
     _GoogleDriveEntity,
 )
+
+if TYPE_CHECKING:
+    from requests_mock import Mocker
 
 
 def test_add_directory_method_first_call(directory: Directory) -> None:

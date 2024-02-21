@@ -4,13 +4,11 @@ from __future__ import annotations
 from datetime import datetime
 from http import HTTPStatus
 from json import dumps, loads
-from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 from urllib.parse import parse_qsl
 
 import pytest
 from requests import HTTPError
-from requests_mock import Mocker
 
 from tests.conftest import (
     FLAT_FILES_DIR,
@@ -19,8 +17,6 @@ from tests.conftest import (
 )
 from tests.unit.clients.spotify.conftest import snapshot_id_request
 from wg_utilities.clients import SpotifyClient
-from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson
-from wg_utilities.clients.oauth_client import OAuthCredentials
 from wg_utilities.clients.spotify import (
     Album,
     Artist,
@@ -30,6 +26,14 @@ from wg_utilities.clients.spotify import (
     Track,
     User,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from requests_mock import Mocker
+
+    from wg_utilities.clients._spotify_types import SpotifyBaseEntityJson
+    from wg_utilities.clients.oauth_client import OAuthCredentials
 
 
 def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:

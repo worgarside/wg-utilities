@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from logging import INFO, getLogger
-
-import pytest
+from typing import TYPE_CHECKING
 
 from wg_utilities.loggers import add_stream_handler
+
+if TYPE_CHECKING:
+    import pytest
 
 _LOGGER = getLogger(__name__)
 _LOGGER.setLevel(INFO)

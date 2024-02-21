@@ -10,7 +10,7 @@ from pathlib import Path
 from re import compile as compile_regex
 from tempfile import TemporaryDirectory
 from time import time
-from typing import Literal, TypeVar, cast, overload
+from typing import TYPE_CHECKING, Literal, TypeVar, cast, overload
 from unittest.mock import MagicMock, patch
 from urllib.parse import quote, unquote
 
@@ -20,21 +20,27 @@ from requests import get
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import MissingSchema
 from requests_mock import Mocker
-from requests_mock.request import _RequestObjectProxy
-from requests_mock.response import _Context
 from xdist.scheduler.loadscope import (  # type: ignore[import-not-found]
     LoadScopeScheduling,
 )
 
-from wg_utilities.clients._spotify_types import SpotifyEntityJson
-from wg_utilities.clients.google_calendar import CalendarJson, GoogleCalendarEntityJson
-from wg_utilities.clients.google_photos import AlbumJson, MediaItemJson
-from wg_utilities.clients.monzo import AccountJson as MonzoAccountJson
-from wg_utilities.clients.monzo import PotJson, TransactionJson
 from wg_utilities.clients.oauth_client import OAuthCredentials
-from wg_utilities.clients.truelayer import AccountJson as TrueLayerAccountJson
-from wg_utilities.clients.truelayer import CardJson
 from wg_utilities.functions.json import JSONObj
+
+if TYPE_CHECKING:
+    from requests_mock.request import _RequestObjectProxy
+    from requests_mock.response import _Context
+
+    from wg_utilities.clients._spotify_types import SpotifyEntityJson
+    from wg_utilities.clients.google_calendar import (
+        CalendarJson,
+        GoogleCalendarEntityJson,
+    )
+    from wg_utilities.clients.google_photos import AlbumJson, MediaItemJson
+    from wg_utilities.clients.monzo import AccountJson as MonzoAccountJson
+    from wg_utilities.clients.monzo import PotJson, TransactionJson
+    from wg_utilities.clients.truelayer import AccountJson as TrueLayerAccountJson
+    from wg_utilities.clients.truelayer import CardJson
 
 T = TypeVar("T")
 YieldFixture = Generator[T, None, None]

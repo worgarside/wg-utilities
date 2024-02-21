@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from logging import getLogger
 from logging.handlers import QueueListener
-from multiprocessing import Queue
 from time import sleep, time
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from multiprocessing import Queue
 
 LOGGER = getLogger(__name__)
 
