@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from copy import deepcopy
 from json import dumps, loads
-from typing import Any, Iterator
+from typing import Any, Callable, Iterator
 from unittest.mock import call, patch
 
 import pytest
@@ -384,22 +384,16 @@ def test_get_callbacks_no_subclasses(
 )
 def test_process(
     obj: JSONObj,
-    callback_mapping: JProc.CallbackMapping,
+    callback_mapping: dict[type[Any], Callable[..., Any]],
     process_subclasses: bool,
     process_type_changes: bool,
     expected: JSONObj,
+    wrap: Callable[[Callable[..., Any]], Callback[..., Any]],
 ) -> None:
     """Test that the `process` method works correctly."""
 
-    def _cb_factory(_lambda: Any) -> Callback[..., Any]:
-        @JProc.callback()
-        def _cb(_value_: Any) -> Any:
-            return _lambda(_value_)
-
-        return _cb
-
     jproc = JProc(
-        {k: _cb_factory(v) for k, v in callback_mapping.items()},
+        {k: wrap(v) for k, v in callback_mapping.items()},
         process_subclasses=process_subclasses,
         process_type_changes=process_type_changes,
     )
@@ -434,24 +428,17 @@ def test_process_loc_invalid_loc(obj: dict[Any, Any] | list[Any], loc: Any | int
     jproc._process_loc(obj=obj, loc=loc, kwargs={})
 
 
-def test_allow_failures() -> None:
+def test_allow_failures(wrap: Callable[[Callable[..., Any]], Callback[..., Any]]) -> None:
     """Test that exceptions are only thrown when `allow_failures` is False for a given callback."""
-
-    def _cb_factory(_lambda: Any) -> Callback[..., Any]:
-        @JProc.callback()
-        def _cb(_value_: Any) -> Any:
-            return _lambda(_value_)
-
-        return _cb
 
     jproc_strict = JProc(
         {
             str: JProc.cb(
-                _cb_factory(lambda x: x.upper()),
+                wrap(lambda x: x.upper()),
                 allow_callback_failures=False,
             ),
             int: JProc.cb(
-                _cb_factory(lambda x: x.upper()),
+                wrap(lambda x: x.upper()),
                 allow_callback_failures=False,
             ),
         },
@@ -459,8 +446,8 @@ def test_allow_failures() -> None:
 
     jproc_lax = JProc(
         {
-            str: JProc.cb(_cb_factory(lambda x: x.upper()), allow_callback_failures=True),
-            int: JProc.cb(_cb_factory(lambda x: x.upper()), allow_callback_failures=True),
+            str: JProc.cb(wrap(lambda x: x.upper()), allow_callback_failures=True),
+            int: JProc.cb(wrap(lambda x: x.upper()), allow_callback_failures=True),
         },
     )
 
@@ -479,15 +466,10 @@ def test_allow_failures() -> None:
     assert lax_obj == {"a": "B", "c": "D", "e": 3, "f": "G", "h": 5}
 
 
-def test_processing_type_changes() -> None:
+def test_processing_type_changes(
+    wrap: Callable[[Callable[..., Any]], Callback[..., Any]],
+) -> None:
     """Test that values which change type can be re-processed."""
-
-    def _cb_factory(_lambda: Any) -> Callback[..., Any]:
-        @JProc.callback()
-        def _cb(_value_: Any) -> Any:
-            return _lambda(_value_)
-
-        return _cb
 
     orig_obj = {"a": "1", "b": 2, "c": "3"}
 
@@ -496,8 +478,8 @@ def test_processing_type_changes() -> None:
 
     jproc = JProc(
         {
-            int: JProc.cb(_cb_factory(lambda x: x * 2)),
-            str: JProc.cb(_cb_factory(lambda x: int(x))),
+            int: JProc.cb(wrap(lambda x: x * 2)),
+            str: JProc.cb(wrap(lambda x: int(x))),
         },
         process_type_changes=True,
     )
@@ -564,17 +546,12 @@ def test_invalid_allow_callback_failures(mock_cb: Callback[..., Any]) -> None:
     assert exc_info.value.args == ("not_bool", str)
 
 
-def test_none_as_target_type() -> None:
+def test_none_as_target_type(
+    wrap: Callable[[Callable[..., Any]], Callback[..., Any]],
+) -> None:
     """Test that `None` is handled correctly when used as a target type."""
 
-    def _cb_factory(_lambda: Any) -> Callback[..., Any]:
-        @JProc.callback()
-        def _cb(_value_: Any) -> Any:
-            return _lambda(_value_)
-
-        return _cb
-
-    cb_def = JProc.cb(_cb_factory(lambda x: x))
+    cb_def = JProc.cb(wrap(lambda x: x))
 
     jproc = JProc()
 
@@ -858,7 +835,7 @@ def test_missing_args_and_kwargs() -> None:
         """Callback which throws a "natural" TypeError."""
         _ = arg, either, kwarg
 
-        500()  # type: ignore[operator]
+        _ = "hello" * "world"  # type: ignore[operator]
 
     jproc = JProc({str: _my_callback})
 
@@ -873,6 +850,9 @@ def test_missing_args_and_kwargs() -> None:
     with pytest.raises(MissingKwargError):
         jproc.process(obj, arg=1, either=1)
 
-    with pytest.raises(TypeError, match="'int' object is not callable"):
+    with pytest.raises(
+        TypeError,
+        match="can't multiply sequence by non-int of type 'str'",
+    ):
         # Extra kw/args will be filtered out
         jproc.process(obj, arg=1, arg2=2, either=1, kwarg=1, kwarg2=2)

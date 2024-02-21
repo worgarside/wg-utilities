@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Generator
+from typing import Any, Callable, Generator
 
 import pytest
 
@@ -62,3 +62,17 @@ def _jproc_cleanup() -> Generator[None, None, None]:
     yield
 
     JProc._DECORATED_CALLBACKS = set()
+
+
+@pytest.fixture(name="wrap")
+def convert_lambda_to_callback_() -> Callable[[Callable[..., Any]], Callback[..., Any]]:
+    """Fixture for converting Lambdas to proper functions for quicker testing."""
+
+    def _cb_factory(_lambda: Callable[..., Any]) -> Callback[..., Any]:
+        @JProc.callback()
+        def _cb(_value_: Any) -> Any:
+            return _lambda(_value_)
+
+        return _cb
+
+    return _cb_factory
