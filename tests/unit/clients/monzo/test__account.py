@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from urllib.parse import urlencode
 
@@ -173,7 +173,7 @@ def test_update_balance_variables(monzo_account: Account, mock_requests: Mocker)
     with freeze_time():
         monzo_account.update_balance_variables()
 
-        assert monzo_account.last_balance_update == datetime.utcnow()
+        assert monzo_account.last_balance_update == datetime.now(UTC)
 
     assert monzo_account.balance_variables.model_dump() == {
         "balance": 177009,
