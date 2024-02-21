@@ -172,27 +172,27 @@ lint.select = [
   "W",   # https://docs.astral.sh/ruff/rules/#warning-w
 ]
 lint.ignore = [
-  "D107",   # https://beta.ruff.rs/docs/rules/undocumented-public-init/
-  "D202",   # https://beta.ruff.rs/docs/rules/no-blank-line-after-function/
-  "S314",   # https://beta.ruff.rs/docs/rules/suspicious-xml-element-tree-usage/
-  "TRY003", # https://beta.ruff.rs/docs/rules/raise-vanilla-args/
+  "D107",   # https://docs.astral.sh/ruff/rules/undocumented-public-init/
+  "D202",   # https://docs.astral.sh/ruff/rules/no-blank-line-after-function/
+  "S314",   # https://docs.astral.sh/ruff/rules/suspicious-xml-element-tree-usage/
+  "TRY003", # https://docs.astral.sh/ruff/rules/raise-vanilla-args/
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["D104"]
 "tests/**/*.py" = [
-  "FBT001",  # https://beta.ruff.rs/docs/rules/boolean-type-hint-positional-argument/
-  "FBT002",  # https://beta.ruff.rs/docs/rules/boolean-default-value-positional-argument/
-  "PT011",   # https://beta.ruff.rs/docs/rules/pytest-raises-too-broad/
-  "PLR0124", # https://beta.ruff.rs/docs/rules/comparison-with-itself/
-  "PLR0133", # https://beta.ruff.rs/docs/rules/comparison-of-constant/
-  "PLR2004", # https://beta.ruff.rs/docs/settings/#pylint-allow-magic-value-types
-  "S101",    # https://beta.ruff.rs/docs/rules/assert/
-  "S105",    # https://beta.ruff.rs/docs/rules/hardcoded-password-string/
-  "S106",    # https://beta.ruff.rs/docs/rules/hardcoded-password-func-arg/
-  "S113",    # https://beta.ruff.rs/docs/rules/request-without-timeout/
-  "S311",    # https://beta.ruff.rs/docs/rules/suspicious-non-cryptographic-random-usage/
-  "S324",    # https://beta.ruff.rs/docs/rules/hashlib-insecure-hash-function/
+  "FBT001",  # https://docs.astral.sh/ruff/rules/boolean-type-hint-positional-argument/
+  "FBT002",  # https://docs.astral.sh/ruff/rules/boolean-default-value-positional-argument/
+  "PT011",   # https://docs.astral.sh/ruff/rules/pytest-raises-too-broad/
+  "PLR0124", # https://docs.astral.sh/ruff/rules/comparison-with-itself/
+  "PLR0133", # https://docs.astral.sh/ruff/rules/comparison-of-constant/
+  "PLR2004", # https://docs.astral.sh/ruff/settings/#pylint-allow-magic-value-types
+  "S101",    # https://docs.astral.sh/ruff/rules/assert/
+  "S105",    # https://docs.astral.sh/ruff/rules/hardcoded-password-string/
+  "S106",    # https://docs.astral.sh/ruff/rules/hardcoded-password-func-arg/
+  "S113",    # https://docs.astral.sh/ruff/rules/request-without-timeout/
+  "S311",    # https://docs.astral.sh/ruff/rules/suspicious-non-cryptographic-random-usage/
+  "S324",    # https://docs.astral.sh/ruff/rules/hashlib-insecure-hash-function/
 ]
 "tests/unit/helpers/mixin/test__instance_cache_mixin.py" = ["N803"]
 
