@@ -8,7 +8,6 @@ from collections import defaultdict
 from collections.abc import Callable
 from contextlib import suppress
 from functools import wraps
-from logging import getLogger
 from typing import (
     Any,
     ClassVar,
@@ -19,34 +18,15 @@ from typing import (
     ParamSpec,
     Protocol,
     TypeVar,
-    Union,
     overload,
 )
 
 from wg_utilities.exceptions._exception import BadDefinitionError
 from wg_utilities.helpers.mixin import InstanceCache
-from wg_utilities.loggers.stream_handler import add_stream_handler
-
-JSONVal = Union[
-    None,
-    object,
-    bool,
-    str,
-    float,
-    int,
-    list["JSONVal"],
-    "JSONObj",
-    dict[str, object],
-]
-JSONObj = dict[str, JSONVal]
-JSONArr = list[JSONVal]
 
 P = ParamSpec("P")
 R = TypeVar("R")
 Callback = Callable[P, R]
-
-LOGGER = getLogger(__name__)
-add_stream_handler(LOGGER)
 
 
 class InvalidCallbackError(BadDefinitionError):

@@ -24,7 +24,6 @@ from wg_utilities.helpers.processor.json import (
     CallbackNotDecoratedError,
     InvalidCallbackError,
     InvalidItemFilterError,
-    JSONObj,
     MissingArgError,
     MissingKwargError,
 )
@@ -387,11 +386,11 @@ def test_get_callbacks_no_subclasses(
     ],
 )
 def test_process(
-    obj: JSONObj,
+    obj: dict[Any, Any],
     callback_mapping: dict[type[Any], Callable[..., Any]],
     process_subclasses: bool,
     process_type_changes: bool,
-    expected: JSONObj,
+    expected: dict[Any, Any],
     wrap: Callable[[Callable[..., Any]], Callback[..., Any]],
 ) -> None:
     """Test that the `process` method works correctly."""
