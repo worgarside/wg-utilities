@@ -86,12 +86,12 @@ class MissingKwargError(InvalidCallbackArgumentsError):
 
 
 class CallbackNotDecoratedError(InvalidCallbackError):
-    """Raised when a callback is not decorated with `@JSONProcessor.callback()`."""
+    """Raised when a callback is not decorated with `@JSONProcessor.callback`."""
 
     def __init__(self, callback: Callback[..., Any], /) -> None:
         super().__init__(
             f"Callback `{callback.__module__}.{callback.__name__}` must be decorated "
-            "with `@JSONProcessor.callback()`",
+            "with `@JSONProcessor.callback`",
             callback=callback,
         )
 
@@ -336,54 +336,54 @@ class JSONProcessor(InstanceCache, cache_id_attr="identifier"):
         self.callback_mapping[target_type].append(callback_def)
 
     @classmethod
-    def callback(cls) -> Callable[[Callable[..., Any]], Callback[..., Any]]:
+    def callback(
+        cls,
+        func: Callable[P, R],
+    ) -> Callback[P, R]:
         """Decorator to mark a function as a callback for use with the JSONProcessor."""
 
-        def _decorator(func: Callable[P, R]) -> Callback[..., Any]:
-            if isinstance(func, classmethod):
-                raise InvalidCallbackError(
-                    "@JSONProcessor.callback() must be used _after_ @classmethod",
-                    callback=func,
-                )
+        if isinstance(func, classmethod):
+            raise InvalidCallbackError(
+                "@JSONProcessor.callback must be used _after_ @classmethod",
+                callback=func,
+            )
 
-            arg_names, kwarg_names = [], []
+        arg_names, kwarg_names = [], []
 
-            for name, param in inspect.signature(func).parameters.items():
-                if param.kind == param.POSITIONAL_ONLY:
-                    arg_names.append(name)
-                else:
-                    kwarg_names.append(name)
+        for name, param in inspect.signature(func).parameters.items():
+            if param.kind == param.POSITIONAL_ONLY:
+                arg_names.append(name)
+            else:
+                kwarg_names.append(name)
 
-            def filter_kwargs(
-                kwargs: dict[str, Any],
-                /,
-            ) -> tuple[list[Any], dict[str, Any]]:
-                a = []
-                for an in arg_names:
-                    with suppress(KeyError):
-                        a.append(kwargs[an])
+        def filter_kwargs(
+            kwargs: dict[str, Any],
+            /,
+        ) -> tuple[list[Any], dict[str, Any]]:
+            a = []
+            for an in arg_names:
+                with suppress(KeyError):
+                    a.append(kwargs[an])
 
-                kw = {}
-                for kn in kwarg_names:
-                    with suppress(KeyError):
-                        kw[kn] = kwargs[kn]
+            kw = {}
+            for kn in kwarg_names:
+                with suppress(KeyError):
+                    kw[kn] = kwargs[kn]
 
-                return a, kw
+            return a, kw
 
-            # This is the same `cb` called in the `JSONProcessor._process_loc` method - no positional
-            # arguments are explicitly passed in (and would be rehjected by `JSONProcessor.process` anyway),
-            # unless the callback is a bound method. In this case, the `cls`/`self` argument is passed in
-            # as the first positional argument, hence the need for `*bound_args` below
-            @wraps(func)
-            def cb(*bound_args: P.args, **process_kwargs: P.kwargs) -> R:
-                args, kwargs = filter_kwargs(process_kwargs)
-                return func(*bound_args, *args, **kwargs)
+        # This is the same `cb` called in the `JSONProcessor._process_loc` method - no positional
+        # arguments are explicitly passed in (and would be rehjected by `JSONProcessor.process` anyway),
+        # unless the callback is a bound method. In this case, the `cls`/`self` argument is passed in
+        # as the first positional argument, hence the need for `*bound_args` below
+        @wraps(func)
+        def cb(*bound_args: P.args, **process_kwargs: P.kwargs) -> R:
+            args, kwargs = filter_kwargs(process_kwargs)
+            return func(*bound_args, *args, **kwargs)
 
-            cls._DECORATED_CALLBACKS.add(cb)
+        cls._DECORATED_CALLBACKS.add(cb)
 
-            return cb
-
-        return _decorator
+        return cb
 
 
 __all__ = ["JSONProcessor", "Callback", "ItemFilter"]
