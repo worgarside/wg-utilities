@@ -94,7 +94,7 @@ class InstanceCacheMixin(metaclass=PostInitMeta):
         cls,
         *,
         cache_id_attr: str | None = None,
-        cache_id_func: str | None = "__hash__",
+        cache_id_func: str | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialise subclasses with instance cache and cache ID attributes.
@@ -103,16 +103,14 @@ class InstanceCacheMixin(metaclass=PostInitMeta):
             cache_id_attr (str | None, optional): The name of the attribute to use in the cache ID. Defaults to
                 None. Must be provided if `cache_id_func` is None.
             cache_id_func (str | None, optional): The name of the function whose return value to use in the cache
-                ID. Defaults to "__hash__". Must be provided if `cache_id_attr` is None.
+                ID. Defaults to "__hash__" (and must be provided) if `cache_id_attr` is None.
             kwargs (Any): Additional keyword arguments to pass to the superclass.
 
         Raises:
             InstanceCacheSubclassError: If neither `cache_id_attr` nor `cache_id_func` are provided.
         """
         if not (cache_id_attr or cache_id_func):
-            raise InstanceCacheSubclassError(
-                "Both cache ID attribute and function are None.",
-            )
+            cache_id_func = "__hash__"
 
         if not (isinstance(cache_id_attr, str) or cache_id_attr is None):
             raise InstanceCacheSubclassError(
