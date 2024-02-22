@@ -1,13 +1,12 @@
 """Unit tests for the `wg_utilities.clients.google_drive.File` class."""
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from http import HTTPStatus
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
-from pytz import utc
 
 from tests.conftest import read_json_file
 from wg_utilities.clients.google_drive import (
@@ -98,7 +97,7 @@ def test_getattr_override_on_first_request_retrieval(
         assert (
             simple_file.created_time
             == simple_file.__dict__["created_time"]
-            == datetime(2022, 12, 22, 11, 34, 54, 221000, tzinfo=utc)
+            == datetime(2022, 12, 22, 11, 34, 54, 221000, tzinfo=UTC)
         )
         assert (
             simple_file.last_modifying_user
@@ -241,7 +240,7 @@ def test_describe(simple_file: File) -> None:
             34,
             54,
             221000,
-            tzinfo=utc,
+            tzinfo=UTC,
         )
         assert simple_file.size == 1024
         assert (

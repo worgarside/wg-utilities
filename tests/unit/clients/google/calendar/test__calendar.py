@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 from datetime import datetime, tzinfo
-from json import loads
 from unittest.mock import patch
 
 import pytest
 from freezegun import freeze_time
-from pytz import timezone
+from zoneinfo import ZoneInfo
 
 from tests.conftest import read_json_file
 from wg_utilities.clients.google_calendar import Calendar, Event, GoogleCalendarClient
@@ -28,8 +27,7 @@ def test_instantiation(google_calendar_client: GoogleCalendarClient) -> None:
     )
 
     assert isinstance(calendar, Calendar)
-    # the `loads` is to convert tzinfo objects to strings
-    assert loads(calendar.model_dump_json()) == calendar_json
+    assert calendar.model_dump(mode="json") == calendar_json
     assert calendar.google_client == google_calendar_client
 
 
@@ -50,9 +48,9 @@ def test_timezone_tzinfo_conversion(
         google_client=google_calendar_client,
     )
 
-    assert calendar.timezone == timezone("Europe/London")
+    assert calendar.timezone == ZoneInfo("Europe/London")
     assert isinstance(calendar.timezone, tzinfo)
-    assert calendar.model_dump()["timeZone"] == timezone("Europe/London")
+    assert calendar.model_dump()["timeZone"] == ZoneInfo("Europe/London")
     assert "timezone" not in calendar.model_dump()
 
 

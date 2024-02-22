@@ -6,7 +6,7 @@ from datetime import date, datetime
 
 import pytest
 from pydantic import ValidationError
-from pytz import timezone
+from zoneinfo import ZoneInfo
 
 from wg_utilities.clients.google_calendar import _StartEndDatetime
 
@@ -19,14 +19,14 @@ from wg_utilities.clients.google_calendar import _StartEndDatetime
                 "date": "2021-01-01",
                 "timeZone": "Europe/London",
             },
-            datetime(2021, 1, 1, tzinfo=timezone("Europe/London")),
+            datetime(2021, 1, 1, tzinfo=ZoneInfo("Europe/London")),
         ),
         (
             {
                 "dateTime": "2021-01-01T10:30:00Z",
                 "timeZone": "Europe/London",
             },
-            datetime(2021, 1, 1, 10, 30, tzinfo=timezone("Europe/London")),
+            datetime(2021, 1, 1, 10, 30, tzinfo=ZoneInfo("Europe/London")),
         ),
     ],
 )
@@ -37,7 +37,7 @@ def test_instantiation(obj_json: dict[str, str], expected_datetime: datetime) ->
 
     assert sed.date == date(2021, 1, 1)
     assert sed.datetime == expected_datetime
-    assert sed.timezone == timezone("Europe/London")
+    assert sed.timezone == ZoneInfo("Europe/London")
 
 
 def test_bad_instantiation() -> None:

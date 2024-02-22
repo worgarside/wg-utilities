@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
 from freezegun import freeze_time
-from pytz import utc
 
 from tests.conftest import assert_mock_requests_request_history, read_json_file
 from wg_utilities.clients.monzo import Account, MonzoClient
@@ -43,7 +42,7 @@ def test_instantiation(monzo_client: MonzoClient) -> None:
         "account_number": "12345678",
         "closed": False,
         "country_code": "GB",
-        "created": datetime(2020, 1, 1, tzinfo=utc),
+        "created": datetime(2020, 1, 1, tzinfo=UTC),
         "currency": "GBP",
         "description": "user_00001AbcdEfghIjklMnopQ",
         "id": "acc_00001AbcdEfghIjklMnopQ",
