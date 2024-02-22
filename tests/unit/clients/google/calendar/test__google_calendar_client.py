@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
 import pytest
-from pytz import timezone
 from requests import HTTPError
+from zoneinfo import ZoneInfo
 
 from wg_utilities.clients import GoogleCalendarClient
 from wg_utilities.clients.google_calendar import Calendar, Event, _StartEndDatetime
@@ -51,7 +51,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
             "Test Event 1",
             date(2021, 1, 1),
             date(2021, 1, 2),
-            timezone("America/New_York"),
+            ZoneInfo("America/New_York"),
             None,
             {},
         ),
@@ -59,7 +59,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
             "Test Event 2",
             datetime(2021, 1, 1, 10, 30),
             date(2021, 1, 2),
-            timezone("Europe/London"),
+            ZoneInfo("Europe/London"),
             None,
             {},
         ),
@@ -67,7 +67,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
             "Test Event 3",
             date(2021, 1, 2),
             datetime(2021, 1, 1, 10, 30),
-            timezone("Africa/Johannesburg"),
+            ZoneInfo("Africa/Johannesburg"),
             None,
             {},
         ),
@@ -75,7 +75,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
             "Test Event 4",
             date(2021, 1, 2),
             date(2021, 1, 2),
-            timezone("Africa/Johannesburg"),
+            ZoneInfo("Africa/Johannesburg"),
             Calendar.model_validate(
                 {
                     "id": "test-calendar-id",
@@ -93,7 +93,7 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
             "Test Event 5",
             date(2021, 1, 2),
             date(2021, 1, 2),
-            timezone("Africa/Johannesburg"),
+            ZoneInfo("Africa/Johannesburg"),
             Calendar.model_validate(
                 {
                     "id": "test-calendar-id",
@@ -127,23 +127,23 @@ def test_create_event_request(
 
     if isinstance(start_datetime, datetime):
         start_params = {
-            "timeZone": tz.tzname(None),
+            "timeZone": str(tz),
             "dateTime": start_datetime.strftime("%Y-%m-%dT%H:%M:%S%z"),
         }
     else:
         start_params = {
-            "timeZone": tz.tzname(None),
+            "timeZone": str(tz),
             "date": start_datetime.isoformat(),
         }
 
     if isinstance(end_datetime, datetime):
         end_params = {
-            "timeZone": tz.tzname(None),
+            "timeZone": str(tz),
             "dateTime": end_datetime.strftime("%Y-%m-%dT%H:%M:%S%z"),
         }
     else:
         end_params = {
-            "timeZone": tz.tzname(None),
+            "timeZone": str(tz),
             "date": end_datetime.isoformat(),
         }
 
@@ -192,7 +192,7 @@ def test_create_event_request(
             "Test Event 1",
             date(2021, 1, 1),
             date(2021, 1, 2),
-            timezone("America/New_York"),
+            ZoneInfo("America/New_York"),
             None,
             {},
         ),
@@ -200,7 +200,7 @@ def test_create_event_request(
             "Test Event 2",
             datetime(2021, 1, 1, 10, 30),
             date(2021, 1, 2),
-            timezone("Europe/London"),
+            ZoneInfo("Europe/London"),
             None,
             {},
         ),
@@ -208,7 +208,7 @@ def test_create_event_request(
             "Test Event 3",
             date(2021, 1, 2),
             datetime(2021, 1, 1, 10, 30),
-            timezone("Africa/Johannesburg"),
+            ZoneInfo("Africa/Johannesburg"),
             None,
             {},
         ),
@@ -216,7 +216,7 @@ def test_create_event_request(
             "Test Event 4",
             date(2021, 1, 2),
             date(2021, 1, 2),
-            timezone("Africa/Johannesburg"),
+            ZoneInfo("Africa/Johannesburg"),
             Calendar.model_validate(
                 {
                     "id": "test-calendar-id",
@@ -234,7 +234,7 @@ def test_create_event_request(
             "Test Event 5",
             date(2021, 1, 2),
             date(2021, 1, 2),
-            timezone("Africa/Johannesburg"),
+            ZoneInfo("Africa/Johannesburg"),
             Calendar.model_validate(
                 {
                     "id": "test-calendar-id",
@@ -270,7 +270,7 @@ def test_create_event_response(
     if isinstance(start_datetime, datetime):
         start = _StartEndDatetime.model_validate(
             {
-                "timeZone": tz.tzname(None),
+                "timeZone": str(tz),
                 "dateTime": start_datetime.replace(tzinfo=tz).strftime(
                     "%Y-%m-%dT%H:%M:%S%z",
                 ),
@@ -279,7 +279,7 @@ def test_create_event_response(
     else:
         start = _StartEndDatetime.model_validate(
             {
-                "timeZone": tz.tzname(None),
+                "timeZone": str(tz),
                 "date": start_datetime.isoformat(),
             },
         )
@@ -287,7 +287,7 @@ def test_create_event_response(
     if isinstance(end_datetime, datetime):
         end = _StartEndDatetime.model_validate(
             {
-                "timeZone": tz.tzname(None),
+                "timeZone": str(tz),
                 "dateTime": end_datetime.replace(tzinfo=tz).strftime(
                     "%Y-%m-%dT%H:%M:%S%z",
                 ),
@@ -296,7 +296,7 @@ def test_create_event_response(
     else:
         end = _StartEndDatetime.model_validate(
             {
-                "timeZone": tz.tzname(None),
+                "timeZone": str(tz),
                 "date": end_datetime.isoformat(),
             },
         )

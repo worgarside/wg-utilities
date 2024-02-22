@@ -27,7 +27,6 @@ pigpio = { version = "*", optional = true }
 pillow = { version = "*", optional = true }
 pyjwt = { version = ">=2.6,<2.9", optional = true }
 python-dotenv = { version = "*", optional = true }
-pytz = ">=2022.1"
 requests = { version = ">=2.26.0", optional = true }
 "rpi.gpio" = { version = "*", platform = "linux", optional = true }
 spidev = { version = "*", platform = "linux", optional = true }
@@ -60,7 +59,6 @@ clients = [
   "flask",
   "pyjwt",
   "requests",
-  "pytz",
   "tzlocal",
   "pydantic",
   "python-dotenv",
@@ -69,8 +67,8 @@ clients = [
 "devices.dht22" = ["pigpio"]
 "devices.yamaha_yas_209" = ["async-upnp-client", "pydantic", "xmltodict"]
 "exceptions" = ["python-dotenv", "requests"]
-"logging" = ["pytz", "requests"]
-"functions" = ["lxml", "pytz"]
+"logging" = ["requests"]
+"functions" = ["lxml"]
 "testing" = ["botocore"]
 
 
