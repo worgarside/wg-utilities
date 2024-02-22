@@ -11,7 +11,7 @@ import pytest
 from boto3 import client
 from dateutil.tz import tzutc
 from freezegun import freeze_time
-from moto import mock_s3  # type: ignore[import-not-found]
+from moto import mock_aws
 
 from wg_utilities.testing import MockBoto3Client
 
@@ -338,7 +338,7 @@ def test_nested_callable_override(
             assert res == {"value": counter}  # type: ignore[comparison-overlap]
 
 
-@mock_s3  # type: ignore[misc]
+@mock_aws
 @pytest.mark.mocked_operation_lookup(
     {
         "ListBuckets": {"Buckets": ["barry", "paul", "jimmy", "brian"]},
@@ -374,7 +374,7 @@ def test_non_mocked_calls_still_go_to_aws(
         ]
 
 
-@mock_s3  # type: ignore[misc]
+@mock_aws
 @pytest.mark.mocked_operation_lookup(
     {
         "ListBuckets": {"Buckets": ["barry", "paul", "jimmy", "brian"]},
