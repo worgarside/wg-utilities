@@ -10,7 +10,6 @@ from sys import exc_info
 from traceback import format_exc
 from typing import TYPE_CHECKING, Any
 
-from dotenv import load_dotenv
 from requests import post
 from requests.exceptions import ConnectionError as RequestsConnectionError
 
@@ -19,7 +18,6 @@ from wg_utilities.loggers import add_stream_handler
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
-load_dotenv()
 
 HA_LOG_ENDPOINT = getenv("HA_LOG_ENDPOINT", "homeassistant.local:8001")
 

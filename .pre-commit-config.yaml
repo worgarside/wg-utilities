@@ -30,7 +30,6 @@ repos:
           - mypy_boto3_s3
           - pydantic==2.6.1
           - pytest==8.0.1
-          - python-dotenv==1.0.1
           - requests-mock==1.11.0
           - types-Pillow
           - types-PyYAML
