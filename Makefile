@@ -2,7 +2,7 @@ clean:
 	find . \( -name "__pycache__" -o -name "build" -o -name "dist" \) -type d -exec rm -rf {} +
 
 install:
-	poetry install --sync
+	poetry install --sync --all-extras
 
 test:
 	poetry run pytest

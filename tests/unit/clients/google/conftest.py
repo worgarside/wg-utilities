@@ -32,6 +32,8 @@ if TYPE_CHECKING:
 
     from wg_utilities.clients.oauth_client import OAuthCredentials
 
+REPO_PATH = Path(__file__).parents[4]
+
 
 @pytest.fixture(name="calendar")
 def calendar_(google_calendar_client: GoogleCalendarClient) -> Calendar:
@@ -333,10 +335,9 @@ def mock_requests_(
     request: pytest.FixtureRequest,
 ) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
-
     if fullmatch(
         r"^tests/unit/clients/google/calendar/test__[a-z_]+\.py$",
-        request.node.parent.name,
+        str(request.path.relative_to(REPO_PATH)),
     ):
         for path_object in (
             google_dir := FLAT_FILES_DIR / "json" / "google" / "calendar" / "v3"
@@ -352,7 +353,7 @@ def mock_requests_(
                 )
     elif fullmatch(
         r"^tests/unit/clients/google/drive/test__[a-z_]+\.py$",
-        request.node.parent.name,
+        str(request.path.relative_to(REPO_PATH)),
     ):
         for path_object in (
             google_dir := FLAT_FILES_DIR / "json" / "google" / "drive" / "v3"
@@ -368,7 +369,7 @@ def mock_requests_(
                 )
     elif fullmatch(
         r"^tests/unit/clients/google/fit/test__[a-z_]+\.py$",
-        request.node.parent.name,
+        str(request.path.relative_to(REPO_PATH)),
     ):
         for path_object in (
             google_dir := FLAT_FILES_DIR / "json" / "google" / "fitness" / "v1"
@@ -384,7 +385,7 @@ def mock_requests_(
                 )
     elif fullmatch(
         r"^tests/unit/clients/google/photos/test__[a-z_]+\.py$",
-        request.node.parent.name,
+        str(request.path.relative_to(REPO_PATH)),
     ):
         for path_object in (
             google_dir := FLAT_FILES_DIR / "json" / "google" / "photos" / "v1"
