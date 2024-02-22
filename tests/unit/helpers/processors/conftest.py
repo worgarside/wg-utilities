@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 def mock_cb_() -> Callback[..., Any]:
     """Create a callback that does nothing."""
 
-    @JProc.callback
+    @JProc.callback()
     def _cb(_value_: Any) -> Any:  # pragma: no cover
         return _value_
 
@@ -27,7 +27,7 @@ def mock_cb_() -> Callback[..., Any]:
 def mock_cb_two_() -> Callback[..., Any]:
     """Create a second callback that does nothing."""
 
-    @JProc.callback
+    @JProc.callback()
     def _cb2(_value_: Any) -> Any:  # pragma: no cover
         return _value_
 
@@ -38,7 +38,7 @@ def mock_cb_two_() -> Callback[..., Any]:
 def mock_cb_three_() -> Callback[..., Any]:
     """Create a third callback that does nothing."""
 
-    @JProc.callback
+    @JProc.callback()
     def _cb3(_value_: Any) -> Any:  # pragma: no cover
         return _value_
 
@@ -49,7 +49,7 @@ def mock_cb_three_() -> Callback[..., Any]:
 def mock_cb_four_() -> Callback[..., Any]:
     """Create a fourth callback that does nothing."""
 
-    @JProc.callback
+    @JProc.callback()
     def _cb4(_value_: Any) -> Any:  # pragma: no cover
         return _value_
 
@@ -71,7 +71,7 @@ def convert_lambda_to_callback_() -> Callable[[Callable[..., Any]], Callback[...
     """Fixture for converting Lambdas to proper functions for quicker testing."""
 
     def _cb_factory(_lambda: Callable[..., Any]) -> Callback[..., Any]:
-        @JProc.callback
+        @JProc.callback()
         def _cb(_value_: Any) -> Any:
             return _lambda(_value_)
 

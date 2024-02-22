@@ -12,8 +12,10 @@ from typing import (
     Any,
     ClassVar,
     Collection,
+    Final,
     Generator,
     Iterator,
+    Literal,
     NamedTuple,
     ParamSpec,
     Protocol,
@@ -22,7 +24,7 @@ from typing import (
 )
 
 from wg_utilities.exceptions._exception import BadDefinitionError
-from wg_utilities.helpers.mixin import InstanceCache
+from wg_utilities.helpers import Sentinel, mixin
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -94,7 +96,7 @@ class ItemFilter(Protocol):
         """The function to be called on each value in the JSON object."""
 
 
-class JSONProcessor(InstanceCache, cache_id_attr="identifier"):
+class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
     """Recursively process JSON objects with user-defined callbacks.
 
     Attributes:
@@ -108,7 +110,9 @@ class JSONProcessor(InstanceCache, cache_id_attr="identifier"):
             Can lead to recursion errors if not handled correctly. Defaults to False.
     """
 
-    _DECORATED_CALLBACKS: ClassVar[set[Callable[..., Any]]] = set()
+    _DECORATED_CALLBACKS: ClassVar[set[Callback[..., Any]]] = set()
+
+    __ORIGINAL_VAL: Final[Sentinel] = Sentinel()
 
     class CallbackDefinition(NamedTuple):
         """A named tuple to hold the callback function and its associated data.
@@ -186,11 +190,13 @@ class JSONProcessor(InstanceCache, cache_id_attr="identifier"):
         callback: Callback[..., Any],
         item_filter: ItemFilter | None = None,
         allow_callback_failures: bool = False,  # noqa: FBT001,FBT002
+        *,
+        allow_mutation: bool = True,
     ) -> CallbackDefinition:
         """Create a CallbackDefinition for the given callback."""
 
         if callback.__name__ == "<lambda>":
-            callback = JSONProcessor.callback(callback)
+            callback = JSONProcessor.callback(allow_mutation=allow_mutation)(callback)
 
         if item_filter and not callable(item_filter):
             raise InvalidItemFilterError(item_filter, callback=callback)
@@ -238,6 +244,36 @@ class JSONProcessor(InstanceCache, cache_id_attr="identifier"):
         elif callback_list := self.callback_mapping.get(typ):
             yield from callback_list
 
+    def _process_item(
+        self,
+        *,
+        obj: dict[Any, Any] | list[Any],
+        loc: Any | int,
+        cb: Callback[..., Any],
+        orig_item_type: type[Any],
+        kwargs: dict[str, Any],
+    ) -> None:
+        try:
+            out = cb(
+                _value_=obj[loc],
+                _loc_=loc,
+                _obj_type_=type(obj),
+                **kwargs,
+            )
+
+            if out is not self.__ORIGINAL_VAL:
+                obj[loc] = out
+        except TypeError as exc:
+            arg_error: type[InvalidCallbackArgumentsError]
+            for arg_error in InvalidCallbackArgumentsError.subclasses():  # type: ignore[assignment]
+                if match := arg_error.PATTERN.search(str(exc)):
+                    raise arg_error(*match.groups(), callback=cb) from None
+
+            raise
+
+        if self.process_type_changes and type(obj[loc]) != orig_item_type:
+            self._process_loc(obj=obj, loc=loc, kwargs=kwargs)
+
     def _process_loc(
         self,
         *,
@@ -253,33 +289,25 @@ class JSONProcessor(InstanceCache, cache_id_attr="identifier"):
         for cb, item_filter, allow_failures in self._get_callbacks(orig_item_type):
             if item_filter is None or bool(item_filter(obj[loc], loc=loc)):
                 try:
-                    obj[loc] = cb(
-                        _value_=obj[loc],
-                        _loc_=loc,
-                        _obj_type_=type(obj),
-                        **kwargs,
+                    self._process_item(
+                        obj=obj,
+                        loc=loc,
+                        cb=cb,
+                        orig_item_type=orig_item_type,
+                        kwargs=kwargs,
                     )
-                except TypeError as exc:
-                    arg_error: type[InvalidCallbackArgumentsError]
-                    for arg_error in InvalidCallbackArgumentsError.subclasses():  # type: ignore[assignment]
-                        if match := arg_error.PATTERN.search(str(exc)):
-                            raise arg_error(*match.groups(), callback=cb) from None
-
-                    if not allow_failures:
-                        raise
+                except InvalidCallbackArgumentsError:
+                    raise
                 except Exception:
                     if not allow_failures:
                         raise
-
-                if self.process_type_changes and type(obj[loc]) != orig_item_type:
-                    self._process_loc(obj=obj, loc=loc, kwargs=kwargs)
 
     def process(self, obj: dict[Any, Any] | list[Any], /, **kwargs: Any) -> None:
         """Recursively process a JSON object with the registered callbacks.
 
         Args:
             obj (dict[Any, Any] | list[Any]): The JSON object to process.
-            kwargs (Any): Any additional keyword arguments to pass to the callbacks.
+            kwargs (Any): Any additional keyword arguments to pass to the callback(s).
         """
         for loc in self._iterate(obj):
             self._process_loc(obj=obj, loc=loc, kwargs=kwargs)
@@ -312,55 +340,111 @@ class JSONProcessor(InstanceCache, cache_id_attr="identifier"):
 
         self.callback_mapping[target_type].append(callback_def)
 
+    @overload
     @classmethod
     def callback(
         cls,
-        func: Callable[P, R],
-    ) -> Callback[P, R]:
-        """Decorator to mark a function as a callback for use with the JSONProcessor."""
+        *,
+        allow_mutation: Literal[True] = True,
+    ) -> Callable[[Callable[P, R]], Callback[P, R]]:
+        ...
 
-        if isinstance(func, classmethod):
-            raise InvalidCallbackError(
-                "@JSONProcessor.callback must be used _after_ @classmethod",
-                callback=func,
-            )
+    @overload
+    @classmethod
+    def callback(
+        cls,
+        *,
+        allow_mutation: Literal[False],
+    ) -> Callable[[Callable[P, R]], Callback[P, Sentinel]]:
+        ...
 
-        arg_names, kwarg_names = [], []
+    @overload
+    @classmethod
+    def callback(
+        cls,
+        *,
+        allow_mutation: bool = ...,
+    ) -> Callable[[Callable[P, R]], Callback[P, R | Sentinel]]:
+        ...
 
-        for name, param in inspect.signature(func).parameters.items():
-            if param.kind == param.POSITIONAL_ONLY:
-                arg_names.append(name)
+    @classmethod
+    def callback(
+        cls,
+        *,
+        allow_mutation: bool = True,
+    ) -> Callable[[Callable[P, R]], Callback[P, R | Sentinel]]:
+        """Decorator to mark a function as a callback for use with the JSONProcessor.
+
+        Warning:
+            `allow_mutation` only blocks the return value from being used to update the input
+            object. It does not prevent the callback from mutating the input object (or other
+            objects passed in as arguments) in place.
+
+        Args:
+            allow_mutation (bool): Whether the callback is allowed to mutate the input object.
+                Defaults to True.
+        """
+
+        def _decorator(func: Callable[P, R]) -> Callback[P, R | Sentinel]:
+            """Decorator to mark a function as a callback for use with the JSONProcessor."""
+
+            if isinstance(func, classmethod):
+                raise InvalidCallbackError(
+                    "@JSONProcessor.callback must be used _after_ @classmethod",
+                    callback=func,
+                )
+
+            arg_names, kwarg_names = [], []
+
+            for name, param in inspect.signature(func).parameters.items():
+                if param.kind == param.POSITIONAL_ONLY:
+                    arg_names.append(name)
+                else:
+                    kwarg_names.append(name)
+
+            def filter_kwargs(
+                kwargs: dict[str, Any],
+                /,
+            ) -> tuple[list[Any], dict[str, Any]]:
+                a = []
+                for an in arg_names:
+                    with suppress(KeyError):
+                        a.append(kwargs[an])
+
+                kw = {}
+                for kn in kwarg_names:
+                    with suppress(KeyError):
+                        kw[kn] = kwargs[kn]
+
+                return a, kw
+
+            # This is the same `cb` called in the `JSONProcessor._process_loc` method - no positional
+            # arguments are explicitly passed in (and would be rehjected by `JSONProcessor.process` anyway),
+            # unless the callback is a bound method. In this case, the `cls`/`self` argument is passed in
+            # as the first positional argument, hence the need for `*bound_args` below
+
+            if allow_mutation:
+
+                @wraps(func)
+                def cb(*bound_args: P.args, **process_kwargs: P.kwargs) -> R:
+                    args, kwargs = filter_kwargs(process_kwargs)
+                    return func(*bound_args, *args, **kwargs)
             else:
-                kwarg_names.append(name)
 
-        def filter_kwargs(
-            kwargs: dict[str, Any],
-            /,
-        ) -> tuple[list[Any], dict[str, Any]]:
-            a = []
-            for an in arg_names:
-                with suppress(KeyError):
-                    a.append(kwargs[an])
+                @wraps(func)
+                def cb(
+                    *bound_args: P.args,
+                    **process_kwargs: P.kwargs,
+                ) -> Sentinel:
+                    args, kwargs = filter_kwargs(process_kwargs)
+                    func(*bound_args, *args, **kwargs)
+                    return JSONProcessor.__ORIGINAL_VAL
 
-            kw = {}
-            for kn in kwarg_names:
-                with suppress(KeyError):
-                    kw[kn] = kwargs[kn]
+            cls._DECORATED_CALLBACKS.add(cb)
 
-            return a, kw
+            return cb
 
-        # This is the same `cb` called in the `JSONProcessor._process_loc` method - no positional
-        # arguments are explicitly passed in (and would be rehjected by `JSONProcessor.process` anyway),
-        # unless the callback is a bound method. In this case, the `cls`/`self` argument is passed in
-        # as the first positional argument, hence the need for `*bound_args` below
-        @wraps(func)
-        def cb(*bound_args: P.args, **process_kwargs: P.kwargs) -> R:
-            args, kwargs = filter_kwargs(process_kwargs)
-            return func(*bound_args, *args, **kwargs)
-
-        cls._DECORATED_CALLBACKS.add(cb)
-
-        return cb
+        return _decorator
 
 
 __all__ = ["JSONProcessor", "Callback", "ItemFilter"]
