@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pytest
 from freezegun import freeze_time
-from pytz import utc
 
 from wg_utilities.functions import DTU, utcnow
 
@@ -16,7 +15,7 @@ def test_utcnow_no_unit() -> None:
     assert isinstance(utcnow(), datetime)
 
     with freeze_time("2021-01-01 00:00:00"):
-        assert utcnow() == datetime(2021, 1, 1, 0, 0, 0, tzinfo=utc)
+        assert utcnow() == datetime(2021, 1, 1, 0, 0, 0, tzinfo=UTC)
 
 
 @pytest.mark.parametrize(

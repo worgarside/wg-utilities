@@ -7,7 +7,7 @@ from http import HTTPStatus
 from typing import TYPE_CHECKING
 
 import pytest
-from pytz import timezone
+from zoneinfo import ZoneInfo
 
 from tests.conftest import read_json_file
 from wg_utilities.clients.google_calendar import (
@@ -50,7 +50,7 @@ def test_instantiation(
         6,
         10,
         15,
-        tzinfo=timezone("Europe/London"),
+        tzinfo=ZoneInfo("Europe/London"),
     )
     assert event.google_client == google_calendar_client
 

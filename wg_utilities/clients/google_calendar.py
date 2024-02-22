@@ -10,10 +10,10 @@ from enum import StrEnum
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, TypeAlias
 
 from pydantic import Field, field_serializer, field_validator, model_validator
-from pytz import timezone
 from requests import delete
 from typing_extensions import NotRequired, TypedDict
 from tzlocal import get_localzone
+from zoneinfo import ZoneInfo
 
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.clients.oauth_client import BaseModelWithConfig
@@ -114,7 +114,7 @@ class _StartEndDatetime(BaseModelWithConfig):
         """Validate that either `datetime` or `date` is provided."""
 
         values["timeZone"] = (
-            timezone(values["timeZone"]) if "timeZone" in values else get_localzone()
+            ZoneInfo(values["timeZone"]) if "timeZone" in values else get_localzone()
         )
 
         dt: date_ | None = values.get("date")
@@ -142,7 +142,7 @@ class _StartEndDatetime(BaseModelWithConfig):
     def serialize_timezone(self, tz: tzinfo) -> str:
         """Serialize the timezone to a string."""
 
-        return tz.tzname(None) or ""
+        return str(tz)
 
 
 class CalendarJson(TypedDict):
@@ -263,13 +263,13 @@ class Calendar(GoogleCalendarEntity):
         if isinstance(value, tzinfo):
             return value
 
-        return timezone(value)
+        return ZoneInfo(value)
 
     @field_serializer("timezone", mode="plain", when_used="json", check_fields=True)
     def serialize_timezone(self, tz: tzinfo) -> str:
         """Serialize the timezone to a string."""
 
-        return tz.tzname(None) or ""
+        return str(tz)
 
     def get_event_by_id(self, event_id: str) -> Event:
         """Get an event by its ID.
