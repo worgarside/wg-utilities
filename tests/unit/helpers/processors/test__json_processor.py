@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from copy import deepcopy
 from json import dumps, loads
@@ -518,7 +519,7 @@ def test_lambdas_get_wrapped() -> None:
 def test_callback_with_no_args_or_kwargs() -> None:
     """Test that a callback with no args is perfectly fine."""
 
-    @JProc.callback
+    @JProc.callback()
     def _my_callback() -> Any:
         """Null callback."""
 
@@ -589,13 +590,13 @@ def test_callback_decorator_cache() -> None:
 
     assert not JProc._DECORATED_CALLBACKS
 
-    @JProc.callback
+    @JProc.callback()
     def my_callback(my_custom_kwarg: float) -> float:  # pragma: no cover
         return my_custom_kwarg * 2
 
     assert {my_callback} == JProc._DECORATED_CALLBACKS
 
-    @JProc.callback
+    @JProc.callback()
     def my_second_callback(my_custom_kwarg: float) -> float:  # pragma: no cover
         return my_custom_kwarg * 2
 
@@ -605,7 +606,7 @@ def test_callback_decorator_cache() -> None:
 def test_args_and_kwargs_passthrough() -> None:
     """Test that args and kwargs are passed through to the callback correctly."""
 
-    @JProc.callback
+    @JProc.callback()
     def _my_callback(
         _value_: Any,
         _loc_: Any,
@@ -644,7 +645,7 @@ def test_invalid_classmethod_callbacks() -> None:
     with pytest.raises(InvalidCallbackError) as exc_info:
 
         class MyClass:
-            @JProc.callback
+            @JProc.callback()
             @classmethod
             def _my_classmethod_callback(cls) -> None:
                 """Incorrectly decorated callback."""
@@ -663,7 +664,7 @@ def test_classmethod_decoration() -> None:
 
     class MyClass:
         @classmethod
-        @JProc.callback
+        @JProc.callback()
         def _my_classmethod_callback(
             cls,
             _value_: str,
@@ -714,7 +715,7 @@ def test_staticmethod_callbacks() -> None:
 
     class MyClass:
         @staticmethod
-        @JProc.callback
+        @JProc.callback()
         def _my_staticmethod_callback(
             _value_: Any,
             arg1: Any,
@@ -737,7 +738,7 @@ def test_instance_method_callbacks() -> None:
     """Test that instance method callbacks are processed correctly."""
 
     class MyClass:
-        @JProc.callback
+        @JProc.callback()
         def _my_instance_method_callback(
             self,
             _value_: Any,
@@ -765,7 +766,7 @@ def test_instance_method_callbacks() -> None:
 def test_name_unmangling_function() -> None:
     """Test name-mangled function kw/args are still processed correctly."""
 
-    @JProc.callback  # type: ignore[arg-type]
+    @JProc.callback()  # type: ignore[arg-type]
     def _my_callback_function(
         __mangled_pos_only: Any,
         /,
@@ -788,7 +789,7 @@ def test_name_unmangling_method() -> None:
     """Test name-mangled function kw/args are still processed correctly."""
 
     class MyClass:
-        @JProc.callback  # type: ignore[arg-type]
+        @JProc.callback()  # type: ignore[arg-type]
         def _my_instance_method_callback(
             self,
             __mangled_pos_only: Any,
@@ -817,7 +818,7 @@ def test_mangled_method() -> None:
     """Test that mangled methods are processed correctly."""
 
     class MyClass:
-        @JProc.callback
+        @JProc.callback()
         def __my_mangled_method(
             self,
             _value_: Any,
@@ -842,7 +843,7 @@ def test_mangled_method() -> None:
 def test_missing_args_and_kwargs() -> None:
     """Test that the correct error is thrown when a required kwarg is missing."""
 
-    @JProc.callback
+    @JProc.callback()
     def _my_callback(arg: Any, /, either: Any, *, kwarg: Any) -> None:
         """Callback which throws a "natural" TypeError."""
         _ = arg, either, kwarg
@@ -882,3 +883,74 @@ def test_instance_caching() -> None:
 
     with pytest.raises(CacheIdNotFoundError):
         JProc.from_cache("two")
+
+
+def test_non_mutating_callbacks() -> None:
+    """Test that non-mutating callbacks do not edit the value in the object."""
+
+    @JProc.callback(allow_mutation=False)
+    def _my_callback(arg: Any, /, *, kwarg: Any, calls: list[Any]) -> Any:
+        calls.append((arg, kwarg))
+        return math.pi  # Shouldn't have any effect
+
+    calls: list[tuple[str, str]] = []
+
+    jproc = JProc({str: _my_callback})
+
+    obj = {"a": "b", "c": {"d": "e", "f": "g"}}
+
+    jproc.process(obj, arg="arg", kwarg="kwarg", calls=calls)
+
+    assert calls == [
+        ("arg", "kwarg"),
+        ("arg", "kwarg"),
+        ("arg", "kwarg"),
+    ]
+
+    assert obj == {"a": "b", "c": {"d": "e", "f": "g"}}
+
+
+def test_non_mutating_lambda_callbacks() -> None:
+    """Test that non-mutating lambdas do not edit the value in the object."""
+
+    jproc = JProc(
+        {
+            str: JProc.cb(
+                lambda a, *, k, calls: calls.append((a, k)),  # type: ignore[misc]
+                allow_mutation=False,
+            ),
+        },
+    )
+
+    obj = {"a": "b", "c": {"d": "e", "f": "g"}}
+
+    calls: list[tuple[str, str]] = []
+    jproc.process(obj, a="arg", k="kwarg", calls=calls)
+
+    assert calls == [
+        ("arg", "kwarg"),
+        ("arg", "kwarg"),
+        ("arg", "kwarg"),
+    ]
+
+    assert obj == {"a": "b", "c": {"d": "e", "f": "g"}}
+
+
+def test_non_mutating_advanced() -> None:
+    """Test that non-mutating callbacks can still edit objects in place."""
+
+    @JProc.callback(allow_mutation=False)
+    def _my_callback(_value_: dict[str, Any], calls: list[Any]) -> Any:
+        _value_["newKey"] = "newValue"
+        calls.append(_value_)
+
+    jproc = JProc({dict: _my_callback})
+
+    obj = {"a": "b", "c": {"d": "e", "f": "g"}}
+
+    calls: list[Any] = []
+    jproc.process(obj, arg="arg", kwarg=obj, calls=calls)
+
+    assert calls == [{"d": "e", "f": "g", "newKey": "newValue"}]
+
+    assert obj == {"a": "b", "c": {"d": "e", "f": "g", "newKey": "newValue"}}
