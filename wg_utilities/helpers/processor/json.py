@@ -7,28 +7,65 @@ import re
 from collections import defaultdict
 from collections.abc import Callable
 from contextlib import suppress
+from dataclasses import dataclass
 from functools import wraps
+from itertools import chain
 from typing import (
+    TYPE_CHECKING,
     Any,
     ClassVar,
     Collection,
     Final,
     Generator,
+    Iterable,
     Iterator,
     Literal,
+    Mapping,
     NamedTuple,
     ParamSpec,
     Protocol,
+    Sequence,
     TypeVar,
     overload,
 )
 
-from wg_utilities.exceptions._exception import BadDefinitionError
+if TYPE_CHECKING:
+    from pydantic import BaseModel
+else:
+    try:
+        from pydantic import BaseModel
+
+    except ImportError:
+
+        class BaseModel:  # type: ignore[no-redef]
+            """Dummy class for when pydantic is not installed.
+
+            As long as `isinstance` returns False, it's all good.
+            """
+
+
+from wg_utilities.exceptions._exception import BadDefinitionError, BadUsageError
 from wg_utilities.helpers import Sentinel, mixin
 
 P = ParamSpec("P")
 R = TypeVar("R")
 Callback = Callable[P, R]
+
+K = TypeVar("K")
+V = TypeVar("V")
+
+BASE_MODEL_PROPERTIES: Final[set[str]] = {
+    name for name, _ in inspect.getmembers(BaseModel, lambda v: isinstance(v, property))
+}
+
+
+class ObjectTypeError(BadUsageError):
+    """Raised when an object is not of the expected type."""
+
+    def __init__(self, typ: type[Any], /) -> None:
+        super().__init__(
+            f"Unable to process object of type {typ.__name__!r}. Use `JProc.process_anything()` instead.",
+        )
 
 
 class InvalidCallbackError(BadDefinitionError):
@@ -92,8 +129,28 @@ class InvalidItemFilterError(InvalidCallbackError):
 class ItemFilter(Protocol):
     """Function to filter items before processing them."""
 
-    def __call__(self, item: Any, /, *, loc: str | int) -> bool:
+    def __call__(self, item: Any, /, *, loc: K | int | str) -> bool:
         """The function to be called on each value in the JSON object."""
+
+
+@dataclass
+class Config:
+    """Configuration for the JSONProcessor."""
+
+    process_subclasses: bool
+    """Whether to (also) process subclasses of the target types."""
+
+    process_type_changes: bool
+    """Whether to re-process values if their type is updated.
+
+    Can lead to recursion errors if not handled correctly.
+    """
+
+    process_pydantic_computed_fields: bool
+    """Whether to process Pydantic model computed fields alongside the regular model fields."""
+
+    process_pydantic_model_properties: bool
+    """Whether to process Pydantic model properties alongside the model fields."""
 
 
 class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
@@ -151,12 +208,18 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         identifier: str = "",
         process_subclasses: bool = True,
         process_type_changes: bool = False,
+        process_pydantic_computed_fields: bool = False,
+        process_pydantic_model_properties: bool = False,
     ) -> None:
         """Initialize the JSONProcessor."""
         self.callback_mapping: JSONProcessor.CallbackMapping = defaultdict(list)
 
-        self.process_subclasses = process_subclasses
-        self.process_type_changes = process_type_changes
+        self.config = Config(
+            process_subclasses=process_subclasses,
+            process_type_changes=process_type_changes,
+            process_pydantic_computed_fields=process_pydantic_computed_fields,
+            process_pydantic_model_properties=process_pydantic_model_properties,
+        )
 
         self.identifier = identifier or hash(self)
 
@@ -214,40 +277,81 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             allow_callback_failures=allow_callback_failures,
         )
 
-    @overload
-    @staticmethod
-    def _iterate(obj: dict[Any, Any]) -> Iterator[Any]:
-        ...
-
-    @overload
-    @staticmethod
-    def _iterate(obj: list[Any]) -> Iterator[int]:
-        ...
-
-    @staticmethod
-    def _iterate(
-        obj: dict[Any, Any] | list[Any],
-    ) -> Iterator[Any] | Iterator[int]:
-        if isinstance(obj, list):
-            return iter(range(len(obj)))
-
-        return iter(obj)
-
     def _get_callbacks(
         self,
         typ: type[Any],
     ) -> Generator[CallbackDefinition, None, None]:
-        if self.process_subclasses:
+        if self.config.process_subclasses:
             for cb_typ in self.callback_mapping:
                 if issubclass(typ, cb_typ):
                     yield from self.callback_mapping[cb_typ]
         elif callback_list := self.callback_mapping.get(typ):
             yield from callback_list
 
+    @staticmethod
+    def _get_item(
+        obj: Mapping[K, V] | Sequence[object] | BaseModel,
+        loc: K | int | str,
+    ) -> object:
+        with suppress(TypeError):
+            return obj[loc]  # type: ignore[index]
+
+        return getattr(obj, loc)  # type: ignore[arg-type]
+
+    @staticmethod
+    def _set_item(
+        obj: Mapping[K, V] | Sequence[object] | BaseModel,
+        loc: K | int | str,
+        val: V,
+    ) -> None:
+        try:
+            obj[loc] = val  # type: ignore[index]
+        except TypeError:
+            setattr(obj, loc, val)  # type: ignore[arg-type]
+
+    @overload
+    def _iterate(self, obj: Mapping[K, V]) -> Iterator[K]:
+        ...
+
+    @overload
+    def _iterate(self, obj: Sequence[V]) -> Iterator[int]:
+        ...
+
+    @overload
+    def _iterate(self, obj: BaseModel) -> Iterator[str]:
+        ...
+
+    def _iterate(
+        self,
+        obj: Mapping[K, V] | Sequence[V] | BaseModel,
+    ) -> Iterator[K] | Iterator[int] | Iterator[str]:
+        if isinstance(obj, Sequence):
+            return iter(range(len(obj)))
+
+        if isinstance(obj, BaseModel):
+            iterables: list[Iterable[str]] = [obj.model_fields.keys()]
+
+            if self.config.process_pydantic_model_properties:
+                iterables.append(
+                    {
+                        name
+                        for name, prop in inspect.getmembers(obj.__class__)
+                        if isinstance(prop, property)
+                        and name not in BASE_MODEL_PROPERTIES
+                    },
+                )
+
+            if self.config.process_pydantic_computed_fields:
+                iterables.append(obj.model_computed_fields.keys())
+
+            return iter(chain(*iterables))
+
+        return iter(obj)
+
     def _process_item(
         self,
         *,
-        obj: dict[Any, Any] | list[Any],
+        obj: Mapping[Any, Any] | Sequence[Any] | BaseModel,
         loc: Any | int,
         cb: Callback[..., Any],
         orig_item_type: type[Any],
@@ -255,14 +359,11 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
     ) -> None:
         try:
             out = cb(
-                _value_=obj[loc],
+                _value_=self._get_item(obj, loc),
                 _loc_=loc,
                 _obj_type_=type(obj),
                 **kwargs,
             )
-
-            if out is not self.__ORIGINAL_VAL:
-                obj[loc] = out
         except TypeError as exc:
             arg_error: type[InvalidCallbackArgumentsError]
             for arg_error in InvalidCallbackArgumentsError.subclasses():  # type: ignore[assignment]
@@ -271,23 +372,28 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
             raise
 
-        if self.process_type_changes and type(obj[loc]) != orig_item_type:
-            self._process_loc(obj=obj, loc=loc, kwargs=kwargs)
+        if out is not self.__ORIGINAL_VAL:
+            self._set_item(obj, loc, out)
+
+            if self.config.process_type_changes and type(out) != orig_item_type:
+                self._process_loc(obj=obj, loc=loc, kwargs=kwargs)
 
     def _process_loc(
         self,
         *,
-        obj: dict[Any, Any] | list[Any],
+        obj: Mapping[Any, Any] | Sequence[Any] | BaseModel,
         loc: Any | int,
         kwargs: dict[str, Any],
     ) -> None:
+        item = self._get_item(obj, loc)
+
         try:
-            orig_item_type = type(obj[loc])
-        except (LookupError, TypeError):
+            orig_item_type = type(item)
+        except TypeError:
             return
 
         for cb, item_filter, allow_failures in self._get_callbacks(orig_item_type):
-            if item_filter is None or bool(item_filter(obj[loc], loc=loc)):
+            if item_filter is None or bool(item_filter(item, loc=loc)):
                 try:
                     self._process_item(
                         obj=obj,
@@ -302,18 +408,28 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                     if not allow_failures:
                         raise
 
-    def process(self, obj: dict[Any, Any] | list[Any], /, **kwargs: Any) -> None:
+    def process(
+        self,
+        obj: Mapping[K, object] | Sequence[object] | BaseModel,
+        /,
+        **kwargs: Any,
+    ) -> None:
         """Recursively process a JSON object with the registered callbacks.
 
         Args:
-            obj (dict[Any, Any] | list[Any]): The JSON object to process.
-            kwargs (Any): Any additional keyword arguments to pass to the callback(s).
+            obj: The JSON object to process.
+            kwargs: Any additional keyword arguments to pass to the callback(s).
         """
         for loc in self._iterate(obj):
             self._process_loc(obj=obj, loc=loc, kwargs=kwargs)
 
-            if issubclass(type(obj[loc]), dict | list):
-                self.process(obj[loc], **kwargs)
+            item = self._get_item(obj, loc)
+
+            if isinstance(item, Mapping | Sequence | BaseModel) and not isinstance(
+                item,
+                (str, bytes),
+            ):
+                self.process(item, **kwargs)
 
     def register_callback(
         self,

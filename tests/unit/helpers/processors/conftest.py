@@ -6,6 +6,11 @@ from typing import TYPE_CHECKING, Any, Callable, Generator
 
 import pytest
 
+from tests.unit.clients.spotify.conftest import (
+    mock_requests_,
+    spotify_client_,
+    spotify_user_,
+)
 from wg_utilities.helpers.processor import JProc
 
 if TYPE_CHECKING:
@@ -78,3 +83,7 @@ def convert_lambda_to_callback_() -> Callable[[Callable[..., Any]], Callback[...
         return _cb
 
     return _cb_factory
+
+
+# Keeps them imported for the Pydantic-based tests
+__all__ = ["spotify_user_", "spotify_client_", "mock_requests_"]

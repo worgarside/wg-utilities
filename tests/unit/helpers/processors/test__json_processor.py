@@ -6,7 +6,7 @@ import math
 from collections import defaultdict
 from copy import deepcopy
 from json import dumps, loads
-from typing import Any, Callable, Iterator
+from typing import TYPE_CHECKING, Any, Callable, Iterator
 from unittest.mock import call, patch
 
 import pytest
@@ -29,6 +29,9 @@ from wg_utilities.helpers.processor.json import (
     MissingKwargError,
 )
 
+if TYPE_CHECKING:
+    from wg_utilities.clients.spotify import User
+
 
 def test_initialisation(mock_cb: Callback[..., Any]) -> None:
     """Test that the JSONProcessor is initialised correctly."""
@@ -38,10 +41,10 @@ def test_initialisation(mock_cb: Callback[..., Any]) -> None:
     assert isinstance(jproc.callback_mapping, defaultdict)
 
     assert jproc.identifier == hash(jproc)
-    assert jproc.process_subclasses is True
+    assert jproc.config.process_subclasses is True
 
     assert JProc(identifier="not_hash").identifier == "not_hash"
-    assert JProc(process_subclasses=False).process_subclasses is False
+    assert JProc(process_subclasses=False).config.process_subclasses is False
 
     assert JProc({int: mock_cb}).callback_mapping == {
         int: [JProc.cb(mock_cb)],
@@ -139,11 +142,11 @@ def test_invalid_callback_parameters(
 def test_iterator() -> None:
     """Test the `_iterate` method returns the correct values."""
 
-    assert isinstance(JProc._iterate(["a", "b", "c"]), Iterator)
-    assert list(JProc._iterate(["a", "b", "c"])) == [0, 1, 2]
+    assert isinstance(JProc()._iterate(["a", "b", "c"]), Iterator)
+    assert list(JProc()._iterate(["a", "b", "c"])) == [0, 1, 2]
 
-    assert isinstance(JProc._iterate({"a": "b", "c": "d"}), Iterator)
-    assert list(JProc._iterate({"a": "b", "c": "d"})) == ["a", "c"]
+    assert isinstance(JProc()._iterate({"a": "b", "c": "d"}), Iterator)
+    assert list(JProc()._iterate({"a": "b", "c": "d"})) == ["a", "c"]
 
 
 def test_get_callbacks(
@@ -419,7 +422,10 @@ def test_process(
         ([0, 1, 2], "a"),
     ],
 )
-def test_process_loc_invalid_loc(obj: dict[Any, Any] | list[Any], loc: Any | int) -> None:
+def test_process_loc_invalid_loc(
+    obj: dict[Any, Any] | list[Any],
+    loc: Any | int,
+) -> None:
     """Test that the `_process_loc` method doesn't raise an error when given an invalid location."""
 
     # Confirm it's an invalid location
@@ -432,7 +438,9 @@ def test_process_loc_invalid_loc(obj: dict[Any, Any] | list[Any], loc: Any | int
     jproc._process_loc(obj=obj, loc=loc, kwargs={})
 
 
-def test_allow_failures(wrap: Callable[[Callable[..., Any]], Callback[..., Any]]) -> None:
+def test_allow_failures(
+    wrap: Callable[[Callable[..., Any]], Callback[..., Any]],
+) -> None:
     """Test that exceptions are only thrown when `allow_failures` is False for a given callback."""
 
     jproc_strict = JProc(
@@ -489,7 +497,7 @@ def test_processing_type_changes(
     )
 
     jproc.process(type_changed_obj)
-    jproc.process_type_changes = False
+    jproc.config.process_type_changes = False
     jproc.process(no_type_changed_obj)
 
     assert type_changed_obj == {"a": 2, "b": 4, "c": 6}
@@ -954,3 +962,28 @@ def test_non_mutating_advanced() -> None:
     assert calls == [{"d": "e", "f": "g", "newKey": "newValue"}]
 
     assert obj == {"a": "b", "c": {"d": "e", "f": "g", "newKey": "newValue"}}
+
+
+def test_pydantic_models_can_be_processed(spotify_user: User) -> None:
+    """Test that Pydantic models can be parsed and traversed."""
+
+    @JProc.callback(allow_mutation=False)
+    def _my_callback(
+        _value_: str,
+        _loc_: Any,
+        _obj_type_: type[Any],
+        calls: list[Any],
+    ) -> Any:
+        calls.append((_value_, _loc_, _obj_type_))
+
+    jproc = JProc(
+        {str: JProc.cb(_my_callback, allow_callback_failures=True)},
+        process_pydantic_computed_fields=True,
+        process_pydantic_model_properties=True,
+    )
+
+    calls: list[Any] = []
+
+    jproc.process(spotify_user, calls=calls)
+
+    assert len(calls) == 55
