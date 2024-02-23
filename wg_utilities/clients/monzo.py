@@ -81,6 +81,7 @@ class PotJson(TypedDict):
 TransactionCategory = Literal[
     "bills",
     "cash",
+    "charity",
     "eating_out",
     "entertainment",
     "general",
