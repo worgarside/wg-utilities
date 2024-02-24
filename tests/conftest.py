@@ -25,6 +25,7 @@ from xdist.scheduler.loadscope import (  # type: ignore[import-not-found]
 )
 
 from wg_utilities.clients.oauth_client import OAuthCredentials
+from wg_utilities.exceptions._exception import NotFoundError
 from wg_utilities.functions.json import JSONObj
 
 if TYPE_CHECKING:
@@ -84,6 +85,18 @@ EXCEPTION_GENERATORS: list[
 ]
 
 FLAT_FILES_DIR = Path(__file__).parent / "flat_files"
+
+
+class ApiStubNotFoundError(NotFoundError):
+    """Custom exception for when a flat file for a request isn't found."""
+
+    def __init__(self, request: _RequestObjectProxy) -> None:
+        """Initialise the exception."""
+        self.request = request
+        super().__init__(
+            "Unable to dynamically load JSON file for "
+            f"https://{request.hostname}{request.path}?{unquote(request.query)}",
+        )
 
 
 # Functions
@@ -286,10 +299,7 @@ def get_flat_file_from_url(
             host_name=host_name,
         )
     except FileNotFoundError as exc:  # pragma: no cover
-        raise ValueError(
-            "Unable to dynamically load JSON file for "
-            f"https://{request.hostname}{request.path}?{unquote(request.query)}",
-        ) from exc
+        raise ApiStubNotFoundError(request) from exc
     except OSError:
         if "pagetoken" in request.qs and len(request.qs["pagetoken"]) == 1:
             file_path = file_path.replace(

@@ -20,4 +20,12 @@ class BadDefinitionError(WGUtilitiesError):
     """Raised when some kind of definition is invalid."""
 
 
-__all__ = ["WGUtilitiesError", "BadDefinitionError"]
+class BadUsageError(WGUtilitiesError):
+    """Raised when something is used incorrectly."""
+
+
+class NotFoundError(WGUtilitiesError):
+    """Raised when something is not found."""
+
+
+__all__ = ["WGUtilitiesError", "BadDefinitionError", "BadUsageError", "NotFoundError"]

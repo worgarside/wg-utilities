@@ -10,11 +10,15 @@ from typing import Any, Callable, Iterator
 from unittest.mock import call, patch
 
 import pytest
+from pydantic import computed_field
+from requests_mock import NoMockAddress
 
+from tests.conftest import ApiStubNotFoundError
 from tests.unit.functions import (
     random_nested_json,
     random_nested_json_with_arrays,
 )
+from wg_utilities.clients.spotify import SpotifyClient, User
 from wg_utilities.helpers.mixin.instance_cache import (
     CacheIdNotFoundError,
     InstanceCacheDuplicateError,
@@ -38,10 +42,10 @@ def test_initialisation(mock_cb: Callback[..., Any]) -> None:
     assert isinstance(jproc.callback_mapping, defaultdict)
 
     assert jproc.identifier == hash(jproc)
-    assert jproc.process_subclasses is True
+    assert jproc.config.process_subclasses is True
 
     assert JProc(identifier="not_hash").identifier == "not_hash"
-    assert JProc(process_subclasses=False).process_subclasses is False
+    assert JProc(process_subclasses=False).config.process_subclasses is False
 
     assert JProc({int: mock_cb}).callback_mapping == {
         int: [JProc.cb(mock_cb)],
@@ -139,11 +143,11 @@ def test_invalid_callback_parameters(
 def test_iterator() -> None:
     """Test the `_iterate` method returns the correct values."""
 
-    assert isinstance(JProc._iterate(["a", "b", "c"]), Iterator)
-    assert list(JProc._iterate(["a", "b", "c"])) == [0, 1, 2]
+    assert isinstance(JProc()._iterate(["a", "b", "c"]), Iterator)
+    assert list(JProc()._iterate(["a", "b", "c"])) == [0, 1, 2]
 
-    assert isinstance(JProc._iterate({"a": "b", "c": "d"}), Iterator)
-    assert list(JProc._iterate({"a": "b", "c": "d"})) == ["a", "c"]
+    assert isinstance(JProc()._iterate({"a": "b", "c": "d"}), Iterator)
+    assert list(JProc()._iterate({"a": "b", "c": "d"})) == ["a", "c"]
 
 
 def test_get_callbacks(
@@ -419,7 +423,10 @@ def test_process(
         ([0, 1, 2], "a"),
     ],
 )
-def test_process_loc_invalid_loc(obj: dict[Any, Any] | list[Any], loc: Any | int) -> None:
+def test_process_loc_invalid_loc(
+    obj: dict[Any, Any] | list[Any],
+    loc: Any | int,
+) -> None:
     """Test that the `_process_loc` method doesn't raise an error when given an invalid location."""
 
     # Confirm it's an invalid location
@@ -432,7 +439,9 @@ def test_process_loc_invalid_loc(obj: dict[Any, Any] | list[Any], loc: Any | int
     jproc._process_loc(obj=obj, loc=loc, kwargs={})
 
 
-def test_allow_failures(wrap: Callable[[Callable[..., Any]], Callback[..., Any]]) -> None:
+def test_allow_failures(
+    wrap: Callable[[Callable[..., Any]], Callback[..., Any]],
+) -> None:
     """Test that exceptions are only thrown when `allow_failures` is False for a given callback."""
 
     jproc_strict = JProc(
@@ -489,7 +498,7 @@ def test_processing_type_changes(
     )
 
     jproc.process(type_changed_obj)
-    jproc.process_type_changes = False
+    jproc.config.process_type_changes = False
     jproc.process(no_type_changed_obj)
 
     assert type_changed_obj == {"a": 2, "b": 4, "c": 6}
@@ -954,3 +963,105 @@ def test_non_mutating_advanced() -> None:
     assert calls == [{"d": "e", "f": "g", "newKey": "newValue"}]
 
     assert obj == {"a": "b", "c": {"d": "e", "f": "g", "newKey": "newValue"}}
+
+
+class _UserWithComputedFields(User):
+    @computed_field  # type: ignore[misc]
+    @property
+    def _my_computed_field(self) -> str:
+        return self.name + "computed_field"
+
+
+@pytest.mark.usefixtures("modify_base_model_config")
+def test_pydantic_models_can_be_processed(
+    spotify_client: SpotifyClient,
+    spotify_user: User,
+) -> None:
+    """Test that Pydantic models can be parsed and traversed."""
+    spotify_client.log_requests = False
+
+    @JProc.callback(allow_mutation=False)
+    def _my_callback(
+        _value_: str,
+        _loc_: Any,
+        _obj_type_: type[Any],
+        calls: list[Any],
+    ) -> Any:
+        calls.append((_value_, _loc_, _obj_type_))
+
+    tt, tf, ft, ff = (1, 1), (1, 0), (0, 1), (0, 0)
+
+    jprocs: dict[tuple[int, int], JProc] = {}
+    calls: dict[Any, Any] = {}
+
+    computed_user = _UserWithComputedFields.model_validate(
+        {"spotify_client": spotify_client, **spotify_user.model_dump()},
+    )
+
+    for ppcf, ppmp in [tt, tf, ft, ff]:
+        jprocs[(ppcf, ppmp)] = JProc(
+            {str: JProc.cb(_my_callback, allow_callback_failures=True)},
+            process_pydantic_computed_fields=ppcf,  # type: ignore[arg-type]
+            process_pydantic_model_properties=ppmp,  # type: ignore[arg-type]
+            ignored_loc_lookup_errors=(ApiStubNotFoundError, NoMockAddress),
+        )
+
+        calls[(ppcf, ppmp)] = []
+
+    jprocs[ff].process_model(computed_user, calls=calls[ff])
+
+    assert len(calls[ff]) == 18  # Control
+
+    jprocs[tf].process_model(computed_user, calls=calls[tf])
+
+    assert calls[tf] == calls[ff] + [
+        ("Will Garsidecomputed_field", "_my_computed_field", _UserWithComputedFields),
+    ]
+
+    jprocs[ft].process_model(computed_user, calls=calls[ft])
+
+    assert len(calls[ft]) == 213843
+
+    jprocs[tt].process_model(computed_user, calls=calls[tt])
+
+    assert calls[tt] == calls[ft] + [
+        ("Will Garsidecomputed_field", "_my_computed_field", _UserWithComputedFields),
+    ]
+
+
+@pytest.mark.usefixtures("modify_base_model_config")
+def test_pydantic_models_can_be_mutated(
+    spotify_client: SpotifyClient,
+    spotify_user: User,
+) -> None:
+    """Test that Pydantic models can be mutated."""
+    spotify_client.log_requests = False
+
+    jproc = JProc({str: JProc.cb(lambda _value_: _value_.upper())})  # type: ignore[misc]
+
+    computed_user = _UserWithComputedFields.model_validate(
+        {"spotify_client": spotify_client, **spotify_user.model_dump()},
+    )
+
+    jproc.process_model(computed_user)
+
+    assert computed_user.spotify_client == spotify_client
+    assert computed_user.name == "WILL GARSIDE"
+    assert computed_user._my_computed_field == "WILL GARSIDEcomputed_field"
+
+
+def test_set_item_setatrr_non_str() -> None:
+    """Test that `setattr` isn't called for a non-str loc value."""
+
+    jproc = JProc()
+
+    assert jproc._set_item(int, 123, 456) is None  # type: ignore[arg-type]
+
+
+def test_type_errors_still_get_raised() -> None:
+    """Test that type errors still get raised when they should."""
+
+    jproc = JProc()
+
+    with pytest.raises(TypeError):
+        jproc._get_item(int, 123)  # type: ignore[arg-type]

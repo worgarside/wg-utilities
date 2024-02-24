@@ -672,7 +672,14 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
     """An album on Spotify."""
 
     album_group: Literal["album", "single", "compilation", "appears_on"] | None = None
-    album_type_str: Literal["album", "single", "compilation"] = Field(alias="album_type")
+    album_type_str: Literal[
+        "single",
+        "album",
+        "compilation",
+        "SINGLE",
+        "ALBUM",
+        "COMPILATION",
+    ] = Field(alias="album_type")
     artists_json: list[ArtistSummaryJson] = Field(alias="artists")
     available_markets: list[str]
     copyrights: list[dict[str, str]] | None = None
