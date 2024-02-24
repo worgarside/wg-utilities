@@ -985,9 +985,12 @@ def test_pydantic_models_can_be_processed(
         _value_: str,
         _loc_: Any,
         _obj_type_: type[Any],
+        _depth_: int,
         calls: list[Any],
     ) -> Any:
         calls.append((_value_, _loc_, _obj_type_))
+        if _depth_ >= 2:
+            raise JProc.Break
 
     tt, tf, ft, ff = (1, 1), (1, 0), (0, 1), (0, 0)
 
@@ -1020,7 +1023,7 @@ def test_pydantic_models_can_be_processed(
 
     jprocs[ft].process_model(computed_user, calls=calls[ft])
 
-    assert len(calls[ft]) == 213843
+    assert len(calls[ft]) == 1079  # 213843 with no depth limit
 
     jprocs[tt].process_model(computed_user, calls=calls[tt])
 
@@ -1111,3 +1114,40 @@ def test_depth_variable() -> None:
     jproc.process(obj)
 
     assert not expected_calls
+
+
+def test_break() -> None:
+    """Test the break condition works correctly."""
+
+    @JProc.callback(allow_mutation=False)
+    def _cb(
+        _loc_: str,
+        _processed: list[str],
+    ) -> None:
+        _processed.append(_loc_)
+        if _loc_ == "i":
+            raise JProc.Break
+
+    jproc = JProc({str: _cb})
+
+    obj = {
+        "a": "b",
+        "c": {
+            "d": "e",
+            "f": "g",
+            "h": {
+                "i": "j",
+                "k": "l",
+                "m": {
+                    "n": "o",
+                    "p": "q",
+                },
+            },
+        },
+    }
+
+    processed: list[str] = []
+
+    jproc.process(obj, _processed=processed)
+
+    assert processed == ["a", "d", "f", "i"]
