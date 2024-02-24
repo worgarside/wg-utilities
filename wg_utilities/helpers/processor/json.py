@@ -43,7 +43,7 @@ except ImportError:  # pragma: no cover
         """
 
 
-from wg_utilities.exceptions._exception import BadDefinitionError, BadUsageError
+import wg_utilities.exceptions as wg_exc
 from wg_utilities.helpers import Sentinel, mixin
 
 P = ParamSpec("P")
@@ -58,7 +58,7 @@ BASE_MODEL_PROPERTIES: Final[set[str]] = {
 }
 
 
-class LocNotFoundError(BadUsageError):
+class LocNotFoundError(wg_exc.BadUsageError):
     """Raised when a location is not found in the object."""
 
     def __init__(
@@ -70,7 +70,7 @@ class LocNotFoundError(BadUsageError):
         super().__init__(f"Location {loc!r} not found in object {obj!r}.")
 
 
-class InvalidCallbackError(BadDefinitionError):
+class InvalidCallbackError(wg_exc.BadDefinitionError):
     """Raised for invalid callback handling."""
 
     def __init__(self, *args: object, callback: Callback[..., Any]) -> None:
@@ -204,6 +204,9 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
     ]
 
     CallbackMapping = dict[type[Any], list[CallbackDefinition]]
+
+    class Break(wg_exc.WGUtilitiesError):
+        """Escape hatch to allow breaking out of the processing loop from within a callback."""
 
     def __init__(
         self,
@@ -441,7 +444,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                         orig_item_type=orig_item_type,
                         kwargs=kwargs,
                     )
-                except InvalidCallbackArgumentsError:
+                except (self.Break, InvalidCallbackArgumentsError):
                     raise
                 except Exception:
                     if not allow_failures:
@@ -463,12 +466,15 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         """
 
         for loc in self._iterate(obj):
-            self._process_loc(
-                obj=obj,
-                loc=loc,
-                depth=__depth,
-                kwargs=kwargs,
-            )
+            try:
+                self._process_loc(
+                    obj=obj,
+                    loc=loc,
+                    depth=__depth,
+                    kwargs=kwargs,
+                )
+            except self.Break:
+                break
 
             item = self._get_item(obj, loc)
 
@@ -516,7 +522,10 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                 __processed_models.add(model)
 
             for loc in self._iterate(model):
-                self._process_loc(obj=model, loc=loc, depth=__depth, kwargs=kwargs)
+                try:
+                    self._process_loc(obj=model, loc=loc, depth=__depth, kwargs=kwargs)
+                except self.Break:
+                    break
 
                 try:
                     item = getattr(model, loc)

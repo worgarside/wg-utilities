@@ -10,5 +10,8 @@ install:
 test:
 	poetry run pytest
 
+pch:
+	pre-commit run --all
+
 vscode-shortcut-9:
 	ruff check .
