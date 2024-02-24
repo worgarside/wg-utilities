@@ -6,15 +6,19 @@ import math
 from collections import defaultdict
 from copy import deepcopy
 from json import dumps, loads
-from typing import TYPE_CHECKING, Any, Callable, Iterator
+from typing import Any, Callable, Iterator
 from unittest.mock import call, patch
 
 import pytest
+from pydantic import computed_field
+from requests_mock import NoMockAddress
 
+from tests.conftest import ApiStubNotFoundError
 from tests.unit.functions import (
     random_nested_json,
     random_nested_json_with_arrays,
 )
+from wg_utilities.clients.spotify import SpotifyClient, User
 from wg_utilities.helpers.mixin.instance_cache import (
     CacheIdNotFoundError,
     InstanceCacheDuplicateError,
@@ -28,9 +32,6 @@ from wg_utilities.helpers.processor.json import (
     MissingArgError,
     MissingKwargError,
 )
-
-if TYPE_CHECKING:
-    from wg_utilities.clients.spotify import User
 
 
 def test_initialisation(mock_cb: Callback[..., Any]) -> None:
@@ -964,8 +965,19 @@ def test_non_mutating_advanced() -> None:
     assert obj == {"a": "b", "c": {"d": "e", "f": "g", "newKey": "newValue"}}
 
 
-def test_pydantic_models_can_be_processed(spotify_user: User) -> None:
+class _UserWithComputedFields(User):
+    @computed_field  # type: ignore[misc]
+    @property
+    def _my_computed_field(self) -> str:
+        return self.name + "computed_field"
+
+
+def test_pydantic_models_can_be_processed(
+    spotify_client: SpotifyClient,
+    spotify_user: User,
+) -> None:
     """Test that Pydantic models can be parsed and traversed."""
+    spotify_client.log_requests = False
 
     @JProc.callback(allow_mutation=False)
     def _my_callback(
@@ -976,14 +988,61 @@ def test_pydantic_models_can_be_processed(spotify_user: User) -> None:
     ) -> Any:
         calls.append((_value_, _loc_, _obj_type_))
 
-    jproc = JProc(
-        {str: JProc.cb(_my_callback, allow_callback_failures=True)},
-        process_pydantic_computed_fields=True,
-        process_pydantic_model_properties=True,
+    tt, tf, ft, ff = (1, 1), (1, 0), (0, 1), (0, 0)
+
+    jprocs: dict[tuple[int, int], JProc] = {}
+    calls: dict[Any, Any] = {}
+
+    computed_user = _UserWithComputedFields.model_validate(
+        {"spotify_client": spotify_client, **spotify_user.model_dump()},
     )
 
-    calls: list[Any] = []
+    for ppcf, ppmp in [tt, tf, ft, ff]:
+        jprocs[(ppcf, ppmp)] = JProc(
+            {str: JProc.cb(_my_callback, allow_callback_failures=True)},
+            process_pydantic_computed_fields=ppcf,  # type: ignore[arg-type]
+            process_pydantic_model_properties=ppmp,  # type: ignore[arg-type]
+            ignored_loc_lookup_errors=(ApiStubNotFoundError, NoMockAddress),
+        )
 
-    jproc.process(spotify_user, calls=calls)
+        calls[(ppcf, ppmp)] = []
 
-    assert len(calls) == 55
+    jprocs[ff].process_model(computed_user, calls=calls[ff])
+
+    assert len(calls[ff]) == 18  # Control
+
+    jprocs[tf].process_model(computed_user, calls=calls[tf])
+
+    assert calls[tf] == calls[ff] + [
+        ("Will Garsidecomputed_field", "_my_computed_field", _UserWithComputedFields),
+    ]
+
+    jprocs[ft].process_model(computed_user, calls=calls[ft])
+
+    assert len(calls[ft]) == 213843
+
+    jprocs[tt].process_model(computed_user, calls=calls[tt])
+
+    assert calls[tt] == calls[ft] + [
+        ("Will Garsidecomputed_field", "_my_computed_field", _UserWithComputedFields),
+    ]
+
+
+def test_pydantic_models_can_be_mutated(
+    spotify_client: SpotifyClient,
+    spotify_user: User,
+) -> None:
+    """Test that Pydantic models can be mutated."""
+    spotify_client.log_requests = False
+
+    jproc = JProc({str: JProc.cb(lambda _value_: _value_.upper())})  # type: ignore[misc]
+
+    computed_user = _UserWithComputedFields.model_validate(
+        {"spotify_client": spotify_client, **spotify_user.model_dump()},
+    )
+
+    jproc.process_model(computed_user)
+
+    assert computed_user.spotify_client == spotify_client
+    assert computed_user.name == "WILL GARSIDE"
+    assert computed_user._my_computed_field == "WILL GARSIDEcomputed_field"

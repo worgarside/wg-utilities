@@ -11,7 +11,6 @@ from dataclasses import dataclass
 from functools import wraps
 from itertools import chain
 from typing import (
-    TYPE_CHECKING,
     Any,
     ClassVar,
     Collection,
@@ -29,19 +28,19 @@ from typing import (
     overload,
 )
 
-if TYPE_CHECKING:
+try:
     from pydantic import BaseModel
-else:
-    try:
-        from pydantic import BaseModel
 
-    except ImportError:
+    PYDANTIC_INSTALLED = True
 
-        class BaseModel:  # type: ignore[no-redef]
-            """Dummy class for when pydantic is not installed.
+except ImportError:  # pragma: no cover
+    PYDANTIC_INSTALLED = False
 
-            As long as `isinstance` returns False, it's all good.
-            """
+    class BaseModel:  # type: ignore[no-redef]
+        """Dummy class for when pydantic is not installed.
+
+        As long as `isinstance` returns False, it's all good.
+        """
 
 
 from wg_utilities.exceptions._exception import BadDefinitionError, BadUsageError
@@ -59,13 +58,16 @@ BASE_MODEL_PROPERTIES: Final[set[str]] = {
 }
 
 
-class ObjectTypeError(BadUsageError):
-    """Raised when an object is not of the expected type."""
+class LocNotFoundError(BadUsageError):
+    """Raised when a location is not found in the object."""
 
-    def __init__(self, typ: type[Any], /) -> None:
-        super().__init__(
-            f"Unable to process object of type {typ.__name__!r}. Use `JProc.process_anything()` instead.",
-        )
+    def __init__(
+        self,
+        loc: K | int | str,
+        /,
+        obj: Mapping[K, V] | Sequence[V] | BaseModel,
+    ) -> None:
+        super().__init__(f"Location {loc!r} not found in object {obj!r}.")
 
 
 class InvalidCallbackError(BadDefinitionError):
@@ -152,6 +154,9 @@ class Config:
     process_pydantic_model_properties: bool
     """Whether to process Pydantic model properties alongside the model fields."""
 
+    ignored_loc_lookup_errors: tuple[type[BaseException], ...]
+    """Exception types to ignore when looking up locations in the JSON object."""
+
 
 class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
     """Recursively process JSON objects with user-defined callbacks.
@@ -169,7 +174,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
     _DECORATED_CALLBACKS: ClassVar[set[Callback[..., Any]]] = set()
 
-    __ORIGINAL_VAL: Final[Sentinel] = Sentinel()
+    __SENTINEL: Final[Sentinel] = Sentinel()
 
     class CallbackDefinition(NamedTuple):
         """A named tuple to hold the callback function and its associated data.
@@ -210,6 +215,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         process_type_changes: bool = False,
         process_pydantic_computed_fields: bool = False,
         process_pydantic_model_properties: bool = False,
+        ignored_loc_lookup_errors: tuple[type[Exception], ...] = (),
     ) -> None:
         """Initialize the JSONProcessor."""
         self.callback_mapping: JSONProcessor.CallbackMapping = defaultdict(list)
@@ -219,6 +225,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             process_type_changes=process_type_changes,
             process_pydantic_computed_fields=process_pydantic_computed_fields,
             process_pydantic_model_properties=process_pydantic_model_properties,
+            ignored_loc_lookup_errors=ignored_loc_lookup_errors,
         )
 
         self.identifier = identifier or hash(self)
@@ -288,15 +295,29 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         elif callback_list := self.callback_mapping.get(typ):
             yield from callback_list
 
-    @staticmethod
     def _get_item(
+        self,
         obj: Mapping[K, V] | Sequence[object] | BaseModel,
         loc: K | int | str,
-    ) -> object:
-        with suppress(TypeError):
-            return obj[loc]  # type: ignore[index]
+    ) -> object | Sentinel:
+        with suppress(*self.config.ignored_loc_lookup_errors):
+            try:
+                return obj[loc]  # type: ignore[index]
+            except LookupError:
+                raise LocNotFoundError(loc, obj) from None
+            except TypeError as exc:
+                if not isinstance(loc, str) or not (
+                    str(exc).endswith("is not subscriptable")
+                    or str(exc) == "list indices must be integers or slices, not str"
+                ):
+                    raise
 
-        return getattr(obj, loc)  # type: ignore[arg-type]
+            try:
+                return getattr(obj, loc)  # type: ignore[no-any-return]
+            except AttributeError:
+                raise LocNotFoundError(loc, obj) from None
+
+        return JSONProcessor.__SENTINEL
 
     @staticmethod
     def _set_item(
@@ -304,10 +325,17 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         loc: K | int | str,
         val: V,
     ) -> None:
-        try:
+        with suppress(TypeError):
             obj[loc] = val  # type: ignore[index]
-        except TypeError:
-            setattr(obj, loc, val)  # type: ignore[arg-type]
+            return
+
+        if not isinstance(loc, str):
+            return
+
+        with suppress(AttributeError):
+            setattr(obj, loc, val)
+
+        return
 
     @overload
     def _iterate(self, obj: Mapping[K, V]) -> Iterator[K]:
@@ -333,12 +361,14 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
             if self.config.process_pydantic_model_properties:
                 iterables.append(
-                    {
-                        name
-                        for name, prop in inspect.getmembers(obj.__class__)
-                        if isinstance(prop, property)
-                        and name not in BASE_MODEL_PROPERTIES
-                    },
+                    sorted(
+                        {
+                            name
+                            for name, prop in inspect.getmembers(obj.__class__)
+                            if isinstance(prop, property)
+                            and name not in BASE_MODEL_PROPERTIES
+                        },
+                    ),
                 )
 
             if self.config.process_pydantic_computed_fields:
@@ -372,11 +402,15 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
             raise
 
-        if out is not self.__ORIGINAL_VAL:
+        if out is not self.__SENTINEL:
             self._set_item(obj, loc, out)
 
             if self.config.process_type_changes and type(out) != orig_item_type:
-                self._process_loc(obj=obj, loc=loc, kwargs=kwargs)
+                self._process_loc(
+                    obj=obj,
+                    loc=loc,
+                    kwargs=kwargs,
+                )
 
     def _process_loc(
         self,
@@ -385,14 +419,14 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         loc: Any | int,
         kwargs: dict[str, Any],
     ) -> None:
-        item = self._get_item(obj, loc)
-
         try:
-            orig_item_type = type(item)
-        except TypeError:
+            item = self._get_item(obj, loc)
+        except LocNotFoundError:
             return
 
-        for cb, item_filter, allow_failures in self._get_callbacks(orig_item_type):
+        for cb, item_filter, allow_failures in self._get_callbacks(
+            orig_item_type := type(item),
+        ):
             if item_filter is None or bool(item_filter(item, loc=loc)):
                 try:
                     self._process_item(
@@ -410,8 +444,9 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
     def process(
         self,
-        obj: Mapping[K, object] | Sequence[object] | BaseModel,
+        obj: Mapping[K, object] | Sequence[object],
         /,
+        __processed_models: set[BaseModel] | None = None,
         **kwargs: Any,
     ) -> None:
         """Recursively process a JSON object with the registered callbacks.
@@ -420,16 +455,79 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             obj: The JSON object to process.
             kwargs: Any additional keyword arguments to pass to the callback(s).
         """
+
         for loc in self._iterate(obj):
-            self._process_loc(obj=obj, loc=loc, kwargs=kwargs)
+            self._process_loc(
+                obj=obj,
+                loc=loc,
+                kwargs=kwargs,
+            )
 
             item = self._get_item(obj, loc)
 
-            if isinstance(item, Mapping | Sequence | BaseModel) and not isinstance(
+            if isinstance(item, Mapping | Sequence) and not isinstance(
                 item,
                 (str, bytes),
             ):
-                self.process(item, **kwargs)
+                self.process(
+                    item,
+                    _JSONProcessor__processed_models=__processed_models,
+                    **kwargs,
+                )
+            elif (
+                PYDANTIC_INSTALLED
+                and isinstance(item, BaseModel)
+                and item not in (__processed_models or set())
+            ):
+                self.process_model(
+                    item,
+                    _JSONProcessor__processed_models=__processed_models,
+                    **kwargs,
+                )
+
+    if PYDANTIC_INSTALLED:
+
+        def process_model(
+            self,
+            model: BaseModel,
+            /,
+            __processed_models: set[BaseModel] | None = None,
+            **kwargs: Any,
+        ) -> None:
+            """Recursively process a Pydantic model with the registered callbacks.
+
+            Args:
+                model: The Pydantic model to process.
+                kwargs: Any additional keyword arguments to pass to the callback(s).
+            """
+            if __processed_models is None:
+                __processed_models = {model}
+            else:
+                __processed_models.add(model)
+
+            for loc in self._iterate(model):
+                self._process_loc(obj=model, loc=loc, kwargs=kwargs)
+
+                try:
+                    item = getattr(model, loc)
+                except self.config.ignored_loc_lookup_errors:
+                    continue
+
+                if isinstance(item, BaseModel) and item not in __processed_models:
+                    self.process_model(
+                        item,
+                        _JSONProcessor__processed_models=__processed_models,
+                        **kwargs,
+                    )
+                elif isinstance(item, Mapping | Sequence) and not isinstance(
+                    item,
+                    (str, bytes),
+                ):
+                    self.process(
+                        item,
+                        _JSONProcessor__processed_models=__processed_models,
+                        **kwargs,
+                    )
 
     def register_callback(
         self,
@@ -545,6 +643,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                 def cb(*bound_args: P.args, **process_kwargs: P.kwargs) -> R:
                     args, kwargs = filter_kwargs(process_kwargs)
                     return func(*bound_args, *args, **kwargs)
+
             else:
 
                 @wraps(func)
@@ -554,7 +653,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                 ) -> Sentinel:
                     args, kwargs = filter_kwargs(process_kwargs)
                     func(*bound_args, *args, **kwargs)
-                    return JSONProcessor.__ORIGINAL_VAL
+                    return JSONProcessor.__SENTINEL
 
             cls._DECORATED_CALLBACKS.add(cb)
 

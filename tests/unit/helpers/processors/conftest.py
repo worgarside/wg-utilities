@@ -11,6 +11,8 @@ from tests.unit.clients.spotify.conftest import (
     spotify_client_,
     spotify_user_,
 )
+from wg_utilities.clients.oauth_client import BaseModelWithConfig
+from wg_utilities.functions.subclasses import subclasses_recursive
 from wg_utilities.helpers.processor import JProc
 
 if TYPE_CHECKING:
@@ -83,6 +85,17 @@ def convert_lambda_to_callback_() -> Callable[[Callable[..., Any]], Callback[...
         return _cb
 
     return _cb_factory
+
+
+@pytest.fixture(autouse=True)
+def _modify_base_model() -> None:
+    """Modify the base model for the Pydantic-based tests."""
+
+    BaseModelWithConfig.__hash__ = lambda v: hash(str(v))  # type: ignore[assignment,method-assign]
+    BaseModelWithConfig.model_config["validate_assignment"] = False
+
+    for sc in subclasses_recursive(BaseModelWithConfig):
+        sc.model_config["validate_assignment"] = False
 
 
 # Keeps them imported for the Pydantic-based tests

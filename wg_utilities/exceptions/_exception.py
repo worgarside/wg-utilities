@@ -24,4 +24,8 @@ class BadUsageError(WGUtilitiesError):
     """Raised when something is used incorrectly."""
 
 
-__all__ = ["WGUtilitiesError", "BadDefinitionError", "BadUsageError"]
+class NotFoundError(WGUtilitiesError):
+    """Raised when something is not found."""
+
+
+__all__ = ["WGUtilitiesError", "BadDefinitionError", "BadUsageError", "NotFoundError"]

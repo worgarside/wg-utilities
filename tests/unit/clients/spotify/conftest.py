@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
-from pathlib import Path
 from re import IGNORECASE
 from re import compile as compile_regex
 from typing import TYPE_CHECKING
@@ -22,6 +21,8 @@ from wg_utilities.clients.spotify import (
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from requests_mock import Mocker
     from requests_mock.request import _RequestObjectProxy
     from requests_mock.response import _Context
@@ -106,7 +107,7 @@ def spotify_client_(
         client_id=fake_oauth_credentials.client_id,
         client_secret=fake_oauth_credentials.client_secret,
         log_requests=True,
-        creds_cache_path=Path(creds_cache_path),
+        creds_cache_path=creds_cache_path,
     )
 
 
