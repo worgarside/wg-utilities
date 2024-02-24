@@ -16,7 +16,7 @@ from wg_utilities import (
 
 name = "wg_utilities"
 
-__version__ = "5.12.0"
+__version__ = "5.13.0"
 
 
 __all__ = [
