@@ -436,7 +436,7 @@ def test_process_loc_invalid_loc(
     jproc = JProc()
 
     # Shouldn't raise an error
-    jproc._process_loc(obj=obj, loc=loc, kwargs={})
+    jproc._process_loc(obj=obj, loc=loc, kwargs={}, depth=0)
 
 
 def test_allow_failures(
@@ -1065,3 +1065,49 @@ def test_type_errors_still_get_raised() -> None:
 
     with pytest.raises(TypeError):
         jproc._get_item(int, 123)  # type: ignore[arg-type]
+
+
+def test_depth_variable() -> None:
+    """Test that the depth variable is set correctly."""
+
+    obj = {
+        "a": "b",
+        "c": {
+            "d": "e",
+            "f": "g",
+            "h": {
+                "i": "j",
+                "k": "l",
+                "m": {
+                    "n": "o",
+                    "p": "q",
+                },
+            },
+        },
+    }
+
+    expected_calls = [
+        ("b", "a", dict, 0),
+        ("e", "d", dict, 1),
+        ("g", "f", dict, 1),
+        ("j", "i", dict, 2),
+        ("l", "k", dict, 2),
+        ("o", "n", dict, 3),
+        ("q", "p", dict, 3),
+    ]
+
+    @JProc.callback(allow_mutation=False)
+    def _cb(
+        _value_: str,
+        _loc_: str,
+        _obj_type_: type[Any],
+        _depth_: int,
+    ) -> None:
+        nonlocal expected_calls
+        assert expected_calls.pop(0) == (_value_, _loc_, _obj_type_, _depth_)
+
+    jproc = JProc({str: _cb})
+
+    jproc.process(obj)
+
+    assert not expected_calls

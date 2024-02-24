@@ -384,6 +384,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         obj: Mapping[Any, Any] | Sequence[Any] | BaseModel,
         loc: Any | int,
         cb: Callback[..., Any],
+        depth: int,
         orig_item_type: type[Any],
         kwargs: dict[str, Any],
     ) -> None:
@@ -392,6 +393,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                 _value_=self._get_item(obj, loc),
                 _loc_=loc,
                 _obj_type_=type(obj),
+                _depth_=depth,
                 **kwargs,
             )
         except TypeError as exc:
@@ -409,6 +411,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                 self._process_loc(
                     obj=obj,
                     loc=loc,
+                    depth=depth,
                     kwargs=kwargs,
                 )
 
@@ -417,6 +420,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         *,
         obj: Mapping[Any, Any] | Sequence[Any] | BaseModel,
         loc: Any | int,
+        depth: int,
         kwargs: dict[str, Any],
     ) -> None:
         try:
@@ -433,6 +437,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                         obj=obj,
                         loc=loc,
                         cb=cb,
+                        depth=depth,
                         orig_item_type=orig_item_type,
                         kwargs=kwargs,
                     )
@@ -446,6 +451,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         self,
         obj: Mapping[K, object] | Sequence[object],
         /,
+        __depth: int = 0,
         __processed_models: set[BaseModel] | None = None,
         **kwargs: Any,
     ) -> None:
@@ -460,6 +466,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             self._process_loc(
                 obj=obj,
                 loc=loc,
+                depth=__depth,
                 kwargs=kwargs,
             )
 
@@ -471,6 +478,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             ):
                 self.process(
                     item,
+                    _JSONProcessor__depth=__depth + 1,
                     _JSONProcessor__processed_models=__processed_models,
                     **kwargs,
                 )
@@ -481,6 +489,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             ):
                 self.process_model(
                     item,
+                    _JSONProcessor__depth=__depth + 1,
                     _JSONProcessor__processed_models=__processed_models,
                     **kwargs,
                 )
@@ -491,6 +500,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             self,
             model: BaseModel,
             /,
+            __depth: int = 0,
             __processed_models: set[BaseModel] | None = None,
             **kwargs: Any,
         ) -> None:
@@ -506,7 +516,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                 __processed_models.add(model)
 
             for loc in self._iterate(model):
-                self._process_loc(obj=model, loc=loc, kwargs=kwargs)
+                self._process_loc(obj=model, loc=loc, depth=__depth, kwargs=kwargs)
 
                 try:
                     item = getattr(model, loc)
@@ -516,6 +526,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                 if isinstance(item, BaseModel) and item not in __processed_models:
                     self.process_model(
                         item,
+                        _JSONProcessor__depth=__depth + 1,
                         _JSONProcessor__processed_models=__processed_models,
                         **kwargs,
                     )
@@ -525,6 +536,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                 ):
                     self.process(
                         item,
+                        _JSONProcessor__depth=__depth + 1,
                         _JSONProcessor__processed_models=__processed_models,
                         **kwargs,
                     )
