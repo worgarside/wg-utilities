@@ -15,8 +15,7 @@ class ListHandler(Handler):
     """Custom handler to allow retrieval of log records after the fact.
 
     Args:
-        records_list (list): allows the user to pass in a pre-defined list to add
-         records to
+        records_list (list): allows the user to pass in a pre-defined list to add records to
     """
 
     def __init__(

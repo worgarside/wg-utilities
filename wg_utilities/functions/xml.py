@@ -21,8 +21,7 @@ def get_nsmap(
     Args:
         root (Element): an lxml Element from an XML document
         xml_doc (str): a raw XML document
-        warn_on_defaults (bool): log a warning when an empty prefix is found and
-         converted to a default value
+        warn_on_defaults (bool): log a warning when an empty prefix is found and converted to a default value
 
     Returns:
         dict: a namespace mapping for the provided XML

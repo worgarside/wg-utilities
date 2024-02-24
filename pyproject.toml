@@ -53,14 +53,16 @@ mypy-boto3-lambda = "^1.28.36"
 mypy-boto3-s3 = "^1.28.55"
 
 
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.5.3"
+mkdocstrings = { extras = ["python"], version = "^0.24.0" }
+mkdocs-material = "^9.5.11"
+mkdocs-print-site-plugin = "^2.3.6"
+mkdocs-exporter = "^5.3.0"
+
+
 [tool.poetry.extras]
-clients = [
-  "flask",
-  "pyjwt",
-  "requests",
-  "tzlocal",
-  "pydantic",
-]
+clients = ["flask", "pyjwt", "requests", "tzlocal", "pydantic"]
 "devices.epd" = ["spidev", "rpi.gpio", "Pillow"]
 "devices.dht22" = ["pigpio"]
 "devices.yamaha_yas_209" = ["async-upnp-client", "pydantic", "xmltodict"]
@@ -96,7 +98,13 @@ markers = [
 ]
 
 [tool.coverage.report]
-exclude_lines = ["pragma: no cover", "def __repr__", "def __str__", "@overload", "if TYPE_CHECKING"]
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "def __str__",
+  "@overload",
+  "if TYPE_CHECKING",
+]
 
 [tool.coverage.run]
 omit = ["wg_utilities/devices/epd/*", "wg_utilities/devices/dht22/*"]

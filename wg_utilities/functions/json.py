@@ -93,12 +93,10 @@ def process_list(
     Args:
         lst (list): the list to iterate through
         target_type (type): the target type to apply functions to
-        target_processor_func (Callable): a function to apply to instances of
-         `target_type`
+        target_processor_func (Callable): a function to apply to instances of `target_type`
         pass_on_fail (bool): ignore failure in either op function
         log_op_func_failures (bool): log any failures in either op function
-        single_keys_to_remove (list): a list of keys that can be "expanded" up to the
-         parent key
+        single_keys_to_remove (list): a list of keys that can be "expanded" up to the parent key
 
     Raises:
         Exception: if the `target_processor_func` fails and `pass_on_fail` is False
@@ -142,12 +140,11 @@ def traverse_dict(  # noqa: PLR0912
     Args:
         obj (dict): the JSON object to traverse
         target_type (type): the target type to apply functions to
-        target_processor_func (Callable): a function to apply to instances of
-         `target_type`
+        target_processor_func (Callable): a function to apply to instances of `target_type`
         pass_on_fail (bool): ignore failure in either op function
         log_op_func_failures (bool): log any failures in either op function
-        single_keys_to_remove (list): a list of keys that can be "expanded" up to the
-         parent key from a dict of length one, e.g.:
+        single_keys_to_remove (list): a list of keys that can be "expanded" up to the parent key from a dict of
+            length one, e.g.:
             ... {
             ...     "parent_1": "something",
             ...     "parent_2": {

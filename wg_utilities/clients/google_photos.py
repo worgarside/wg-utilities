@@ -329,8 +329,7 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
     """Custom client for interacting with the Google Photos API.
 
     See Also:
-        GoogleClient: the base Google client, used for authentication and common
-         functions
+        GoogleClient: the base Google client, used for authentication and common functions
     """
 
     BASE_URL = "https://photoslibrary.googleapis.com/v1"
