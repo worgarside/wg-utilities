@@ -46,8 +46,7 @@ class DataSource:
 
     Args:
         data_source_id (str): the unique ID of the data source
-        google_client (GoogleClient): a GoogleClient instance, needed for getting
-         DataSource info
+        google_client (GoogleClient): a GoogleClient instance, needed for getting DataSource info
     """
 
     DP_VALUE_KEY_LOOKUP: ClassVar[DataPointValueKeyLookupInfo] = {
@@ -176,8 +175,7 @@ class GoogleFitClient(GoogleClient[Any]):
     """Custom client for interacting with the Google Fit API.
 
     See Also:
-        GoogleClient: the base Google client, used for authentication and common
-         functions
+        GoogleClient: the base Google client, used for authentication and common functions
     """
 
     BASE_URL = "https://www.googleapis.com/fitness/v1"

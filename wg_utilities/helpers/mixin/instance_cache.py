@@ -77,10 +77,10 @@ class CacheIdGenerationError(InstanceCacheIdError):
 class InstanceCacheMixin(metaclass=PostInitMeta):
     """Mixin class to provide instance caching functionality.
 
-    Args:
-        cache_id_attr (str | None, optional): The name of the attribute to use in the cache ID. Defaults to None.
+    Attributes:
+        cache_id_attr (str | None): The name of the attribute to use in the cache ID. Defaults to None.
             Must be provided if `cache_id_func` is None.
-        cache_id_func (str | None, optional): The name of the function whose return value to use in the cache ID.
+        cache_id_func (str | None): The name of the function whose return value to use in the cache ID.
             Defaults to "__hash__". Must not be `None` if `cache_id_attr` is None.
         kwargs (Any): Additional keyword arguments to pass to the superclass.
     """

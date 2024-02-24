@@ -247,7 +247,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         """Get an album from Spotify based on the ID.
 
         Args:
-            id_(str): the Spotify ID which is used to find the album
+            id_ (str): the Spotify ID which is used to find the album
 
         Returns:
             Album: an instantiated Album, from the API's response
@@ -262,7 +262,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         """Get an artist from Spotify based on the ID.
 
         Args:
-            id_(str): the Spotify ID which is used to find the artist
+            id_ (str): the Spotify ID which is used to find the artist
 
         Returns:
             Artist: an instantiated Artist, from the API's response
@@ -380,7 +380,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         """Get a playlist from Spotify based on the ID.
 
         Args:
-            id_(str): the Spotify ID which is used to find the playlist
+            id_ (str): the Spotify ID which is used to find the playlist
 
         Returns:
             Playlist: an instantiated Playlist, from the API's response
@@ -400,7 +400,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         """Get a track from Spotify based on the ID.
 
         Args:
-            id_(str): the Spotify ID which is used to find the track
+            id_ (str): the Spotify ID which is used to find the track
 
         Returns:
             Track: an instantiated Track, from the API's response

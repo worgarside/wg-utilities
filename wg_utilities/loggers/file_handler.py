@@ -29,8 +29,7 @@ def create_file_handler(
     Args:
         logfile_path (str): the path to the logging file
         level (int): the logging level to be used for the FileHandler
-        create_directory (bool): whether to force-create the directory/ies the file is
-         contained within
+        create_directory (bool): whether to force-create the directory/ies the file is contained within
 
     Returns:
         FileHandler: a log handler with a file as the output
@@ -58,8 +57,7 @@ def add_file_handler(
         logger (Logger): the logger to add a file handler to
         logfile_path (Path): the path to the logging file
         level (int): the logging level to be used for the FileHandler
-        create_directory (bool): whether to force-create the directory/ies the file is
-         contained within
+        create_directory (bool): whether to force-create the directory/ies the file is contained within
 
     Returns:
         Logger: the logger instance, returned for use in one-liners:

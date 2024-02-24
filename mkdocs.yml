@@ -1,0 +1,33 @@
+---
+site_name: W.G. Utilities
+
+site_author: Will Garside
+
+nav:
+  - Home: index.md
+  - API: api.md
+  - Clients: clients.md
+  - Decorators: decorators.md
+  - Devices: devices.md
+  - Exceptions: exceptions.md
+  - Functions: functions.md
+  - Helpers: helpers.md
+  - Loggers: loggers.md
+  - Testing: testing.md
+
+theme:
+  name: material
+
+plugins:
+  - search
+
+  - mkdocstrings:
+      handlers:
+        python:
+          selection:
+            docstring_style: google
+          rendering:
+            show_source: true
+            show_signature_annotations: true
+
+  - print-site

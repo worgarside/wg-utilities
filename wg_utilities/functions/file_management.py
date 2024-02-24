@@ -54,7 +54,7 @@ def force_mkdir(target_path: Path, *, path_is_file: bool = False) -> Path:
     Args:
         target_path (str): the path to the directory which needs to be created
         path_is_file (bool): flag for whether the path is for a file, in which case
-         the final part of the path will not be created
+            the final part of the path will not be created
 
     Returns:
         str: directory_path that was passed in
