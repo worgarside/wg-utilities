@@ -27,6 +27,8 @@ jobs:
       needs.ci-validation.outputs.release-tag != github.event.head_commit.message
     permissions:
       id-token: write
+      contents: read
+      pages: write
     uses: worgarside/github-config-files/.github/workflows/__ci_deployment.yml@main
     with:
       build-branch: '${{ github.ref }}'
