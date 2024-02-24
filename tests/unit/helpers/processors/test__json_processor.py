@@ -1048,3 +1048,20 @@ def test_pydantic_models_can_be_mutated(
     assert computed_user.spotify_client == spotify_client
     assert computed_user.name == "WILL GARSIDE"
     assert computed_user._my_computed_field == "WILL GARSIDEcomputed_field"
+
+
+def test_set_item_setatrr_non_str() -> None:
+    """Test that `setattr` isn't called for a non-str loc value."""
+
+    jproc = JProc()
+
+    assert jproc._set_item(int, 123, 456) is None  # type: ignore[arg-type]
+
+
+def test_type_errors_still_get_raised() -> None:
+    """Test that type errors still get raised when they should."""
+
+    jproc = JProc()
+
+    with pytest.raises(TypeError):
+        jproc._get_item(int, 123)  # type: ignore[arg-type]
