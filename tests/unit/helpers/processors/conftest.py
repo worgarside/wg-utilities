@@ -87,15 +87,31 @@ def convert_lambda_to_callback_() -> Callable[[Callable[..., Any]], Callback[...
     return _cb_factory
 
 
-@pytest.fixture(autouse=True)
-def _modify_base_model() -> None:
+@pytest.fixture(name="modify_base_model_config")
+def _modify_base_model_config() -> Generator[None, None, None]:
     """Modify the base model for the Pydantic-based tests."""
 
     BaseModelWithConfig.__hash__ = lambda v: hash(str(v))  # type: ignore[assignment,method-assign]
+
+    originals = {
+        BaseModelWithConfig: BaseModelWithConfig.model_config["validate_assignment"],
+    }
+
     BaseModelWithConfig.model_config["validate_assignment"] = False
 
     for sc in subclasses_recursive(BaseModelWithConfig):
+        originals[sc] = sc.model_config["validate_assignment"]
         sc.model_config["validate_assignment"] = False
+
+    yield
+
+    del BaseModelWithConfig.__hash__
+
+    BaseModelWithConfig.model_config["validate_assignment"] = originals[
+        BaseModelWithConfig
+    ]
+    for sc in subclasses_recursive(BaseModelWithConfig):
+        sc.model_config["validate_assignment"] = originals[sc]
 
 
 # Keeps them imported for the Pydantic-based tests

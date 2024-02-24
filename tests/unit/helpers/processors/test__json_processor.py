@@ -972,6 +972,7 @@ class _UserWithComputedFields(User):
         return self.name + "computed_field"
 
 
+@pytest.mark.usefixtures("modify_base_model_config")
 def test_pydantic_models_can_be_processed(
     spotify_client: SpotifyClient,
     spotify_user: User,
@@ -1028,6 +1029,7 @@ def test_pydantic_models_can_be_processed(
     ]
 
 
+@pytest.mark.usefixtures("modify_base_model_config")
 def test_pydantic_models_can_be_mutated(
     spotify_client: SpotifyClient,
     spotify_user: User,
