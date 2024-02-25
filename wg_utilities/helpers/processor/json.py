@@ -151,6 +151,9 @@ class Config:
     process_pydantic_computed_fields: bool
     """Whether to process Pydantic model computed fields alongside the regular model fields."""
 
+    process_pydantic_extra_fields: bool
+    """Whether to process fields that are not explicitly defined in the Pydantic model."""
+
     process_pydantic_model_properties: bool
     """Whether to process Pydantic model properties alongside the model fields."""
 
@@ -217,6 +220,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         process_subclasses: bool = True,
         process_type_changes: bool = False,
         process_pydantic_computed_fields: bool = False,
+        process_pydantic_extra_fields: bool = False,
         process_pydantic_model_properties: bool = False,
         ignored_loc_lookup_errors: tuple[type[Exception], ...] = (),
     ) -> None:
@@ -227,6 +231,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             process_subclasses=process_subclasses,
             process_type_changes=process_type_changes,
             process_pydantic_computed_fields=process_pydantic_computed_fields,
+            process_pydantic_extra_fields=process_pydantic_extra_fields,
             process_pydantic_model_properties=process_pydantic_model_properties,
             ignored_loc_lookup_errors=ignored_loc_lookup_errors,
         )
@@ -376,6 +381,9 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
             if self.config.process_pydantic_computed_fields:
                 iterables.append(obj.model_computed_fields.keys())
+
+            if self.config.process_pydantic_extra_fields and obj.model_extra:
+                iterables.append(obj.model_extra.keys())
 
             return iter(chain(*iterables))
 
