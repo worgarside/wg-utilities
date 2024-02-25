@@ -153,7 +153,7 @@ class Config:
 
     process_pydantic_extra_fields: bool
     """Whether to process fields that are not explicitly defined in the Pydantic model.
-    
+
     Only works for models with `model_config.extra="allow"`
     """
 
