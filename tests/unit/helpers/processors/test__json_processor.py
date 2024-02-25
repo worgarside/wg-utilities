@@ -10,7 +10,7 @@ from typing import Any, Callable, Iterator
 from unittest.mock import call, patch
 
 import pytest
-from pydantic import computed_field
+from pydantic import BaseModel, computed_field
 from requests_mock import NoMockAddress
 
 from tests.conftest import ApiStubNotFoundError
@@ -1151,3 +1151,40 @@ def test_break() -> None:
     jproc.process(obj, _processed=processed)
 
     assert processed == ["a", "d", "f", "i"]
+
+
+@pytest.mark.parametrize(
+    ("extra", "expected"),
+    [
+        (True, ["a", "b", "c"]),
+        (False, ["a", "b"]),
+    ],
+)
+def test_pydantic_extra_fields(extra: bool, expected: list[str]) -> None:
+    """Test that extra fields on models can be optionally processed."""
+
+    class MyModel(BaseModel):
+        a: str
+        b: str
+
+        model_config = {"extra": "allow"}
+
+        def __hash__(self) -> int:
+            return id(self)
+
+    @JProc.callback(allow_mutation=False)
+    def _cb(
+        _loc_: str,
+        _processed: list[str],
+    ) -> None:
+        _processed.append(_loc_)
+
+    jproc = JProc({str: _cb}, process_pydantic_extra_fields=extra)
+
+    obj = MyModel.model_validate({"a": "a", "b": "b", "c": "c"})
+
+    processed: list[str] = []
+
+    jproc.process_model(obj, _processed=processed)
+
+    assert processed == expected
