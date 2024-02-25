@@ -152,7 +152,10 @@ class Config:
     """Whether to process Pydantic model computed fields alongside the regular model fields."""
 
     process_pydantic_extra_fields: bool
-    """Whether to process fields that are not explicitly defined in the Pydantic model."""
+    """Whether to process fields that are not explicitly defined in the Pydantic model.
+    
+    Only works for models with `model_config.extra="allow"`
+    """
 
     process_pydantic_model_properties: bool
     """Whether to process Pydantic model properties alongside the model fields."""
