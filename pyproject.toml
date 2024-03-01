@@ -76,15 +76,7 @@ clients = ["flask", "pyjwt", "requests", "tzlocal", "pydantic"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = [
-  "-ra",
-  "--strict-markers",
-  "--strict-config",
-  "--cov-report=xml",
-  "--cov=./",
-  "-n",
-  "auto",
-]
+addopts = ["-ra", "--strict-markers", "--strict-config", "-n", "auto"]
 xfail_strict = true
 log_cli_level = "warning"
 pythonpath = ["wg_utilities"]
@@ -101,9 +93,12 @@ markers = [
 exclude_lines = [
   "pragma: no cover",
   "def __repr__",
+  "def __ne__",
+  "def __hash__",
   "def __str__",
   "@overload",
   "if TYPE_CHECKING",
+  "pytest.fail",
 ]
 
 [tool.coverage.run]
@@ -189,6 +184,8 @@ lint.ignore = [
   "D202",   # https://docs.astral.sh/ruff/rules/no-blank-line-after-function/
   "S314",   # https://docs.astral.sh/ruff/rules/suspicious-xml-element-tree-usage/
   "TRY003", # https://docs.astral.sh/ruff/rules/raise-vanilla-args/
+  "ISC001", # https://docs.astral.sh/ruff/rules/single-line-implicit-string-concatenation/
+  "COM812", # https://docs.astral.sh/ruff/rules/missing-trailing-comma/
 ]
 
 [tool.ruff.lint.per-file-ignores]

@@ -8,7 +8,7 @@ install:
 	poetry install --sync --all-extras
 
 test:
-	poetry run pytest
+	poetry run pytest --cov-report=xml --cov=./
 
 pch:
 	pre-commit run --all
