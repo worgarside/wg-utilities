@@ -154,7 +154,7 @@ class Config:
     """
 
     process_pydantic_computed_fields: bool
-    """Whether to process Pydantic model computed fields alongside the regular model fields."""
+    """Whether to process fields that are computed alongside the regular model fields."""
 
     process_pydantic_extra_fields: bool
     """Whether to process fields that are not explicitly defined in the Pydantic model.
@@ -184,6 +184,16 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             Defaults to True.
         process_type_changes (bool): Whether to re-proce_get_itemss values if their type is updated.
             Can lead to recursion errors if not handled correctly. Defaults to False.
+        process_pydantic_computed_fields (bool): Whether to process fields that are computed
+            alongside the regular model fields. Defaults to False. Only applicable if Pydantic is
+            installed.
+        process_pydantic_extra_fields (bool): Whether to process fields that are not explicitly
+            defined in the Pydantic model. Only works for models with `model_config.extra="allow"`.
+            Defaults to False. Only applicable if Pydantic is installed.
+        process_pydantic_model_properties (bool): Whether to process Pydantic model properties
+            alongside the model fields. Defaults to False. Only applicable if Pydantic is installed.
+        ignored_loc_lookup_errors (tuple): Exception types to ignore when looking up locations in
+            the JSON object. Defaults to an empty tuple.
     """
 
     _DECORATED_CALLBACKS: ClassVar[set[Callback[..., Any]]] = set()
@@ -294,7 +304,21 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         *,
         allow_mutation: bool = True,
     ) -> CallbackDefinition:
-        """Create a CallbackDefinition for the given callback."""
+        """Create a CallbackDefinition for the given callback.
+
+        Args:
+            callback (Callback): The callback function to execute on the target values. Can take None, any, or all
+                of the following arguments: `_value_`, `_loc_`, `_obj_type_`, `_depth_`, and any additional keyword
+                arguments, which will be passed in from the `JSONProcessor.process` method.
+            item_filter (ItemFilter | None): An optional function to use to filter target values before processing
+                them. Defaults to None. Function signature is as follows:
+                ```python
+                def item_filter(item: Any, /, *, loc: K | int | str) -> bool:
+                    ...
+                ```
+            allow_callback_failures (bool): Whether to allow callback failures. Defaults to False.
+            allow_mutation (bool): Whether the callback is allowed to mutate the input object. Defaults to True.
+        """
 
         if callback.__name__ == "<lambda>":
             callback = JSONProcessor.callback(allow_mutation=allow_mutation)(callback)
