@@ -93,6 +93,8 @@ markers = [
 exclude_lines = [
   "pragma: no cover",
   "def __repr__",
+  "def __ne__",
+  "def __hash__",
   "def __str__",
   "@overload",
   "if TYPE_CHECKING",
