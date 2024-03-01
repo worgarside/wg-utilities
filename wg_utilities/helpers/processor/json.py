@@ -45,26 +45,31 @@ except ImportError:  # pragma: no cover
 import wg_utilities.exceptions as wg_exc
 from wg_utilities.helpers import Sentinel, mixin
 
-P = ParamSpec("P")
-R = TypeVar("R")
-Callback = Callable[P, R]
+P = ParamSpec("P")  # Parameters of the callback
+R = TypeVar("R")  # Return type of the callback
+Callback = Callable[P, R]  # Callback type
 
-K = TypeVar("K")
-V = TypeVar("V")
+K = TypeVar("K", bound=Any)  # Keys in mappings/indices in sequences
+V = TypeVar("V")  # Values in mappings
+
+T = TypeVar("T")  # Object type, used as keys in lookups
+
+G = TypeVar("G", bound=Any)  # Getter type
+I = TypeVar("I", bound=Any)  # Iterator type  # noqa: E741
 
 BASE_MODEL_PROPERTIES: Final[set[str]] = {
     name for name, _ in inspect.getmembers(BaseModel, lambda v: isinstance(v, property))
 }
 
 
-class LocNotFoundError(wg_exc.BadUsageError):
+class LocNotFoundError(wg_exc.BadUsageError, LookupError):
     """Raised when a location is not found in the object."""
 
     def __init__(
         self,
-        loc: K | int | str,
+        loc: Any,
         /,
-        obj: Mapping[K, V] | Sequence[V] | BaseModel,
+        obj: Any,
     ) -> None:
         super().__init__(f"Location {loc!r} not found in object {obj!r}.")
 
@@ -194,6 +199,13 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         item_filter: ItemFilter | None = None
         allow_callback_failures: bool = False
 
+    GetterDefinition = Callable[[T, object], object]
+    IteratorFactory = Callable[[T], Iterator[object]]
+
+    CallbackMapping = dict[type[Any], list[CallbackDefinition]]
+    GetterMapping = dict[type[G], GetterDefinition[G]]
+    IteratorFactoryMapping = dict[type[I], IteratorFactory[I]]
+
     CallbackMappingInput = dict[
         type[Any] | None,
         Callback[..., Any]
@@ -206,16 +218,6 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             | CallbackDefinition,
         ],
     ]
-
-    GetterDefinition = Callable[[Any, object], object]
-    IteratorDefinition = Callable[
-        [Any],
-        Iterator[object],
-    ]  # TODO not sure this is a good variable name
-
-    CallbackMapping = dict[type[Any], list[CallbackDefinition]]
-    GetterMapping = dict[type[Any], GetterDefinition]
-    IteratorMapping = dict[type[Any], IteratorDefinition]
 
     class Break(wg_exc.WGUtilitiesError):
         """Escape hatch to allow breaking out of the processing loop from within a callback."""
@@ -235,8 +237,8 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
     ) -> None:
         """Initialize the JSONProcessor."""
         self.callback_mapping: JSONProcessor.CallbackMapping = defaultdict(list)
-        self.iterator_mapping: JSONProcessor.IteratorMapping = {}
-        self.getter_mapping: JSONProcessor.GetterMapping = {}
+        self.iterator_factory_mapping: JSONProcessor.IteratorFactoryMapping[Any] = {}
+        self.getter_mapping: JSONProcessor.GetterMapping[Any] = {}
 
         self.config = Config(
             process_subclasses=process_subclasses,
@@ -311,69 +313,84 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
     @overload
     def _type_lookup(
         self,
-        typ: type[Any],
+        typ: type[T],
         mapping: CallbackMapping,
-    ) -> list[CallbackDefinition] | Sentinel:
+    ) -> list[CallbackDefinition]:
         ...
 
     @overload
     def _type_lookup(
         self,
-        typ: type[Any],
-        mapping: IteratorMapping,
-    ) -> IteratorDefinition | Sentinel:
+        typ: type[T],
+        mapping: GetterMapping[T],
+    ) -> GetterDefinition[T] | Sentinel:
         ...
 
     @overload
     def _type_lookup(
         self,
-        typ: type[Any],
-        mapping: GetterMapping,
-    ) -> GetterDefinition | Sentinel:
+        typ: type[T],
+        mapping: IteratorFactoryMapping[T],
+    ) -> IteratorFactory[T] | Sentinel:
         ...
 
     def _type_lookup(
         self,
-        typ: type[Any],
-        mapping: CallbackMapping | IteratorMapping | GetterMapping,
-    ) -> list[CallbackDefinition] | IteratorDefinition | GetterDefinition | Sentinel:
-        if self.config.process_subclasses:
+        typ: type[T],
+        mapping: CallbackMapping | GetterMapping[T] | IteratorFactoryMapping[T],
+    ) -> list[CallbackDefinition] | GetterDefinition[T] | IteratorFactory[T] | Sentinel:
+        if mapping is self.callback_mapping and self.config.process_subclasses:
             values: list[JSONProcessor.CallbackDefinition] = []
             for cb_typ, val in mapping.items():
                 if issubclass(typ, cb_typ):
-                    if mapping is self.callback_mapping:
-                        values.extend(val)  # type: ignore[arg-type]
-                    else:
-                        return val
+                    values.extend(val)  # type: ignore[arg-type]
 
             return values
 
         return mapping.get(typ, self.__SENTINEL)
 
+    @overload
+    def _get_item(self, obj: BaseModel, loc: str) -> object:
+        ...
+
+    @overload
+    def _get_item(self, obj: Mapping[K, object], loc: K) -> object:
+        ...
+
+    @overload
+    def _get_item(self, obj: Sequence[object], loc: int) -> object:
+        ...
+
+    @overload
+    def _get_item(self, obj: G, loc: object) -> object:
+        ...
+
     def _get_item(
         self,
-        obj: Mapping[K, V] | Sequence[object] | BaseModel,
-        loc: K | int | str,
+        obj: Mapping[K, object] | Sequence[object] | BaseModel | G,
+        loc: K | int | str | object,
     ) -> object | Sentinel:
         with suppress(*self.config.ignored_loc_lookup_errors):
-            if custom_getter := self._type_lookup(type(obj), self.getter_mapping):
-                return custom_getter(obj, loc)
-
             try:
-                return obj[loc]  # type: ignore[index]
-            except LookupError:
-                raise LocNotFoundError(loc, obj) from None
-            except TypeError as exc:
-                if not isinstance(loc, str) or not (
-                    str(exc).endswith("is not subscriptable")
-                    or str(exc) == "list indices must be integers or slices, not str"
-                ):
-                    raise
+                if custom_getter := self._type_lookup(type(obj), self.getter_mapping):
+                    return custom_getter(obj, loc)
 
-            try:
-                return getattr(obj, loc)  # type: ignore[no-any-return]
-            except AttributeError:
-                raise LocNotFoundError(loc, obj) from None
+                try:
+                    return obj[loc]  # type: ignore[index]
+                except TypeError as exc:
+                    if not isinstance(loc, str) or (
+                        not str(exc).endswith("is not subscriptable")
+                        and str(exc) != "list indices must be integers or slices, not str"
+                    ):
+                        raise
+
+                try:
+                    return getattr(obj, loc)  # type: ignore[no-any-return]
+                except AttributeError:
+                    raise LocNotFoundError(loc, obj) from None
+
+            except LookupError as exc:
+                raise LocNotFoundError(loc, obj) from exc
 
         return JSONProcessor.__SENTINEL
 
@@ -410,8 +427,8 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
     def _iterate(
         self,
         obj: Mapping[K, V] | Sequence[V] | BaseModel,
-    ) -> Iterator[K] | Iterator[int] | Iterator[str]:
-        if custom_iter := self._type_lookup(type(obj), self.iterator_mapping):
+    ) -> Iterator[K] | Iterator[int] | Iterator[str] | Sentinel:
+        if custom_iter := self._type_lookup(type(obj), self.iterator_factory_mapping):
             return custom_iter(obj)  # type: ignore[return-value]
 
         if isinstance(obj, Sequence):
@@ -440,7 +457,13 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
             return iter(chain(*iterables))
 
-        return iter(obj)
+        try:
+            return iter(obj)
+        except TypeError as exc:
+            if not str(exc).endswith("is not iterable"):
+                raise
+
+        return self.__SENTINEL
 
     def _process_item(
         self,
@@ -501,7 +524,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                     self._process_item(
                         obj=obj,
                         loc=loc,
-                        cb=cb,  # type: ignore[arg-type]
+                        cb=cb,
                         depth=depth,
                         orig_item_type=orig_item_type,
                         kwargs=kwargs,
@@ -639,8 +662,8 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
     def register_custom_getter(
         self,
-        target_type: type[V],
-        getter: Callable[[V, object], Any],
+        target_type: type[G],
+        getter: GetterDefinition[T],
         *,
         add_to_processable_type_list: bool = True,
     ) -> None:
@@ -659,8 +682,8 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
     def register_custom_iterator(
         self,
-        target_type: type[V],
-        iterator: Callable[[V], Iterator[Any]],
+        target_type: type[T],
+        iterator: IteratorFactory[T],
         *,
         add_to_processable_type_list: bool = True,
     ) -> None:
@@ -672,7 +695,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             add_to_processable_type_list (bool): Whether to add the target type to the list of
                 processable types. Defaults to True.
         """
-        self.iterator_mapping[target_type] = iterator
+        self.iterator_factory_mapping[target_type] = iterator
 
         if add_to_processable_type_list:
             self.processable_types = (*self.processable_types, target_type)

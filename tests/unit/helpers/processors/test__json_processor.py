@@ -6,7 +6,7 @@ import math
 from collections import defaultdict
 from copy import deepcopy
 from json import dumps, loads
-from typing import Any, Callable, Iterator
+from typing import Any, Callable, Iterator, Never
 from unittest.mock import call, patch
 
 import pytest
@@ -19,6 +19,7 @@ from tests.unit.functions import (
     random_nested_json_with_arrays,
 )
 from wg_utilities.clients.spotify import SpotifyClient, User
+from wg_utilities.helpers import Sentinel
 from wg_utilities.helpers.mixin.instance_cache import (
     CacheIdNotFoundError,
     InstanceCacheDuplicateError,
@@ -29,6 +30,7 @@ from wg_utilities.helpers.processor.json import (
     CallbackNotDecoratedError,
     InvalidCallbackError,
     InvalidItemFilterError,
+    LocNotFoundError,
     MissingArgError,
     MissingKwargError,
 )
@@ -150,13 +152,22 @@ def test_iterator() -> None:
     assert list(JProc()._iterate({"a": "b", "c": "d"})) == ["a", "c"]
 
 
-def test_get_callbacks(
+@pytest.mark.parametrize(
+    ("process_subclasses", "expected"),
+    [
+        (True, ([1, 3], [2, 3], [3], [2, 3, 2, 4])),
+        (False, ([1], [2], [3], [2, 4])),
+    ],
+)
+def test_callbacks_type_lookup(
     mock_cb: Callback[..., Any],
     mock_cb_two: Callback[..., Any],
     mock_cb_three: Callback[..., Any],
     mock_cb_four: Callback[..., Any],
+    process_subclasses: bool,
+    expected: tuple[list[int], ...],
 ) -> None:
-    """Test that the `_get_callbacks` method works correctly, including yielding subclasses."""
+    """Test that the `_type_lookup` method works correctly with callbacks, including yielding subclasses."""
 
     jproc = JProc(
         {
@@ -165,51 +176,62 @@ def test_get_callbacks(
             object: mock_cb_three,
             bool: [mock_cb_two, mock_cb_four],
         },
+        process_subclasses=process_subclasses,
     )
 
-    jp1 = JProc.cb(mock_cb)
-    jp2 = JProc.cb(mock_cb_two)
-    jp3 = JProc.cb(mock_cb_three)
-    jp4 = JProc.cb(mock_cb_four)
+    cb_lkp = {
+        1: JProc.cb(mock_cb),
+        2: JProc.cb(mock_cb_two),
+        3: JProc.cb(mock_cb_three),
+        4: JProc.cb(mock_cb_four),
+    }
 
-    assert list(jproc._type_lookup(str, jproc.callback_mapping)) == [jp1, jp3]
-    assert list(jproc._type_lookup(int, jproc.callback_mapping)) == [jp2, jp3]
-    assert list(jproc._type_lookup(object, jproc.callback_mapping)) == [jp3]
-    assert list(jproc._type_lookup(bool, jproc.callback_mapping)) == [
-        jp2,  # Because it is a subclass of int
-        jp3,  # Because it is a subclass of object
-        jp2,  # (again); Because it is a bool (pt. 1)
-        jp4,  # Because it is a bool (pt. 2)
+    assert (
+        list(jproc._type_lookup(str, jproc.callback_mapping)),
+        list(jproc._type_lookup(int, jproc.callback_mapping)),
+        list(jproc._type_lookup(object, jproc.callback_mapping)),
+        list(jproc._type_lookup(bool, jproc.callback_mapping)),
+    ) == tuple(
+        [cb_lkp[cb_num] for cb_num in callback_numbers] for callback_numbers in expected
+    )
+
+
+def test_getter_type_lookup() -> None:
+    """Test that the `_type_lookup` method works correctly with iterators."""
+
+    jproc = JProc()
+
+    def _iter(_: Any) -> Iterator[int]:
+        return iter([1, 2, 3])
+
+    jproc.register_custom_iterator(int, _iter, add_to_processable_type_list=True)
+
+    assert jproc._type_lookup(int, jproc.iterator_factory_mapping) is _iter
+    assert list(jproc._type_lookup(int, jproc.iterator_factory_mapping)(None)) == [  # type: ignore[arg-type]
+        1,
+        2,
+        3,
     ]
+    assert int in jproc.processable_types
 
 
-def test_get_callbacks_no_subclasses(
-    mock_cb: Callback[..., Any],
-    mock_cb_two: Callback[..., Any],
-    mock_cb_three: Callback[..., Any],
-    mock_cb_four: Callback[..., Any],
-) -> None:
-    """Test that the `_get_callbacks` method works correctly, excluding yielding subclasses."""
+def test_iterator_type_lookup() -> None:
+    """Test that the `_type_lookup` method works correctly with iterators."""
 
-    jproc = JProc(
-        {
-            str: mock_cb,
-            int: mock_cb_two,
-            object: mock_cb_three,
-            bool: [mock_cb_two, mock_cb_four],
-        },
-        process_subclasses=False,
-    )
+    jproc = JProc()
 
-    jp1 = JProc.cb(mock_cb)
-    jp2 = JProc.cb(mock_cb_two)
-    jp3 = JProc.cb(mock_cb_three)
-    jp4 = JProc.cb(mock_cb_four)
+    def _iter(_: Any) -> Iterator[int]:
+        return iter([1, 2, 3])
 
-    assert list(jproc._type_lookup(str, jproc.callback_mapping)) == [jp1]
-    assert list(jproc._type_lookup(int, jproc.callback_mapping)) == [jp2]
-    assert list(jproc._type_lookup(object, jproc.callback_mapping)) == [jp3]
-    assert list(jproc._type_lookup(bool, jproc.callback_mapping)) == [jp2, jp4]
+    jproc.register_custom_iterator(int, _iter, add_to_processable_type_list=True)
+
+    assert jproc._type_lookup(int, jproc.iterator_factory_mapping) is _iter
+    assert list(jproc._type_lookup(int, jproc.iterator_factory_mapping)(None)) == [  # type: ignore[arg-type]
+        1,
+        2,
+        3,
+    ]
+    assert int in jproc.processable_types
 
 
 @pytest.mark.parametrize(
@@ -1067,7 +1089,7 @@ def test_type_errors_still_get_raised() -> None:
     jproc = JProc()
 
     with pytest.raises(TypeError):
-        jproc._get_item(int, 123)  # type: ignore[arg-type]
+        jproc._get_item(int, 123)
 
 
 def test_depth_variable() -> None:
@@ -1188,3 +1210,64 @@ def test_pydantic_extra_fields(extra: bool, expected: list[str]) -> None:
     jproc.process_model(obj, _processed=processed)
 
     assert processed == expected
+
+
+def test_custom_getters() -> None:
+    """Test that custom getters can be used to process objects."""
+
+    values = [1, 2, 3]
+
+    def _my_getter(obj: int, loc: Any) -> Any:
+        assert obj == 999
+        assert loc == 42
+        return values.pop()
+
+    jproc = JProc()
+
+    with pytest.raises(TypeError):
+        # This is an invalid call at this point
+        jproc._get_item(999, 42)
+
+    jproc.register_custom_getter(int, _my_getter)
+
+    assert jproc._get_item(999, 42) == 3
+    assert jproc._get_item(999, 42) == 2
+    assert jproc._get_item(999, 42) == 1
+
+    with pytest.raises(LocNotFoundError):
+        # But now there's a getter registered for `int`s (which is going to throw an
+        # IndexError)
+        jproc._get_item(999, 42)
+
+    jproc.config.ignored_loc_lookup_errors = (LookupError,)
+
+    assert jproc._get_item(999, 42) == Sentinel()
+
+
+def test_custom_iterators() -> None:
+    """Test that custom iterators are successfully used."""
+
+    def _my_iterator(num: int) -> Iterator[int]:
+        assert num == 999
+        yield 1
+        yield 2
+        yield 3
+
+    jproc = JProc()
+
+    assert jproc._iterate(999) == Sentinel()  # type: ignore[call-overload]
+
+    jproc.register_custom_iterator(int, _my_iterator)
+
+    assert list(jproc._iterate(999)) == [1, 2, 3]  # type: ignore[call-overload]
+
+
+def test_non_standard_iter_type_error() -> None:
+    """Test that when an unexpoected TypeError is thrown from a `__iter__` call it's re-raised."""
+
+    class DoNotIterate:
+        def __iter__(self) -> Never:
+            raise TypeError("Told you so")
+
+    with pytest.raises(TypeError, match="Told you so"):
+        list(JProc()._iterate(DoNotIterate()))  # type: ignore[call-overload]
