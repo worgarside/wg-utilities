@@ -15,6 +15,7 @@ from typing import (
     ClassVar,
     Collection,
     Final,
+    Generator,
     Iterable,
     Iterator,
     Literal,
@@ -54,8 +55,8 @@ V = TypeVar("V")  # Values in mappings
 
 T = TypeVar("T")  # Object type, used as keys in lookups
 
-G = TypeVar("G", bound=Any)  # Getter type
-I = TypeVar("I", bound=Any)  # Iterator type  # noqa: E741
+G = TypeVar("G")  # Getter type
+I = TypeVar("I")  # Iterator type  # noqa: E741
 
 BASE_MODEL_PROPERTIES: Final[set[str]] = {
     name for name, _ in inspect.getmembers(BaseModel, lambda v: isinstance(v, property))
@@ -168,6 +169,9 @@ class Config:
     """Exception types to ignore when looking up locations in the JSON object."""
 
 
+C = TypeVar("C", bound=Any)  # Callback type
+
+
 class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
     """Recursively process JSON objects with user-defined callbacks.
 
@@ -178,7 +182,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             the hash of the instance.
         process_subclasses (bool): Whether to (also) process subclasses of the target types.
             Defaults to True.
-        process_type_changes (bool): Whether to re-process values if their type is updated.
+        process_type_changes (bool): Whether to re-proce_get_itemss values if their type is updated.
             Can lead to recursion errors if not handled correctly. Defaults to False.
     """
 
@@ -199,12 +203,13 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         item_filter: ItemFilter | None = None
         allow_callback_failures: bool = False
 
-    GetterDefinition = Callable[[T, object], object]
-    IteratorFactory = Callable[[T], Iterator[object]]
+    CallbackMapping = dict[type[T] | type[None], list[CallbackDefinition]]
 
-    CallbackMapping = dict[type[Any], list[CallbackDefinition]]
-    GetterMapping = dict[type[G], GetterDefinition[G]]
-    IteratorFactoryMapping = dict[type[I], IteratorFactory[I]]
+    GetterDefinition = Callable[[T, object], object]
+    GetterMapping = dict[type[T], GetterDefinition[T]]
+
+    IteratorFactory = Callable[[T], Iterator[object]]
+    IteratorFactoryMapping = dict[type[T], IteratorFactory[T]]
 
     CallbackMappingInput = dict[
         type[Any] | None,
@@ -236,7 +241,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         ignored_loc_lookup_errors: tuple[type[Exception], ...] = (),
     ) -> None:
         """Initialize the JSONProcessor."""
-        self.callback_mapping: JSONProcessor.CallbackMapping = defaultdict(list)
+        self.callback_mapping: JSONProcessor.CallbackMapping[Any] = defaultdict(list)
         self.iterator_factory_mapping: JSONProcessor.IteratorFactoryMapping[Any] = {}
         self.getter_mapping: JSONProcessor.GetterMapping[Any] = {}
 
@@ -310,44 +315,16 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             allow_callback_failures=allow_callback_failures,
         )
 
-    @overload
-    def _type_lookup(
+    def _get_callbacks(
         self,
-        typ: type[T],
-        mapping: CallbackMapping,
-    ) -> list[CallbackDefinition]:
-        ...
-
-    @overload
-    def _type_lookup(
-        self,
-        typ: type[T],
-        mapping: GetterMapping[T],
-    ) -> GetterDefinition[T] | Sentinel:
-        ...
-
-    @overload
-    def _type_lookup(
-        self,
-        typ: type[T],
-        mapping: IteratorFactoryMapping[T],
-    ) -> IteratorFactory[T] | Sentinel:
-        ...
-
-    def _type_lookup(
-        self,
-        typ: type[T],
-        mapping: CallbackMapping | GetterMapping[T] | IteratorFactoryMapping[T],
-    ) -> list[CallbackDefinition] | GetterDefinition[T] | IteratorFactory[T] | Sentinel:
-        if mapping is self.callback_mapping and self.config.process_subclasses:
-            values: list[JSONProcessor.CallbackDefinition] = []
-            for cb_typ, val in mapping.items():
+        typ: type[Any],
+    ) -> Generator[CallbackDefinition, None, None]:
+        if self.config.process_subclasses:
+            for cb_typ in self.callback_mapping:
                 if issubclass(typ, cb_typ):
-                    values.extend(val)  # type: ignore[arg-type]
-
-            return values
-
-        return mapping.get(typ, self.__SENTINEL)
+                    yield from self.callback_mapping[cb_typ]
+        elif callback_list := self.callback_mapping.get(typ):
+            yield from callback_list
 
     @overload
     def _get_item(self, obj: BaseModel, loc: str) -> object:
@@ -367,12 +344,12 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
     def _get_item(
         self,
-        obj: Mapping[K, object] | Sequence[object] | BaseModel | G,
-        loc: K | int | str | object,
+        obj: BaseModel | Mapping[K, object] | Sequence[object] | G,
+        loc: str | K | int | object,
     ) -> object | Sentinel:
         with suppress(*self.config.ignored_loc_lookup_errors):
             try:
-                if custom_getter := self._type_lookup(type(obj), self.getter_mapping):
+                if custom_getter := self.getter_mapping.get(type(obj)):
                     return custom_getter(obj, loc)
 
                 try:
@@ -397,7 +374,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
     @staticmethod
     def _set_item(
         obj: Mapping[K, V] | Sequence[object] | BaseModel,
-        loc: K | int | str,
+        loc: str | K | int,
         val: V,
     ) -> None:
         with suppress(TypeError):
@@ -413,11 +390,11 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         return
 
     @overload
-    def _iterate(self, obj: Mapping[K, V]) -> Iterator[K]:
+    def _iterate(self, obj: Mapping[K, Any]) -> Iterator[K]:
         ...
 
     @overload
-    def _iterate(self, obj: Sequence[V]) -> Iterator[int]:
+    def _iterate(self, obj: Sequence[Any]) -> Iterator[int]:
         ...
 
     @overload
@@ -426,9 +403,9 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
     def _iterate(
         self,
-        obj: Mapping[K, V] | Sequence[V] | BaseModel,
+        obj: Mapping[K, Any] | Sequence[Any] | BaseModel,
     ) -> Iterator[K] | Iterator[int] | Iterator[str] | Sentinel:
-        if custom_iter := self._type_lookup(type(obj), self.iterator_factory_mapping):
+        if custom_iter := self.iterator_factory_mapping.get(type(obj)):
             return custom_iter(obj)  # type: ignore[return-value]
 
         if isinstance(obj, Sequence):
@@ -465,11 +442,50 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
         return self.__SENTINEL
 
+    @overload
     def _process_item(
         self,
         *,
-        obj: Mapping[Any, Any] | Sequence[Any] | BaseModel,
-        loc: Any | int,
+        obj: BaseModel,
+        loc: str,
+        cb: Callback[..., Any],
+        depth: int,
+        orig_item_type: type[Any],
+        kwargs: dict[str, Any],
+    ) -> None:
+        ...
+
+    @overload
+    def _process_item(
+        self,
+        *,
+        obj: Mapping[K, object],
+        loc: K,
+        cb: Callback[..., Any],
+        depth: int,
+        orig_item_type: type[Any],
+        kwargs: dict[str, Any],
+    ) -> None:
+        ...
+
+    @overload
+    def _process_item(
+        self,
+        *,
+        obj: Sequence[object],
+        loc: int,
+        cb: Callback[..., Any],
+        depth: int,
+        orig_item_type: type[Any],
+        kwargs: dict[str, Any],
+    ) -> None:
+        ...
+
+    def _process_item(
+        self,
+        *,
+        obj: BaseModel | Mapping[K, object] | Sequence[object],
+        loc: str | K | int,
         cb: Callback[..., Any],
         depth: int,
         orig_item_type: type[Any],
@@ -496,17 +512,50 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
             if self.config.process_type_changes and type(out) != orig_item_type:
                 self._process_loc(
-                    obj=obj,
-                    loc=loc,
+                    obj=obj,  # type: ignore[arg-type]
+                    loc=loc,  # type: ignore[arg-type]
                     depth=depth,
                     kwargs=kwargs,
                 )
 
+    @overload
     def _process_loc(
         self,
         *,
-        obj: Mapping[Any, Any] | Sequence[Any] | BaseModel,
-        loc: Any | int,
+        obj: BaseModel,
+        loc: str,
+        depth: int,
+        kwargs: dict[str, Any],
+    ) -> None:
+        ...
+
+    @overload
+    def _process_loc(
+        self,
+        *,
+        obj: Sequence[object],
+        loc: int,
+        depth: int,
+        kwargs: dict[str, Any],
+    ) -> None:
+        ...
+
+    @overload
+    def _process_loc(
+        self,
+        *,
+        obj: Mapping[K, object],
+        loc: K,
+        depth: int,
+        kwargs: dict[str, Any],
+    ) -> None:
+        ...
+
+    def _process_loc(
+        self,
+        *,
+        obj: BaseModel | Mapping[K, object] | Sequence[object],
+        loc: str | K | int,
         depth: int,
         kwargs: dict[str, Any],
     ) -> None:
@@ -515,15 +564,14 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         except LocNotFoundError:
             return
 
-        for cb, item_filter, allow_failures in self._type_lookup(
+        for cb, item_filter, allow_failures in self._get_callbacks(
             orig_item_type := type(item),
-            self.callback_mapping,
         ):
             if not item_filter or bool(item_filter(item, loc=loc)):
                 try:
                     self._process_item(
-                        obj=obj,
-                        loc=loc,
+                        obj=obj,  # type: ignore[arg-type]
+                        loc=loc,  # type: ignore[arg-type]
                         cb=cb,
                         depth=depth,
                         orig_item_type=orig_item_type,
@@ -637,7 +685,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
     def register_callback(
         self,
-        target_type: type[Any] | None,
+        target_type: type[C] | None,
         callback_def: CallbackDefinition,
     ) -> None:
         """Register a new callback for use when processing any JSON objects.
@@ -655,15 +703,12 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         if decorated not in JSONProcessor._DECORATED_CALLBACKS:
             raise CallbackNotDecoratedError(decorated)  # type: ignore[arg-type]
 
-        if target_type is None:
-            target_type = type(None)
-
-        self.callback_mapping[target_type].append(callback_def)
+        self.callback_mapping[target_type or type(None)].append(callback_def)
 
     def register_custom_getter(
         self,
         target_type: type[G],
-        getter: GetterDefinition[T],
+        getter: GetterDefinition[G],
         *,
         add_to_processable_type_list: bool = True,
     ) -> None:
@@ -677,13 +722,13 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         """
         self.getter_mapping[target_type] = getter
 
-        if add_to_processable_type_list:
+        if add_to_processable_type_list and target_type not in self.processable_types:
             self.processable_types = (*self.processable_types, target_type)
 
     def register_custom_iterator(
         self,
-        target_type: type[T],
-        iterator: IteratorFactory[T],
+        target_type: type[I],
+        iterator: IteratorFactory[I],
         *,
         add_to_processable_type_list: bool = True,
     ) -> None:
@@ -697,7 +742,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         """
         self.iterator_factory_mapping[target_type] = iterator
 
-        if add_to_processable_type_list:
+        if add_to_processable_type_list and target_type not in self.processable_types:
             self.processable_types = (*self.processable_types, target_type)
 
     @overload

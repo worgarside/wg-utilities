@@ -159,7 +159,7 @@ def test_iterator() -> None:
         (False, ([1], [2], [3], [2, 4])),
     ],
 )
-def test_callbacks_type_lookup(
+def test_get_callbacks(
     mock_cb: Callback[..., Any],
     mock_cb_two: Callback[..., Any],
     mock_cb_three: Callback[..., Any],
@@ -167,7 +167,7 @@ def test_callbacks_type_lookup(
     process_subclasses: bool,
     expected: tuple[list[int], ...],
 ) -> None:
-    """Test that the `_type_lookup` method works correctly with callbacks, including yielding subclasses."""
+    """Test that the `_get_callbacks` method works correctly with callbacks, including yielding subclasses."""
 
     jproc = JProc(
         {
@@ -187,51 +187,13 @@ def test_callbacks_type_lookup(
     }
 
     assert (
-        list(jproc._type_lookup(str, jproc.callback_mapping)),
-        list(jproc._type_lookup(int, jproc.callback_mapping)),
-        list(jproc._type_lookup(object, jproc.callback_mapping)),
-        list(jproc._type_lookup(bool, jproc.callback_mapping)),
+        list(jproc._get_callbacks(str)),
+        list(jproc._get_callbacks(int)),
+        list(jproc._get_callbacks(object)),
+        list(jproc._get_callbacks(bool)),
     ) == tuple(
         [cb_lkp[cb_num] for cb_num in callback_numbers] for callback_numbers in expected
     )
-
-
-def test_getter_type_lookup() -> None:
-    """Test that the `_type_lookup` method works correctly with iterators."""
-
-    jproc = JProc()
-
-    def _iter(_: Any) -> Iterator[int]:
-        return iter([1, 2, 3])
-
-    jproc.register_custom_iterator(int, _iter, add_to_processable_type_list=True)
-
-    assert jproc._type_lookup(int, jproc.iterator_factory_mapping) is _iter
-    assert list(jproc._type_lookup(int, jproc.iterator_factory_mapping)(None)) == [  # type: ignore[arg-type]
-        1,
-        2,
-        3,
-    ]
-    assert int in jproc.processable_types
-
-
-def test_iterator_type_lookup() -> None:
-    """Test that the `_type_lookup` method works correctly with iterators."""
-
-    jproc = JProc()
-
-    def _iter(_: Any) -> Iterator[int]:
-        return iter([1, 2, 3])
-
-    jproc.register_custom_iterator(int, _iter, add_to_processable_type_list=True)
-
-    assert jproc._type_lookup(int, jproc.iterator_factory_mapping) is _iter
-    assert list(jproc._type_lookup(int, jproc.iterator_factory_mapping)(None)) == [  # type: ignore[arg-type]
-        1,
-        2,
-        3,
-    ]
-    assert int in jproc.processable_types
 
 
 @pytest.mark.parametrize(
