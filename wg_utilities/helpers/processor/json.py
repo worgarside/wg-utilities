@@ -633,6 +633,10 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                     **kwargs,
                 )
 
+    def process_anything(self, obj: Any, **kwargs: Any) -> None:  # pragma: no cover
+        """Process anything that can be processed."""
+        self.process(obj, **kwargs)
+
     if PYDANTIC_INSTALLED:
 
         def process_model(
