@@ -172,10 +172,10 @@ def test_get_callbacks(
     jp3 = JProc.cb(mock_cb_three)
     jp4 = JProc.cb(mock_cb_four)
 
-    assert list(jproc._get_callbacks(str)) == [jp1, jp3]
-    assert list(jproc._get_callbacks(int)) == [jp2, jp3]
-    assert list(jproc._get_callbacks(object)) == [jp3]
-    assert list(jproc._get_callbacks(bool)) == [
+    assert list(jproc._type_lookup(str, jproc.callback_mapping)) == [jp1, jp3]
+    assert list(jproc._type_lookup(int, jproc.callback_mapping)) == [jp2, jp3]
+    assert list(jproc._type_lookup(object, jproc.callback_mapping)) == [jp3]
+    assert list(jproc._type_lookup(bool, jproc.callback_mapping)) == [
         jp2,  # Because it is a subclass of int
         jp3,  # Because it is a subclass of object
         jp2,  # (again); Because it is a bool (pt. 1)
@@ -206,10 +206,10 @@ def test_get_callbacks_no_subclasses(
     jp3 = JProc.cb(mock_cb_three)
     jp4 = JProc.cb(mock_cb_four)
 
-    assert list(jproc._get_callbacks(str)) == [jp1]
-    assert list(jproc._get_callbacks(int)) == [jp2]
-    assert list(jproc._get_callbacks(object)) == [jp3]
-    assert list(jproc._get_callbacks(bool)) == [jp2, jp4]
+    assert list(jproc._type_lookup(str, jproc.callback_mapping)) == [jp1]
+    assert list(jproc._type_lookup(int, jproc.callback_mapping)) == [jp2]
+    assert list(jproc._type_lookup(object, jproc.callback_mapping)) == [jp3]
+    assert list(jproc._type_lookup(bool, jproc.callback_mapping)) == [jp2, jp4]
 
 
 @pytest.mark.parametrize(
