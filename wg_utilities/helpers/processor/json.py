@@ -351,6 +351,43 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             yield from callback_list
 
     @overload
+    def _get_getter_or_iterator(
+        self,
+        typ: type[T],
+        mapping: JSONProcessor.IteratorFactoryMapping[Any],
+    ) -> JSONProcessor.IteratorFactory[T] | None:
+        ...
+
+    @overload
+    def _get_getter_or_iterator(
+        self,
+        typ: type[T],
+        mapping: JSONProcessor.GetterMapping[Any],
+    ) -> JSONProcessor.GetterDefinition[T] | None:
+        ...
+
+    def _get_getter_or_iterator(
+        self,
+        typ: type[T],
+        mapping: JSONProcessor.IteratorFactoryMapping[Any]
+        | JSONProcessor.GetterMapping[Any],
+    ) -> JSONProcessor.IteratorFactory[T] | JSONProcessor.GetterDefinition[T] | None:
+        """Get the getter or iterator for the given type."""
+
+        if (exact_match := mapping.get(typ)) or not self.config.process_subclasses:
+            return exact_match
+
+        if valid_keys := [key for key in mapping if issubclass(typ, key)]:
+            # Sort the valid keys by their depth in the inheritance tree, closest first.
+            closest_key = sorted(
+                valid_keys, key=lambda key: typ.mro().index(key), reverse=True
+            )[0]
+
+            return mapping.get(closest_key, None)
+
+        return None
+
+    @overload
     def _get_item(self, obj: BaseModel, loc: str) -> object:
         ...
 
@@ -373,7 +410,9 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
     ) -> object | Sentinel:
         with suppress(*self.config.ignored_loc_lookup_errors):
             try:
-                if custom_getter := self.getter_mapping.get(type(obj)):
+                if custom_getter := self._get_getter_or_iterator(
+                    type(obj), self.getter_mapping
+                ):
                     return custom_getter(obj, loc)
 
                 try:
@@ -429,7 +468,9 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         self,
         obj: Mapping[K, Any] | Sequence[Any] | BaseModel,
     ) -> Iterator[K] | Iterator[int] | Iterator[str] | Sentinel:
-        if custom_iter := self.iterator_factory_mapping.get(type(obj)):
+        if custom_iter := self._get_getter_or_iterator(
+            type(obj), self.iterator_factory_mapping
+        ):
             return custom_iter(obj)  # type: ignore[return-value]
 
         if isinstance(obj, Sequence):
