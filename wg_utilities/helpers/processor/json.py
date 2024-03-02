@@ -215,10 +215,10 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
     CallbackMapping = dict[type[T] | type[None], list[CallbackDefinition]]
 
-    GetterDefinition = Callable[[T, object], object]
+    GetterDefinition = Callable[[T, Any], Any]
     GetterMapping = dict[type[T], GetterDefinition[T]]
 
-    IteratorFactory = Callable[[T], Iterator[object]]
+    IteratorFactory = Callable[[T], Iterator[Any]]
     IteratorFactoryMapping = dict[type[T], IteratorFactory[T]]
 
     CallbackMappingInput = dict[
@@ -351,6 +351,44 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             yield from callback_list
 
     @overload
+    def _get_getter_or_iterator_factory(
+        self,
+        typ: type[T],
+        mapping: JSONProcessor.IteratorFactoryMapping[Any],
+    ) -> JSONProcessor.IteratorFactory[T] | None:
+        ...
+
+    @overload
+    def _get_getter_or_iterator_factory(
+        self,
+        typ: type[T],
+        mapping: JSONProcessor.GetterMapping[Any],
+    ) -> JSONProcessor.GetterDefinition[T] | None:
+        ...
+
+    def _get_getter_or_iterator_factory(
+        self,
+        typ: type[T],
+        mapping: JSONProcessor.IteratorFactoryMapping[Any]
+        | JSONProcessor.GetterMapping[Any],
+    ) -> JSONProcessor.IteratorFactory[T] | JSONProcessor.GetterDefinition[T] | None:
+        """Get the getter or iterator for the given type.
+
+        If `config.process_subclasses` is true, the getter or iterator for the first matching
+        subclass will be returned. Otherwise, the getter or iterator for the exact type will be
+        returned.
+        """
+
+        if (exact_match := mapping.get(typ)) or not self.config.process_subclasses:
+            return exact_match
+
+        for key, value in mapping.items():
+            if issubclass(typ, key):
+                return value
+
+        return None
+
+    @overload
     def _get_item(self, obj: BaseModel, loc: str) -> object:
         ...
 
@@ -370,10 +408,12 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         self,
         obj: BaseModel | Mapping[K, object] | Sequence[object] | G,
         loc: str | K | int | object,
-    ) -> object | Sentinel:
+    ) -> Any | Sentinel:
         with suppress(*self.config.ignored_loc_lookup_errors):
             try:
-                if custom_getter := self.getter_mapping.get(type(obj)):
+                if custom_getter := self._get_getter_or_iterator_factory(
+                    type(obj), self.getter_mapping
+                ):
                     return custom_getter(obj, loc)
 
                 try:
@@ -386,7 +426,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                         raise
 
                 try:
-                    return getattr(obj, loc)  # type: ignore[no-any-return]
+                    return getattr(obj, loc)
                 except AttributeError:
                     raise LocNotFoundError(loc, obj) from None
 
@@ -429,8 +469,10 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         self,
         obj: Mapping[K, Any] | Sequence[Any] | BaseModel,
     ) -> Iterator[K] | Iterator[int] | Iterator[str] | Sentinel:
-        if custom_iter := self.iterator_factory_mapping.get(type(obj)):
-            return custom_iter(obj)  # type: ignore[return-value]
+        if custom_iter := self._get_getter_or_iterator_factory(
+            type(obj), self.iterator_factory_mapping
+        ):
+            return custom_iter(obj)
 
         if isinstance(obj, Sequence):
             return iter(range(len(obj)))

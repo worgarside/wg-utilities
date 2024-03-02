@@ -191,6 +191,7 @@ lint.ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["D104"]
 "tests/**/*.py" = [
+  "D101",    # https://docs.astral.sh/ruff/rules/undocumented-public-class/
   "FBT001",  # https://docs.astral.sh/ruff/rules/boolean-type-hint-positional-argument/
   "FBT002",  # https://docs.astral.sh/ruff/rules/boolean-default-value-positional-argument/
   "PT011",   # https://docs.astral.sh/ruff/rules/pytest-raises-too-broad/
