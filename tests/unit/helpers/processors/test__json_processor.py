@@ -33,6 +33,7 @@ from wg_utilities.helpers.processor.json import (
     LocNotFoundError,
     MissingArgError,
     MissingKwargError,
+    T,
 )
 
 
@@ -1233,3 +1234,60 @@ def test_non_standard_iter_type_error() -> None:
 
     with pytest.raises(TypeError, match="Told you so"):
         list(JProc()._iterate(DoNotIterate()))  # type: ignore[call-overload]
+
+
+class One:
+    pass
+
+
+class Two(One):
+    pass
+
+
+class Three(Two):
+    pass
+
+
+class Four(Three):
+    pass
+
+
+@pytest.mark.parametrize(
+    ("process_subclasses", "lookup_type", "expected_getter", "expected_iterator_factory"),
+    [
+        (True, One, "get_one", "iter_one"),  # Even though these are True...
+        (False, One, "get_one", "iter_one"),
+        (True, Two, "get_two", "iter_two"),  # ...exact matches are found...
+        (False, Two, "get_two", "iter_two"),
+        (True, Three, "get_three", "iter_three"),  # ...so no subclasses are checked for.
+        (False, Three, "get_three", "iter_three"),
+        (True, Four, "get_three", "iter_one"),  # No exact match here though!
+        (False, Four, None, None),  # Which is why these are both None
+    ],
+)
+def test_get_getter_or_iterator_factory(
+    process_subclasses: bool,
+    lookup_type: type[Any],
+    expected_getter: JProc.GetterDefinition[T],
+    expected_iterator_factory: JProc.IteratorFactory[T],
+) -> None:
+    """Test that the correct getter or iterator is returned."""
+
+    jproc = JProc(process_subclasses=process_subclasses)
+
+    jproc.register_custom_getter(Three, "get_three")  # type: ignore[arg-type]
+    jproc.register_custom_getter(Two, "get_two")  # type: ignore[arg-type]
+    jproc.register_custom_getter(One, "get_one")  # type: ignore[arg-type]
+
+    jproc.register_custom_iterator(One, "iter_one")  # type: ignore[arg-type]
+    jproc.register_custom_iterator(Two, "iter_two")  # type: ignore[arg-type]
+    jproc.register_custom_iterator(Three, "iter_three")  # type: ignore[arg-type]
+
+    assert (
+        jproc._get_getter_or_iterator_factory(lookup_type, jproc.getter_mapping)
+        == expected_getter
+    )
+    assert (
+        jproc._get_getter_or_iterator_factory(lookup_type, jproc.iterator_factory_mapping)
+        == expected_iterator_factory
+    )

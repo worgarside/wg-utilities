@@ -351,7 +351,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             yield from callback_list
 
     @overload
-    def _get_getter_or_iterator(
+    def _get_getter_or_iterator_factory(
         self,
         typ: type[T],
         mapping: JSONProcessor.IteratorFactoryMapping[Any],
@@ -359,31 +359,32 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         ...
 
     @overload
-    def _get_getter_or_iterator(
+    def _get_getter_or_iterator_factory(
         self,
         typ: type[T],
         mapping: JSONProcessor.GetterMapping[Any],
     ) -> JSONProcessor.GetterDefinition[T] | None:
         ...
 
-    def _get_getter_or_iterator(
+    def _get_getter_or_iterator_factory(
         self,
         typ: type[T],
         mapping: JSONProcessor.IteratorFactoryMapping[Any]
         | JSONProcessor.GetterMapping[Any],
     ) -> JSONProcessor.IteratorFactory[T] | JSONProcessor.GetterDefinition[T] | None:
-        """Get the getter or iterator for the given type."""
+        """Get the getter or iterator for the given type.
+
+        If `config.process_subclasses` is true, the getter or iterator for the first matching
+        subclass will be returned. Otherwise, the getter or iterator for the exact type will be
+        returned.
+        """
 
         if (exact_match := mapping.get(typ)) or not self.config.process_subclasses:
             return exact_match
 
-        if valid_keys := [key for key in mapping if issubclass(typ, key)]:
-            # Sort the valid keys by their depth in the inheritance tree, closest first.
-            closest_key = sorted(
-                valid_keys, key=lambda key: typ.mro().index(key), reverse=True
-            )[0]
-
-            return mapping.get(closest_key, None)
+        for key, value in mapping.items():
+            if issubclass(typ, key):
+                return value
 
         return None
 
@@ -410,7 +411,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
     ) -> object | Sentinel:
         with suppress(*self.config.ignored_loc_lookup_errors):
             try:
-                if custom_getter := self._get_getter_or_iterator(
+                if custom_getter := self._get_getter_or_iterator_factory(
                     type(obj), self.getter_mapping
                 ):
                     return custom_getter(obj, loc)
@@ -468,7 +469,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         self,
         obj: Mapping[K, Any] | Sequence[Any] | BaseModel,
     ) -> Iterator[K] | Iterator[int] | Iterator[str] | Sentinel:
-        if custom_iter := self._get_getter_or_iterator(
+        if custom_iter := self._get_getter_or_iterator_factory(
             type(obj), self.iterator_factory_mapping
         ):
             return custom_iter(obj)  # type: ignore[return-value]
