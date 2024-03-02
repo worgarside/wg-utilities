@@ -215,10 +215,10 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
     CallbackMapping = dict[type[T] | type[None], list[CallbackDefinition]]
 
-    GetterDefinition = Callable[[T, object], object]
+    GetterDefinition = Callable[[T, Any], Any]
     GetterMapping = dict[type[T], GetterDefinition[T]]
 
-    IteratorFactory = Callable[[T], Iterator[object]]
+    IteratorFactory = Callable[[T], Iterator[Any]]
     IteratorFactoryMapping = dict[type[T], IteratorFactory[T]]
 
     CallbackMappingInput = dict[
@@ -408,7 +408,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         self,
         obj: BaseModel | Mapping[K, object] | Sequence[object] | G,
         loc: str | K | int | object,
-    ) -> object | Sentinel:
+    ) -> Any | Sentinel:
         with suppress(*self.config.ignored_loc_lookup_errors):
             try:
                 if custom_getter := self._get_getter_or_iterator_factory(
@@ -426,7 +426,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                         raise
 
                 try:
-                    return getattr(obj, loc)  # type: ignore[no-any-return]
+                    return getattr(obj, loc)
                 except AttributeError:
                     raise LocNotFoundError(loc, obj) from None
 
@@ -472,7 +472,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         if custom_iter := self._get_getter_or_iterator_factory(
             type(obj), self.iterator_factory_mapping
         ):
-            return custom_iter(obj)  # type: ignore[return-value]
+            return custom_iter(obj)
 
         if isinstance(obj, Sequence):
             return iter(range(len(obj)))
