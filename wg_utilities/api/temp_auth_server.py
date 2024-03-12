@@ -1,4 +1,5 @@
 """Provide a class for creating a temporary server during an authentication flow."""
+
 from __future__ import annotations
 
 from textwrap import dedent

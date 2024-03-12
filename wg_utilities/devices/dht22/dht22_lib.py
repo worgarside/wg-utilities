@@ -1,5 +1,6 @@
 # ruff: noqa
 """A class I found a long time ago for DHT22, I can't remember where :(."""
+
 from __future__ import annotations
 
 from time import sleep

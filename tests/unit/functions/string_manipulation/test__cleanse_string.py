@@ -1,4 +1,4 @@
-""""Unit Tests for `wg_utilities.functions.string_manipulation.cleanse_string`."""
+""" "Unit Tests for `wg_utilities.functions.string_manipulation.cleanse_string`."""
 
 from __future__ import annotations
 

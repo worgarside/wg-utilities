@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.clients.monzo.MonzoClient`."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
