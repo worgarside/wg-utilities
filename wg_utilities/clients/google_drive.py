@@ -1,4 +1,5 @@
 """Custom client for interacting with Google's Drive API."""
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -861,9 +862,9 @@ class File(_GoogleDriveEntity):
 class Directory(File, _CanHaveChildren):
     """A Google Drive directory - basically a File with extended functionality."""
 
-    MIME_TYPE: ClassVar[
-        Literal["application/vnd.google-apps.folder"]
-    ] = "application/vnd.google-apps.folder"
+    MIME_TYPE: ClassVar[Literal["application/vnd.google-apps.folder"]] = (
+        "application/vnd.google-apps.folder"
+    )
 
     kind: Literal[EntityKind.DIRECTORY] = Field(default=EntityKind.DIRECTORY)
     mime_type: Literal["application/vnd.google-apps.folder"] = Field(

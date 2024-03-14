@@ -1,4 +1,5 @@
 """Custom client for interacting with TrueLayer's API."""
+
 from __future__ import annotations
 
 from datetime import UTC, date, datetime, timedelta
@@ -319,8 +320,7 @@ class TrueLayerEntity(BaseModelWithConfig):
     def _get_balance_property(
         self,
         prop_name: Literal["current_balance"],
-    ) -> float:
-        ...
+    ) -> float: ...
 
     @overload
     def _get_balance_property(
@@ -332,8 +332,7 @@ class TrueLayerEntity(BaseModelWithConfig):
             "last_statement_balance",
             "payment_due",
         ],
-    ) -> float | None:
-        ...
+    ) -> float | None: ...
 
     @overload
     def _get_balance_property(
@@ -342,8 +341,7 @@ class TrueLayerEntity(BaseModelWithConfig):
             "last_statement_date",
             "payment_due_date",
         ],
-    ) -> date | None:
-        ...
+    ) -> date | None: ...
 
     def _get_balance_property(
         self,

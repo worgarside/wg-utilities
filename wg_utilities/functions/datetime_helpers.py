@@ -1,4 +1,5 @@
 """Helper functions for all things date and time related."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime
@@ -26,13 +27,11 @@ DTU = DatetimeFixedUnit
 
 
 @overload
-def utcnow() -> datetime:
-    ...
+def utcnow() -> datetime: ...
 
 
 @overload
-def utcnow(unit: DatetimeFixedUnit) -> int:
-    ...
+def utcnow(unit: DatetimeFixedUnit) -> int: ...
 
 
 def utcnow(unit: DatetimeFixedUnit | None = None) -> datetime | int:
