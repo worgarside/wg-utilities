@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.YamahaYas209`."""
+
 from __future__ import annotations
 
 from asyncio import new_event_loop

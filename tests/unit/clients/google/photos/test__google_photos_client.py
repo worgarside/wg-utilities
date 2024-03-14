@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.clients.google_photos.GooglePhotosClient`."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

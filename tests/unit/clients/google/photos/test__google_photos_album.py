@@ -1,4 +1,5 @@
 """Unit Tests for `clients.google_photos.Album`."""
+
 from __future__ import annotations
 
 from unittest.mock import patch

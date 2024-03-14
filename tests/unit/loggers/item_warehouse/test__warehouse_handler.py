@@ -1,6 +1,5 @@
 """Unit tests for the WarehouseHandler class."""
 
-
 from __future__ import annotations
 
 from hashlib import md5

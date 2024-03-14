@@ -1,4 +1,5 @@
 """Unit Tests for `wg_utilities.clients.spotify.User`."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta

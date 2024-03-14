@@ -1,4 +1,5 @@
 """Unit Tests for the `add_list_handler` function."""
+
 from __future__ import annotations
 
 from logging import (
