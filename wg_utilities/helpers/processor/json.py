@@ -755,7 +755,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         )
 
         if decorated not in JSONProcessor._DECORATED_CALLBACKS:
-            raise CallbackNotDecoratedError(decorated)  # type: ignore[arg-type]
+            raise CallbackNotDecoratedError(decorated)
 
         self.callback_mapping[target_type or type(None)].append(callback_def)
 
