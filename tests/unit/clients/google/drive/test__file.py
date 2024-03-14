@@ -334,7 +334,7 @@ def test_parent_property(simple_file: File, directory: Directory, drive: Drive) 
     # This looks like I'm testing the Directory class, but it's a File subclass, so it's
     # fine :)
 
-    directory.parent_ = None
+    directory.parent_ = None  # type: ignore[assignment]
     drive._directories = []
 
     assert drive.all_known_children == []
