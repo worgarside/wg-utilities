@@ -1,4 +1,5 @@
 """Custom client for interacting with Spotify's Web API."""
+
 from __future__ import annotations
 
 from datetime import UTC, date, datetime, timedelta
@@ -418,8 +419,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         *,
         entity_types: Sequence[Literal["album", "artist", "playlist", "track"]] = (),
         get_best_match_only: Literal[True],
-    ) -> Artist | Playlist | Track | Album | None:
-        ...
+    ) -> Artist | Playlist | Track | Album | None: ...
 
     @overload
     def search(
@@ -428,8 +428,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         *,
         entity_types: Sequence[Literal["album", "artist", "playlist", "track"]] = (),
         get_best_match_only: Literal[False] = False,
-    ) -> ParsedSearchResponse:
-        ...
+    ) -> ParsedSearchResponse: ...
 
     def search(
         self,
@@ -493,9 +492,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
             | PaginatedResponseTracks
         )
         for res_entity_type, entities_json in res.items():  # type: ignore[assignment]
-            instance_class: (
-                type[Album] | type[Artist] | type[Playlist] | type[Track]
-            ) = {  # type: ignore[assignment]
+            instance_class: type[Album] | type[Artist] | type[Playlist] | type[Track] = {  # type: ignore[assignment]
                 "albums": Album,
                 "artists": Artist,
                 "playlists": Playlist,
@@ -1168,8 +1165,7 @@ class User(SpotifyEntity[UserSummaryJson]):
         name: str,
         *,
         return_all: Literal[False] = False,
-    ) -> Playlist | None:
-        ...
+    ) -> Playlist | None: ...
 
     @overload
     def get_playlists_by_name(
@@ -1177,8 +1173,7 @@ class User(SpotifyEntity[UserSummaryJson]):
         name: str,
         *,
         return_all: Literal[True],
-    ) -> list[Playlist]:
-        ...
+    ) -> list[Playlist]: ...
 
     def get_playlists_by_name(
         self,

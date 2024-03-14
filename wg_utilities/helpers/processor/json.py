@@ -313,8 +313,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             item_filter (ItemFilter | None): An optional function to use to filter target values before processing
                 them. Defaults to None. Function signature is as follows:
                 ```python
-                def item_filter(item: Any, /, *, loc: K | int | str) -> bool:
-                    ...
+                def item_filter(item: Any, /, *, loc: K | int | str) -> bool: ...
                 ```
             allow_callback_failures (bool): Whether to allow callback failures. Defaults to False.
             allow_mutation (bool): Whether the callback is allowed to mutate the input object. Defaults to True.
@@ -355,16 +354,14 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         self,
         typ: type[T],
         mapping: JSONProcessor.IteratorFactoryMapping[Any],
-    ) -> JSONProcessor.IteratorFactory[T] | None:
-        ...
+    ) -> JSONProcessor.IteratorFactory[T] | None: ...
 
     @overload
     def _get_getter_or_iterator_factory(
         self,
         typ: type[T],
         mapping: JSONProcessor.GetterMapping[Any],
-    ) -> JSONProcessor.GetterDefinition[T] | None:
-        ...
+    ) -> JSONProcessor.GetterDefinition[T] | None: ...
 
     def _get_getter_or_iterator_factory(
         self,
@@ -389,20 +386,16 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         return None
 
     @overload
-    def _get_item(self, obj: BaseModel, loc: str) -> object:
-        ...
+    def _get_item(self, obj: BaseModel, loc: str) -> object: ...
 
     @overload
-    def _get_item(self, obj: Mapping[K, object], loc: K) -> object:
-        ...
+    def _get_item(self, obj: Mapping[K, object], loc: K) -> object: ...
 
     @overload
-    def _get_item(self, obj: Sequence[object], loc: int) -> object:
-        ...
+    def _get_item(self, obj: Sequence[object], loc: int) -> object: ...
 
     @overload
-    def _get_item(self, obj: G, loc: object) -> object:
-        ...
+    def _get_item(self, obj: G, loc: object) -> object: ...
 
     def _get_item(
         self,
@@ -454,16 +447,13 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         return
 
     @overload
-    def _iterate(self, obj: Mapping[K, Any]) -> Iterator[K]:
-        ...
+    def _iterate(self, obj: Mapping[K, Any]) -> Iterator[K]: ...
 
     @overload
-    def _iterate(self, obj: Sequence[Any]) -> Iterator[int]:
-        ...
+    def _iterate(self, obj: Sequence[Any]) -> Iterator[int]: ...
 
     @overload
-    def _iterate(self, obj: BaseModel) -> Iterator[str]:
-        ...
+    def _iterate(self, obj: BaseModel) -> Iterator[str]: ...
 
     def _iterate(
         self,
@@ -518,8 +508,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         depth: int,
         orig_item_type: type[Any],
         kwargs: dict[str, Any],
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
     def _process_item(
@@ -531,8 +520,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         depth: int,
         orig_item_type: type[Any],
         kwargs: dict[str, Any],
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
     def _process_item(
@@ -544,8 +532,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         depth: int,
         orig_item_type: type[Any],
         kwargs: dict[str, Any],
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def _process_item(
         self,
@@ -592,8 +579,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         loc: str,
         depth: int,
         kwargs: dict[str, Any],
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
     def _process_loc(
@@ -603,8 +589,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         loc: int,
         depth: int,
         kwargs: dict[str, Any],
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
     def _process_loc(
@@ -614,8 +599,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         loc: K,
         depth: int,
         kwargs: dict[str, Any],
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def _process_loc(
         self,
@@ -771,7 +755,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         )
 
         if decorated not in JSONProcessor._DECORATED_CALLBACKS:
-            raise CallbackNotDecoratedError(decorated)  # type: ignore[arg-type]
+            raise CallbackNotDecoratedError(decorated)
 
         self.callback_mapping[target_type or type(None)].append(callback_def)
 
@@ -821,8 +805,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         cls,
         *,
         allow_mutation: Literal[True] = True,
-    ) -> Callable[[Callable[P, R]], Callback[P, R]]:
-        ...
+    ) -> Callable[[Callable[P, R]], Callback[P, R]]: ...
 
     @overload
     @classmethod
@@ -830,8 +813,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         cls,
         *,
         allow_mutation: Literal[False],
-    ) -> Callable[[Callable[P, R]], Callback[P, Sentinel]]:
-        ...
+    ) -> Callable[[Callable[P, R]], Callback[P, Sentinel]]: ...
 
     @overload
     @classmethod
@@ -839,8 +821,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         cls,
         *,
         allow_mutation: bool = ...,
-    ) -> Callable[[Callable[P, R]], Callback[P, R | Sentinel]]:
-        ...
+    ) -> Callable[[Callable[P, R]], Callback[P, R | Sentinel]]: ...
 
     @classmethod
     def callback(

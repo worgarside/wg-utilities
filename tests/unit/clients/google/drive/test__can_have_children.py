@@ -1,4 +1,5 @@
 """Unit tests for `wg_utilities.clients.google_drive._CanHaveChildren`."""
+
 from __future__ import annotations
 
 from textwrap import dedent

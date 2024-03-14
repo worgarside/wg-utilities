@@ -1,6 +1,5 @@
 """Get all subclasses of a class recursively."""
 
-
 from __future__ import annotations
 
 from typing import Any, Callable, Generator
