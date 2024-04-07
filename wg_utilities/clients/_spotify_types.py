@@ -155,7 +155,7 @@ class PlaylistSummaryJsonTracks(TypedDict):
 class _PlaylistBaseJson(SpotifyNamedEntityJson):
     collaborative: bool
     description: str
-    images: list[Image]
+    images: list[Image] | None
     owner: UserSummaryJson
     primary_color: None  # Not implemented yet
     public: bool | None

@@ -967,7 +967,7 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
 
     collaborative: bool
     followers: Followers | None = None
-    images: list[Image]
+    images: list[Image] | None = None
     owner_json: UserSummaryJson = Field(alias="owner")
     primary_color: str | None = None
     # TODO: the `None` cases here can be handled by defaulting `public` to
