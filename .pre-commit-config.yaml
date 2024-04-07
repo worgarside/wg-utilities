@@ -20,7 +20,7 @@ repos:
           - --strict
         additional_dependencies:
           - aioresponses==0.7.6
-          - async-upnp-client==0.38.2
+          - async-upnp-client==0.38.3
           - boto3-stubs
           - lxml-stubs
           - moto==5.0.4
