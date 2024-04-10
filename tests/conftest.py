@@ -13,6 +13,7 @@ from time import time
 from typing import TYPE_CHECKING, Literal, TypeVar, cast, overload
 from unittest.mock import MagicMock, patch
 from urllib.parse import quote, unquote
+from uuid import uuid4
 
 import pytest
 from jwt import encode
@@ -107,7 +108,7 @@ class _XdistScheduler(LoadScopeScheduling):  # type: ignore[misc]
 
     def _split_scope(self, nodeid: str) -> str:
         if "devices/yamaha_yas_209" in nodeid:
-            return "yamaha_yas_209-tests"
+            return str(uuid4())  # Run them all in separate scopes
 
         if "force_mkdir" in nodeid:
             return "force_mkdir-tests"
