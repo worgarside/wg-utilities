@@ -84,7 +84,15 @@ clients = ["flask", "pyjwt", "requests", "tzlocal", "pydantic"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = ["-ra", "--strict-markers", "--strict-config", "-n", "auto"]
+addopts = [
+  "-ra",
+  "--strict-markers",
+  "--strict-config",
+  "-n",
+  "auto",
+  "--dist",
+  "loadgroup",
+]
 xfail_strict = true
 log_cli_level = "warning"
 pythonpath = ["wg_utilities"]

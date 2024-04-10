@@ -5,9 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from shutil import rmtree
 
+import pytest
+
 from wg_utilities.functions.file_management import force_mkdir
 
 
+@pytest.mark.xdist_group("force_mkdir")
 def test_directories_created_correctly() -> None:
     """Test that the directories are created correctly."""
 
@@ -27,6 +30,7 @@ def test_directories_created_correctly() -> None:
     assert not target_path.exists()
 
 
+@pytest.mark.xdist_group("force_mkdir")
 def test_directories_created_correctly_with_path_is_file() -> None:
     """Test that the directories are created correctly."""
 

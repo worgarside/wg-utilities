@@ -13,7 +13,6 @@ from time import time
 from typing import TYPE_CHECKING, Literal, TypeVar, cast, overload
 from unittest.mock import MagicMock, patch
 from urllib.parse import quote, unquote
-from uuid import uuid4
 
 import pytest
 from jwt import encode
@@ -21,9 +20,6 @@ from requests import get
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import MissingSchema
 from requests_mock import Mocker
-from xdist.scheduler.loadscope import (  # type: ignore[import-not-found]
-    LoadScopeScheduling,
-)
 
 from wg_utilities.clients.oauth_client import OAuthCredentials
 from wg_utilities.exceptions._exception import NotFoundError
@@ -101,25 +97,6 @@ class ApiStubNotFoundError(NotFoundError):
 
 
 # Functions
-
-
-class _XdistScheduler(LoadScopeScheduling):  # type: ignore[misc]
-    """Custom scheduler to split tests into multiple scopes."""
-
-    def _split_scope(self, nodeid: str) -> str:
-        if "devices/yamaha_yas_209" in nodeid:
-            return str(uuid4())  # Run them all in separate scopes
-
-        if "force_mkdir" in nodeid:
-            return "force_mkdir-tests"
-
-        return nodeid
-
-
-def pytest_xdist_make_scheduler(config, log):  # type: ignore[no-untyped-def]
-    """Create a custom scheduler to split tests into multiple scopes."""
-
-    return _XdistScheduler(config, log)
 
 
 def assert_mock_requests_request_history(
