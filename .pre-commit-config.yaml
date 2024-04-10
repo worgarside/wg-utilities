@@ -28,7 +28,7 @@ repos:
           - mypy_boto3_s3
           - pydantic==2.6.4
           - pytest==8.1.1
-          - requests-mock==1.12.0
+          - requests-mock==1.12.1
           - types-Pillow
           - types-PyYAML
           - types-flask
