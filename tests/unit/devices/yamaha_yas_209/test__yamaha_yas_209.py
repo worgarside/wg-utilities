@@ -255,6 +255,7 @@ def test_providing_listen_ip_only_raises_exception() -> None:
     )
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_0")
 def test_listen_exits_early_if_already_listening(
     yamaha_yas_209: YamahaYas209,
     caplog: pytest.LogCaptureFixture,
@@ -284,6 +285,7 @@ def test_auto_listening_works() -> None:
         mock_listen.assert_called_once()
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_1")
 @patch("wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.sleep")
 def test_listen_starts_listening(
     mock_sleep: MagicMock,
@@ -415,6 +417,7 @@ def test_xml_payloads_with_ampersands_can_be_parsed(
     yamaha_yas_209.on_event_wrapper(upnp_service_av_transport, [upnp_state_variable])
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_2")
 @pytest.mark.upnp_value_path(
     # Obvs by Jamie XX
     FLAT_FILES_DIR
@@ -474,6 +477,7 @@ def test_av_transport_state_change_updates_local_state(
     )
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_3")
 @pytest.mark.upnp_value_path(
     # Obvs by Jamie XX
     FLAT_FILES_DIR
@@ -550,6 +554,7 @@ def test_av_transport_ctm_updates_current_track(
     assert yamaha_yas_209.current_track == current_track_null
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_4")
 @pytest.mark.upnp_value_path(
     FLAT_FILES_DIR
     / "xml"
@@ -627,6 +632,7 @@ def test_rendering_control_updates_volume(
     )
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_5")
 @freeze_time()
 def test_on_event_callback_called_correctly(
     yamaha_yas_209: YamahaYas209,
@@ -730,6 +736,7 @@ def test_on_event_callback_called_correctly(
     assert call_count == 1
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_6")
 def test_call_service_action_value_error(yamaha_yas_209: YamahaYas209) -> None:
     """Test that an unknown action raise a `ValueError`."""
 
@@ -748,6 +755,7 @@ def test_call_service_action_value_error(yamaha_yas_209: YamahaYas209) -> None:
     )
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_7")
 def test_call_service_routes_call_correctly(
     yamaha_yas_209: YamahaYas209,
     mock_aiohttp: aioresponses,
@@ -774,6 +782,7 @@ def test_call_service_routes_call_correctly(
     assert_only_post_request_is(url, mock_aiohttp.requests, yamaha_yas_209)
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_8")
 def test_call_service_action_callback(
     yamaha_yas_209: YamahaYas209,
     mock_aiohttp: aioresponses,
@@ -1388,6 +1397,7 @@ def test_needs_device_decorator(
     assert not mock_aiohttp.requests
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_9")
 def test_subscribe_creates_notify_server_with_correct_subscriptions(
     yamaha_yas_209: YamahaYas209,
     mock_aiohttp: aioresponses,
@@ -1473,6 +1483,7 @@ def test_subscribe_creates_notify_server_with_correct_subscriptions(
     assert all(key[0] == "GET" for key in mock_aiohttp.requests)
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_10")
 def test_subscribe_creates_notify_server_logs_subscription_errors(
     yamaha_yas_209: YamahaYas209,
     mock_aiohttp: aioresponses,
@@ -1518,6 +1529,7 @@ def test_subscribe_creates_notify_server_logs_subscription_errors(
     assert all(key[0] == "GET" for key in mock_aiohttp.requests)
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_11")
 def test_subscribe_resubscribes_to_active_services(
     yamaha_yas_209: YamahaYas209,
     mock_aiohttp: aioresponses,
@@ -1561,6 +1573,7 @@ def test_subscribe_resubscribes_to_active_services(
     assert call_count == 121
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_12")
 def test_subscribe_resubscribes_to_failed_services(
     yamaha_yas_209: YamahaYas209,
     mock_aiohttp: aioresponses,
@@ -1615,6 +1628,7 @@ def test_subscribe_resubscribes_to_failed_services(
     assert call_count == 121
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_13")
 @pytest.mark.parametrize(
     ("logging", "expected_level"),
     [
@@ -1698,6 +1712,7 @@ def test_subscribe_keeps_retrying_failed_subscriptions(
             sleep(0.1)
 
 
+@pytest.mark.xdist_group("test__yamaha_yas_209_isolate_14")
 def test_stop_listening_stops_listener(
     yamaha_yas_209: YamahaYas209,
     mock_aiohttp: aioresponses,
