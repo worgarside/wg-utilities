@@ -43,18 +43,20 @@ class BaseModelWithConfig(BaseModel):
         validate_assignment=True,
     )
 
-    def model_dump(
+    def model_dump(  # noqa: PLR0913
         self,
         *,
         mode: Literal["json", "python"] | str = "python",
         include: IncEx | None = None,
         exclude: IncEx | None = None,
+        context: dict[str, Any] | None = None,
         by_alias: bool = True,
         exclude_unset: bool = True,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
         round_trip: bool = False,
-        warnings: bool = True,
+        warnings: bool | Literal["none", "warn", "error"] = True,
+        serialize_as_any: bool = False,
     ) -> dict[str, Any]:
         """Create a dictionary representation of the model.
 
@@ -74,26 +76,30 @@ class BaseModelWithConfig(BaseModel):
             mode=mode,
             include=include,
             exclude=exclude,
+            context=context,
             by_alias=by_alias,
             exclude_unset=exclude_unset,
             exclude_defaults=exclude_defaults,
             exclude_none=exclude_none,
             round_trip=round_trip,
             warnings=warnings,
+            serialize_as_any=serialize_as_any,
         )
 
-    def model_dump_json(
+    def model_dump_json(  # noqa: PLR0913
         self,
         *,
         indent: int | None = None,
         include: IncEx | None = None,
         exclude: IncEx | None = None,
+        context: dict[str, Any] | None = None,
         by_alias: bool = True,
         exclude_unset: bool = True,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
         round_trip: bool = False,
-        warnings: bool = True,
+        warnings: bool | Literal["none", "warn", "error"] = True,
+        serialize_as_any: bool = False,
     ) -> str:
         """Create a JSON string representation of the model.
 
@@ -113,12 +119,14 @@ class BaseModelWithConfig(BaseModel):
             indent=indent,
             include=include,
             exclude=exclude,
+            context=context,
             by_alias=by_alias,
             exclude_unset=exclude_unset,
             exclude_defaults=exclude_defaults,
             exclude_none=exclude_none,
             round_trip=round_trip,
             warnings=warnings,
+            serialize_as_any=serialize_as_any,
         )
 
 
