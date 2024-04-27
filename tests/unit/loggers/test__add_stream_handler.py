@@ -18,7 +18,11 @@ from sys import stdout
 
 import pytest
 
-from wg_utilities.loggers.stream_handler import FORMATTER, add_stream_handler
+from wg_utilities.loggers.stream_handler import (
+    FORMATTER,
+    add_stream_handler,
+    get_streaming_logger,
+)
 
 
 @pytest.mark.parametrize(
@@ -82,3 +86,17 @@ def test_handler_stream_is_stdout(logger: Logger) -> None:
 
     assert isinstance(s_handler, StreamHandler)
     assert s_handler.stream is stdout
+
+
+def test_get_streaming_logger_instantiates_logger() -> None:
+    """Test that `get_streaming_logger` instantiates a logger."""
+
+    logger = get_streaming_logger(__name__)
+
+    assert isinstance(logger, Logger)
+    assert logger.name == __name__
+    assert len(logger.handlers) == 1
+    assert isinstance(logger.handlers[0], StreamHandler)
+    assert logger.handlers[0].stream is stdout
+    assert logger.handlers[0].formatter is FORMATTER
+    assert logger.handlers[0].level == DEBUG
