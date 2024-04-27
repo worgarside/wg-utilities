@@ -103,11 +103,11 @@ class GooglePhotosEntity(BaseModelWithConfig):
 class AlbumJson(_GooglePhotosEntityJson):
     """JSON representation of an Album."""
 
-    coverPhotoBaseUrl: str  # noqa: N815
-    coverPhotoMediaItemId: str  # noqa: N815
-    isWriteable: bool | None  # noqa: N815
-    mediaItemsCount: int  # noqa: N815
-    shareInfo: _ShareInfoInfo | None  # noqa: N815
+    coverPhotoBaseUrl: str
+    coverPhotoMediaItemId: str
+    isWriteable: bool | None
+    mediaItemsCount: int
+    shareInfo: _ShareInfoInfo | None
     title: str
 
 
@@ -164,12 +164,12 @@ class Album(GooglePhotosEntity):
 class MediaItemJson(_GooglePhotosEntityJson):
     """JSON representation of a Media Item (photo or video)."""
 
-    baseUrl: str  # noqa: N815
-    contributorInfo: dict[str, str] | None  # noqa: N815
+    baseUrl: str
+    contributorInfo: dict[str, str] | None
     description: str | None
     filename: str
-    mediaMetadata: _MediaItemMetadata  # noqa: N815
-    mimeType: str  # noqa: N815
+    mediaMetadata: _MediaItemMetadata
+    mimeType: str
 
 
 class MediaItem(GooglePhotosEntity):
