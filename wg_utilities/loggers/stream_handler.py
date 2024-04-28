@@ -57,8 +57,10 @@ def get_streaming_logger(
         Logger: the logger instance, returned for use in one-liners:
             `logger = get_streaming_logger(__name__)`
     """
+    logger = getLogger(name)
+    logger.setLevel(level)
 
-    return add_stream_handler(getLogger(name), formatter=formatter, level=level)
+    return add_stream_handler(logger, formatter=formatter, level=level)
 
 
 __all__ = ["FORMATTER", "add_stream_handler", "get_streaming_logger"]
