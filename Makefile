@@ -5,7 +5,7 @@ build-docs:
 	poetry run mkdocs build
 
 install:
-	poetry install --sync --all-extras
+	poetry install --sync --all-extras --with dev,test,docs
 
 test:
 	poetry run pytest --cov-report=xml --cov=./
