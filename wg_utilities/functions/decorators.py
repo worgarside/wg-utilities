@@ -5,11 +5,18 @@ from __future__ import annotations
 from functools import wraps
 from random import random
 from time import sleep, time
-from typing import TYPE_CHECKING, Any
+from typing import (
+    TYPE_CHECKING,
+    ParamSpec,
+    TypeVar,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
     from logging import Logger
+
+P = ParamSpec("P")  # Parameters of the decorated function
+R = TypeVar("R")  # Return type of the decorated function
 
 
 def backoff(
@@ -20,7 +27,7 @@ def backoff(
     max_tries: int = 10,
     max_delay: int = 60,
     timeout: int = 3600,
-) -> Callable[[Any], Any]:
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """Apply an exponential backoff to the decorated function.
 
     The function will be called until it succeeds, the maximum number of tries
@@ -46,7 +53,7 @@ def backoff(
 
     timeout = 86400 if timeout <= 0 else min(timeout, 86400)
 
-    def _decorator(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
+    def _decorator(func: Callable[P, R]) -> Callable[P, R]:
         """Apply an exponential backoff to the decorated function.
 
         The function will be called until it succeeds or the maximum number of tries,
@@ -60,7 +67,7 @@ def backoff(
         """
 
         @wraps(func)
-        def worker(*args: Any, **kwargs: Any) -> Any:
+        def worker(*args: P.args, **kwargs: P.kwargs) -> R:
             """Try to run the decorated function and calls the callback function.
 
             Args:

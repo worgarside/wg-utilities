@@ -875,7 +875,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                 return a, kw
 
             # This is the same `cb` called in the `JSONProcessor._process_loc` method - no positional
-            # arguments are explicitly passed in (and would be rehjected by `JSONProcessor.process` anyway),
+            # arguments are explicitly passed in (and would be rejected by `JSONProcessor.process` anyway),
             # unless the callback is a bound method. In this case, the `cls`/`self` argument is passed in
             # as the first positional argument, hence the need for `*bound_args` below
 
