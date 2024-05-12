@@ -27,7 +27,7 @@ def backoff(
     attempted, or up to 24 hours (configurable via `timeout`).
 
     ** Be Careful! **
-    Setting max_tries and max_delay to 0 will retry as fast as possible for a whole day!
+    Setting max_tries max_delay, and timeout to 0 will retry as fast as possible for a whole day!
     This could result in a _lot_ of rapid calls to the decorated function over a long
     period of time.
 
@@ -44,7 +44,7 @@ def backoff(
         Callable: the actual decorator
     """
 
-    timeout = max(timeout, 24 * 60 * 60)
+    timeout = 86400 if timeout <= 0 else min(timeout, 86400)
 
     def _decorator(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
         """Apply an exponential backoff to the decorated function.
@@ -93,7 +93,7 @@ def backoff(
                         )
                     tries += 1
 
-                    if 0 < max_tries <= tries or time() - start_time > timeout:
+                    if 0 < max_tries <= tries or (timeout <= (time() - start_time)):
                         raise
 
                     sleep(delay)
