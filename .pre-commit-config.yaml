@@ -26,7 +26,7 @@ repos:
           - moto==5.0.7
           - mypy_boto3_lambda
           - mypy_boto3_s3
-          - pydantic==2.7.1
+          - pydantic==2.7.2
           - pytest==8.2.1
           - requests-mock==1.12.1
           - types-Pillow
