@@ -1335,13 +1335,13 @@ files = [
 
 [[package]]
 name = "mkdocs-print-site-plugin"
-version = "2.4.1"
+version = "2.5.0"
 description = "MkDocs plugin that combines all pages into one, allowing for easy export to PDF and standalone HTML."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "mkdocs_print_site_plugin-2.4.1-py3-none-any.whl", hash = "sha256:8c05bdd6b34095fdfdb77a37a117106d4ba362ac5145a1664a3bef53b8cc9ba5"},
-    {file = "mkdocs_print_site_plugin-2.4.1.tar.gz", hash = "sha256:c62eda1d47b65e48aa5a9316cb8ea93c035a342b5648b84bd892f48729aea6c9"},
+    {file = "mkdocs_print_site_plugin-2.5.0-py3-none-any.whl", hash = "sha256:48b3d41ae80384de72062b2712fce677f2e46d8364d9fe603ba837b0cf7156a4"},
+    {file = "mkdocs_print_site_plugin-2.5.0.tar.gz", hash = "sha256:95dccc8d5cc8a59da67815a2d3304ef0101b065e363f2b9ac919c23d6196dd24"},
 ]
 
 [package.dependencies]
