@@ -67,7 +67,7 @@ mkdocs = "^1.5.3"
 mkdocstrings = { extras = ["python"], version = ">=0.24,<0.26" }
 mkdocs-material = "^9.5.11"
 mkdocs-print-site-plugin = "^2.3.6"
-mkdocs-exporter = "^5.3.0"
+mkdocs-exporter = ">=5.3,<7.0"
 
 [tool.poetry.extras]
 clients = ["flask", "pyjwt", "requests", "tzlocal", "pydantic"]
