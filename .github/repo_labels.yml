@@ -47,11 +47,11 @@
     color: D73A4A
 
   - name: major
-    description: A major-level change or release
+    description: Backward-incompatible API changes
     color: FF0000
 
   - name: minor
-    description: A minor-level change or release
+    description: New functionality, backward-compatible
     color: FFA500
 
   - name: non-functional
@@ -59,7 +59,7 @@
     color: FFFFFF
 
   - name: patch
-    description: A patch-level change or release
+    description: Backward compatible bug fixes
     color: FFFF00
 
   - name: python
