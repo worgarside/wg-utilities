@@ -1260,13 +1260,13 @@ mkdocs = ">=1.1"
 
 [[package]]
 name = "mkdocs-exporter"
-version = "6.0.0"
+version = "6.1.0"
 description = "A highly-configurable plugin for MkDocs that exports your pages to PDF files."
 optional = false
-python-versions = ">=3.9"
+python-versions = "<4,>=3.9"
 files = [
-    {file = "mkdocs_exporter-6.0.0-py3-none-any.whl", hash = "sha256:360dc4a76e5be14af4e184fa41da28d3eb0e2af3ab9ce27ce21f1e31cf9edcee"},
-    {file = "mkdocs_exporter-6.0.0.tar.gz", hash = "sha256:58972617981be4f4d9ba33a97c9cae46c4c5f82fdaeacc636cc3c59ddf5e059b"},
+    {file = "mkdocs_exporter-6.1.0-py3-none-any.whl", hash = "sha256:3d9b17f39191bf3170bf9bf74bc45ece7a26dac8c045750029c63d4e7664eba1"},
+    {file = "mkdocs_exporter-6.1.0.tar.gz", hash = "sha256:8e68304daa976348fc062cd27d79d3a4022fb88dcb7135fa85cb2558f12450a9"},
 ]
 
 [package.dependencies]
