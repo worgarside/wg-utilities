@@ -321,7 +321,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
                 "children.",
             )
 
-    def navigate(self, path: str) -> _CanHaveChildren | File:  # noqa: PLR0911
+    def navigate(self, path: str) -> _CanHaveChildren | File:  # noqa: PLR0911,PLR0912
         """Navigate to a directory within this directory.
 
         Args:
