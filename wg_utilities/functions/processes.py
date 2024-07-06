@@ -37,11 +37,11 @@ def run_cmd(
 
     popen_input = cmd if shell else COMMAND_PATTERN.split(cmd)[1::2]
 
-    with Popen(
+    with Popen(  # noqa: S603
         popen_input,
         stdout=PIPE,
         stderr=PIPE,
-        shell=shell,  # noqa: S603
+        shell=shell,
     ) as process:
         output, error = process.communicate()
 
