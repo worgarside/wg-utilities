@@ -41,7 +41,7 @@ def run_cmd(
         popen_input,
         stdout=PIPE,
         stderr=PIPE,
-        shell=shell,
+        shell=shell,  # noqa: S603
     ) as process:
         output, error = process.communicate()
 
