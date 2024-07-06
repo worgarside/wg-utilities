@@ -37,7 +37,7 @@ def run_cmd(
 
     popen_input = cmd if shell else COMMAND_PATTERN.split(cmd)[1::2]
 
-    with Popen(
+    with Popen(  # noqa: S603
         popen_input,
         stdout=PIPE,
         stderr=PIPE,
