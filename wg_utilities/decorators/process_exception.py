@@ -3,11 +3,19 @@
 from __future__ import annotations
 
 from functools import wraps
-from typing import TYPE_CHECKING, Any
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ParamSpec,
+    TypeVar,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
     from logging import Logger
+
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 def process_exception(
@@ -18,7 +26,7 @@ def process_exception(
     callback: Callable[[Exception], Any] | None = None,
     raise_after_processing: bool = True,
     default_return_value: Any | None = None,
-) -> Callable[[Any], Any]:
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """Allow simple cover-all exception processing/logging, with optional suppression.
 
     Args:
@@ -40,9 +48,9 @@ def process_exception(
             " `raise_after_processing` is False.",
         )
 
-    def _decorator(func: Callable[[Any], Any]) -> Callable[[Any, Any], Any]:
+    def _decorator(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)
-        def worker(*args: Any, **kwargs: Any) -> Any:
+        def worker(*args: P.args, **kwargs: P.kwargs) -> R:
             """Try to run the decorated function and calls the callback function.
 
             Args:
@@ -75,7 +83,7 @@ def process_exception(
                 if raise_after_processing:
                     raise
 
-                return default_return_value
+                return default_return_value  # type: ignore[return-value]
 
         return worker
 
