@@ -109,3 +109,8 @@ repos:
     rev: v2.11
     hooks:
       - id: vulture
+
+  - repo: https://github.com/fredrikaverpil/creosote
+    rev: v3.0.2
+    hooks:
+      - id: creosote
