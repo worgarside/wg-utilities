@@ -120,7 +120,11 @@ exclude_lines = [
 ]
 
 [tool.coverage.run]
-omit = ["wg_utilities/devices/epd/*", "wg_utilities/devices/dht22/*"]
+omit = [
+  "wg_utilities/devices/epd/*",
+  "wg_utilities/devices/dht22/*",
+  "wg_utilities/utils/mqtt.py",
+]
 relative_files = true
 
 [tool.mypy]
