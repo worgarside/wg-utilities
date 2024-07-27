@@ -2,7 +2,7 @@ from __future__ import annotations
 
 __all__ = []
 
-try:
+try:  # pragma: no cover
     from . import mqtt
 
     __all__ += ["mqtt"]
