@@ -951,7 +951,7 @@ def test_non_mutating_advanced() -> None:
 
 
 class _UserWithComputedFields(User):
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def _my_computed_field(self) -> str:
         return self.name + "computed_field"

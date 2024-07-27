@@ -563,7 +563,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         if out is not self.__SENTINEL:
             self._set_item(obj, loc, out)
 
-            if self.config.process_type_changes and type(out) != orig_item_type:
+            if self.config.process_type_changes and type(out) is not orig_item_type:
                 self._process_loc(
                     obj=obj,  # type: ignore[arg-type]
                     loc=loc,  # type: ignore[arg-type]
