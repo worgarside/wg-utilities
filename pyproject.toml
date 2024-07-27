@@ -32,6 +32,7 @@ spidev = { version = "*", platform = "linux", optional = true }
 tzlocal = { version = "*", optional = true }
 xmltodict = { version = "*", optional = true }
 pydantic = "<3.0.0"
+paho-mqtt = { version = "^2.1.0", optional = true }
 
 [tool.poetry.group.dev]
 optional = true
@@ -74,8 +75,10 @@ clients = ["flask", "pyjwt", "requests", "tzlocal", "pydantic"]
 "devices.dht22" = ["pigpio"]
 "devices.yamaha_yas_209" = ["async-upnp-client", "pydantic", "xmltodict"]
 "exceptions" = ["requests"]
+"loggers" = ["requests"]
 "logging" = ["requests"]
 "functions" = ["lxml"]
+"mqtt" = ["paho-mqtt"]
 "testing" = ["botocore"]
 
 
@@ -268,4 +271,5 @@ exclude-deps = [
   "pytest-env",
   "pytest-randomly",
   "pytest-xdist",
+  "paho-mqtt",
 ]
