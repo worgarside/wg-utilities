@@ -147,7 +147,7 @@ class InstanceCacheMixin(metaclass=PostInitMeta):
     def from_cache(cls, cache_id_: CacheIdType, /) -> Self:
         """Get an instance from the cache by its cache ID."""
         try:
-            return cls._INSTANCES[cache_id_]  # type: ignore[return-value]
+            return cls._INSTANCES[cache_id_]  # type: ignore[no-any-return]
         except KeyError:
             raise CacheIdNotFoundError(cls, cache_id_) from None
 

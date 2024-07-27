@@ -134,28 +134,28 @@ def read_json_file(  # type: ignore[overload-overlap]
 
 
 @overload
-def read_json_file(  # type: ignore[overload-overlap]
+def read_json_file(
     rel_file_path: str,
     host_name: Literal["google/photos/v1/mediaitems"],
 ) -> dict[Literal["mediaItems"], list[MediaItemJson]]: ...
 
 
 @overload
-def read_json_file(  # type: ignore[overload-overlap]
+def read_json_file(
     rel_file_path: str,
     host_name: Literal["monzo", "monzo/accounts"],
 ) -> dict[Literal["accounts"], list[MonzoAccountJson]]: ...
 
 
 @overload
-def read_json_file(  # type: ignore[overload-overlap]
+def read_json_file(
     rel_file_path: str,
     host_name: Literal["monzo/pots"],
 ) -> dict[Literal["pots"], list[PotJson]]: ...
 
 
 @overload
-def read_json_file(  # type: ignore[overload-overlap]
+def read_json_file(
     rel_file_path: str,
     host_name: Literal["monzo/transactions"],
 ) -> dict[Literal["transactions"], list[TransactionJson]]: ...
@@ -169,7 +169,7 @@ def read_json_file(  # type: ignore[overload-overlap]
 
 
 @overload
-def read_json_file(  # type: ignore[overload-overlap]
+def read_json_file(
     rel_file_path: str,
     host_name: Literal["truelayer"],
 ) -> dict[Literal["results"], list[TrueLayerAccountJson | CardJson]]: ...
