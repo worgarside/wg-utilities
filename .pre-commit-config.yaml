@@ -23,7 +23,7 @@ repos:
           - async-upnp-client==0.40.0
           - boto3-stubs
           - lxml-stubs
-          - moto==5.0.11
+          - moto==5.0.12
           - mypy_boto3_lambda
           - mypy_boto3_s3
           - pydantic==2.8.2
