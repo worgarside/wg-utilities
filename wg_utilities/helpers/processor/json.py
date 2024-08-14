@@ -116,7 +116,7 @@ class CallbackNotDecoratedError(InvalidCallbackError):
 
     def __init__(self, callback: Callback[..., Any], /) -> None:
         super().__init__(
-            f"Callback `{callback.__module__}.{callback.__name__}` must be decorated "
+            f"Callback `{callback.__module__}.{getattr(callback, '__name__', None)}` must be decorated "
             "with `@JSONProcessor.callback`",
             callback=callback,
         )
@@ -319,7 +319,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             allow_mutation (bool): Whether the callback is allowed to mutate the input object. Defaults to True.
         """
 
-        if callback.__name__ == "<lambda>":
+        if getattr(callback, "__name__", None) == "<lambda>":
             callback = JSONProcessor.callback(allow_mutation=allow_mutation)(callback)
 
         if item_filter and not callable(item_filter):
@@ -904,4 +904,4 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         return _decorator
 
 
-__all__ = ["JSONProcessor", "Callback", "ItemFilter"]
+__all__ = ["Callback", "ItemFilter", "JSONProcessor"]
