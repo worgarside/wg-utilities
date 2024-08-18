@@ -17,6 +17,7 @@ categories:
       - ha:command-line
       - ha:custom-components
       - ha:device-tracker
+      - ha:esphome
       - ha:groups
       - ha:input-boolean
       - ha:input-button
