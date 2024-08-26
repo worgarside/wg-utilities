@@ -284,7 +284,7 @@ def get_flat_file_from_url(
 # Fixtures
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_oauth_credentials(live_jwt_token: str) -> OAuthCredentials:
     """Fixture for fake OAuth credentials."""
     return OAuthCredentials(
