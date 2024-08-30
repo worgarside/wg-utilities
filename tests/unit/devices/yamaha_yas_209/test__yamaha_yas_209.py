@@ -12,7 +12,7 @@ from threading import Thread
 from time import sleep
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 import pytest
 from aioresponses.core import RequestCall
@@ -673,7 +673,7 @@ def test_on_event_callback_called_correctly(
             allowed_value_range={},
             allowed_values=None,
             xml=(
-                something_else_xml := ElementTree.fromstring(
+                something_else_xml := ET.fromstring(
                     """
                     <ns0:stateVariable xmlns:ns0="urn:schemas-upnp-org:service-1-0"
                                         sendEvents="yes">

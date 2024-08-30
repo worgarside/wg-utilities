@@ -9,7 +9,7 @@ from pathlib import Path
 from textwrap import dedent
 from time import sleep
 from typing import TYPE_CHECKING, cast
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 import pytest
 from aioresponses import aioresponses
@@ -204,7 +204,7 @@ def upnp_service_av_transport_() -> UpnpService:
             scpd_url="/upnp/scpd/rendertransport1",
             service_id="urn:upnp-org:serviceId:AVTransport",
             service_type="urn:schemas-upnp-org:service:AVTransport:1",
-            xml=ElementTree.fromstring(
+            xml=ET.fromstring(
                 dedent(
                     """
                         <ns0:service xmlns:ns0="urn:schemas-upnp-org:device-1-0">
@@ -235,7 +235,7 @@ def upnp_service_rendering_control_() -> UpnpService:
             scpd_url="/upnp/rendercontrolSCPD.xml",
             service_id="urn:upnp-org:serviceId:RenderingControl",
             service_type="urn:schemas-upnp-org:service:RenderingControl:1",
-            xml=ElementTree.fromstring(
+            xml=ET.fromstring(
                 dedent(
                     """
             <ns0:service xmlns:ns0="urn:schemas-upnp-org:device-1-0">
@@ -269,7 +269,7 @@ def upnp_state_variable_(request: pytest.FixtureRequest) -> UpnpStateVariable[st
                 allowed_value_range={},
                 allowed_values=None,
                 xml=(
-                    last_change_xml := ElementTree.fromstring(
+                    last_change_xml := ET.fromstring(
                         dedent(
                             """
                                 <ns0:stateVariable xmlns:ns0="urn:schemas-upnp-org:service-1-0" sendEvents="yes">
