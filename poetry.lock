@@ -1525,13 +1525,13 @@ typing-extensions = {version = ">=4.1.0", markers = "python_version < \"3.12\""}
 
 [[package]]
 name = "mypy-boto3-s3"
-version = "1.35.0"
-description = "Type annotations for boto3.S3 1.35.0 service generated with mypy-boto3-builder 7.26.0"
+version = "1.35.2"
+description = "Type annotations for boto3.S3 1.35.2 service generated with mypy-boto3-builder 7.26.0"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "mypy_boto3_s3-1.35.0-py3-none-any.whl", hash = "sha256:4377af0181f8fb1373f68e8c84a7cbbad2e3c84209b8ff0e3f2bd608d06d85b1"},
-    {file = "mypy_boto3_s3-1.35.0.tar.gz", hash = "sha256:5f86a9ebd0fbf63088590c7c49148f60ac6a2236603ce7df975dd5016461131d"},
+    {file = "mypy_boto3_s3-1.35.2-py3-none-any.whl", hash = "sha256:f7300b559dee5435872625448becf159abe36b19cd7006dd78e0d51610312183"},
+    {file = "mypy_boto3_s3-1.35.2.tar.gz", hash = "sha256:74d8f3492eeff768ff6f69ac6d40bf68b40aa6e54ebe10a8d098fc3d24a54abf"},
 ]
 
 [package.dependencies]
