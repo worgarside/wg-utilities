@@ -1306,17 +1306,22 @@ files = [
 
 [[package]]
 name = "mkdocs-print-site-plugin"
-version = "2.5.0"
+version = "2.6.0"
 description = "MkDocs plugin that combines all pages into one, allowing for easy export to PDF and standalone HTML."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "mkdocs_print_site_plugin-2.5.0-py3-none-any.whl", hash = "sha256:48b3d41ae80384de72062b2712fce677f2e46d8364d9fe603ba837b0cf7156a4"},
-    {file = "mkdocs_print_site_plugin-2.5.0.tar.gz", hash = "sha256:95dccc8d5cc8a59da67815a2d3304ef0101b065e363f2b9ac919c23d6196dd24"},
+    {file = "mkdocs_print_site_plugin-2.6.0-py3-none-any.whl", hash = "sha256:f226686cafb549a6b6fa20b1f7acd50e8da98b16978a7df5df5457168cf2adda"},
+    {file = "mkdocs_print_site_plugin-2.6.0.tar.gz", hash = "sha256:621e3eed4907b87c93f930a065c5c423ef11e0a2a058e78c6bd9a149df0ab918"},
 ]
 
 [package.dependencies]
 mkdocs-material = ">=7.3.0"
+
+[package.extras]
+all = ["build", "click", "mkdocs", "mkdocs-charts-plugin", "mkdocs-git-revision-date-localized-plugin", "mkdocs-img2fig-plugin", "mkdocs-material", "mkdocs-material (>=7.3.0)", "mkdocs-windmill", "pytest", "pytest-cov"]
+base = ["mkdocs-material (>=7.3.0)"]
+dev = ["build", "click", "mkdocs", "mkdocs-charts-plugin", "mkdocs-git-revision-date-localized-plugin", "mkdocs-img2fig-plugin", "mkdocs-material", "mkdocs-windmill", "pytest", "pytest-cov"]
 
 [[package]]
 name = "mkdocstrings"
