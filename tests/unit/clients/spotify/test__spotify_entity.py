@@ -14,7 +14,7 @@ def test_summary_json_is_immutable(
 ) -> None:
     """Test that the summary_json property is immutable."""
     with pytest.raises(ValidationError) as exc_info:
-        spotify_entity.summary_json = {}  # type: ignore[typeddict-item]
+        spotify_entity.summary_json = {}  # type: ignore[misc,typeddict-item]
 
     assert "Field is frozen" in str(exc_info.value)
 
