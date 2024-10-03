@@ -7,8 +7,9 @@ are used for type hinting and to make the code more readable.
 
 from __future__ import annotations
 
+from enum import StrEnum
 from logging import DEBUG, getLogger
-from typing import TYPE_CHECKING, Literal, TypeAlias, final
+from typing import TYPE_CHECKING, Literal, Self, TypeAlias, final
 
 from typing_extensions import NotRequired, TypedDict
 
@@ -64,6 +65,25 @@ class SpotifyNamedEntityJson(SpotifyBaseEntityJson):
 # <editor-fold desc="Album Objects">
 
 
+class AlbumType(StrEnum):
+    """Enum for the different types of album Spotify supports."""
+
+    SINGLE = "single"
+    ALBUM = "album"
+    COMPILATION = "compilation"
+    EP = "ep"
+
+    @classmethod
+    def _missing_(cls, value: object) -> Self | None:
+        value = str(value).casefold()
+
+        for member in cls:
+            if member.value == value:
+                return member
+
+        return None
+
+
 class AlbumSummaryJson(SpotifyNamedEntityJson, total=False):
     """Type info for Spotify albums in tracks.
 
@@ -72,14 +92,7 @@ class AlbumSummaryJson(SpotifyNamedEntityJson, total=False):
     """
 
     album_group: Literal["album", "single", "compilation", "appears_on"]
-    album_type: Literal[
-        "single",
-        "album",
-        "compilation",
-        "SINGLE",
-        "ALBUM",
-        "COMPILATION",
-    ]
+    album_type: AlbumType
     artists: list[ArtistSummaryJson]
     available_markets: list[str]
     images: list[Image]
