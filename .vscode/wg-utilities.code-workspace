@@ -39,7 +39,10 @@
 		"launches": {
 			"PythonCurrentFile": "Python: Current File",
 		},
-		"python.testing.autoTestDiscoverOnSaveEnabled": true
+		"python.testing.autoTestDiscoverOnSaveEnabled": true,
+		"cSpell.words": [
+			"AUDIOBOOK"
+		]
 	},
 	"launch": {
 		"version": "0.2.0",

@@ -1251,7 +1251,9 @@ class User(SpotifyEntity[UserSummaryJson]):
         ]
 
     def get_top_tracks(
-        self, time_range: Literal["short_term", "medium_term", "long_term"] = "short_term"
+        self,
+        time_range: Literal["short_term", "medium_term", "long_term"] = "short_term",
+        limit: int = 100,
     ) -> tuple[Track, ...]:
         """The top tracks for the user.
 
@@ -1266,6 +1268,7 @@ class User(SpotifyEntity[UserSummaryJson]):
             for track_json in self.spotify_client.get_items(
                 "/me/top/tracks",
                 params={"time_range": time_range},
+                hard_limit=limit,
             )
         )
 

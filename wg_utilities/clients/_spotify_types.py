@@ -72,6 +72,7 @@ class AlbumType(StrEnum):
     ALBUM = "album"
     COMPILATION = "compilation"
     EP = "ep"
+    AUDIOBOOK = "audiobook"
 
     @classmethod
     def _missing_(cls, value: object) -> Self | None:
