@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import contextlib
 from datetime import UTC, date, datetime, timedelta
-from enum import StrEnum
 from http import HTTPStatus
 from json import dumps
 from logging import DEBUG, getLogger
@@ -29,6 +28,7 @@ from typing_extensions import NotRequired, TypedDict
 
 from wg_utilities.clients._spotify_types import (
     AlbumSummaryJson,
+    AlbumType,
     AnyPaginatedResponse,
     ArtistSummaryJson,
     DeviceJson,
@@ -67,14 +67,6 @@ class ParsedSearchResponse(TypedDict):
     artists: NotRequired[list[Artist]]
     playlists: NotRequired[list[Playlist]]
     tracks: NotRequired[list[Track]]
-
-
-class AlbumType(StrEnum):
-    """Enum for the different types of album Spotify supports."""
-
-    SINGLE = "single"
-    ALBUM = "album"
-    COMPILATION = "compilation"
 
 
 class Device(BaseModelWithConfig):
@@ -708,14 +700,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
     """An album on Spotify."""
 
     album_group: Literal["album", "single", "compilation", "appears_on"] | None = None
-    album_type_str: Literal[
-        "single",
-        "album",
-        "compilation",
-        "SINGLE",
-        "ALBUM",
-        "COMPILATION",
-    ] = Field(alias="album_type")
+    album_type_str: AlbumType = Field(alias="album_type")
     artists_json: list[ArtistSummaryJson] = Field(alias="artists")
     available_markets: list[str]
     copyrights: list[dict[str, str]] | None = None
@@ -1304,6 +1289,28 @@ class User(SpotifyEntity[UserSummaryJson]):
             )
         ]
 
+    def get_top_tracks(
+        self,
+        time_range: Literal["short_term", "medium_term", "long_term"] = "short_term",
+        limit: int = 100,
+    ) -> tuple[Track, ...]:
+        """The top tracks for the user.
+
+        Returns:
+            tuple[Track]: the top tracks for the user
+        """
+        return tuple(
+            Track.from_json_response(
+                track_json,
+                spotify_client=self.spotify_client,
+            )
+            for track_json in self.spotify_client.get_items(
+                "/me/top/tracks",
+                params={"time_range": time_range},
+                hard_limit=limit,
+            )
+        )
+
     def save(self, entity: Album | Artist | Playlist | Track) -> None:
         """Save an entity to the user's library.
 
@@ -1649,3 +1656,17 @@ SpotifyEntity.model_rebuild()
 Album.model_rebuild()
 Artist.model_rebuild()
 Track.model_rebuild()
+
+
+__all__ = [
+    "Album",
+    "AlbumType",
+    "Artist",
+    "Device",
+    "Followers",
+    "Image",
+    "Playlist",
+    "SpotifyClient",
+    "Track",
+    "User",
+]
