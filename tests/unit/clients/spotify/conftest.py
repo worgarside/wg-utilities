@@ -221,7 +221,7 @@ def mock_requests_(mock_requests_root: Mocker) -> Mocker:
         json=get_flat_file_from_url,
     )
 
-    for method in ("put", "delete"):
+    for method in ("post", "put", "delete"):
         for entity_type in ("albums", "following", "tracks"):
             mock_requests_root.register_uri(
                 method,
@@ -241,16 +241,17 @@ def mock_requests_(mock_requests_root: Mocker) -> Mocker:
             reason=HTTPStatus.OK.phrase,
         )
 
-    mock_requests_root.post(
-        # Matches `/v1/playlists/<playlist id>/tracks`
-        compile_regex(
-            r"^https:\/\/api\.spotify\.com\/v1\/playlists/([a-z0-9]{22})/tracks",
-            flags=IGNORECASE,
-        ),
-        status_code=HTTPStatus.OK,
-        reason=HTTPStatus.OK.phrase,
-        json={"snapshot_id": "MTAsZDVmZjMjJhZTVmZjcxOGNlMA=="},
-    )
+        mock_requests_root.register_uri(
+            method,
+            # Matches `/v1/playlists/<playlist id>/tracks`
+            compile_regex(
+                r"^https:\/\/api\.spotify\.com\/v1\/playlists/([a-z0-9]{22})/tracks",
+                flags=IGNORECASE,
+            ),
+            status_code=HTTPStatus.OK,
+            reason=HTTPStatus.OK.phrase,
+            json={"snapshot_id": "MTAsZDVmZjMjJhZTVmZjcxOGNlMA=="},
+        )
 
     mock_requests_root.post(
         f"{SpotifyClient.BASE_URL}/users/worgarside/playlists",
