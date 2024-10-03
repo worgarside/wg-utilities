@@ -600,6 +600,37 @@ def test_top_tracks_property(
     )
 
 
+@pytest.mark.parametrize(
+    "time_range",
+    ["short_term", "medium_term", "long_term"],
+)
+def test_get_top_tracks(
+    spotify_user: User,
+    mock_requests: Mocker,
+    spotify_client: SpotifyClient,
+    live_jwt_token: str,
+    time_range: Literal["short_term", "medium_term", "long_term"],
+) -> None:
+    """Test that `top_tracks` property makes the expected request."""
+    top_tracks = spotify_user.get_top_tracks(time_range=time_range, limit=50)
+
+    assert len(top_tracks) == 50
+    assert isinstance(top_tracks, tuple)
+    assert all(isinstance(track, Track) for track in top_tracks)
+    assert all(track.spotify_client == spotify_client for track in top_tracks)
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": f"{SpotifyClient.BASE_URL}/me/top/tracks?time_range={time_range}&limit=50",
+                "method": "GET",
+                "headers": {"Authorization": f"Bearer {live_jwt_token}"},
+            },
+        ],
+    )
+
+
 def test_tracks_property(
     spotify_user: User,
     mock_requests: Mocker,
