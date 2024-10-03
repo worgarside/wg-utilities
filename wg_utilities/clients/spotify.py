@@ -425,7 +425,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         for chunk in chunk_list(list(tracks), 100):
             res = delete(
                 url,
-                json={"uris": [t.uri for t in chunk]},
+                json={"tracks": [{"uri": t.uri} for t in chunk]},
                 headers={
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {self.access_token}",
