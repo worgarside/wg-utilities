@@ -1030,3 +1030,47 @@ def test_get_track_by_id_method(
             },
         ],
     )
+
+
+def test_remove_tracks_from_playlist(
+    spotify_client: SpotifyClient,
+    mock_requests: Mocker,
+    caplog: pytest.LogCaptureFixture,
+    live_jwt_token: str,
+) -> None:
+    """Test `remove_tracks_from_playlist` makes the correct requests."""
+
+    playlist_to_remove_from = spotify_client.get_playlist_by_id("4Vv023MaZsc8NTWZ4WJvIL")
+    tracks_to_remove = playlist_to_remove_from.tracks[:5]  # Remove first 5 tracks
+    assert all(track in playlist_to_remove_from for track in tracks_to_remove)
+    mock_requests.reset()
+    caplog.records.clear()
+    spotify_client.log_requests = False
+
+    spotify_client.remove_tracks_from_playlist(
+        tracks_to_remove,
+        playlist_to_remove_from,
+        log_responses=True,
+    )
+
+    assert_mock_requests_request_history(
+        mock_requests.request_history,
+        [
+            {
+                "url": f"{SpotifyClient.BASE_URL}/playlists/4Vv023MaZsc8NTWZ4WJvIL/tracks",
+                "method": "DELETE",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {live_jwt_token}",
+                },
+            },
+        ],
+    )
+
+    assert len(caplog.records) == 1
+    assert caplog.records[0].levelname == "INFO"
+    assert caplog.records[0].message == dumps(
+        {"snapshot_id": "MTAsZDVmZjMjJhZTVmZjcxOGNlMA=="}
+    )
+
+    assert all(track not in playlist_to_remove_from.tracks for track in tracks_to_remove)

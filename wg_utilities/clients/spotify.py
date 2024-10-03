@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
 from http import HTTPStatus
@@ -411,6 +412,44 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
             self.get_json_response(f"/tracks/{id_}"),
             spotify_client=self,
         )
+
+    def remove_tracks_from_playlist(
+        self,
+        tracks: Iterable[Track],
+        playlist: Playlist,
+        *,
+        log_responses: bool = False,
+    ) -> None:
+        """Remove one or more tracks from a playlist.
+
+        Args:
+            tracks (list): a list of Track instances to be removed from the given
+                playlist
+            playlist (Playlist): the playlist being updated
+            log_responses (bool): log each individual response
+        """
+        url = self.BASE_URL + f"/playlists/{playlist.id}/tracks"
+
+        for chunk in chunk_list(list(tracks), 100):
+            res = delete(
+                url,
+                json={"uris": [t.uri for t in chunk]},
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {self.access_token}",
+                    "Host": "api.spotify.com",
+                },
+                timeout=30,
+            )
+
+            res.raise_for_status()
+
+            for track in chunk:
+                with contextlib.suppress(ValueError):
+                    playlist.tracks.remove(track)
+
+            if log_responses:
+                LOGGER.info(res.text)
 
     @overload
     def search(
