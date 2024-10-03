@@ -9,10 +9,6 @@
 		{
 			"path": "/Users/worgarside/Library/Application Support/WgUtilities/"
 		},
-        {
-            "name": "SSH FS - /config",
-            "uri": "ssh://hasspi-config/config"
-        },
 	],
 	"settings": {
 		"python.testing.unittestEnabled": false,
@@ -43,7 +39,10 @@
 		"launches": {
 			"PythonCurrentFile": "Python: Current File",
 		},
-		"python.testing.autoTestDiscoverOnSaveEnabled": true
+		"python.testing.autoTestDiscoverOnSaveEnabled": true,
+		"cSpell.words": [
+			"AUDIOBOOK"
+		]
 	},
 	"launch": {
 		"version": "0.2.0",
