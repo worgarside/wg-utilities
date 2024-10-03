@@ -10,7 +10,7 @@ import pytest
 from requests import HTTPError
 
 from tests.conftest import assert_mock_requests_request_history
-from wg_utilities.clients.spotify import Album, Artist, SpotifyClient, Track
+from wg_utilities.clients.spotify import Album, AlbumType, Artist, SpotifyClient, Track
 
 if TYPE_CHECKING:
     from requests_mock import Mocker
@@ -21,7 +21,7 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
     track = Track.from_json_response(
         {
             "album": {
-                "album_type": "album",
+                "album_type": AlbumType("album"),
                 "artists": [
                     {
                         "external_urls": {
