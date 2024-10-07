@@ -7,7 +7,7 @@ repos:
         language_version: python3.12
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.8
+    rev: v0.6.9
     hooks:
       - id: ruff-format
       - id: ruff
@@ -49,7 +49,7 @@ repos:
         always_run: true
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files
         args:
@@ -107,11 +107,11 @@ repos:
           - tomli
 
   - repo: https://github.com/jendrikseipp/vulture
-    rev: v2.12
+    rev: v2.13
     hooks:
       - id: vulture
 
   - repo: https://github.com/fredrikaverpil/creosote
-    rev: v3.0.2
+    rev: v3.1.0
     hooks:
       - id: creosote
