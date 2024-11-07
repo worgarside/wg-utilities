@@ -15,11 +15,9 @@ from typing_extensions import TypedDict
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.clients.oauth_client import BaseModelWithConfig
 from wg_utilities.functions import force_mkdir
-from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 
 class _SharedAlbumOptionsInfo(TypedDict):

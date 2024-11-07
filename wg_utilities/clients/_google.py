@@ -12,11 +12,9 @@ from requests import Response, get
 from typing_extensions import TypedDict
 
 from wg_utilities.clients.oauth_client import OAuthClient
-from wg_utilities.loggers import add_stream_handler
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 
 if TYPE_CHECKING:  # pragma: no cover

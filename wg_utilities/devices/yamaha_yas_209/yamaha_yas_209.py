@@ -23,7 +23,6 @@ from typing_extensions import TypedDict
 from xmltodict import parse as parse_xml
 
 from wg_utilities.functions import traverse_dict
-from wg_utilities.loggers import add_stream_handler
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Coroutine, Mapping, MutableMapping, Sequence
@@ -32,7 +31,6 @@ if TYPE_CHECKING:
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 
 class StateVariable(BaseModel, extra="allow"):
