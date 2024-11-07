@@ -24,7 +24,7 @@ repos:
           - boto3-stubs
           - lxml-stubs
           - moto==5.0.14
-          - mypy-boto3-lambda==1.35.21
+          - mypy-boto3-lambda==1.35.49
           - mypy-boto3-s3==1.35.22
           - pydantic==2.9.2
           - pytest==8.3.3
