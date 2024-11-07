@@ -1,19 +1,19 @@
 ---
 repos:
   - repo: https://github.com/worgarside/pre-commit-hooks-dependency-sync
-    rev: 1.2.0
+    rev: 1.2.1
     hooks:
       - id: sync-additional-dependencies
         language_version: python3.12
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.8
+    rev: v0.7.2
     hooks:
       - id: ruff-format
       - id: ruff
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
+    rev: v1.13.0
     hooks:
       - id: mypy
         args:
@@ -24,8 +24,8 @@ repos:
           - boto3-stubs
           - lxml-stubs
           - moto==5.0.14
-          - mypy_boto3_lambda
-          - mypy_boto3_s3
+          - mypy-boto3-lambda==1.35.21
+          - mypy-boto3-s3==1.35.22
           - pydantic==2.9.2
           - pytest==8.3.3
           - requests-mock==1.12.1
@@ -49,7 +49,7 @@ repos:
         always_run: true
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files
         args:
@@ -107,11 +107,11 @@ repos:
           - tomli
 
   - repo: https://github.com/jendrikseipp/vulture
-    rev: v2.12
+    rev: v2.13
     hooks:
       - id: vulture
 
   - repo: https://github.com/fredrikaverpil/creosote
-    rev: v3.0.2
+    rev: v3.1.0
     hooks:
       - id: creosote
