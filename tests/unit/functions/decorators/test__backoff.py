@@ -13,13 +13,11 @@ from wg_utilities.functions import backoff
 
 def test_default_call_permanent_failure() -> None:
     """Test that the default call works as expected."""
-
     call_count = 0
 
     @backoff()
     def test_func() -> None:
         """Test function."""
-
         nonlocal call_count
 
         call_count += 1
@@ -44,13 +42,11 @@ def test_default_call_permanent_failure() -> None:
 
 def test_default_call_success() -> None:
     """Test that the default call works when the function succeeds immediately."""
-
     call_count = 0
 
     @backoff()
     def test_func() -> None:
         """Test function."""
-
         nonlocal call_count
 
         call_count += 1
@@ -65,13 +61,11 @@ def test_default_call_success() -> None:
 
 def test_custom_call_correct_exception() -> None:
     """Test that custom parameters work as expected."""
-
     call_count = 0
 
     @backoff(ValueError, max_tries=5, max_delay=30)
     def test_func() -> None:
         """Test function."""
-
         nonlocal call_count
 
         call_count += 1
@@ -96,13 +90,11 @@ def test_custom_call_correct_exception() -> None:
 
 def test_custom_call_incorrect_exception() -> None:
     """Test that custom parameters work as expected."""
-
     call_count = 0
 
     @backoff((ValueError, TypeError, ValidationError), max_tries=5, max_delay=30)
     def test_func() -> None:
         """Test function."""
-
         nonlocal call_count
 
         call_count += 1
@@ -121,14 +113,12 @@ def test_custom_call_incorrect_exception() -> None:
 
 def test_transient_failure() -> None:
     """Test that transient failures are handled correctly."""
-
     call_count = 0
     function_succeeded = False
 
     @backoff(ValueError, max_tries=50, max_delay=30)
     def test_func() -> None:
         """Test function."""
-
         nonlocal call_count, function_succeeded
 
         call_count += 1
@@ -156,7 +146,6 @@ def test_transient_failure() -> None:
 
 def test_logger() -> None:
     """Test that the logger is called correctly."""
-
     call_count = 0
 
     logger = MagicMock()
@@ -164,7 +153,6 @@ def test_logger() -> None:
     @backoff(TestError, max_tries=5, max_delay=30, logger=logger)
     def test_func() -> None:
         """Test function."""
-
         nonlocal call_count
 
         call_count += 1

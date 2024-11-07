@@ -16,7 +16,6 @@ from wg_utilities.loggers.file_handler import create_file_handler
 
 def test_target_directory_is_created() -> None:
     """Test that the target directory is created when requested."""
-
     with TemporaryDirectory() as tmp_dir:
         dir_path = Path(tmp_dir, "foo", "bar")
         file_path = dir_path / "baz.log"
@@ -64,7 +63,6 @@ def test_target_directory_is_not_created() -> None:
 )
 def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
     """Test that the log level is set correctly."""
-
     log_path = Path(__file__).parent / f"{uuid4()}.log"
 
     f_handler = create_file_handler(log_path, level=level, create_directory=False)

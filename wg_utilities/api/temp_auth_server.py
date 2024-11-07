@@ -89,7 +89,7 @@ class TempAuthServer:
 
         @self.app.route("/get_auth_code", methods=["GET"])
         def get_auth_code() -> Response:
-            # TODO add 400 response for mismatch in state token
+            # TODO: add 400 response for mismatch in state token
             """Endpoint for getting auth code from third party callback.
 
             Returns:
@@ -146,7 +146,6 @@ class TempAuthServer:
         Raises:
             TimeoutError: if no request is received within the timeout limit
         """
-
         if not self.is_running:
             self.start_server()
 

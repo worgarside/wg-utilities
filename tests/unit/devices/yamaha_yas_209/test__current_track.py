@@ -44,7 +44,6 @@ def test_instantiation() -> None:
 
 def test_json_property() -> None:
     """Test that `json` property returns the expected values."""
-
     current_track = CurrentTrack(
         album_art_uri="https://i.scdn.co/image/ab67616d0000b273dc30583ba717007b00cceb25",
         media_album_name="Abbey Road",
@@ -95,7 +94,6 @@ def test_from_get_media_info(
     json_values: CurrentTrack.Info | None,
 ) -> None:
     """Test that `from_get_media_info` returns the expected values."""
-
     current_track = CurrentTrack.from_get_media_info(
         GetMediaInfoResponse.model_validate(media_info_dict),
     )
@@ -326,7 +324,6 @@ def test_repr() -> None:
 
 def test_eq() -> None:
     """Test that `__eq__` returns the expected values."""
-
     clara = CurrentTrack(
         album_art_uri="https://i.scdn.co/image/ab67616d0000b273f56d363d03630bf3ee50b705",
         media_album_name="Clara (the night is dark)",

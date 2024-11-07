@@ -20,7 +20,6 @@ def test_decorated_function_is_called_correctly_without_exception() -> None:
     The decorated function should be called with the same arguments as it was
     originally called with.
     """
-
     called_args = None
     called_kwargs = None
 
@@ -56,24 +55,25 @@ def test_decorated_functions_value_is_returned() -> None:
 )
 def test_decorator_catches_exception_and_calls_callback_correctly(
     exception_type: (
-        type[AttributeError]
-        | type[FileNotFoundError]
-        | type[IsADirectoryError]
-        | type[IndexError]
-        | type[KeyError]
-        | type[LookupError]
-        | type[NameError]
-        | type[TypeError]
-        | type[UnicodeError]
-        | type[UnicodeEncodeError]
-        | type[ValueError]
-        | type[ZeroDivisionError]
+        type[
+            AttributeError
+            | FileNotFoundError
+            | IsADirectoryError
+            | IndexError
+            | KeyError
+            | LookupError
+            | NameError
+            | TypeError
+            | UnicodeError
+            | UnicodeEncodeError
+            | ValueError
+            | ZeroDivisionError
+        ]
     ),
     raise_func: Callable[..., object],
     raise_args: tuple[object, ...],
 ) -> None:
     """Test that the decorator catches exceptions of varying types."""
-
     exception = None
 
     def _cb(
@@ -106,7 +106,6 @@ def test_false_raise_after_processing_does_not_raise(
     raise_args: tuple[object, ...],
 ) -> None:
     """Test that the correct exception is raised when `raise_after_processing` is True."""
-
     called = False
     finished = False
     exception = None
@@ -141,7 +140,6 @@ def test_exception_types(
     raise_args: tuple[object, ...],
 ) -> None:
     """Test that the decorator only catches exceptions of the specified types."""
-
     called = False
     finished = False
 
@@ -184,7 +182,6 @@ def test_default_return_value() -> None:
 
 def test_default_return_value_with_raise_after_processing() -> None:
     """Test that the default return value is returned correctly."""
-
     with pytest.raises(ValueError) as exc_info:
 
         @process_exception(

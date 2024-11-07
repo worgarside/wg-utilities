@@ -340,7 +340,6 @@ class CurrentTrack:
 
     def __str__(self) -> str:
         """Return a string representation of the current track."""
-
         if self.media_title is None and self.media_artist is None:
             return self.NULL_TRACK_STR
 
@@ -681,7 +680,6 @@ class YamahaYas209:
             service (UpnpService): the service which has sent an update
             service_variables (list): a list of state variables that have updated
         """
-
         xml_payloads: dict[str, object] = {sv.name: sv.value for sv in service_variables}
 
         # Convert any nested XML into JSON
@@ -720,7 +718,7 @@ class YamahaYas209:
             self.on_event(event_payload)
 
     @_needs_device
-    async def _subscribe(self) -> None:  # noqa: PLR0912
+    async def _subscribe(self) -> None:  # noqa: C901, PLR0912
         """Subscribe to service(s) and output updates."""
         # start notify server/event handler
         local_ip = get_local_ip(self.device.device_url)
@@ -870,7 +868,6 @@ class YamahaYas209:
         Args:
             xml_dict (dict): the dictionary to parse
         """
-
         pattern = re_compile(r"&(?!(amp|apos|lt|gt|quot);)")
 
         traverse_dict(
@@ -958,7 +955,6 @@ class YamahaYas209:
         Raises:
             ValueError: if the value is not between 0 and 1
         """
-
         if not 0 <= value <= 1:
             raise ValueError("Volume level must be between 0 and 1")
 
@@ -1042,7 +1038,6 @@ class YamahaYas209:
         Raises:
             TypeError: if the value is not a CurrentTrack instance
         """
-
         if not isinstance(value, CurrentTrack):
             raise TypeError("Expected a CurrentTrack instance.")
 
@@ -1093,7 +1088,6 @@ class YamahaYas209:
         Returns:
             dict: the response in JSON form
         """
-
         media_info = (
             self._call_service_action(Yas209Service.AVT, "GetMediaInfo", InstanceID=0)
             or {}

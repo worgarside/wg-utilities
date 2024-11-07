@@ -51,7 +51,6 @@ def lambda_client_() -> LambdaClient:
 @pytest.fixture(name="mb3c")
 def mb3c_(request: pytest.FixtureRequest) -> MockBoto3Client:
     """Fixture for creating a MockBoto3Client instance."""
-
     if name_marker := request.node.get_closest_marker("mocked_operation_lookup"):
         mocked_operation_lookup = name_marker.args[0]
     else:
@@ -97,7 +96,6 @@ def test_boto3_calls_are_logged_correctly(
     lambda_client: LambdaClient,
 ) -> None:
     """Test that the API calls are recorded correctly."""
-
     with patch(
         MockBoto3Client.PATCH_METHOD,
         mb3c.build_api_call(),
@@ -211,7 +209,6 @@ def test_boto3_calls_get_correct_responses(
     lambda_client: LambdaClient,
 ) -> None:
     """Test that the API calls are recorded correctly."""
-
     with patch(
         MockBoto3Client.PATCH_METHOD,
         mb3c.build_api_call(),
@@ -243,7 +240,6 @@ def test_reset_boto3_calls_argument(mb3c: MockBoto3Client) -> None:
 
 def test_callable_override(mb3c: MockBoto3Client, lambda_client: LambdaClient) -> None:
     """Test that a callable override works properly."""
-
     counter = 0
 
     def _override(FunctionName: str, Qualifier: str) -> int:  # noqa: N803
@@ -274,7 +270,6 @@ def test_callable_override_with_args_kwargs(
     lambda_client: LambdaClient,
 ) -> None:
     """Test that a callable override works properly."""
-
     counter = 0
 
     def _override(FunctionName: str, Qualifier: str, Counter: int) -> int:  # noqa: N803
@@ -311,7 +306,6 @@ def test_nested_callable_override(
     lambda_client: LambdaClient,
 ) -> None:
     """Test that a callable override works properly."""
-
     counter = 0
 
     def _override(FunctionName: str, Qualifier: str) -> int:  # noqa: N803
@@ -385,7 +379,6 @@ def test_lookup_overrides_in_api_call_builder(
     s3_client: S3Client,
 ) -> None:
     """Test `lookup_overrides` work as expected when passed to `build_api_call`."""
-
     with patch(MockBoto3Client.PATCH_METHOD, mb3c.build_api_call()):
         assert s3_client.list_buckets() == {  # type: ignore[comparison-overlap]
             "Buckets": ["barry", "paul", "jimmy", "brian"],

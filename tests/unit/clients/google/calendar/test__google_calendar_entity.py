@@ -55,7 +55,6 @@ for file in (
 
 def test_eq(google_calendar_client: GoogleCalendarClient) -> None:
     """Test the __eq__ method of the `GoogleCalendarEntity` class."""
-
     google_calendar_entity = GoogleCalendarEntity.from_json_response(
         {
             "etag": '"u2O-pzpMJslGoV7Iyoc4Zcqzpgb"',

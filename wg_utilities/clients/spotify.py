@@ -184,7 +184,6 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
                 tracklist. Can be slow if it's a big playlist as it might have to get
                 the tracklist first
         """
-
         tracks_to_add = [
             track
             for track in tracks
@@ -246,7 +245,6 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         Returns:
             Album: an instantiated Album, from the API's response
         """
-
         return Album.from_json_response(
             self.get_json_response(f"/albums/{id_}"),
             spotify_client=self,
@@ -261,7 +259,6 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         Returns:
             Artist: an instantiated Artist, from the API's response
         """
-
         return Artist.from_json_response(
             self.get_json_response(f"/artists/{id_}"),
             spotify_client=self,
@@ -312,7 +309,6 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         Returns:
             list: a list of dicts representing the Spotify items
         """
-
         params = params or {}
         if "limit=" not in url:
             params["limit"] = min(50, hard_limit)
@@ -379,7 +375,6 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         Returns:
             Playlist: an instantiated Playlist, from the API's response
         """
-
         if hasattr(self, "_current_user") and hasattr(self.current_user, "_playlists"):
             for playlist in self.current_user.playlists:
                 if playlist.id == id_:
@@ -399,7 +394,6 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
         Returns:
             Track: an instantiated Track, from the API's response
         """
-
         return Track.from_json_response(
             self.get_json_response(f"/tracks/{id_}"),
             spotify_client=self,
@@ -487,7 +481,6 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
                 flag is true
             ValueError: if one of entity_types is an invalid value
         """
-
         entity_types = entity_types or self.SEARCH_TYPES
 
         if get_best_match_only is True and len(entity_types) != 1:
@@ -523,7 +516,7 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
             | PaginatedResponseTracks
         )
         for res_entity_type, entities_json in res.items():  # type: ignore[assignment]
-            instance_class: type[Album] | type[Artist] | type[Playlist] | type[Track] = {  # type: ignore[assignment]
+            instance_class: type[Album | Artist | Playlist | Track] = {  # type: ignore[assignment]
                 "albums": Album,
                 "artists": Artist,
                 "playlists": Playlist,
@@ -637,7 +630,6 @@ class SpotifyEntity(BaseModelWithConfig, Generic[SJ]):
         Returns:
             SpotifyEntity: the model for the given entity type
         """
-
         value_data: dict[str, object] = {
             "spotify_client": spotify_client,
             **(additional_fields or {}),
@@ -726,7 +718,6 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
     @classmethod
     def validate_release_date(cls, value: str | date, info: ValidationInfo) -> date:
         """Convert the release date string to a date object."""
-
         if isinstance(value, date):
             return value
 
@@ -756,7 +747,6 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
     @property
     def album_type(self) -> AlbumType:
         """Convert the album type string to an enum value."""
-
         return AlbumType(self.album_type_str.lower())
 
     @property
@@ -766,7 +756,6 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
         Returns:
             list(Artist): a list of the artists who contributed to this track
         """
-
         if not hasattr(self, "_artists"):
             artists = [
                 Artist.from_json_response(
@@ -787,7 +776,6 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
         Returns:
             list: a list of tracks on this album
         """
-
         if not hasattr(self, "_tracks"):
             if self.tracks_json:
                 # Initialise the list with data from the album JSON...
@@ -896,7 +884,6 @@ class Track(SpotifyEntity[TrackFullJson]):
         Returns:
             Album: the album which this track is from
         """
-
         if not hasattr(self, "_album"):
             self._album = Album.from_json_response(
                 self.album_json,
@@ -912,7 +899,6 @@ class Track(SpotifyEntity[TrackFullJson]):
         Returns:
             Artist: the main artist which this track is from
         """
-
         return self.artists[0]
 
     @property
@@ -922,7 +908,6 @@ class Track(SpotifyEntity[TrackFullJson]):
         Returns:
             list(Artist): a list of the artists who contributed to this track
         """
-
         if not hasattr(self, "_artists"):
             artists = [
                 Artist.from_json_response(
@@ -1017,7 +1002,6 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
         tracks_json: PaginatedResponsePlaylistTracks,
     ) -> PaginatedResponsePlaylistTracks:
         """Remove local tracks from the playlist's tracklist."""
-
         if "items" in tracks_json:
             tracks_json["items"] = [
                 item for item in tracks_json["items"] if not item["is_local"]
@@ -1057,7 +1041,6 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
         Returns:
             User: the Spotify user who owns this playlist
         """
-
         if not hasattr(self, "_owner"):
             self._owner = User.from_json_response(
                 self.owner_json,
@@ -1073,7 +1056,6 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
         Returns:
             list: a list of tracks in this playlist
         """
-
         if not hasattr(self, "_tracks") or self.updates_available:
             tracks = [
                 Track.from_json_response(
@@ -1177,7 +1159,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         Returns:
             str: the display name
         """
-
         if not info.data.get("name"):
             info.data["name"] = value
 
@@ -1217,7 +1198,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         Returns:
             Union([list, Playlist]): the matched playlist(s)
         """
-
         matched_playlists = filter(
             lambda p: p.name.lower() == name.lower(),
             self.playlists,
@@ -1247,7 +1227,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         Returns:
             list: a list of Track instances
         """
-
         if not day_limit:
             limit_func: (
                 Callable[
@@ -1320,7 +1299,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         Raises:
             TypeError: if the entity is not of a supported type
         """
-
         if isinstance(entity, Album):
             url = f"{self.spotify_client.BASE_URL}/me/albums"
             params = {"ids": entity.id}
@@ -1360,7 +1338,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         Raises:
             TypeError: if the entity is not of a supported type
         """
-
         if isinstance(entity, Album):
             url = f"{self.spotify_client.BASE_URL}/me/albums"
             params = {"ids": entity.id}
@@ -1399,7 +1376,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         Returns:
             list: a list of albums owned by the current user
         """
-
         if not hasattr(self, "_albums"):
             albums = [
                 Album.from_json_response(
@@ -1423,7 +1399,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         Returns:
             list: a list of artists owned by the current user
         """
-
         if not hasattr(self, "_artists"):
             artists = [
                 Artist.from_json_response(
@@ -1450,7 +1425,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         Returns:
             Track: the track currently being listened to
         """
-
         res = cast(
             SavedItem,
             self.spotify_client.get_json_response("/me/player/currently-playing"),
@@ -1468,7 +1442,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         Returns:
             Playlist: the playlist currently being listened to
         """
-
         res = self.spotify_client.get_json_response("/me/player/currently-playing")
 
         if (context := res.get("context", {})).get(  # type: ignore[attr-defined]
@@ -1506,7 +1479,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         Returns:
             list: a list of playlists owned by the current user
         """
-
         if (
             hasattr(self, "_playlist_refresh_time")
             and (datetime.now(UTC) - self._playlist_refresh_time)
@@ -1548,7 +1520,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         Returns:
             tuple[Artist, ...]: the top artists for the user
         """
-
         if not hasattr(self, "_top_artists"):
             top_artists = tuple(
                 Artist.from_json_response(
@@ -1594,7 +1565,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         Returns:
             list: a list of tracks owned by the current user
         """
-
         if not hasattr(self, "_tracks"):
             tracks = [
                 Track.from_json_response(
@@ -1634,7 +1604,6 @@ class User(SpotifyEntity[UserSummaryJson]):
         ) = None,
     ) -> None:
         """Reset all list properties."""
-
         property_names = property_names or [
             "albums",
             "artists",

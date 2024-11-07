@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 
 def test_empty_list_doesnt_raise_exception() -> None:
     """Test that an empty list doesn't raise an exception."""
-
     in_list: list[JSONVal] = []
 
     process_list(
@@ -31,7 +30,6 @@ def test_empty_list_doesnt_raise_exception() -> None:
 
 def test_single_item_list() -> None:
     """Test that a list with a single item is processed correctly."""
-
     in_list: list[JSONVal] = ["test"]
 
     process_list(
@@ -102,7 +100,6 @@ def test_varying_inputs_processed_as_expected(
     expected: list[JSONVal],
 ) -> None:
     """Test various lists with different types and processor functions."""
-
     process_list(
         in_list,
         target_type=target_type,
@@ -157,7 +154,6 @@ def test_exceptions_are_raised_correctly(
     expected: list[JSONVal],
 ) -> None:
     """Test that exceptions are raised correctly for varying inputs."""
-
     with pytest.raises(exception_type) as exc_info:
         process_list(
             in_list,
@@ -205,7 +201,6 @@ def test_exceptions_are_logged_correctly(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that exceptions are logged correctly for varying inputs."""
-
     process_list(
         in_list,
         target_type=target_type,
@@ -278,7 +273,6 @@ def test_nested_lists_are_processed_correctly(
     expected: list[JSONVal],
 ) -> None:
     """Test that nested lists are processed correctly."""
-
     process_list(
         in_list,
         target_type=str,
@@ -375,7 +369,6 @@ def test_nested_dicts_are_passed_to_traverse_dict(
     call_args_list: list[_Call],
 ) -> None:
     """Test that nested dicts are passed to traverse_dict."""
-
     process_list(
         in_list,
         target_type=str,
@@ -421,7 +414,6 @@ def test_list_index_parameter_for_target_processor_func(
     expected: list[JSONVal],
 ) -> None:
     """Test that the list index is passed to the target processor function."""
-
     process_list(
         in_list,
         target_type=target_type,
@@ -438,7 +430,6 @@ def test_target_type_is_dict() -> None:
     `continue`d after finding the first dict ({"a": ...}) and then again after the second
     dict ({"d": ...}) instead of traversing the {"b": "c"} and {"i": "j"} dicts too.
     """
-
     data: list[JSONVal] = [{"a": {"b": "c"}, "d": "e"}, {"f": "g", "h": {"i": "j"}}]
 
     found = []

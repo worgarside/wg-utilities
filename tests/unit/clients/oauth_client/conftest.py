@@ -32,7 +32,6 @@ def oauth_client_(
     mock_requests: Mocker,  # noqa: ARG001
 ) -> OAuthClient[dict[str, Any]]:
     """Fixture for creating an OAuthClient instance."""
-
     (
         creds_cache_path := force_mkdir(
             temp_dir / "oauth_credentials" / "test_client_id.json",
@@ -54,14 +53,12 @@ def oauth_client_(
 @pytest.fixture(scope="session", name="flask_app")
 def flask_app_() -> Flask:
     """Fixture for Flask app."""
-
     return Flask(__name__)
 
 
 @pytest.fixture(name="server_thread")
 def server_thread_(flask_app: Flask) -> YieldFixture[TempAuthServer.ServerThread]:
     """Fixture for creating a server thread."""
-
     server_thread = TempAuthServer.ServerThread(flask_app)
     server_thread.start()
 
@@ -74,7 +71,6 @@ def server_thread_(flask_app: Flask) -> YieldFixture[TempAuthServer.ServerThread
 @pytest.fixture(name="temp_auth_server")
 def temp_auth_server_() -> YieldFixture[TempAuthServer]:
     """Fixture for creating a temporary auth server."""
-
     temp_auth_server = TempAuthServer(__name__, auto_run=False, debug=True, port=0)
 
     yield temp_auth_server
@@ -85,7 +81,6 @@ def temp_auth_server_() -> YieldFixture[TempAuthServer]:
 @pytest.fixture(name="mock_requests", autouse=True)
 def mock_requests_(mock_requests_root: Mocker, live_jwt_token_alt: str) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
-
     mock_requests_root.post(
         "https://api.example.com/oauth2/token",
         status_code=HTTPStatus.OK,

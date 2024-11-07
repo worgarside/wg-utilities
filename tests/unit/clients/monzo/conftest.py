@@ -22,7 +22,6 @@ if TYPE_CHECKING:
 @pytest.fixture(name="monzo_account")
 def monzo_account_(monzo_client: MonzoClient) -> Account:
     """Fixture for creating a Account instance."""
-
     return Account.from_json_response(
         read_json_file("account_type=uk_retail.json", host_name="monzo/accounts")[
             "accounts"
@@ -39,7 +38,6 @@ def monzo_client_(
     mock_open_browser: MagicMock,  # noqa: ARG001
 ) -> MonzoClient:
     """Fixture for creating a MonzoClient instance."""
-
     (
         creds_cache_path := temp_dir / "oauth_credentials/monzo_credentials.json"
     ).write_text(fake_oauth_credentials.model_dump_json())
@@ -55,7 +53,6 @@ def monzo_client_(
 @pytest.fixture(name="monzo_pot")
 def monzo_pot_() -> Pot:
     """Fixture for creating a Pot instance."""
-
     return Pot(
         **read_json_file(
             "current_account_id=acc_0000000000000000000000.json",
@@ -67,7 +64,6 @@ def monzo_pot_() -> Pot:
 @pytest.fixture(name="mock_requests", autouse=True)
 def mock_requests_(mock_requests_root: Mocker) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
-
     for path_object in (monzo_dir := FLAT_FILES_DIR / "json" / "monzo").rglob("*"):
         if path_object.is_dir():
             mock_requests_root.get(

@@ -22,7 +22,6 @@ def test_chunk_list_with_varying_input(
     want: list[list[int]],
 ) -> None:
     """Test `chunk_list` handles varying inputs correctly."""
-
     chunks = list(chunk_list(user_input, chunk_len))
 
     assert chunks == want
@@ -43,7 +42,6 @@ def test_chunk_len_less_than_one_throws_value_error(
     exception_expected: bool,
 ) -> None:
     """Test that a `chunk_len` value <1 throws a ValueError."""
-
     if exception_expected:
         with pytest.raises(ValueError) as exc_info:
             list(chunk_list([], chunk_len))

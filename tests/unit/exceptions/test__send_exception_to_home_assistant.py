@@ -83,7 +83,6 @@ def test_url_is_correct(
     This test is semi-redundant due to the `real_http` kwarg being set to `False`, but
     I've included it for completeness anyway.
     """
-
     mock_requests_root.post(f"http://{HA_LOG_ENDPOINT}/log/error", status_code=200)
 
     _send_fake_exception_to_home_assistant(
@@ -109,7 +108,6 @@ def test_https_url_is_used_on_error(
     mock_requests_root: Mocker,
 ) -> None:
     """Test that when a ConnectionError is raised, the URL is changed to HTTPS."""
-
     mock_requests_root.post(
         f"http://{HA_LOG_ENDPOINT}/log/error",
         exc=RequestsConnectionError("Failed to establish a new connection"),
@@ -146,7 +144,6 @@ def test_payload_is_correctly_formed(
     mock_requests_root: Mocker,
 ) -> None:
     """Test the payload has the correct content when it's sent to HA."""
-
     mock_requests_root.post(f"http://{HA_LOG_ENDPOINT}/log/error", status_code=200)
 
     expected_payload = _send_fake_exception_to_home_assistant(
@@ -170,7 +167,6 @@ def test_send_failure_raises_exception(
     mock_requests_root: Mocker,
 ) -> None:
     """Test that a failure to send the payload to HA will raise an exception."""
-
     mock_requests_root.post(
         f"http://{HA_LOG_ENDPOINT}/log/error",
         status_code=500,
@@ -202,7 +198,6 @@ def test_unexpected_connection_error_exception_is_raised(
     mock_requests_root: Mocker,
 ) -> None:
     """Test that a failure to send the payload to HA will raise an exception."""
-
     unexpected_exc = RequestsConnectionError("The server has exploded")
 
     mock_requests_root.post(

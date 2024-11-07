@@ -49,7 +49,6 @@ def test_class_attributes_are_set(kwargs: dict[str, str | None]) -> None:
 
 def test_invalid_cache_id_attr() -> None:
     """Test an error is thrown when an invalid cache ID attribute is provided."""
-
     with pytest.raises(InstanceCacheSubclassError, match="Invalid cache ID attribute: "):
 
         class InvalidCacheIdAttr(InstanceCacheMixin, cache_id_attr=123):
@@ -58,7 +57,6 @@ def test_invalid_cache_id_attr() -> None:
 
 def test_invalid_cache_id_func() -> None:
     """Test an error is thrown when an invalid cache ID function is provided."""
-
     with pytest.raises(InstanceCacheSubclassError, match="Invalid cache ID function: "):
 
         class InvalidCacheIdFunc(InstanceCacheMixin, cache_id_func=123):

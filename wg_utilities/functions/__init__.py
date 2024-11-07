@@ -12,15 +12,15 @@ from .string_manipulation import cleanse_string
 from .subclasses import subclasses_recursive
 
 __all__ = [
-    "chunk_list",
-    "cleanse_string",
     "DTU",
     "DatetimeFixedUnit",
     "backoff",
+    "chunk_list",
+    "cleanse_string",
     "flatten_dict",
     "force_mkdir",
-    "process_list",
     "process_json_object",
+    "process_list",
     "run_cmd",
     "set_nested_value",
     "subclasses_recursive",
@@ -31,9 +31,9 @@ __all__ = [
 ]
 
 try:
-    __all__.append(
-        "get_nsmap",
-    )
+    from .xml import get_nsmap
+
+    __all__ += ["get_nsmap"]
 except ImportError as __exc:  # pragma: no cover
     if str(__exc) == "No module named 'lxml'":
         pass

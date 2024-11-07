@@ -32,7 +32,6 @@ def test_instantiation(
     default_cache_dir: str | None,
 ) -> None:
     """Test that a `TrueLayerClient` can be instantiated."""
-
     with patch.object(TrueLayerClient, "DEFAULT_CACHE_DIR", default_cache_dir):
         truelayer_client = TrueLayerClient(
             client_id=fake_oauth_credentials.client_id,
@@ -93,7 +92,6 @@ def test_get_entity_by_id(
     mock_requests: Mocker,
 ) -> None:
     """Test that `_get_entity_by_id` returns the correct entity."""
-
     expected_entity = request.getfixturevalue(entity)
 
     actual_entity = truelayer_client._get_entity_by_id(
@@ -161,7 +159,6 @@ def test_get_entity_by_id_exception_handling(
     mock_requests: Mocker,
 ) -> None:
     """Test `_get_entity_by_id` raises an exception when the entity is not found."""
-
     mock_requests.get(
         TrueLayerClient.BASE_URL + "/data/v1/accounts/gabbagool",
         json=response_json,
@@ -182,7 +179,6 @@ def test_get_entity_by_id_exception_handling(
 
 def test_get_account_by_id(truelayer_client: TrueLayerClient) -> None:
     """Test `get_account_by_id` calls `_get_entity_by_id` with the correct arguments."""
-
     with patch.object(truelayer_client, "_get_entity_by_id") as mock_get_entity_by_id:
         truelayer_client.get_account_by_id("gabbagool")
 
@@ -191,7 +187,6 @@ def test_get_account_by_id(truelayer_client: TrueLayerClient) -> None:
 
 def test_get_card_by_id(truelayer_client: TrueLayerClient) -> None:
     """Test `get_card_by_id` calls `_get_entity_by_id` with the correct arguments."""
-
     with patch.object(truelayer_client, "_get_entity_by_id") as mock_get_entity_by_id:
         truelayer_client.get_card_by_id("gabbagool")
 
@@ -200,7 +195,6 @@ def test_get_card_by_id(truelayer_client: TrueLayerClient) -> None:
 
 def test_list_accounts(truelayer_client: TrueLayerClient, mock_requests: Mocker) -> None:
     """Test `list_accounts` returns a list of `Account` objects."""
-
     accounts = truelayer_client.list_accounts()
 
     assert isinstance(accounts, list)
@@ -221,7 +215,6 @@ def test_list_accounts(truelayer_client: TrueLayerClient, mock_requests: Mocker)
 
 def test_list_cards(truelayer_client: TrueLayerClient, mock_requests: Mocker) -> None:
     """Test `list_cards` returns a list of `Card` objects."""
-
     cards = truelayer_client.list_cards()
 
     assert isinstance(cards, list)
@@ -266,7 +259,6 @@ def test_list_entity_exception_handling(
     mock_requests: Mocker,
 ) -> None:
     """Test that `_list_entities` handles exceptions correctly."""
-
     mock_requests.get(
         f"{TrueLayerClient.BASE_URL}/data/v1/accounts",
         json=response_json,
@@ -286,7 +278,6 @@ def test_list_entity_exception_handling(
 @pytest.mark.parametrize("bank", Bank)
 def test_creds_rel_file_path(bank: Bank, truelayer_client: TrueLayerClient) -> None:
     """Test `creds_rel_file_path` returns the correct path."""
-
     truelayer_client.bank = bank
 
     assert truelayer_client._creds_rel_file_path == Path(
@@ -298,7 +289,6 @@ def test_creds_rel_file_path(bank: Bank, truelayer_client: TrueLayerClient) -> N
 
 def test_creds_rel_file_path_no_client_id(truelayer_client: TrueLayerClient) -> None:
     """Test that `None` is returns when there is no client ID available."""
-
     truelayer_client._client_id = None
     del truelayer_client._credentials
 

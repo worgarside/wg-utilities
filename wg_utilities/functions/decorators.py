@@ -50,7 +50,6 @@ def backoff(
     Returns:
         Callable: the actual decorator
     """
-
     timeout = 86400 if timeout <= 0 else min(timeout, 86400)
 
     def _decorator(func: Callable[P, R]) -> Callable[P, R]:
@@ -80,7 +79,6 @@ def backoff(
             Raises:
                 Exception: any exception from the decorated function
             """
-
             start_time = time()
 
             tries = 0

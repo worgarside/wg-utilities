@@ -206,7 +206,7 @@ class TrueLayerEntity(BaseModelWithConfig):
 
     truelayer_client: TrueLayerClient = Field(exclude=True)
     balance_update_threshold: timedelta = Field(timedelta(minutes=15), exclude=True)
-    last_balance_update: datetime = Field(datetime(1970, 1, 1), exclude=True)
+    last_balance_update: datetime = Field(datetime(1970, 1, 1, tzinfo=UTC), exclude=True)
     _balance_variables: BalanceVariables
 
     @classmethod
@@ -217,7 +217,6 @@ class TrueLayerEntity(BaseModelWithConfig):
         truelayer_client: TrueLayerClient,
     ) -> Self:
         """Create an account from a JSON response."""
-
         value_data: dict[str, Any] = {
             "truelayer_client": truelayer_client,
             **value,
@@ -243,7 +242,6 @@ class TrueLayerEntity(BaseModelWithConfig):
         Returns:
             list[Transaction]: one instance per tx, including all metadata etc.
         """
-
         if from_datetime or to_datetime:
             from_datetime = from_datetime or datetime.now(UTC) - timedelta(days=90)
             to_datetime = to_datetime or datetime.now(UTC)
@@ -277,29 +275,24 @@ class TrueLayerEntity(BaseModelWithConfig):
         was updated more than `self.balance_update_threshold`minutes ago), but
         can also be called manually.
         """
-
         results = self.truelayer_client.get_json_response(
             f"/data/v1/{self.__class__.__name__.lower()}s/{self.id}/balance",
         ).get("results", [])
 
         if len(results) != 1:
             raise ValueError(
-                "Unexpected number of results when getting balance info:"
-                f" {len(results)}",
+                f"Unexpected number of results when getting balance info: {len(results)}",
             )
 
         balance_result = results[0]
 
         for k, v in balance_result.items():
-            if k in (
-                "available",
-                "current",
-            ):
+            if k in {"available", "current"}:
                 attr_name = f"_{k}_balance"
             elif k.endswith("_date"):
                 attr_name = f"_{k}"
                 if isinstance(v, str):
-                    v = datetime.strptime(  # noqa: PLW2901
+                    v = datetime.strptime(  # noqa: DTZ007, PLW2901
                         v,
                         "%Y-%m-%dT%H:%M:%SZ",
                     ).date()
@@ -368,7 +361,6 @@ class TrueLayerEntity(BaseModelWithConfig):
         Returns:
             str: the value of the balance property
         """
-
         if prop_name not in self.BALANCE_FIELDS:
             return None
 
@@ -735,7 +727,6 @@ class TrueLayerClient(OAuthClient[dict[Literal["results"], list[TrueLayerEntityJ
         TrueLayer shares the same Client ID for all banks, so this overrides the default
         to separate credentials by bank.
         """
-
         try:
             client_id = self._client_id or self._credentials.client_id
         except AttributeError:

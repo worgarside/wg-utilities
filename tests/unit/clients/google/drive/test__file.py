@@ -30,7 +30,6 @@ def test_from_json_response_instantiation(
     google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test that the `File` class can be instantiated."""
-
     file_json = read_json_file(
         "v3/files/1qx74t7epvdq55uqnwxgakohfnydxmc21/fields=%2a.json",
         host_name="google/drive",
@@ -52,7 +51,6 @@ def test_getattr_override_on_demand_retrieval(
     simple_file: File,
 ) -> None:
     """Test that null attributes are retrieved individually for `ON_INIT` IMR."""
-
     google_drive_client.item_metadata_retrieval = ItemMetadataRetrieval.ON_DEMAND
 
     # Can't directly access the attribute because that's what I'm testing
@@ -79,7 +77,6 @@ def test_getattr_override_on_first_request_retrieval(
     simple_file: File,
 ) -> None:
     """Test null attributes are retrieved individually for `ON_FIRST_REQUEST` IMR."""
-
     google_drive_client.item_metadata_retrieval = ItemMetadataRetrieval.ON_FIRST_REQUEST
 
     # Can't directly access the attribute because that's what I'm testing
@@ -130,7 +127,6 @@ def test_mime_type_validation(
     google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test that the `mimeType` value is validated."""
-
     file_json = read_json_file(
         "v3/files/1qx74t7epvdq55uqnwxgakohfnydxmc21/fields=%2a.json",
         host_name="google/drive",
@@ -164,7 +160,6 @@ def test_parents_validation(
     parents_value: list[str],
 ) -> None:
     """Test that the `parents` value is validated."""
-
     file_json = read_json_file(
         "v3/files/1qx74t7epvdq55uqnwxgakohfnydxmc21/fields=%2a.json",
         host_name="google/drive",
@@ -187,7 +182,6 @@ def test_parent_instance_validation(
     google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test that the `parent` value is validated."""
-
     file_json = read_json_file(
         "v3/files/1qx74t7epvdq55uqnwxgakohfnydxmc21/fields=%2a.json",
         host_name="google/drive",
@@ -210,7 +204,6 @@ def test_parent_instance_validation(
 
 def test_describe(simple_file: File) -> None:
     """Test that the `describe` method gets all available data."""
-
     assert not simple_file._description
 
     with patch.object(
@@ -254,7 +247,6 @@ def test_describe(simple_file: File) -> None:
 
 def test_describe_force_update(simple_file: File) -> None:
     """Test that `describe` method refreshes all available data with `force_update`."""
-
     assert not simple_file._description
 
     with patch.object(
@@ -289,7 +281,6 @@ def test_describe_force_update(simple_file: File) -> None:
 
 def test_describe_with_invalid_field(simple_file: File, mock_requests: Mocker) -> None:
     """Test that `describe` method raises `ValueError` with an invalid field."""
-
     res = read_json_file(
         "v3/files/1x9xhqui0chzagahgr1d0lion2jj5mzo-wu7l5fhcn4b/fields=%2a.json",
         host_name="google/drive",
@@ -315,7 +306,6 @@ def test_describe_with_invalid_field(simple_file: File, mock_requests: Mocker) -
 
 def test_parent_property(simple_file: File, directory: Directory, drive: Drive) -> None:
     """Test that the `parent` property returns the parent Folder."""
-
     simple_file.parent_ = None
 
     assert directory.all_known_children == []
@@ -344,7 +334,6 @@ def test_parent_property(simple_file: File, directory: Directory, drive: Drive) 
 
 def test_gt(file: File, drive: Drive) -> None:
     """Test that the `>` behaves as expected."""
-
     assert "Archive Log" > "128GB SD Card - Old MacBook.zip"
     assert file > drive.get_file_by_id("7FVjoh2-g6v1sNPXPNRkl2PF174lRKHe6")
     assert not drive.get_file_by_id("7FVjoh2-g6v1sNPXPNRkl2PF174lRKHe6") > file
@@ -353,7 +342,6 @@ def test_gt(file: File, drive: Drive) -> None:
 
 def test_lt(file: File, drive: Drive) -> None:
     """Test that the `<` behaves as expected."""
-
     assert "128GB SD Card - Old MacBook.zip" < "Archive Log"
     assert drive.get_file_by_id("7FVjoh2-g6v1sNPXPNRkl2PF174lRKHe6") < file
     assert not file < drive.get_file_by_id("7FVjoh2-g6v1sNPXPNRkl2PF174lRKHe6")

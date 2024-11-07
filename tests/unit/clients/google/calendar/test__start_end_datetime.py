@@ -32,7 +32,6 @@ from wg_utilities.clients.google_calendar import _StartEndDatetime
 )
 def test_instantiation(obj_json: dict[str, str], expected_datetime: datetime) -> None:
     """Test `StartEndDatetime` can be instantiated with a date and timezone."""
-
     sed = _StartEndDatetime.model_validate(obj_json)
 
     assert sed.date == date(2021, 1, 1)
@@ -42,7 +41,6 @@ def test_instantiation(obj_json: dict[str, str], expected_datetime: datetime) ->
 
 def test_bad_instantiation() -> None:
     """Test an error is raised if neither date nor datetime is provided."""
-
     with pytest.raises(ValidationError) as exc_info:
         _StartEndDatetime(timeZone="Europe/London")  # type: ignore[arg-type,call-arg]
 

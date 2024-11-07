@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, TypeAlias, Ty
 from requests import Response, get
 from typing_extensions import TypedDict
 
-from wg_utilities.clients.oauth_client import OAuthClient
+from .oauth_client import OAuthClient
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
@@ -118,7 +118,6 @@ class GoogleClient(
         Returns:
             list: a list of dicts, each representing an item from the API
         """
-
         params = (
             {**self.DEFAULT_PARAMS, **params} if params else deepcopy(self.DEFAULT_PARAMS)
         )

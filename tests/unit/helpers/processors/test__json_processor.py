@@ -136,7 +136,6 @@ def test_invalid_callback_parameters(
     exc_args: tuple[Any, ...],
 ) -> None:
     """Test that invalid callback parameters raise the correct error."""
-
     with pytest.raises(InvalidCallbackError) as exc_info:
         JProc({str: callbacks})
 
@@ -145,7 +144,6 @@ def test_invalid_callback_parameters(
 
 def test_iterator() -> None:
     """Test the `_iterate` method returns the correct values."""
-
     assert isinstance(JProc()._iterate(["a", "b", "c"]), Iterator)
     assert list(JProc()._iterate(["a", "b", "c"])) == [0, 1, 2]
 
@@ -169,7 +167,6 @@ def test_get_callbacks(
     expected: tuple[list[int], ...],
 ) -> None:
     """Test that the `_get_callbacks` method works correctly with callbacks, including yielding subclasses."""
-
     jproc = JProc(
         {
             str: mock_cb,
@@ -384,7 +381,6 @@ def test_process(
     wrap: Callable[[Callable[..., Any]], Callback[..., Any]],
 ) -> None:
     """Test that the `process` method works correctly."""
-
     jproc = JProc(
         {k: wrap(v) for k, v in callback_mapping.items()},
         process_subclasses=process_subclasses,
@@ -413,7 +409,6 @@ def test_process_loc_invalid_loc(
     loc: Any | int,
 ) -> None:
     """Test that the `_process_loc` method doesn't raise an error when given an invalid location."""
-
     # Confirm it's an invalid location
     with pytest.raises((LookupError, TypeError)):
         obj[loc]
@@ -428,7 +423,6 @@ def test_allow_failures(
     wrap: Callable[[Callable[..., Any]], Callback[..., Any]],
 ) -> None:
     """Test that exceptions are only thrown when `allow_failures` is False for a given callback."""
-
     jproc_strict = JProc(
         {
             str: JProc.cb(
@@ -468,7 +462,6 @@ def test_processing_type_changes(
     wrap: Callable[[Callable[..., Any]], Callback[..., Any]],
 ) -> None:
     """Test that values which change type can be re-processed."""
-
     orig_obj = {"a": "1", "b": 2, "c": "3"}
 
     type_changed_obj = deepcopy(orig_obj)
@@ -492,7 +485,6 @@ def test_processing_type_changes(
 
 def test_lambdas_get_wrapped() -> None:
     """Test that a lambda is automatically "decorated" (wrapped) when registered."""
-
     obj = {"a": "b", "c": "d"}
 
     JProc(
@@ -538,7 +530,6 @@ def test_undecorated_callbacks_throw_error() -> None:
 
 def test_invalid_item_filter(mock_cb: Callback[..., Any]) -> None:
     """Test that item filters must be callable."""
-
     with pytest.raises(InvalidItemFilterError) as exc_info:
         JProc.cb(mock_cb, item_filter="not_callable")  # type: ignore[arg-type]
 
@@ -547,7 +538,6 @@ def test_invalid_item_filter(mock_cb: Callback[..., Any]) -> None:
 
 def test_invalid_allow_callback_failures(mock_cb: Callback[..., Any]) -> None:
     """Test that `allow_callback_failures` must be a bool."""
-
     with pytest.raises(InvalidCallbackError) as exc_info:
         JProc.cb(mock_cb, allow_callback_failures="not_bool")  # type: ignore[arg-type]
 
@@ -558,7 +548,6 @@ def test_none_as_target_type(
     wrap: Callable[[Callable[..., Any]], Callback[..., Any]],
 ) -> None:
     """Test that `None` is handled correctly when used as a target type."""
-
     cb_def = JProc.cb(wrap(lambda x: x))
 
     jproc = JProc()
@@ -581,7 +570,6 @@ def test_none_as_target_type(
 
 def test_callback_decorator_cache() -> None:
     """Test that the callback decorator stores the callback correctly."""
-
     assert not JProc._DECORATED_CALLBACKS
 
     @JProc.callback()
@@ -635,7 +623,6 @@ def test_args_and_kwargs_passthrough() -> None:
 
 def test_invalid_classmethod_callbacks() -> None:
     """Test that invalid classmethod decoration throws the correct error."""
-
     with pytest.raises(InvalidCallbackError) as exc_info:
 
         class MyClass:
@@ -867,7 +854,6 @@ def test_missing_args_and_kwargs() -> None:
 
 def test_instance_caching() -> None:
     """Test that JProcs are cached correctly."""
-
     jproc1 = JProc(identifier="one")
 
     with pytest.raises(InstanceCacheDuplicateError):
@@ -906,7 +892,6 @@ def test_non_mutating_callbacks() -> None:
 
 def test_non_mutating_lambda_callbacks() -> None:
     """Test that non-mutating lambdas do not edit the value in the object."""
-
     jproc = JProc(
         {
             str: JProc.cb(
@@ -1040,7 +1025,6 @@ def test_pydantic_models_can_be_mutated(
 
 def test_set_item_setatrr_non_str() -> None:
     """Test that `setattr` isn't called for a non-str loc value."""
-
     jproc = JProc()
 
     assert jproc._set_item(int, 123, 456) is None  # type: ignore[arg-type]
@@ -1048,7 +1032,6 @@ def test_set_item_setatrr_non_str() -> None:
 
 def test_type_errors_still_get_raised() -> None:
     """Test that type errors still get raised when they should."""
-
     jproc = JProc()
 
     with pytest.raises(TypeError):
@@ -1057,7 +1040,6 @@ def test_type_errors_still_get_raised() -> None:
 
 def test_depth_variable() -> None:
     """Test that the depth variable is set correctly."""
-
     obj = {
         "a": "b",
         "c": {
@@ -1177,7 +1159,6 @@ def test_pydantic_extra_fields(extra: bool, expected: list[str]) -> None:
 
 def test_custom_getters() -> None:
     """Test that custom getters can be used to process objects."""
-
     values = [1, 2, 3]
 
     def _my_getter(obj: int, loc: Any) -> Any:
@@ -1272,7 +1253,6 @@ def test_get_getter_or_iterator_factory(
     expected_iterator_factory: JProc.IteratorFactory[T],
 ) -> None:
     """Test that the correct getter or iterator is returned."""
-
     jproc = JProc(process_subclasses=process_subclasses)
 
     jproc.register_custom_getter(Three, "get_three")  # type: ignore[arg-type]

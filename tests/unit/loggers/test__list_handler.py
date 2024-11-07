@@ -41,7 +41,6 @@ def test_emit_calls_expire_records(
     sample_log_record: LogRecord,
 ) -> None:
     """Test that `expire_records` is called on `emit`."""
-
     with patch("wg_utilities.loggers.ListHandler.expire_records") as mock_expire:
         list_handler.emit(sample_log_record)
 
@@ -53,7 +52,6 @@ def test_emit_appends_to_record_list(
     sample_log_record: LogRecord,
 ) -> None:
     """Test that `emit` appends to the record list."""
-
     list_handler.emit(sample_log_record)
 
     assert list_handler._records_list == [sample_log_record]
@@ -64,7 +62,6 @@ def test_emit_calls_on_record(
     sample_log_record: LogRecord,
 ) -> None:
     """Test that `on_record` is called on `emit`."""
-
     called = False
 
     def _cb(record: LogRecord) -> None:
@@ -81,7 +78,6 @@ def test_emit_calls_on_record(
 
 def test_expire_records_does_nothing_if_ttl_is_none(list_handler: ListHandler) -> None:
     """Test that `expire_records` does nothing if `ttl` is None."""
-
     list_handler.ttl = None
 
     with patch("wg_utilities.loggers.list_handler.utcnow") as mock_utcnow:
@@ -98,7 +94,6 @@ def test_expire_records_remove_records_correctly(
     logger: Logger,
 ) -> None:
     """Test that `expire_records` only removes old records."""
-
     list_handler.ttl = 60
 
     for i in range(-1, 25):
@@ -119,7 +114,6 @@ def test_expire_records_remove_records_correctly(
 
 def test_expire_records_calls_on_expiry(list_handler_prepopulated: ListHandler) -> None:
     """Test that `on_expiry` is called by `expire_records` per-record."""
-
     recorded_logs = deepcopy(list_handler_prepopulated._records_list)
 
     expired_records: list[LogRecord] = []
@@ -149,7 +143,6 @@ def test_record_properties_return_correct_items(
     This test is parametrized to test each of the level-specific properties, including
     a special case for testing the `ListHandler.records` property.
     """
-
     property_name = f"{level_name.lower()}_records" if level_name else "records"
 
     # Check all records are present
@@ -175,7 +168,6 @@ def test_record_properties_call_expire_records(
     list_handler_prepopulated: ListHandler,
 ) -> None:
     """Test that each of the level-specific properties expires old records."""
-
     property_name = f"{level_name.lower()}_records" if level_name else "records"
 
     # Check all records are present
@@ -194,7 +186,6 @@ def test_logging_with_logger_calls_emit_method(
     sample_log_record_messages_with_level: list[tuple[int, str]],
 ) -> None:
     """Test that logging calls the `emit` method of the handler."""
-
     for level, message in sample_log_record_messages_with_level:
         logger.log(level, message)
 

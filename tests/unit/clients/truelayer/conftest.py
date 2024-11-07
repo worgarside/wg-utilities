@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 @pytest.fixture(name="account")
 def account_(truelayer_client: TrueLayerClient) -> Account:
     """Fixture for creating a `Account` instance."""
-
     return Account.from_json_response(
         read_json_file(
             "data/v1/accounts/74i84q4696c886tr0ic9z4376ql2j316.json",
@@ -33,7 +32,6 @@ def account_(truelayer_client: TrueLayerClient) -> Account:
 @pytest.fixture(name="card")
 def card_(truelayer_client: TrueLayerClient) -> Card:
     """Fixture for creating a `Card` instance."""
-
     return Card.from_json_response(
         read_json_file(
             "data/v1/cards/uw366ug2sjp9t2zduu706sy6y63p4x4s.json",
@@ -49,7 +47,6 @@ def truelayer_client_(
     fake_oauth_credentials: OAuthCredentials,
 ) -> TrueLayerClient:
     """Fixture for creating a `TruelayerClient` instance."""
-
     (
         creds_cache_path := temp_dir / "oauth_credentials/truelayer_credentials.json"
     ).write_text(fake_oauth_credentials.model_dump_json())
@@ -66,7 +63,6 @@ def truelayer_client_(
 @pytest.fixture(name="mock_requests", autouse=True)
 def mock_requests_(mock_requests_root: Mocker) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
-
     for path_object in (truelayer_dir := FLAT_FILES_DIR / "json/truelayer/").rglob("*"):
         if path_object.is_dir() or (
             path_object.is_file() and "=" not in path_object.name

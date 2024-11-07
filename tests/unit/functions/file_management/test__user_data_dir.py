@@ -60,7 +60,6 @@ def test_project_name_processed_correctly(
     expected: str,
 ) -> None:
     """Test that the value passed in `project_name` is added to the path."""
-
     actual = user_data_dir(_platform=platform, project_name=project_name)
 
     assert project_name in str(actual)
@@ -96,7 +95,6 @@ def test_file_name_processed_correctly(
     expected: Path,
 ) -> None:
     """Test that the value passed in `project_name` is added to the path."""
-
     with patch(
         "wg_utilities.functions.file_management.force_mkdir",
         lambda target_path, **_: target_path,

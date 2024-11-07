@@ -30,7 +30,6 @@ def user_data_dir(
     Returns:
         str: full path to the user-specific data dir
     """
-
     # get os specific path
     if _platform.startswith("win"):
         os_path = environ["LOCALAPPDATA"]

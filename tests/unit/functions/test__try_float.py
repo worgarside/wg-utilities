@@ -34,7 +34,6 @@ def test_try_float_with_varying_input(user_input: Any, should_convert: bool) -> 
 
     The test is run twice, once with a default value and once without.
     """
-
     # With default
     assert try_float(user_input, user_input) == (
         float(user_input) if should_convert else user_input

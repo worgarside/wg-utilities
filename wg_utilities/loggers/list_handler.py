@@ -145,7 +145,6 @@ def add_list_handler(
         log_ttl (int): number of seconds to retain a log for
         on_expiry (Callable): function to call with expired logs
     """
-
     l_handler = ListHandler(log_list, log_ttl=log_ttl, on_expiry=on_expiry)
     l_handler.setLevel(level)
 

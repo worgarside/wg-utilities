@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 
 def test_kind_validation(drive: Drive, google_drive_client: GoogleDriveClient) -> None:
     """Test that the `kind` field is validated."""
-
     directory_json = read_json_file(
         "v3/files/7tqryz0a9oyjfzf1cpbmllsblj-ohbi1e/fields=%2a.json",
         host_name="google/drive",
@@ -59,7 +58,6 @@ def test_mime_type_validation(
     google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test that the `mimeType` value is validated."""
-
     directory_json = read_json_file(
         "v3/files/7tqryz0a9oyjfzf1cpbmllsblj-ohbi1e/fields=%2a.json",
         host_name="google/drive",

@@ -39,7 +39,6 @@ def test_last_change_keeps_extra_data_av_transport(
     last_change_dict: dict[Literal["Event"], object],
 ) -> None:
     """Just testing Pydantic's `Extra.allow` feature really."""
-
     last_change = LastChangeAVTransport.parse(last_change_dict)
 
     assert (
@@ -58,7 +57,6 @@ def test_last_change_keeps_extra_data_rendering_control(
     last_change_dict: dict[Literal["Event"], object],
 ) -> None:
     """Just testing Pydantic's `Extra.allow` feature really."""
-
     last_change = LastChangeRenderingControl.parse(last_change_dict)
 
     assert (
@@ -71,7 +69,6 @@ def test_last_change_keeps_extra_data_rendering_control(
 
 def test_last_change_throws_error_with_two_keys() -> None:
     """Test that a `lastChange` object with >1 top-level keys is treated as invalid."""
-
     last_change_dict = {
         "Event": {"foo": "bar"},
         "baz": "ham",

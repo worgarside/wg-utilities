@@ -39,7 +39,6 @@ from wg_utilities.loggers.stream_handler import (
 )
 def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
     """Test that the log level is set correctly."""
-
     add_stream_handler(logger, level=level)
 
     assert len(logger.handlers) == 1
@@ -64,7 +63,6 @@ def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
 )
 def test_formatter_is_set_correctly(formatter: Formatter | None, logger: Logger) -> None:
     """Test that the formatter is set correctly."""
-
     add_stream_handler(logger, formatter=formatter)
 
     assert len(logger.handlers) == 1
@@ -77,7 +75,6 @@ def test_formatter_is_set_correctly(formatter: Formatter | None, logger: Logger)
 
 def test_handler_stream_is_stdout(logger: Logger) -> None:
     """Test that the stream is set to stdout."""
-
     add_stream_handler(logger)
 
     assert len(logger.handlers) == 1
@@ -90,7 +87,6 @@ def test_handler_stream_is_stdout(logger: Logger) -> None:
 
 def test_get_streaming_logger_instantiates_logger() -> None:
     """Test that `get_streaming_logger` instantiates a logger."""
-
     logger = get_streaming_logger(__name__)
 
     assert isinstance(logger, Logger)

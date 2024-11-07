@@ -37,14 +37,12 @@ def test_no_subclasses() -> None:
 
 def test_subclasses() -> None:
     """Test that direct subclasses are correctly identified."""
-
     assert list(subclasses_recursive(BaseClassA)) == [DirectSubclassA, NestedSubclass]
     assert list(subclasses_recursive(BaseClassB)) == [DirectSubclassB, NestedSubclass]
 
 
 def test_subclass_filter() -> None:
     """Test filtering subclasses."""
-
     assert list(
         subclasses_recursive(
             BaseClassA,
@@ -101,7 +99,6 @@ def test_nested_subclasses() -> None:
 
 def test_visit_tracking() -> None:
     """Test that visit tracking works as expected."""
-
     assert list(
         subclasses_recursive(
             BaseClassC,
@@ -132,7 +129,6 @@ def test_visit_tracking() -> None:
 
 def test_it_all_together() -> None:
     """Test that everything works together as expected."""
-
     assert list(
         subclasses_recursive(
             BaseClassC,
