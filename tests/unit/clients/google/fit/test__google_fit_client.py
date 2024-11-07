@@ -14,7 +14,6 @@ if TYPE_CHECKING:
 
 def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     """Test that the `GoogleFitClient` class can be instantiated."""
-
     client = GoogleFitClient(
         client_id=fake_oauth_credentials.client_id,
         client_secret=fake_oauth_credentials.client_secret,
@@ -26,7 +25,6 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
 
 def test_get_data_source(google_fit_client: GoogleFitClient) -> None:
     """Test that the `get_data_source` method returns a `DataSource` object."""
-
     expected_id = (
         "derived:com.google.step_count.delta:com.google.android.gms:estimated_steps"
     )

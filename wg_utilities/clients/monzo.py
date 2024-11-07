@@ -239,7 +239,7 @@ class Account(BaseModelWithConfig):
 
     monzo_client: MonzoClient = Field(exclude=True)
     balance_update_threshold: int = Field(15, exclude=True)
-    last_balance_update: datetime = Field(datetime(1970, 1, 1), exclude=True)
+    last_balance_update: datetime = Field(datetime(1970, 1, 1, tzinfo=UTC), exclude=True)
     _balance_variables: BalanceVariables
 
     @field_validator("sort_code", mode="before")
@@ -249,7 +249,6 @@ class Account(BaseModelWithConfig):
 
         Represented as a string so leading zeroes aren't lost.
         """
-
         if isinstance(sort_code, int):
             sort_code = str(sort_code)
 
@@ -268,7 +267,6 @@ class Account(BaseModelWithConfig):
         monzo_client: MonzoClient,
     ) -> Account:
         """Create an account from a JSON response."""
-
         value_data: dict[str, Any] = {
             "monzo_client": monzo_client,
             **value,
@@ -295,7 +293,6 @@ class Account(BaseModelWithConfig):
         Returns:
             list[dict[str, object]]: the list of transactions
         """
-
         from_datetime = (
             from_datetime or (datetime.now(UTC) - timedelta(days=89))
         ).replace(microsecond=0, tzinfo=None)
@@ -325,7 +322,6 @@ class Account(BaseModelWithConfig):
         `balance_update_threshold` minutes ago, or if it is None. Can also be called
         manually if required.
         """
-
         if not hasattr(self, "_balance_variables") or self.last_balance_update <= (
             datetime.now(UTC) - timedelta(minutes=self.balance_update_threshold)
         ):
@@ -462,7 +458,6 @@ class MonzoClient(OAuthClient[MonzoGJR]):
             dedupe_id (str): unique string used to de-duplicate deposits. Will be
                 created if not provided
         """
-
         dedupe_id = dedupe_id or "|".join(
             [pot.id, str(amount_pence), str(utcnow(DTU.SECOND))],
         )
@@ -495,7 +490,6 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         Returns:
             list: Account instances, containing all related info
         """
-
         res = self.get_json_response(
             "/accounts",
             params={"account_type": account_type} if account_type else None,
@@ -516,7 +510,6 @@ class MonzoClient(OAuthClient[MonzoGJR]):
         Returns:
             list: Pot instances, containing all related info
         """
-
         res = self.get_json_response(
             "/pots",
             params={"current_account_id": self.current_account.id},

@@ -63,7 +63,6 @@ def add_file_handler(
         Logger: the logger instance, returned for use in one-liners:
             `logger = add_file_handler(logging.getLogger(__name__))`
     """
-
     f_handler = create_file_handler(
         logfile_path=logfile_path,
         level=level,

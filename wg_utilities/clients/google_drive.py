@@ -172,7 +172,6 @@ class _GoogleDriveEntity(BaseModelWithConfig):
         Returns:
             _GoogleDriveEntity: The new instance.
         """
-
         value_data: dict[str, Any] = {
             "google_client": google_client,
             "parent_": parent,
@@ -208,7 +207,6 @@ class _GoogleDriveEntity(BaseModelWithConfig):
         Raises:
             TypeError: if the entity is not hosted on a drive
         """
-
         if isinstance(self, Drive):
             return self
 
@@ -232,7 +230,7 @@ class _GoogleDriveEntity(BaseModelWithConfig):
 
         return "/" + current_path
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return NotImplemented
 
@@ -287,7 +285,6 @@ class _CanHaveChildren(_GoogleDriveEntity):
         Raises:
             TypeError: if the file is not a File
         """
-
         if type(file) is not File:
             # This isn't an `isinstance` check because we don't want to allow
             # subclasses of `File` to be added to the list. Yes, according to the
@@ -310,7 +307,6 @@ class _CanHaveChildren(_GoogleDriveEntity):
 
     def add_child(self, child: File | Directory) -> None:
         """Add a child to this directory's children record."""
-
         if isinstance(child, Directory):
             self._add_directory(child)
         elif isinstance(child, File):
@@ -321,7 +317,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
                 "children.",
             )
 
-    def navigate(self, path: str) -> _CanHaveChildren | File:  # noqa: PLR0911,PLR0912
+    def navigate(self, path: str) -> _CanHaveChildren | File:  # noqa: C901, PLR0911, PLR0912
         """Navigate to a directory within this directory.
 
         Args:
@@ -333,7 +329,6 @@ class _CanHaveChildren(_GoogleDriveEntity):
         Returns:
             Directory: The directory at the end of the path.
         """
-
         if "//" in path:
             raise ValueError("Path cannot contain `//`.")
 
@@ -386,8 +381,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
                         params={
                             "pageSize": "1",
                             "fields": f"files({file_fields})",
-                            "q": f"'{self.id}' in parents and name = "
-                            f"'{directory_name}'",
+                            "q": f"'{self.id}' in parents and name = '{directory_name}'",
                         },
                     ).pop()
                 except IndexError:
@@ -439,7 +433,6 @@ class _CanHaveChildren(_GoogleDriveEntity):
         Returns:
             str: the full directory tree in text form
         """
-
         if not local_only:
             self.host_drive.map(
                 map_type=EntityType.FILE if include_files else EntityType.DIRECTORY,
@@ -460,7 +453,6 @@ class _CanHaveChildren(_GoogleDriveEntity):
                 block_pipes_at_levels (list): a list of levels to block further
                     pipes at
             """
-
             nonlocal output
 
             # Creating a deep copy means that when we go back up from the recursion,
@@ -525,7 +517,7 @@ class _CanHaveChildren(_GoogleDriveEntity):
         Returns:
             list[Directory | File]: The list of children.
         """
-        # TODO needs a check to avoid requesting every time
+        # TODO: needs a check to avoid requesting every time
         self.reset_known_children()
         return self.files + self.directories  # type: ignore[operator]
 
@@ -536,9 +528,8 @@ class _CanHaveChildren(_GoogleDriveEntity):
         Returns:
             list: the directories contained within this directory
         """
-
         if self._directories_loaded is not True:
-            # TODO replace these with a `file_fields` property
+            # TODO: replace these with a `file_fields` property
             file_fields = (
                 "*"
                 if self.google_client.item_metadata_retrieval == IMR.ON_INIT
@@ -715,7 +706,6 @@ class File(_GoogleDriveEntity):
         Returns:
             Any: The value of the attribute.
         """
-
         # If the attribute isn't a field, just return the value
         if (
             name in ("model_fields", "model_fields_set")
@@ -780,7 +770,6 @@ class File(_GoogleDriveEntity):
             ValueError: If the parent instance's ID doesn't match the expected parent
                 ID.
         """
-
         if value is None:
             return value
 
@@ -804,7 +793,6 @@ class File(_GoogleDriveEntity):
         Raises:
             ValueError: if an unexpected field is returned from the Google Drive API.
         """
-
         if (
             force_update
             or not hasattr(self, "_description")
@@ -878,7 +866,6 @@ class Directory(File, _CanHaveChildren):
     @classmethod
     def _validate_kind(cls, value: str | None) -> str:
         """Set the kind to "drive#folder"."""
-
         # Directories are just a subtype of files, so `"drive#file"` is okay too
         if value not in (EntityKind.DIRECTORY, EntityKind.FILE):
             raise ValueError(f"Invalid kind for Directory: {value}")
@@ -889,7 +876,6 @@ class Directory(File, _CanHaveChildren):
     @classmethod
     def _validate_mime_type(cls, mime_type: str) -> str:
         """Just an override for the parent class's validator."""
-
         return mime_type
 
     def __repr__(self) -> str:
@@ -1063,7 +1049,6 @@ class Drive(_CanHaveChildren):
     @classmethod
     def _validate_kind(cls, value: str | None) -> str:
         """Set the kind to "drive#drive"."""
-
         # Drives are just a subtype of files, so `"drive#file"` is okay too
         if value not in (EntityKind.DRIVE, EntityKind.FILE):
             raise ValueError(f"Invalid kind for Drive: {value}")
@@ -1132,14 +1117,13 @@ class Drive(_CanHaveChildren):
 
         return self._get_entity_by_id(File, file_id)
 
-    def map(self, map_type: EntityType = EntityType.FILE) -> None:
+    def map(self, map_type: EntityType = EntityType.FILE) -> None:  # noqa: C901
         """Traverse the entire Drive to map its content.
 
         Args:
             map_type (EntityType, optional): the type of entity to map. Defaults to
                 EntityType.FILE.
         """
-
         if (map_type == EntityType.DIRECTORY and self._directories_mapped is True) or (
             map_type == EntityType.FILE and self._files_mapped is True
         ):
@@ -1267,7 +1251,6 @@ class Drive(_CanHaveChildren):
         Raises:
             ValueError: if the given entity type is not supported
         """
-
         file_fields = (
             "*"
             if self.google_client.item_metadata_retrieval == IMR.ON_INIT
@@ -1341,7 +1324,6 @@ class Drive(_CanHaveChildren):
     @property
     def all_directories(self) -> list[Directory]:
         """Get all directories in the Drive."""
-
         if self._directories_mapped is not True:
             self.map(map_type=EntityType.DIRECTORY)
 
@@ -1350,7 +1332,6 @@ class Drive(_CanHaveChildren):
     @property
     def all_files(self) -> list[File]:
         """Get all files in the Drive."""
-
         if self._files_mapped is not True:
             self.map()
 

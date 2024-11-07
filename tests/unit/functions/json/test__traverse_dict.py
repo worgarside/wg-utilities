@@ -169,7 +169,6 @@ def test_varying_inputs_processed_as_expected(
     expected: JSONObj,
 ) -> None:
     """Test various lists with different types and processor functions."""
-
     traverse_dict(
         in_dict,
         target_type=target_type,
@@ -295,7 +294,6 @@ def test_exceptions_are_raised_correctly(
     expected: JSONObj,
 ) -> None:
     """Test that exceptions are raised correctly for varying inputs."""
-
     with pytest.raises(exception_type) as exc_info:
         traverse_dict(
             in_dict,
@@ -393,7 +391,6 @@ def test_exceptions_are_logged_correctly(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that exceptions are logged correctly for varying inputs."""
-
     traverse_dict(
         in_dict,
         target_type=target_type,
@@ -420,7 +417,6 @@ def test_single_keys_are_removed_as_expected_one_key() -> None:
 
     This test removes a single key value from the dict.
     """
-
     in_dict = _generate_single_key_dict()
 
     traverse_dict(
@@ -453,7 +449,6 @@ def test_single_keys_are_removed_as_expected_two_keys() -> None:
 
     This test removes two key values from the dict.
     """
-
     in_dict = _generate_single_key_dict()
 
     # This is to prove that the assertion at the bottom of the test is correct
@@ -502,7 +497,6 @@ def test_single_keys_are_removed_as_expected_two_keys() -> None:
 
 def test_nested_lists_processed_correctly() -> None:
     """Test that nested lists are processed correctly."""
-
     in_dict: JSONObj = {
         "a": ["a", "b", "c"],
         "b": [1, 2, 3],
@@ -529,7 +523,6 @@ def test_nested_lists_processed_correctly() -> None:
 
 def test_complex_object() -> None:
     """Test a complex object to ensure all values are found."""
-
     in_dict = random_nested_json_with_arrays()
 
     traverse_dict(
@@ -551,7 +544,6 @@ def test_that_new_dicts_are_handled_correctly() -> None:
     i.e. when the `target_processor_func` returns a dictionary, that new dict should
     be traversed and processed as normal.
     """
-
     in_dict = random_nested_json_with_arrays_and_stringified_json()
 
     assert "\\" in dumps(in_dict)
@@ -589,7 +581,6 @@ def test_single_keys_of_target_type_have_exceptions_logged(
     If the value is from a single key which has been removed, it should be processed as
     normal and any errors in the processing function should be logged.
     """
-
     in_dict: JSONObj = {
         "a": {
             "key": "good value",
@@ -632,7 +623,6 @@ def test_single_keys_of_target_type_have_exceptions_raised(
     If the value is from a single key which has been removed, it should be processed as
     normal and any errors in the processing function should be raised.
     """
-
     in_dict: JSONObj = {
         "a": {
             "key": "good value",
@@ -732,7 +722,6 @@ def test_dict_key_parameter_for_target_processor_func(
 
     The dict key should be passed to the target processor func as the second parameter.
     """
-
     traverse_dict(
         in_dict,
         target_type=target_type,

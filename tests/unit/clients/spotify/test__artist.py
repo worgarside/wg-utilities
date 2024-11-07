@@ -55,7 +55,6 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
 
 def test_albums_property(spotify_artist: Artist) -> None:
     """Test the albums property of the Artist class."""
-
     assert not hasattr(spotify_artist, "_albums")
     assert isinstance(spotify_artist.albums, list)
     assert hasattr(spotify_artist, "_albums")

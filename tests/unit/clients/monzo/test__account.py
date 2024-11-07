@@ -63,7 +63,6 @@ def test_list_transactions(
     live_jwt_token: str,
 ) -> None:
     """Test that the `list_transactions` method returns a list of transactions."""
-
     # Freeze time to when I made the sample data, just to ensure the URL is correct
     with freeze_time("2022-11-21T19:42:49Z") as frozen_datetime:
         transactions = monzo_account.list_transactions()
@@ -99,7 +98,6 @@ def test_list_transactions_with_limit(
     mock_requests: Mocker,
 ) -> None:
     """Test `list_transactions` with a limit parameter."""
-
     mock_requests.get(
         f"{monzo_account.monzo_client.base_url}/transactions",
         status_code=HTTPStatus.OK,
@@ -140,7 +138,6 @@ def test_list_transactions_with_time_parameters(
     mock_requests: Mocker,
 ) -> None:
     """Test `list_transactions` with to and from parameters.."""
-
     mock_requests.get(
         f"{monzo_account.monzo_client.base_url}/transactions",
         status_code=HTTPStatus.OK,
@@ -170,7 +167,6 @@ def test_list_transactions_with_time_parameters(
 
 def test_update_balance_variables(monzo_account: Account, mock_requests: Mocker) -> None:
     """Test that the balance variables are updated correctly."""
-
     assert monzo_account.last_balance_update == datetime(1970, 1, 1)
     with freeze_time():
         monzo_account.update_balance_variables()
@@ -200,7 +196,6 @@ def test_balance_property(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the `balance` property returns the correct value."""
-
     assert monzo_account.balance == 177009
     assert "Balance variable update threshold crossed, getting new values" in caplog.text
 
@@ -210,7 +205,6 @@ def test_balance_including_flexible_savings_property(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `balance_including_flexible_savings` property."""
-
     assert monzo_account.balance_including_flexible_savings == 41472
     assert "Balance variable update threshold crossed, getting new values" in caplog.text
 
@@ -220,7 +214,6 @@ def test_spend_today_property(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the `spend_today` property returns the correct value."""
-
     assert monzo_account.spend_today == -12
     assert "Balance variable update threshold crossed, getting new values" in caplog.text
 
@@ -230,7 +223,6 @@ def test_total_balance_property(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the `total_balance` property returns the correct value."""
-
     assert monzo_account.total_balance == 41472
     assert "Balance variable update threshold crossed, getting new values" in caplog.text
 

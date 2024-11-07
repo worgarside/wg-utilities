@@ -11,7 +11,7 @@ except ModuleNotFoundError as _err:  # pragma: no cover
         import logging
 
         logging.exception(  # TODO (V6): Custom "extra not found" error
-            "Extra dependency group `mqtt` required; install it with `pip install wg-utilities[mqtt]`"
+            "Extra dependency group `mqtt` required; install it with `pip install wg-utilities[mqtt]`",
         )
 
     raise

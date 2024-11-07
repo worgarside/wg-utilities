@@ -180,7 +180,6 @@ def assert_only_post_request_is(
             made.
         yamaha_yas_209 (YamahaYas209): The instance of the class that was tested.
     """
-
     assert requests.pop(("POST", URL(url))) == [
         RequestCall(
             args=(),
@@ -215,7 +214,6 @@ def mock_get_info_response(
     Returns:
         str: The URL that the response was mocked for.
     """
-
     mock_aiohttp.post(
         (url := f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1"),
         status=HTTPStatus.OK,
@@ -244,7 +242,6 @@ def test_instantiation() -> None:
 
 def test_providing_listen_ip_only_raises_exception() -> None:
     """Test that setting only the `listen_ip` and not the port raises an exception."""
-
     with pytest.raises(ValueError) as exc_info:
         YamahaYas209("192.168.1.1", listen_ip="192.168.1.2")
 
@@ -274,7 +271,6 @@ def test_listen_exits_early_if_already_listening(
 
 def test_auto_listening_works() -> None:
     """Test that the `listen` method is called when `start_listener` is True."""
-
     with patch(
         "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.YamahaYas209.listen",
     ) as mock_listen:
@@ -293,7 +289,6 @@ def test_listen_starts_listening(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that `listen` starts listening if `self._listening` is False."""
-
     async_call_count = 0
 
     async def _mock_async_function(self: YamahaYas209) -> None:
@@ -341,7 +336,6 @@ def test_listen_reraises_exception_from_subscribe_worker(
 
     Fails with seed 3830143397
     """
-
     call_count = 0
 
     async def _mock_async_function(self: YamahaYas209) -> None:
@@ -378,7 +372,6 @@ def test_on_event_wrapper_parses_xml_dicts(
     upnp_state_variable: UpnpStateVariable[str],
 ) -> None:
     """Test that the `on_event` wrapper works."""
-
     called = False
 
     def _mock_parse_xml_dict_side_effect(xml_payloads: dict[str, object]) -> None:
@@ -413,7 +406,6 @@ def test_xml_payloads_with_ampersands_can_be_parsed(
     upnp_state_variable: UpnpStateVariable[str],
 ) -> None:
     """Test that a song with an ampersand in the title can be parsed."""
-
     yamaha_yas_209.on_event_wrapper(upnp_service_av_transport, [upnp_state_variable])
 
 
@@ -500,7 +492,6 @@ def test_av_transport_ctm_updates_current_track(
     UPNPStateVariables. The `current_track` and `state` properties are checked each
     time for complete testing throughout.
     """
-
     get_media_info_response_nothing_playing = (
         FLAT_FILES_DIR
         / "xml"
@@ -643,7 +634,6 @@ def test_on_event_callback_called_correctly(
 
     Bit of a long test this one, needed some "verbose" setup -.-
     """
-
     payload_dir = FLAT_FILES_DIR / "xml" / "yamaha_yas_209" / "event_payloads"
 
     # `upnp_state_variable` is "blank", so first thing to do is make an `AVTransport`
@@ -739,7 +729,6 @@ def test_on_event_callback_called_correctly(
 @pytest.mark.xdist_group("test__yamaha_yas_209_isolate_6")
 def test_call_service_action_value_error(yamaha_yas_209: YamahaYas209) -> None:
     """Test that an unknown action raise a `ValueError`."""
-
     with pytest.raises(ValueError) as exc_info:
         yamaha_yas_209._call_service_action(
             Yas209Service.AVT,
@@ -761,7 +750,6 @@ def test_call_service_routes_call_correctly(
     mock_aiohttp: aioresponses,
 ) -> None:
     """Test that a service action is called correctly."""
-
     get_media_info_response = (
         FLAT_FILES_DIR
         / "xml"
@@ -788,7 +776,6 @@ def test_call_service_action_callback(
     mock_aiohttp: aioresponses,
 ) -> None:
     """Test that a service action is called correctly."""
-
     get_media_info_response = (
         FLAT_FILES_DIR
         / "xml"
@@ -828,7 +815,6 @@ def test_call_service_action_callback(
 
 def test_pause_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the pause method calls the correct service action."""
-
     with patch.object(yamaha_yas_209, "_call_service_action") as mock_call_service_action:
         yamaha_yas_209.pause()
 
@@ -841,7 +827,6 @@ def test_pause_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> Non
 
 def test_play_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the play method calls the correct service action."""
-
     with patch.object(yamaha_yas_209, "_call_service_action") as mock_call_service_action:
         yamaha_yas_209.play()
 
@@ -855,7 +840,6 @@ def test_play_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None
 
 def test_play_pause_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the play_pause method calls the correct service action."""
-
     with patch.object(yamaha_yas_209, "pause") as mock_pause, patch.object(
         yamaha_yas_209,
         "play",
@@ -877,7 +861,6 @@ def test_play_pause_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -
 
 def test_mute_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the mute method calls the correct service action."""
-
     with patch.object(yamaha_yas_209, "_call_service_action") as mock_call_service_action:
         yamaha_yas_209.mute()
 
@@ -892,7 +875,6 @@ def test_mute_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None
 
 def test_next_track_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the next_track method calls the correct service action."""
-
     with patch.object(yamaha_yas_209, "_call_service_action") as mock_call_service_action:
         yamaha_yas_209.next_track()
 
@@ -907,7 +889,6 @@ def test_previous_track_calls_correct_service_action(
     yamaha_yas_209: YamahaYas209,
 ) -> None:
     """Test that the previous_track method calls the correct service action."""
-
     with patch.object(yamaha_yas_209, "_call_service_action") as mock_call_service_action:
         yamaha_yas_209.previous_track()
 
@@ -920,7 +901,6 @@ def test_previous_track_calls_correct_service_action(
 
 def test_set_state_raises_type_error(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the set_state method raises a TypeError for an invalid state."""
-
     with pytest.raises(TypeError) as exc_info:
         yamaha_yas_209.set_state("invalid_state")  # type: ignore[arg-type]
 
@@ -929,7 +909,6 @@ def test_set_state_raises_type_error(yamaha_yas_209: YamahaYas209) -> None:
 
 def test_set_state_sets_local_state(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the set_state method sets the local state."""
-
     yamaha_yas_209.set_state(Yas209State.PLAYING, local_only=True)
 
     assert yamaha_yas_209.state == Yas209State.PLAYING
@@ -953,7 +932,6 @@ def test_set_state_sets_local_state(yamaha_yas_209: YamahaYas209) -> None:
 
 def test_set_state_sets_correct_state_property(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the set_state method sets the correct state property."""
-
     with patch.object(yamaha_yas_209, "play") as mock_play, patch.object(
         yamaha_yas_209,
         "pause",
@@ -978,7 +956,6 @@ def test_set_state_sets_correct_state_property(yamaha_yas_209: YamahaYas209) -> 
 
 def test_set_state_on_state_update(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the set_state method calls the state callback."""
-
     call_count = 0
     active_state = None
 
@@ -1005,7 +982,6 @@ def test_set_volume_level_calls_correct_service_action(
     yamaha_yas_209: YamahaYas209,
 ) -> None:
     """Test that the set_volume_level method calls the correct service action."""
-
     with patch.object(yamaha_yas_209, "_call_service_action") as mock_call_service_action:
         yamaha_yas_209.set_volume_level(0.5)
 
@@ -1020,7 +996,6 @@ def test_set_volume_level_calls_correct_service_action(
 
 def test_set_volume_level_raises_value_error(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the `set_volume_level` method raises a ValueError."""
-
     with pytest.raises(ValueError) as exc_info:
         yamaha_yas_209.set_volume_level(1.1)
 
@@ -1034,7 +1009,6 @@ def test_set_volume_level_raises_value_error(yamaha_yas_209: YamahaYas209) -> No
 
 def test_set_volume_level_on_volume_update(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the set_volume_level method calls the volume_level callback."""
-
     call_count = 0
     active_volume_level = 0.0
 
@@ -1058,7 +1032,6 @@ def test_set_volume_level_on_volume_update(yamaha_yas_209: YamahaYas209) -> None
 
 def test_stop_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the stop method calls the correct service action."""
-
     with patch.object(yamaha_yas_209, "_call_service_action") as mock_call_service_action:
         yamaha_yas_209.stop()
 
@@ -1075,7 +1048,6 @@ def test_stop_listening_sets_attribute(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `stop_listening` sets the attribute as expected."""
-
     yamaha_yas_209._listening = True
 
     caplog.clear()
@@ -1091,7 +1063,6 @@ def test_stop_listening_sets_attribute(
 
 def test_unmute_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the unmute method calls the correct service action."""
-
     with patch.object(yamaha_yas_209, "_call_service_action") as mock_call_service_action:
         yamaha_yas_209.unmute()
 
@@ -1106,7 +1077,6 @@ def test_unmute_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> No
 
 def test_volume_down_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the volume_down method calls the correct service action."""
-
     yamaha_yas_209.set_volume_level(current_level := 0.5, local_only=True)
 
     def _set_volume(volume_level: float) -> None:
@@ -1127,7 +1097,6 @@ def test_volume_down_calls_correct_service_action(yamaha_yas_209: YamahaYas209) 
 
 def test_volume_up_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the volume_up method calls the correct service action."""
-
     yamaha_yas_209.set_volume_level(current_level := 0.5, local_only=True)
 
     def _set_volume(volume_level: float) -> None:
@@ -1151,7 +1120,6 @@ def test_album_art_uri_property(
     mock_aiohttp: aioresponses,
 ) -> None:
     """Test that the album_art_uri property returns the expected value."""
-
     mock_aiohttp.post(
         url := f"http://{yamaha_yas_209.ip}:49152/upnp/control/rendertransport1",
         status=HTTPStatus.OK,
@@ -1177,7 +1145,6 @@ def test_current_track_property_gets_correct_info(
     mock_aiohttp: aioresponses,
 ) -> None:
     """Test that the current_track property gets the correct info."""
-
     url = mock_get_info_response("on_top_spotify.xml", mock_aiohttp, yamaha_yas_209)
 
     assert not hasattr(yamaha_yas_209, "_current_track")
@@ -1192,7 +1159,6 @@ def test_current_track_property_gets_correct_info(
 
 def test_current_track_setter_on_track_update(yamaha_yas_209: YamahaYas209) -> None:
     """Test the `current_track` setter calls the callback with the correct value."""
-
     call_count = 0
 
     def _cb(value: CurrentTrack.Info) -> None:
@@ -1208,7 +1174,6 @@ def test_current_track_setter_on_track_update(yamaha_yas_209: YamahaYas209) -> N
 
 def test_current_track_setter_raises_type_error(yamaha_yas_209: YamahaYas209) -> None:
     """Test the `current_track` setter raises a `TypeError` with invalid types."""
-
     with pytest.raises(TypeError) as exc_info:
         yamaha_yas_209.current_track = "invalid"  # type: ignore[assignment]
 
@@ -1220,7 +1185,6 @@ def test_media_album_name_property_gets_correct_info(
     mock_aiohttp: aioresponses,
 ) -> None:
     """Test that the media_album_name property gets the correct info."""
-
     url = mock_get_info_response("on_top_spotify.xml", mock_aiohttp, yamaha_yas_209)
 
     assert not hasattr(yamaha_yas_209, "_current_track")
@@ -1238,7 +1202,6 @@ def test_media_artist_property_gets_correct_info(
     mock_aiohttp: aioresponses,
 ) -> None:
     """Test that the media_artist property gets the correct info."""
-
     url = mock_get_info_response("on_top_spotify.xml", mock_aiohttp, yamaha_yas_209)
 
     assert not hasattr(yamaha_yas_209, "_current_track")
@@ -1256,7 +1219,6 @@ def test_media_duration_property_gets_correct_info(
     mock_aiohttp: aioresponses,
 ) -> None:
     """Test that the media_duration property gets the correct info."""
-
     url = mock_get_info_response("on_top_spotify.xml", mock_aiohttp, yamaha_yas_209)
 
     assert not hasattr(yamaha_yas_209, "_current_track")
@@ -1271,7 +1233,6 @@ def test_media_duration_property_gets_correct_info(
 
 def test_get_media_info(yamaha_yas_209: YamahaYas209, mock_aiohttp: aioresponses) -> None:
     """Test that the get_media_info method returns the correct info."""
-
     url = mock_get_info_response("on_top_spotify.xml", mock_aiohttp, yamaha_yas_209)
 
     assert yamaha_yas_209.get_media_info() == {
@@ -1348,7 +1309,6 @@ def test_volume_level_property_returns_correct_value(
     mock_aiohttp: aioresponses,
 ) -> None:
     """Test the volume_level property returns the correct value."""
-
     get_volume_response = (
         FLAT_FILES_DIR / "xml" / "yamaha_yas_209" / "get_volume" / "50.xml"
     ).read_text()
@@ -1369,7 +1329,6 @@ def test_needs_device_decorator(
     mock_aiohttp: aioresponses,
 ) -> None:
     """Test that the needs_device decorator works."""
-
     assert not hasattr(yamaha_yas_209, "device")
 
     @_needs_device  # type: ignore[arg-type]
@@ -1407,7 +1366,6 @@ def test_subscribe_creates_notify_server_with_correct_subscriptions(
 
     The subscription calls and logging are also tested.
     """
-
     add_av_subscription_call(mock_aiohttp, yamaha_yas_209)
     add_rc_subscription_call(mock_aiohttp, yamaha_yas_209)
 
@@ -1490,7 +1448,6 @@ def test_subscribe_creates_notify_server_logs_subscription_errors(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `_subscribe` method logs any exceptions when subscribing to services."""
-
     add_av_subscription_call(mock_aiohttp, yamaha_yas_209)
     add_rc_subscription_call(
         mock_aiohttp,
@@ -1536,7 +1493,6 @@ def test_subscribe_resubscribes_to_active_services(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `_subscribe` method logs any exceptions when subscribing to services."""
-
     add_av_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
     add_rc_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
 
@@ -1580,7 +1536,6 @@ def test_subscribe_resubscribes_to_failed_services(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `_subscribe` method logs any exceptions when subscribing to services."""
-
     add_av_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
     add_rc_subscription_call(
         mock_aiohttp,
@@ -1644,7 +1599,6 @@ def test_subscribe_keeps_retrying_failed_subscriptions(
     expected_level: int,
 ) -> None:
     """Test the `_subscribe` method logs any exceptions when subscribing to services."""
-
     yamaha_yas_209._logging = logging
 
     add_av_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
@@ -1719,7 +1673,6 @@ def test_stop_listening_stops_listener(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `stop_listening` method stops the listener."""
-
     add_av_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
     add_rc_subscription_call(mock_aiohttp, yamaha_yas_209, repeat=True)
 

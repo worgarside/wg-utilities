@@ -82,7 +82,6 @@ def test_flatten_dict_with_varying_input_dicts(
     want: dict[str, object],
 ) -> None:
     """Test that the `flatten_dict` function handles various dictionaries correctly."""
-
     assert flatten_dict(user_input) == want
 
 
@@ -98,7 +97,6 @@ def test_flatten_dict_uses_correct_join_char(
 
     The same character should be used no matter how deeply nested the keys are.
     """
-
     want_with_join_char = {k.replace(".", "-"): v for k, v in want.items()}
 
     assert flatten_dict(user_input, join_char="-") == want_with_join_char
@@ -175,7 +173,6 @@ def test_exclude_keys_with_exact_keys_false(
     In this test, the only key to exclude is `"two"`, which means any descendent of a
     `"two"` key should not be flattened.
     """
-
     assert flatten_dict(user_input, exclude_keys=["two"], exact_keys=False) == want
 
 
@@ -250,5 +247,4 @@ def test_exclude_keys_with_exact_keys_true(
     nested under `"five.two"` for example, it will still be flattened as it isn't an
     exact match.
     """
-
     assert flatten_dict(user_input, exclude_keys=["two"], exact_keys=True) == want

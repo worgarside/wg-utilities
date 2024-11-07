@@ -63,7 +63,6 @@ def test_album_title_validation(
     expected: str | ValidationError,
 ) -> None:
     """Test validation of the album title."""
-
     album_json = read_json_file(
         "aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json",
         host_name="google/photos/v1/albums",
@@ -86,7 +85,6 @@ def test_media_items_property(
     google_photos_album: Album,
 ) -> None:
     """Test the media_items property."""
-
     assert not hasattr(google_photos_album, "_media_items")
 
     with patch.object(

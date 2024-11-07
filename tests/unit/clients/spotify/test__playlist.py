@@ -28,7 +28,6 @@ SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID = (
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:
     """Test that the `Playlist` class instantiates correctly."""
-
     playlist_json = read_json_file("spotify/v1/playlists/37i9dqzf1e8pj76jxe3egf.json")
 
     playlist = Playlist.from_json_response(
@@ -46,7 +45,6 @@ def test_owner_property(
     spotify_client: SpotifyClient,
 ) -> None:
     """Test that the `owner` property returns the correct value."""
-
     assert spotify_playlist.owner == spotify_user
 
     assert Playlist.from_json_response(
@@ -65,7 +63,6 @@ def test_tracks_property(
     live_jwt_token: str,
 ) -> None:
     """Test that the `Playlist.tracks` property returns the correct value."""
-
     assert not hasattr(spotify_playlist, "_tracks")
     assert all(
         isinstance(track, Track) and track.spotify_client == spotify_client
@@ -235,7 +232,6 @@ def test_live_snapshot_id(
     spotify_playlist_alt: Playlist,
 ) -> None:
     """Test that the `Playlist.live_snapshot_id` property works as expected."""
-
     assert spotify_playlist_alt.snapshot_id == SPOTIFY_PLAYLIST_ALT_SNAPSHOT_ID
 
     assert not hasattr(spotify_playlist_alt, "_live_snapshot_id")
@@ -261,7 +257,6 @@ def test_tracks_property_updates_snapshot_id(
     live_jwt_token: str,
 ) -> None:
     """Test that the `Playlist.tracks` property updates the snapshot ID correctly."""
-
     track_requests: list[dict[str, str | dict[str, str]]] = [
         {
             "url": f"{SpotifyClient.BASE_URL}/playlists/{spotify_playlist_alt.id}/tracks?limit=50",

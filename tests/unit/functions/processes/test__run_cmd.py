@@ -16,7 +16,6 @@ def test__run_cmd_no_error() -> None:
 
 def test_command_throws_exception_on_error() -> None:
     """Test that the run_cmd function throws an exception if the command errors."""
-
     with pytest.raises(RuntimeError) as exc_info:
         run_cmd("qwertyuiop", shell=True)  # noqa: S604
 

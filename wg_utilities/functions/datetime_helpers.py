@@ -46,7 +46,6 @@ def utcnow(unit: DatetimeFixedUnit | None = None) -> datetime | int:
     Returns:
         Union([datetime, int]): the current UTC datetime in the chosen unit
     """
-
     if not unit:
         return datetime.now(UTC)
 

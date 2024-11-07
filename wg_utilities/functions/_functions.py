@@ -28,7 +28,6 @@ def chunk_list(lst: list[Any], chunk_len: int) -> Generator[list[Any], None, Non
     Raises:
         ValueError: if n is < 1
     """
-
     if chunk_len < 1:
         raise ValueError("`chunk_len` must be a positive integer")
 
@@ -149,7 +148,6 @@ def try_float(v: Any, default: Any = 0.0) -> object:
     Returns:
         float: The value passed in, in float format, or the default
     """
-
     try:
         return float(v)
     except (ValueError, TypeError):

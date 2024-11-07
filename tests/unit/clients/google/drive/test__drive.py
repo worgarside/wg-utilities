@@ -60,7 +60,6 @@ def test_from_json_response(
     google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test that a `Drive` instance can be created from a JSON response."""
-
     drive = Drive.from_json_response(
         drive_json,
         google_client=google_drive_client,
@@ -74,7 +73,6 @@ def test_from_json_response(
 
 def test_kind_validation(google_drive_client: GoogleDriveClient) -> None:
     """Test that the `kind` field is validated."""
-
     drive_json = read_json_file(
         "v3/files/root/fields=%2a.json",
         host_name="google/drive",
@@ -129,7 +127,6 @@ def test_get_entity_by_id(
     expected_path: str,
 ) -> None:
     """Test the generic `_get_entity_by_id` method."""
-
     expected = drive.navigate(expected_path)
 
     with patch.object(
@@ -168,7 +165,6 @@ def test_get_directory_by_id_no_matching_children(
     drive: Drive,
 ) -> None:
     """Test the `get_directory_by_id` method."""
-
     # Populate the `_directories` attribute
     _ = drive.directories
 
@@ -188,7 +184,6 @@ def test_get_directory_by_id_no_matching_children(
 
 def test_get_directory_by_id_known_child(directory: Directory, drive: Drive) -> None:
     """Test the `get_directory_by_id` method."""
-
     # Just to populate the `_directories` attribute
     drive.navigate("/My Drive/Archives/Old Documents")
 
@@ -206,7 +201,6 @@ def test_get_directory_by_id_known_child(directory: Directory, drive: Drive) -> 
 
 def test_get_file_by_id_no_matching_children(file: File, drive: Drive) -> None:
     """Test the `get_file_by_id` method."""
-
     # Populate the `_files` attribute
     _ = drive.files
 
@@ -227,7 +221,6 @@ def test_get_file_by_id_no_matching_children(file: File, drive: Drive) -> None:
 
 def test_get_file_by_id_known_child(drive: Drive) -> None:
     """Test the `get_file_by_id` method."""
-
     # This will inherently populate the `_files` attribute
     expected = choice(drive.files)
 
@@ -243,7 +236,6 @@ def test_get_file_by_id_known_child(drive: Drive) -> None:
 
 def test_map_directories_only(drive: Drive) -> None:
     """Test the `map` method."""
-
     assert drive._directories_mapped is not True
 
     _ = drive.directories
@@ -290,7 +282,6 @@ def test_map_directories_only(drive: Drive) -> None:
 
 def test_map_directories_and_files(drive: Drive) -> None:
     """Test the `map` method with a `map_type` of File."""
-
     assert drive._directories_mapped is not True
     assert drive._files_mapped is not True
 
@@ -343,7 +334,6 @@ def test_map_directories_and_files(drive: Drive) -> None:
 
 def test_map_files_already_mapped(drive: Drive) -> None:
     """Test the `map` method when the files are already mapped."""
-
     drive._files_mapped = True
     assert drive._files_mapped is True
 
@@ -359,7 +349,6 @@ def test_map_files_already_mapped(drive: Drive) -> None:
 
 def test_map_directories_already_mapped(drive: Drive) -> None:
     """Test the `map` method when the directories are already mapped."""
-
     drive._directories_mapped = True
     assert drive._directories_mapped is True
 
@@ -496,7 +485,6 @@ def test_search(
     expected_params: dict[str, Any],
 ) -> None:
     """Test the `search` method."""
-
     with patch.object(
         drive.google_client,
         "get_items",
@@ -522,7 +510,6 @@ def test_search(
 
 def test_search_invalid_entity_type(drive: Drive) -> None:
     """Test the `search` method with an invalid entity type."""
-
     with pytest.raises(
         ValueError,
         match="`entity_type` must be either EntityType.FILE or EntityType.DIRECTORY,"
@@ -538,7 +525,6 @@ def test_all_known_descendents(
     directory: Directory,
 ) -> None:
     """Test the `all_known_descendents` method."""
-
     assert not isinstance(drive._all_files, list)
     assert not isinstance(drive._all_directories, list)
 
@@ -554,7 +540,6 @@ def test_all_known_descendents(
 
 def test_all_directories(drive: Drive) -> None:
     """Test the `all_directories` method."""
-
     assert drive._directories_mapped is not True
 
     mock_map = Mock(wraps=drive.map)
@@ -569,7 +554,6 @@ def test_all_directories(drive: Drive) -> None:
 
 def test_all_files(drive: Drive) -> None:
     """Test the `all_files` method."""
-
     drive.google_client.item_metadata_retrieval = ItemMetadataRetrieval.ON_DEMAND
 
     assert drive._files_mapped is not True

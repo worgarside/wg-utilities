@@ -194,7 +194,6 @@ class BaseWarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPag
         warehouse_port: int | None = None,
     ) -> None:
         """Initialize the handler."""
-
         Handler.__init__(self, level=level)
 
         JsonApiClient.__init__(
@@ -216,7 +215,6 @@ class BaseWarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPag
         Returns:
             str: the base URL for the Item Warehouse
         """
-
         host = host or str(getenv("ITEM_WAREHOUSE_HOST", "http://homeassistant.local"))
         port = port if port is not None else int(getenv("ITEM_WAREHOUSE_PORT", "8002"))
 
@@ -249,7 +247,6 @@ class BaseWarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPag
         Returns:
             LogPayload: the converted log payload
         """
-
         log_payload: LogPayload = {
             "created_at": record.created,
             "exception_message": None,
@@ -278,7 +275,6 @@ class BaseWarehouseHandler(Handler, JsonApiClient[WarehouseLog | WarehouseLogPag
 
     def __eq__(self, other: object) -> bool:
         """Compare two WarehouseHandlers for equality."""
-
         if not isinstance(other, BaseWarehouseHandler):  # pragma: no cover
             return NotImplemented
 

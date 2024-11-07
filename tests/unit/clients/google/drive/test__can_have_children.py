@@ -27,7 +27,6 @@ if TYPE_CHECKING:
 
 def test_add_directory_method_first_call(directory: Directory) -> None:
     """Test the first call of `_add_directory` instantiates `_directories`."""
-
     assert directory._directories == []
 
     new_dir = directory.model_copy(update={"name": "new_dir", "id": "new_dir_id"})
@@ -39,7 +38,6 @@ def test_add_directory_method_first_call(directory: Directory) -> None:
 
 def test_add_directory_method_second_call(directory: Directory) -> None:
     """Test that a second call of `_add_directory` only *appends* to `_directories`."""
-
     assert directory._directories == []
 
     new_dir = directory.model_copy(update={"name": "new_dir", "id": "new_dir_id"})
@@ -53,7 +51,6 @@ def test_add_directory_method_second_call(directory: Directory) -> None:
 
 def test_add_directory_ignores_known_directory(directory: Directory) -> None:
     """Test that if a known directory is added, it is ignored."""
-
     assert directory._directories == []
 
     new_dir = directory.model_copy(update={"name": "new_dir", "id": "new_dir_id"})
@@ -69,7 +66,6 @@ def test_add_directory_raises_type_error_for_wrong_type(
     file: File,
 ) -> None:
     """Test that `_add_directory` raises a `TypeError` if the wrong type is passed."""
-
     with pytest.raises(TypeError) as exc_info:
         directory._add_directory(file)  # type: ignore[arg-type]
 
@@ -78,7 +74,6 @@ def test_add_directory_raises_type_error_for_wrong_type(
 
 def test_add_file_method_first_call(directory: Directory, file: File) -> None:
     """Test the first call of `_add_file` instantiates `_files`."""
-
     assert isinstance(directory._files, FieldInfo)
 
     directory._add_file(file)
@@ -88,7 +83,6 @@ def test_add_file_method_first_call(directory: Directory, file: File) -> None:
 
 def test_add_file_method_second_call(directory: Directory, file: File) -> None:
     """Test that a second call of `_add_file` only appends to `_files`."""
-
     assert isinstance(directory._files, FieldInfo)
 
     new_file = file.model_copy(update={"name": "new_file", "id": "new_file_id"})
@@ -101,7 +95,6 @@ def test_add_file_method_second_call(directory: Directory, file: File) -> None:
 
 def test_add_file_ignores_known_file(directory: Directory, file: File) -> None:
     """Test that if a known directory is added, it is ignored."""
-
     assert isinstance(directory._files, FieldInfo)
 
     directory._add_file(file)
@@ -112,7 +105,6 @@ def test_add_file_ignores_known_file(directory: Directory, file: File) -> None:
 
 def test_add_file_raises_type_error_for_wrong_type(directory: Directory) -> None:
     """Test that `_add_file` raises a `TypeError` if the wrong type is passed."""
-
     with pytest.raises(TypeError) as exc_info:
         directory._add_file(directory)
 
@@ -124,7 +116,6 @@ def test_add_child_method_file(
     file: File,
 ) -> None:
     """Test that `add_child` adds a File to the correct attribute."""
-
     with patch.object(
         _CanHaveChildren,
         "_add_directory",
@@ -141,7 +132,6 @@ def test_add_child_method_file(
 
 def test_add_child_method_directory(drive: Drive, directory: Directory) -> None:
     """Test that `add_child` adds a Directory to the correct attribute."""
-
     with patch.object(
         _CanHaveChildren,
         "_add_directory",
@@ -158,7 +148,6 @@ def test_add_child_method_directory(drive: Drive, directory: Directory) -> None:
 
 def test_add_child_invalid_type(drive: Drive) -> None:
     """Test that `add_child` raises a `TypeError` if the wrong type is passed."""
-
     with pytest.raises(TypeError) as exc_info:
         drive.add_child("not a file or directory")  # type: ignore[arg-type]
 
@@ -271,7 +260,6 @@ def test_navigate_method(
               ├──> 128GB SD Card - Old MacBook.zip
               └──> Photos Library.zip
     """
-
     expected = drive_comparison_entity_lookup[instance_path.split("/")[-1]]
 
     actual = directory.navigate(navigate_path)
@@ -298,7 +286,6 @@ def test_navigate_method_raises_value_error_for_invalid_path(
     exception_message: str,
 ) -> None:
     """Test that `navigate` raises a `ValueError` if an invalid path is passed."""
-
     with pytest.raises(ValueError) as exc_info:
         directory.navigate(navigate_path)
 
@@ -310,7 +297,6 @@ def test_navigate_method_no_results_found(
     mock_requests: Mocker,
 ) -> None:
     """Test that a zero-result response is handled correctly."""
-
     mock_requests.get(
         "https://www.googleapis.com/drive/v3/files?pagesize=1&fields=files(*)&q='7tqryz0a9oyjfzf1cpbmllsblj-ohbi1e'+in+parents+and+name+=+'path'",
         json={"files": []},
@@ -322,7 +308,6 @@ def test_navigate_method_no_results_found(
 
 def test_reset_known_children(directory: Directory) -> None:
     """Test that `reset_known_children` resets the file/directories attributes."""
-
     _ = directory.directories
     _ = directory.files
 
@@ -403,7 +388,6 @@ def test_tree_method_local_only(
     complete_tree: str,
 ) -> None:
     """Test that the `tree` method behaves as expected when `local_only` is `True`."""
-
     # Populate local children variables
     archives = drive.navigate("Archives")
 
@@ -428,7 +412,6 @@ def test_tree_method_local_only(
 
 def test_tree_not_local_only(drive: Drive) -> None:
     """Test that the `tree` method behaves as expected when `local_only` is `False`."""
-
     drive.google_client.item_metadata_retrieval = ItemMetadataRetrieval.ON_DEMAND
 
     expected = (FLAT_FILES_DIR / "text/google_drive_tree.txt").read_text().strip()
@@ -472,7 +455,6 @@ def test_all_known_children_property(
     expected: list[str],
 ) -> None:
     """Test that the `all_known_children` property behaves as expected."""
-
     for path in preload_paths:
         directory.navigate(path)
 
@@ -488,7 +470,6 @@ def test_children_property(
     drive_comparison_entity_lookup: dict[str, _GoogleDriveEntity],
 ) -> None:
     """Test that the `children` property behaves as expected."""
-
     with patch.object(
         _CanHaveChildren,
         "reset_known_children",
@@ -521,7 +502,6 @@ def test_directories(
     google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test that the `directories` property behaves as expected."""
-
     assert directory._directories_loaded is not True
 
     with patch.object(
@@ -572,7 +552,6 @@ def test_files(
     google_drive_client: GoogleDriveClient,
 ) -> None:
     """Test that the `files` property behaves as expected."""
-
     assert directory._files_loaded is not True
 
     with patch.object(

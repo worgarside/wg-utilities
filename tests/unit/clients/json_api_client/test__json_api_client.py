@@ -20,7 +20,6 @@ def test_get_method_calls_request_correctly(
     json_api_client: JsonApiClient[dict[str, Any]],
 ) -> None:
     """Test the `_get` method calls `request` correctly."""
-
     with patch.object(json_api_client, "_request") as mock_request:
         json_api_client._get(
             "test_endpoint",
@@ -59,7 +58,6 @@ def test_post_method_calls_request_correctly(
     json_api_client: JsonApiClient[dict[str, Any]],
 ) -> None:
     """Test the `_post` method calls `request` correctly."""
-
     with patch.object(json_api_client, "_request") as mock_request:
         json_api_client._post(
             "test_endpoint",
@@ -100,7 +98,6 @@ def test_request_method_sends_correct_request(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the `_request`` method sends the correct request."""
-
     mock_requests.post(
         "https://api.example.com/test_endpoint",
         status_code=HTTPStatus.OK,
@@ -143,7 +140,6 @@ def test_request_raises_exception_for_non_200_response(
     mock_requests: Mocker,
 ) -> None:
     """Test that the `_request`` method raises an exception for non-200 responses."""
-
     mock_requests.post(
         "https://api.example.com/test_endpoint",
         status_code=HTTPStatus.NOT_FOUND,
@@ -180,7 +176,6 @@ def test_request_validate_request_success_false(
     mock_requests: Mocker,
 ) -> None:
     """Test that the `_request`` method raises an exception for non-200 responses."""
-
     json_api_client.validate_request_success = False
 
     mock_requests.post(
@@ -202,7 +197,6 @@ def test_request_json_response(
     mock_requests: Mocker,
 ) -> None:
     """Test that the request method returns a JSON response."""
-
     mock_requests.get(
         "https://api.example.com/test_endpoint",
         status_code=HTTPStatus.OK,
@@ -238,7 +232,6 @@ def test_request_json_response_defaults_to_empty_dict_for_no_content(
     mock_requests: Mocker,
 ) -> None:
     """Test that the request method returns an empty dict for no content."""
-
     mock_requests.get(
         "https://api.example.com/test_endpoint",
         status_code=HTTPStatus.NO_CONTENT,
@@ -258,7 +251,6 @@ def test_request_json_response_defaults_to_empty_dict_with_json_decode_error(
     mock_requests: Mocker,
 ) -> None:
     """Test that the request method returns an empty dict for JSON decode errors."""
-
     mock_requests.get(
         "https://api.example.com/test_endpoint",
         status_code=HTTPStatus.OK,
@@ -279,7 +271,6 @@ def test_request_json_response_raises_exception_with_invalid_json(
     mock_requests: Mocker,
 ) -> None:
     """Test that the request method returns an empty dict for JSON decode errors."""
-
     mock_requests.get(
         "https://api.example.com/test_endpoint",
         status_code=HTTPStatus.OK,
@@ -300,7 +291,6 @@ def test_get_json_response_calls_request_json_response(
     json_api_client: JsonApiClient[dict[str, Any]],
 ) -> None:
     """Test the `get_json_response` method calls `_request_json_response` correctly."""
-
     with patch.object(
         json_api_client,
         "_request_json_response",
@@ -328,7 +318,6 @@ def test_post_json_response_calls_request_json_response(
     json_api_client: JsonApiClient[dict[str, Any]],
 ) -> None:
     """Test the `post_json_response` method calls `_request_json_response` correctly."""
-
     with patch.object(
         json_api_client,
         "_request_json_response",

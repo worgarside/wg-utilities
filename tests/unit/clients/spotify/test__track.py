@@ -106,7 +106,6 @@ def test_instantiation(spotify_client: SpotifyClient) -> None:
 
 def test_album_property(spotify_track: Track) -> None:
     """Test that the `album` property instantiates an `Album` correctly."""
-
     assert isinstance(spotify_track.album, Album)
 
     assert spotify_track.album.spotify_client == spotify_track.spotify_client
@@ -135,7 +134,6 @@ def test_audio_features_property(
     live_jwt_token: str,
 ) -> None:
     """Test that the `audio_features` property makes the correct request."""
-
     expected = {
         "danceability": 0.674,
         "energy": 0.74,
@@ -187,7 +185,6 @@ def test_audio_features_not_found(
     mock_requests: Mocker,
 ) -> None:
     """Test that when a track doesn't have audio features, no exceptions are raised."""
-
     track = spotify_client.get_track_by_id("0YHujB8olZYDC3GwYEHbG8")
 
     assert track.name == "January 1st 2022"

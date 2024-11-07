@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 
 def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     """Test that the `GoogleCalendarClient` class can be instantiated."""
-
     client = GoogleCalendarClient(
         client_id=fake_oauth_credentials.client_id,
         client_secret=fake_oauth_credentials.client_secret,
@@ -124,7 +123,6 @@ def test_create_event_request(
     extra_params: dict[str, Any],
 ) -> None:
     """Test the `create_event` method makes the correct request."""
-
     if isinstance(start_datetime, datetime):
         start_params = {
             "timeZone": str(tz),
@@ -266,7 +264,6 @@ def test_create_event_response(
     extra_params: dict[str, Any],
 ) -> None:
     """Test the `create_event` method returns an Event instance."""
-
     if isinstance(start_datetime, datetime):
         start = _StartEndDatetime.model_validate(
             {
@@ -356,7 +353,6 @@ def test_create_event_type_validation(
     event: Event,
 ) -> None:
     """Test `create_event` raises a `TypeError` if either datetime param is invalid."""
-
     with patch.object(
         google_calendar_client,
         "post_json_response",
@@ -387,7 +383,6 @@ def test_delete_event_by_id(
     mock_requests: Mocker,
 ) -> None:
     """Test the `delete_event_by_id` method sends the correct request."""
-
     mock_requests.delete(
         f"{google_calendar_client.base_url}/calendars/{calendar.id}/events/{event.id}",
         status_code=HTTPStatus.NO_CONTENT,
@@ -416,7 +411,6 @@ def test_delete_event_by_id_raises_exception(
     mock_requests: Mocker,
 ) -> None:
     """Test the `delete_event_by_id` method raises an exception if the request fails."""
-
     mock_requests.delete(
         f"{google_calendar_client.base_url}/calendars/{calendar.id}/events/{event.id}",
         status_code=HTTPStatus.NOT_FOUND,

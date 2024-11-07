@@ -22,7 +22,6 @@ def target_proc_func(  # pragma: no cover
 
 def test_dict() -> None:
     """Test that a dictionary is processed correctly."""
-
     with patch("wg_utilities.functions.json.traverse_dict") as mock_traverse_dict, patch(
         "wg_utilities.functions.json.process_list",
     ) as mock_process_list:
@@ -48,7 +47,6 @@ def test_dict() -> None:
 
 def test_list() -> None:
     """Test that a list is processed correctly."""
-
     with patch("wg_utilities.functions.json.traverse_dict") as mock_traverse_dict, patch(
         "wg_utilities.functions.json.process_list",
     ) as mock_process_list:
@@ -74,7 +72,6 @@ def test_list() -> None:
 
 def test_invalid_type() -> None:
     """Test that an invalid type raises an exception."""
-
     with pytest.raises(InvalidJsonObjectError) as exc_info:
         process_json_object(
             123,  # type: ignore[arg-type]

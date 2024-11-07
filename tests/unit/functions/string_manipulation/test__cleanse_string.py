@@ -38,7 +38,6 @@ from wg_utilities.functions import cleanse_string
 )
 def test_varying_inputs(in_str: str, expected: str) -> None:
     """Test that varying inputs are handled correctly."""
-
     assert cleanse_string(in_str) == expected
 
 
@@ -59,7 +58,6 @@ def test_newline_preservation(
     expected: str,
 ) -> None:
     """Test that newlines are preserved as expected."""
-
     assert cleanse_string(in_str, preserve_newlines=preserve_newlines) == expected
 
 
@@ -106,5 +104,4 @@ def test_whitespace_amounts(
     expected: str,
 ) -> None:
     """Test preserving different amounts of spaces."""
-
     assert cleanse_string(in_str, whitespace_amount=whitespace_amount) == expected

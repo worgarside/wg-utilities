@@ -28,7 +28,6 @@ if TYPE_CHECKING:
 
 def test_instantiation() -> None:
     """Test that the WarehouseHandler class can be instantiated."""
-
     wh_handler = WarehouseHandler()
 
     assert isinstance(wh_handler, WarehouseHandler)
@@ -38,7 +37,6 @@ def test_instantiation() -> None:
 
 def test_initialize_warehouse_new_warehouse(mock_requests: Mocker) -> None:
     """Test that the _initialize_warehouse method works correctly."""
-
     mock_requests.get(
         f"{IWH_DOT_COM}/v1/warehouses/lumberyard",
         status_code=HTTPStatus.NOT_FOUND,
@@ -107,7 +105,6 @@ def test_initialize_warehouse_already_exists_but_wrong_schema(
     mock_requests: Mocker,
 ) -> None:
     """Test that the _initialize_warehouse method works correctly."""
-
     mock_requests.get(
         # Default URL
         DEFAULT_ITEM_URL,
@@ -158,7 +155,6 @@ def test_initialize_warehouse_exception(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test that the _initialize_warehouse method works correctly."""
-
     mock_requests.get(
         # Default URL
         DEFAULT_ITEM_URL,
@@ -186,7 +182,6 @@ def test_initialize_warehouse_exception(
 )
 def test_emit(level: int, message: str, logger: Logger, record: LogRecord) -> None:
     """Test that the emit method sends the correct payload to the warehouse."""
-
     log_payload = {
         "created_at": ANY,
         "exception_message": None,
@@ -232,7 +227,6 @@ def test_emit(level: int, message: str, logger: Logger, record: LogRecord) -> No
 @pytest.mark.add_handler("warehouse_handler")
 def test_post_with_backoff_duplicate_record(logger: Logger) -> None:
     """Test that the post_with_backoff method doesn't throw an error for duplicate records."""
-
     with patch("wg_utilities.loggers.item_warehouse.warehouse_handler.post") as mock_post:
         mock_post.return_value.status_code = HTTPStatus.CONFLICT
 
@@ -258,7 +252,6 @@ def test_post_with_backoff_duplicate_record(logger: Logger) -> None:
 @pytest.mark.add_handler("warehouse_handler")
 def test_post_with_backoff(logger: Logger, response_status: HTTPStatus) -> None:
     """Test that the post_with_backoff works (ignoring actual backoff functionality)."""
-
     with patch("wg_utilities.loggers.item_warehouse.warehouse_handler.post") as mock_post:
         mock_post.return_value.status_code = response_status
 
@@ -309,7 +302,6 @@ def test_post_with_backoff_permanent_failure(
     response_status: HTTPStatus,
 ) -> None:
     """Test that 4XX status codes aren't backed off."""
-
     with patch(
         "wg_utilities.loggers.item_warehouse.warehouse_handler.post",
     ) as mock_post, caplog.at_level("ERROR"):

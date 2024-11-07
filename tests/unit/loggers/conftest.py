@@ -59,7 +59,6 @@ def logger_(
     list_handler: ListHandler,
 ) -> YieldFixture[Logger]:
     """Fixture for creating a logger."""
-
     _logger = getLogger(request.node.name)
     _logger.setLevel(DEBUG)
     _logger.handlers.clear()
@@ -210,7 +209,6 @@ def warehouse_handler_(
     mock_requests: Mocker,
 ) -> YieldFixture[WarehouseHandler]:
     """Fixture for creating a WarehouseHandler instance."""
-
     _warehouse_handler = WarehouseHandler(
         level="DEBUG",
         warehouse_host=IWH_DOT_COM,
@@ -228,7 +226,6 @@ def mock_requests_(
     mock_requests_root: Mocker,
 ) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
-
     lumberyard_url = f"{IWH_DOT_COM}/v1/warehouses/lumberyard"
 
     mock_requests_root.get(

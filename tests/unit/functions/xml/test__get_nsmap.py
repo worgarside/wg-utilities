@@ -77,7 +77,6 @@ SAMPLE_XML_DOC_NO_PREFIX = """
 @patch("lxml.etree.fromstring")
 def test_xml_doc_is_parsed_when_root_is_none(mock_fromstring: MagicMock) -> None:
     """Test that the XML document is parsed when the root is None."""
-
     get_nsmap(xml_doc=SAMPLE_XML_DOC)
 
     mock_fromstring.assert_called_once_with(SAMPLE_XML_DOC.encode())
@@ -93,7 +92,6 @@ def test_value_error_is_thrown_when_root_and_xml_doc_are_none() -> None:
 
 def test_xml_doc_nsmap_extraction() -> None:
     """Test that the namespace map is extracted from the XML document."""
-
     nsmap = get_nsmap(xml_doc=SAMPLE_XML_DOC)
 
     assert nsmap == {
@@ -110,7 +108,6 @@ def test_xml_doc_nsmap_extraction_defaults(caplog: pytest.LogCaptureFixture) -> 
     test ensures that the default values are generated correctly: `n` should increment
     each time a new namespace is found, and known namespaces should not be re-added.
     """
-
     nsmap = get_nsmap(xml_doc=SAMPLE_XML_DOC_NO_PREFIX, warn_on_defaults=True)
 
     assert nsmap == {

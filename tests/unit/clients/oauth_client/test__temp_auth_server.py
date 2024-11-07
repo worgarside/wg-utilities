@@ -34,7 +34,6 @@ def test_server_thread_run_serves_forever(
     server_thread: TempAuthServer.ServerThread,
 ) -> None:
     """Test that the `ServerThread.run` method serves forever."""
-
     with patch.object(server_thread.server, "serve_forever") as mock_serve_forever:
         server_thread.run()
 
@@ -43,7 +42,6 @@ def test_server_thread_run_serves_forever(
 
 def test_server_thread_shutdown(server_thread: TempAuthServer.ServerThread) -> None:
     """Test the `ServerThread.shutdown` method."""
-
     with patch.object(server_thread.server, "shutdown") as mock_shutdown:
         server_thread.shutdown()
 
@@ -66,7 +64,6 @@ def test_temp_auth_server_instantiation() -> None:
 
 def test_temp_auth_server_auto_run() -> None:
     """Test that the `auto_run` argument starts the server."""
-
     tas = TempAuthServer(__name__, auto_run=True, port=0)
 
     assert tas.is_running
@@ -77,7 +74,6 @@ def test_temp_auth_server_auto_run() -> None:
 
 def test_create_endpoints(temp_auth_server: TempAuthServer) -> None:
     """Test that the `create_endpoints` method adds two endpoints."""
-
     rules = list(temp_auth_server.app.url_map.iter_rules())
 
     assert [rule.rule for rule in rules] == [
@@ -98,7 +94,6 @@ def test_start_server_starts_thread(temp_auth_server: TempAuthServer) -> None:
 
 def test_start_server_starts_server(temp_auth_server: TempAuthServer) -> None:
     """Test that the `start_server` method starts a server."""
-
     assert not temp_auth_server.is_running
 
     temp_auth_server.start_server()
@@ -117,7 +112,6 @@ def test_start_server_starts_server(temp_auth_server: TempAuthServer) -> None:
 
 def test_server_can_be_started_multiple_times(temp_auth_server: TempAuthServer) -> None:
     """Test that the `start_server` method can be called multiple times."""
-
     temp_auth_server.start_server()
     assert (
         get(temp_auth_server.get_auth_code_url, timeout=2.5).status_code == HTTPStatus.OK
@@ -149,7 +143,6 @@ def test_server_can_be_started_multiple_times(temp_auth_server: TempAuthServer) 
 
 def test_wait_for_request(temp_auth_server: TempAuthServer) -> None:
     """Test that the `wait_for_request` method waits for a request."""
-
     temp_auth_server.start_server()
 
     called = False
@@ -173,7 +166,6 @@ def test_wait_for_request(temp_auth_server: TempAuthServer) -> None:
 
 def test_wait_for_request_timeout(temp_auth_server: TempAuthServer) -> None:
     """Test that the `wait_for_request` method times out."""
-
     temp_auth_server.start_server()
 
     with pytest.raises(TimeoutError) as exc_info:
@@ -184,7 +176,6 @@ def test_wait_for_request_timeout(temp_auth_server: TempAuthServer) -> None:
 
 def test_wait_for_request_kill_on_request(temp_auth_server: TempAuthServer) -> None:
     """Test that the `wait_for_request` method kills the server on request."""
-
     temp_auth_server.start_server()
 
     called = False
@@ -214,7 +205,6 @@ def test_wait_for_request_kill_on_request(temp_auth_server: TempAuthServer) -> N
 
 def test_wait_for_request_starts_server(temp_auth_server: TempAuthServer) -> None:
     """Test the `wait_for_request` method starts the server if it is not is_running."""
-
     assert not temp_auth_server.is_running
 
     called = False
@@ -246,7 +236,6 @@ def test_wait_for_request_starts_server(temp_auth_server: TempAuthServer) -> Non
 
 def test_get_auth_code_url_property(temp_auth_server: TempAuthServer) -> None:
     """Test the `get_auth_code_url` property returns the correct URL."""
-
     with pytest.raises(ValueError) as exc_info:
         _ = temp_auth_server.get_auth_code_url
 
@@ -259,7 +248,6 @@ def test_get_auth_code_url_property(temp_auth_server: TempAuthServer) -> None:
 
 def test_port_allocation(temp_auth_server: TempAuthServer) -> None:
     """Test that the `start_server` method allocates a port."""
-
     assert not temp_auth_server.is_running
 
     def make_server_side_effect(host: str, port: int, app: Flask) -> BaseWSGIServer:
@@ -283,7 +271,6 @@ def test_port_allocation(temp_auth_server: TempAuthServer) -> None:
 
 def test_port_allocation_fails(temp_auth_server: TempAuthServer) -> None:
     """Test that `start_server` raises an exception if it cannot allocate a port."""
-
     assert not temp_auth_server.is_running
 
     with patch(
@@ -298,7 +285,6 @@ def test_port_allocation_fails(temp_auth_server: TempAuthServer) -> None:
 
 def test_hard_port_allocation(temp_auth_server: TempAuthServer) -> None:
     """Test that the `start_server` only tries one port if it is set by the user."""
-
     assert not temp_auth_server.is_running
 
     temp_auth_server.port = 5015
@@ -320,7 +306,6 @@ def test_hard_port_allocation(temp_auth_server: TempAuthServer) -> None:
 
 def test_port_setter_raises_exception(temp_auth_server: TempAuthServer) -> None:
     """Test that the `port` setter raises an exception if the server is running."""
-
     assert not temp_auth_server.is_running
 
     temp_auth_server.start_server()

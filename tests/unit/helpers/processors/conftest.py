@@ -90,7 +90,6 @@ def convert_lambda_to_callback_() -> Callable[[Callable[..., Any]], Callback[...
 @pytest.fixture(name="modify_base_model_config")
 def _modify_base_model_config() -> Generator[None, None, None]:
     """Modify the base model for the Pydantic-based tests."""
-
     BaseModelWithConfig.__hash__ = lambda v: hash(str(v))  # type: ignore[assignment,method-assign]
 
     originals = {

@@ -104,7 +104,6 @@ def assert_mock_requests_request_history(
     expected: list[dict[str, str | dict[str, str]]],
 ) -> None:
     """Assert that the request history matches the expected data."""
-
     assert len(request_history) == len(expected)
 
     for i, expected_values in enumerate(expected):
@@ -209,7 +208,6 @@ def read_json_file(
     Returns:
         JSONObj | SpotifyEntityJson: the JSON object from the file
     """
-
     file_path = FLAT_FILES_DIR / "json"
     if host_name:
         file_path /= host_name.lower()
@@ -333,7 +331,6 @@ def live_jwt_token_alt() -> str:
 @pytest.fixture(autouse=True)
 def mock_requests_root() -> YieldFixture[Mocker]:
     """Fixture for mocking sync HTTP requests."""
-
     with Mocker(real_http=False, case_sensitive=False) as mock_requests:
         mock_requests.get(
             compile_regex(
@@ -365,7 +362,6 @@ def mock_open_browser_() -> YieldFixture[MagicMock]:
 @pytest.fixture(name="temp_dir")
 def temp_dir_() -> YieldFixture[Path]:
     """Fixture for creating a temporary directory."""
-
     with TemporaryDirectory() as temp_dir:
         temp_dir_path = Path(temp_dir)
 

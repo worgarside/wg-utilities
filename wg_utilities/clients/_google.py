@@ -11,12 +11,10 @@ from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, TypeAlias, Ty
 from requests import Response, get
 from typing_extensions import TypedDict
 
-from wg_utilities.clients.oauth_client import OAuthClient
-from wg_utilities.loggers import add_stream_handler
+from .oauth_client import OAuthClient
 
 LOGGER = getLogger(__name__)
 LOGGER.setLevel(DEBUG)
-add_stream_handler(LOGGER)
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -120,7 +118,6 @@ class GoogleClient(
         Returns:
             list: a list of dicts, each representing an item from the API
         """
-
         params = (
             {**self.DEFAULT_PARAMS, **params} if params else deepcopy(self.DEFAULT_PARAMS)
         )

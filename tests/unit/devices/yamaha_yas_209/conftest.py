@@ -47,7 +47,6 @@ def fix_colon_keys(json_obj: JSONObj | SpotifyEntityJson) -> JSONObj:
     Returns:
         dict: the fixed JSON object
     """
-
     json_str = dumps(json_obj)
 
     for key in (
@@ -172,7 +171,6 @@ def current_track_null_() -> CurrentTrack:
 @pytest.fixture(name="mock_aiohttp")
 def mock_aiohttp_() -> YieldFixture[aioresponses]:
     """Fixture for mocking async HTTP requests."""
-
     with aioresponses() as mock_aiohttp:
         for path_object in (
             get_dir := FLAT_FILES_DIR
@@ -297,7 +295,6 @@ def upnp_state_variable_(request: pytest.FixtureRequest) -> UpnpStateVariable[st
 @pytest.fixture(name="yamaha_yas_209")
 def yamaha_yas_209_() -> YieldFixture[YamahaYas209]:
     """Fixture for creating a YamahaYAS209 instance."""
-
     yas_209 = YamahaYas209(
         YAS_209_IP,
         start_listener=False,

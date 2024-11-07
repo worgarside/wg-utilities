@@ -17,7 +17,6 @@ def oauth_client_(
     mock_requests: Mocker,  # noqa: ARG001
 ) -> JsonApiClient[dict[str, Any]]:
     """Fixture for creating an OAuthClient instance."""
-
     return JsonApiClient(
         base_url="https://api.example.com",
         log_requests=True,
@@ -29,5 +28,4 @@ def mock_requests_(
     mock_requests_root: Mocker,
 ) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
-
     return mock_requests_root

@@ -33,7 +33,6 @@ if TYPE_CHECKING:
 
 def test_x_model_with_config_has_correct_config() -> None:
     """Check the `Config` options for `BaseModelWithConfig` are correct."""
-
     assert BaseModelWithConfig.model_config["arbitrary_types_allowed"] is True
     assert BaseModelWithConfig.model_config["extra"] == "ignore"
     assert BaseModelWithConfig.model_config["validate_assignment"] is True
@@ -96,7 +95,6 @@ def test_oauth_credentials_update_access_token(
     fake_oauth_credentials: OAuthCredentials,
 ) -> None:
     """Test the `update_access_token` method updates the access token."""
-
     assert oauth_client.access_token == fake_oauth_credentials.access_token
     assert oauth_client.credentials.expiry_epoch == pytest.approx(
         int(time()) + 3600,
@@ -189,7 +187,6 @@ def test_refresh_access_token(
     live_jwt_token_alt: str,
 ) -> None:
     """Test the `refresh_access_token` method loads local credentials if needed."""
-
     del oauth_client._credentials
 
     assert not hasattr(oauth_client, "_credentials")
@@ -215,7 +212,6 @@ def test_refresh_access_token_with_no_local_credentials(
     oauth_client: OAuthClient[dict[str, Any]],
 ) -> None:
     """Test the `refresh_access_token` method runs the first time login."""
-
     oauth_client.creds_cache_path.unlink()
     del oauth_client._credentials
 
@@ -233,7 +229,6 @@ def test_run_first_time_login(
     live_jwt_token_alt: str,
 ) -> None:
     """Test the `run_first_time_login` method runs the correct process."""
-
     oauth_client.temp_auth_server.start_server()
 
     called = False
@@ -295,7 +290,6 @@ def test_run_time_first_login_validates_state_token(
     mock_open_browser: MagicMock,
 ) -> None:
     """Test that an invalid state token throws a ValueError."""
-
     called = False
 
     def _worker() -> None:
@@ -357,7 +351,6 @@ def test_access_token_with_expired_token(
 
 def test_access_token_has_expired(oauth_client: OAuthClient[dict[str, Any]]) -> None:
     """Test the `access_token_has_expired` property returns the expected value."""
-
     assert oauth_client.access_token_has_expired is False
 
     oauth_client._credentials.expiry_epoch = int(time()) - 1
@@ -369,7 +362,6 @@ def test_access_token_has_expired_no_local_credentials(
     oauth_client: OAuthClient[dict[str, Any]],
 ) -> None:
     """Test the `access_token_has_expired` property returns the expected value."""
-
     del oauth_client._credentials
     oauth_client.creds_cache_path.unlink()
 
@@ -485,7 +477,6 @@ def test_creds_cache_path_returns_expected_value(
     oauth_client: OAuthClient[dict[str, Any]],
 ) -> None:
     """Test that `creds_cache_path` returns the expected value."""
-
     oauth_client._creds_cache_path = None
     del oauth_client._credentials
 
@@ -511,7 +502,6 @@ def test_creds_cache_path_with_env_var(
     I've had to patch the `DEFAULT_CACHE_DIR` attribute because I can't set the env
     var for _just_ this test.
     """
-
     oauth_client: OAuthClient[dict[str, Any]] = OAuthClient(
         client_id=fake_oauth_credentials.client_id,
         client_secret=fake_oauth_credentials.client_secret,
@@ -542,7 +532,6 @@ def test_creds_cache_path_with_env_var(
 )
 def test_creds_cache_dir(fake_oauth_credentials: OAuthCredentials) -> None:
     """Test `creds_cache_dir` overrides the default value."""
-
     oauth_client: OAuthClient[dict[str, Any]] = OAuthClient(
         client_id=fake_oauth_credentials.client_id,
         client_secret=fake_oauth_credentials.client_secret,
@@ -588,7 +577,6 @@ def test_refresh_token(
 
 def test_temp_auth_server_property(oauth_client: OAuthClient[dict[str, Any]]) -> None:
     """Test the `temp_auth_server` property creates and returns a `TempAuthServer`."""
-
     assert not hasattr(oauth_client, "_temp_auth_server")
 
     oauth_tas = oauth_client.temp_auth_server
@@ -629,7 +617,6 @@ def test_headless_mode_first_time_login(
 
     `redirect_uri` is parameterised to test that the auth link is formed correctly.
     """
-
     if redirect_uri_override:
         oauth_client.oauth_redirect_uri_override = redirect_uri_override
 
@@ -717,7 +704,6 @@ def test_headless_mode_first_time_login_missing_callback(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the `run_first_time_login` logs the auth link with no callback."""
-
     oauth_client.scopes = ["test_scope", "test_scope_two"]
 
     with patch.object(OAuthClient, "temp_auth_server") as mock_temp_auth_server:
@@ -752,7 +738,6 @@ def test_headless_mode_first_time_login_missing_callback(
 
 def test_use_existing_credentials_only(oauth_client: OAuthClient[dict[str, Any]]) -> None:
     """Test that the `use_existing_credentials_only` property works correctly."""
-
     oauth_client.use_existing_credentials_only = True
 
     with pytest.raises(
@@ -767,7 +752,6 @@ def test_creds_rel_file_path_no_client_id(
     oauth_client: OAuthClient[dict[str, Any]],
 ) -> None:
     """Test that `None` is returns when there is no client ID available."""
-
     oauth_client._client_id = None
     del oauth_client._credentials
 
