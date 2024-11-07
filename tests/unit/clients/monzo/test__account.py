@@ -167,7 +167,7 @@ def test_list_transactions_with_time_parameters(
 
 def test_update_balance_variables(monzo_account: Account, mock_requests: Mocker) -> None:
     """Test that the balance variables are updated correctly."""
-    assert monzo_account.last_balance_update == datetime(1970, 1, 1)
+    assert monzo_account.last_balance_update == datetime(1970, 1, 1, tzinfo=UTC)
     with freeze_time():
         monzo_account.update_balance_variables()
 

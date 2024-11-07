@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, tzinfo
+from datetime import UTC, datetime, tzinfo
 from unittest.mock import patch
 
 import pytest
@@ -75,8 +75,8 @@ def test_get_events_method(calendar: Calendar) -> None:
     ("from_datetime", "to_datetime", "day_limit", "expected_params"),
     [
         (
-            datetime(1996, 4, 20, 12, 30, 45),
-            datetime(1997, 11, 15, 12, 30, 45),
+            datetime(1996, 4, 20, 12, 30, 45, tzinfo=UTC),
+            datetime(1997, 11, 15, 12, 30, 45, tzinfo=UTC),
             None,
             {
                 "maxResults": 500,
@@ -87,7 +87,7 @@ def test_get_events_method(calendar: Calendar) -> None:
             },
         ),
         (
-            datetime(1996, 4, 20, 12, 30, 45),
+            datetime(1996, 4, 20, 12, 30, 45, tzinfo=UTC),
             None,
             None,
             {
@@ -100,7 +100,7 @@ def test_get_events_method(calendar: Calendar) -> None:
         ),
         (
             None,
-            datetime(1997, 11, 15, 12, 30, 45),
+            datetime(1997, 11, 15, 12, 30, 45, tzinfo=UTC),
             None,
             {
                 "maxResults": 500,
@@ -121,8 +121,8 @@ def test_get_events_method(calendar: Calendar) -> None:
             },
         ),
         (
-            datetime(1996, 4, 20, 12, 30, 45),
-            datetime(1997, 11, 15, 12, 30, 45),
+            datetime(1996, 4, 20, 12, 30, 45, tzinfo=UTC),
+            datetime(1997, 11, 15, 12, 30, 45, tzinfo=UTC),
             14,
             {
                 "maxResults": 500,
@@ -133,7 +133,7 @@ def test_get_events_method(calendar: Calendar) -> None:
             },
         ),
         (
-            datetime(1996, 4, 20, 12, 30, 45),
+            datetime(1996, 4, 20, 12, 30, 45, tzinfo=UTC),
             None,
             14,
             {
@@ -146,7 +146,7 @@ def test_get_events_method(calendar: Calendar) -> None:
         ),
         (
             None,
-            datetime(1997, 11, 15, 12, 30, 45),
+            datetime(1997, 11, 15, 12, 30, 45, tzinfo=UTC),
             14,
             {
                 "maxResults": 500,
