@@ -438,7 +438,7 @@ def test_target_type_is_dict() -> None:
         found.append(value)
         return value
 
-    process_list(  # type: ignore[misc]
+    process_list(
         data,
         target_type=dict,
         target_processor_func=_cb,
