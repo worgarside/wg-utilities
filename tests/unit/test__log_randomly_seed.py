@@ -17,5 +17,4 @@ add_stream_handler(_LOGGER)
 
 def test_randomly_seed(request: pytest.FixtureRequest) -> None:
     """Ensure the randomly seed is always logged."""
-
     _LOGGER.info("Randomly seed: %s", request.config.getoption("--randomly-seed"))

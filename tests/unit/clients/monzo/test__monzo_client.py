@@ -30,7 +30,6 @@ if TYPE_CHECKING:
 
 def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     """Test instantiating a `MonzoClient`."""
-
     client = MonzoClient(
         client_id=fake_oauth_credentials.client_id,
         client_secret=fake_oauth_credentials.client_secret,
@@ -55,7 +54,6 @@ def test_deposit_into_pot_makes_correct_request(
     mock_requests: Mocker,
 ) -> None:
     """Test that the `deposit_into_pot` method makes the correct request."""
-
     with freeze_time("2020-01-01 00:00:00"):
         monzo_client.deposit_into_pot(monzo_pot, 100)
 
@@ -81,7 +79,6 @@ def test_deposit_into_pot_raises_error_on_failure(
     mock_requests: Mocker,
 ) -> None:
     """Test that the `deposit_into_pot` method raises an error on failure."""
-
     mock_requests.put(
         f"https://api.monzo.com/pots/{monzo_pot.id}/deposit",
         status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -116,7 +113,6 @@ def test_list_accounts_method(
     live_jwt_token: str,
 ) -> None:
     """Test that the `list_accounts` returns the single expected `Account` instance."""
-
     expected_accounts: list[AccountJson] = [
         acc
         for acc in read_json_file("accounts.json", host_name="monzo")["accounts"]
@@ -176,7 +172,6 @@ def test_list_pots_method(
     mock_requests: Mocker,
 ) -> None:
     """Test that the `list_pots` returns the single expected `Pot` instance."""
-
     all_pots = [
         Pot(**pot_json)
         for pot_json in read_json_file(
@@ -225,7 +220,6 @@ def test_get_pot_by_name_exact_match_true(
     monzo_pot: Pot,
 ) -> None:
     """Test that the `get_pot_by_name` returns the single expected `Pot` instance."""
-
     assert monzo_client.get_pot_by_name(monzo_pot.name, exact_match=True) == monzo_pot
 
     assert mock_requests.last_request
@@ -245,7 +239,6 @@ def test_get_pot_by_name_exact_match_false(
     monzo_pot: Pot,
 ) -> None:
     """Test that the `get_pot_by_name` returns the single expected `Pot` instance."""
-
     assert monzo_pot.name == "Ibiza Mad One"
 
     assert monzo_client.get_pot_by_name(monzo_pot.name, exact_match=False) == monzo_pot
@@ -268,7 +261,6 @@ def test_current_account_property(
     monzo_account: Account,
 ) -> None:
     """Test that the `current_account` property returns the expected value."""
-
     assert not hasattr(monzo_client, "_current_account")
 
     assert monzo_client.current_account == monzo_account
@@ -277,7 +269,6 @@ def test_current_account_property(
 
 def test_transaction_json_annotations_vs_transaction_fields() -> None:
     """Test that the `TransactionJson` annotations match the `Transaction` fields."""
-
     for ak, av in TransactionJson.__annotations__.items():
         assert ak in Transaction.model_fields
 

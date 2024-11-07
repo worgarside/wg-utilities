@@ -261,7 +261,6 @@ class JsonApiClient(Generic[GetJsonResponse]):
         Returns:
             dict: the JSON from the response
         """
-
         return self._request_json_response(
             method=get,
             url=url,
@@ -305,7 +304,6 @@ class JsonApiClient(Generic[GetJsonResponse]):
         Returns:
             dict: the JSON from the response
         """
-
         return self._request_json_response(
             method=post,
             url=url,

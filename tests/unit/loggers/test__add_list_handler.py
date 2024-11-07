@@ -21,7 +21,6 @@ from wg_utilities.loggers.list_handler import ListHandler, add_list_handler
 
 def test_handler_is_applied_to_logger_correctly(logger: Logger) -> None:
     """Test that the handler is applied to the logger correctly."""
-
     add_list_handler(logger)
 
     assert len(logger.handlers) == 1
@@ -49,7 +48,6 @@ def test_handler_is_applied_to_logger_correctly(logger: Logger) -> None:
 )
 def test_log_level_is_set_correctly(level: int, logger: Logger) -> None:
     """Test that the log level is set correctly."""
-
     add_list_handler(logger, level=level)
 
     assert len(logger.handlers) == 1
@@ -69,7 +67,6 @@ def test_log_list_can_be_passed_in_then_used_without_accessing_from_handler(
     Test that we can pass a list into `add_list_handler` and then reference it directly
     without needing to access the records from the handler itself
     """
-
     log_list: list[LogRecord] = []
     logged_messages = []
 

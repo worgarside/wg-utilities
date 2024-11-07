@@ -24,7 +24,6 @@ class FlushableQueueListener(QueueListener):
         Args:
             timeout (float): the maximum time to wait for the queue to empty
         """
-
         start_time = time()
 
         while not self.queue.empty():

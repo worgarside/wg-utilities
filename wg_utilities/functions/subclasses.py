@@ -24,7 +24,6 @@ def subclasses_recursive(
     Yields:
         type: a subclass of the given class
     """
-
     for subclass in typ.__subclasses__():
         if track_visited:
             __visited = __visited or set()

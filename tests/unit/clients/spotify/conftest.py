@@ -35,7 +35,6 @@ if TYPE_CHECKING:
 
 def snapshot_id_request(playlist_id: str, jwt: str) -> dict[str, str | dict[str, str]]:
     """Create a `mock_requests` request for assertions."""
-
     return {
         "method": "GET",
         "url": f"{SpotifyClient.BASE_URL}/playlists/{playlist_id}?fields=snapshot_id",
@@ -71,7 +70,6 @@ def spotify_album_(spotify_client: SpotifyClient) -> SpotifyAlbum:
     3210 (Ross from Friends Remix)
     https://open.spotify.com/track/5U5X1TnRhnp9GogRfaE9XQ
     """
-
     return SpotifyAlbum.from_json_response(
         read_json_file("v1/albums/4julBAGYv4WmRXwhjJ2LPD.json", host_name="spotify"),
         spotify_client=spotify_client,
@@ -85,7 +83,6 @@ def spotify_artist_(spotify_client: SpotifyClient) -> Artist:
     Ross from Friends
     https://open.spotify.com/artist/1Ma3pJzPIrAyYPNRkp3SUF
     """
-
     return Artist.from_json_response(
         read_json_file("v1/artists/1Ma3pJzPIrAyYPNRkp3SUF.json", host_name="spotify"),
         spotify_client=spotify_client,
@@ -99,7 +96,6 @@ def spotify_client_(
     mock_requests: Mocker,  # noqa: ARG001
 ) -> SpotifyClient:
     """Fixture for creating a `SpotifyClient` instance."""
-
     (
         creds_cache_path := temp_dir / "oauth_credentials/oauth_credentials.json"
     ).write_text(fake_oauth_credentials.model_dump_json(exclude_none=True))
@@ -117,7 +113,6 @@ def spotify_entity_(
     spotify_client: SpotifyClient,
 ) -> SpotifyEntity[SpotifyBaseEntityJson]:
     """Fixture for creating a `SpotifyEntity` instance."""
-
     return SpotifyEntity.from_json_response(
         {
             "href": f"{SpotifyClient.BASE_URL}/artists/0gxyHStUsqpMadRV0Di1Qt",
@@ -138,7 +133,6 @@ def spotify_playlist_(spotify_client: SpotifyClient) -> Playlist:
     Chill Electronica
     https://open.spotify.com/playlist/2lMx8FU0SeQ7eA5kcMlNpX
     """
-
     playlist = Playlist.from_json_response(
         read_json_file("v1/playlists/2lmx8fu0seq7ea5kcmlnpx.json", host_name="spotify"),
         spotify_client=spotify_client,
@@ -157,7 +151,6 @@ def spotify_playlist_alt_(spotify_client: SpotifyClient) -> Playlist:
     JAMBOX Jams
     https://open.spotify.com/playlist/4Vv023MaZsc8NTWZ4WJvIL
     """
-
     return Playlist.from_json_response(
         read_json_file("v1/playlists/4vv023mazsc8ntwz4wjvil.json", host_name="spotify"),
         spotify_client=spotify_client,
@@ -167,7 +160,6 @@ def spotify_playlist_alt_(spotify_client: SpotifyClient) -> Playlist:
 @pytest.fixture(name="spotify_track")
 def spotify_track_(spotify_client: SpotifyClient) -> Track:
     """Fixture for creating a `Track` instance."""
-
     return Track.from_json_response(
         read_json_file("v1/tracks/27cgqh0vrhvem61ugtnord.json", host_name="spotify"),
         spotify_client=spotify_client,
@@ -177,7 +169,6 @@ def spotify_track_(spotify_client: SpotifyClient) -> Track:
 @pytest.fixture(name="spotify_user")
 def spotify_user_(spotify_client: SpotifyClient) -> User:
     """Fixture for creating a Spotify User instance."""
-
     return User.from_json_response(
         read_json_file("v1/me.json", host_name="spotify"),
         spotify_client=spotify_client,
@@ -187,7 +178,6 @@ def spotify_user_(spotify_client: SpotifyClient) -> User:
 @pytest.fixture(name="mock_requests", autouse=True)
 def mock_requests_(mock_requests_root: Mocker) -> Mocker:
     """Fixture for mocking sync HTTP requests."""
-
     for path_object in (spotify_dir := FLAT_FILES_DIR / "json" / "spotify" / "v1").rglob(
         "*",
     ):

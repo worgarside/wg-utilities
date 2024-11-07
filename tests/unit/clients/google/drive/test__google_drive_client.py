@@ -14,7 +14,6 @@ if TYPE_CHECKING:
 
 def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     """Test that the `GoogleDriveClient` class can be instantiated."""
-
     client = GoogleDriveClient(
         client_id=fake_oauth_credentials.client_id,
         client_secret=fake_oauth_credentials.client_secret,
@@ -26,7 +25,6 @@ def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
 
 def test_my_drive_property(google_drive_client: GoogleDriveClient) -> None:
     """Test that the `my_drive` property returns a `Drive` object."""
-
     with patch.object(
         google_drive_client,
         "get_json_response",
@@ -47,7 +45,6 @@ def test_my_drive_property(google_drive_client: GoogleDriveClient) -> None:
 
 def test_shared_drives_property(google_drive_client: GoogleDriveClient) -> None:
     """Test that the `shared_drives` property returns a list of `Drive` objects."""
-
     with patch.object(
         google_drive_client,
         "get_items",

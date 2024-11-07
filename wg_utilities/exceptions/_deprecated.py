@@ -82,7 +82,6 @@ def on_exception(
     Returns:
         Callable: the actual decorator
     """
-
     if default_return_value is not None and raise_after_callback:
         raise ValueError(
             "The `default_return_value` parameter can only be set when"

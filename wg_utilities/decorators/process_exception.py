@@ -41,7 +41,6 @@ def process_exception(
     Returns:
         Callable: the actual decorator
     """
-
     if default_return_value is not None and raise_after_processing:
         raise ValueError(
             "The `default_return_value` parameter can only be set when"
@@ -63,7 +62,6 @@ def process_exception(
             Raises:
                 Exception: any exception from the decorated function
             """
-
             try:
                 return func(*args, **kwargs)
             except exceptions as exc:

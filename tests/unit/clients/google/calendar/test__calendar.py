@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, tzinfo
+from datetime import UTC, datetime, tzinfo
 from unittest.mock import patch
 
 import pytest
@@ -15,7 +15,6 @@ from wg_utilities.clients.google_calendar import Calendar, Event, GoogleCalendar
 
 def test_instantiation(google_calendar_client: GoogleCalendarClient) -> None:
     """Test that the `Calendar` class can be instantiated."""
-
     calendar_json = read_json_file(
         "v3/calendars/primary.json",
         host_name="google/calendar",
@@ -35,7 +34,6 @@ def test_timezone_tzinfo_conversion(
     google_calendar_client: GoogleCalendarClient,
 ) -> None:
     """Test that the `timeZone` field validator successfully converts str to tzinfo."""
-
     calendar_json = read_json_file(
         "v3/calendars/primary.json",
         host_name="google/calendar",
@@ -56,7 +54,6 @@ def test_timezone_tzinfo_conversion(
 
 def test_get_event_by_id(calendar: Calendar) -> None:
     """Test that the `get_event_by_id` method returns an `Event` object."""
-
     event = calendar.get_event_by_id("jt171go86rkonwwkyd5q7m84mm")
 
     assert isinstance(event, Event)
@@ -66,7 +63,6 @@ def test_get_event_by_id(calendar: Calendar) -> None:
 
 def test_get_events_method(calendar: Calendar) -> None:
     """Test that the `get_events` method returns a list of `Event` objects."""
-
     events = calendar.get_events()
 
     assert isinstance(events, list)
@@ -79,8 +75,8 @@ def test_get_events_method(calendar: Calendar) -> None:
     ("from_datetime", "to_datetime", "day_limit", "expected_params"),
     [
         (
-            datetime(1996, 4, 20, 12, 30, 45),
-            datetime(1997, 11, 15, 12, 30, 45),
+            datetime(1996, 4, 20, 12, 30, 45, tzinfo=UTC),
+            datetime(1997, 11, 15, 12, 30, 45, tzinfo=UTC),
             None,
             {
                 "maxResults": 500,
@@ -91,7 +87,7 @@ def test_get_events_method(calendar: Calendar) -> None:
             },
         ),
         (
-            datetime(1996, 4, 20, 12, 30, 45),
+            datetime(1996, 4, 20, 12, 30, 45, tzinfo=UTC),
             None,
             None,
             {
@@ -104,7 +100,7 @@ def test_get_events_method(calendar: Calendar) -> None:
         ),
         (
             None,
-            datetime(1997, 11, 15, 12, 30, 45),
+            datetime(1997, 11, 15, 12, 30, 45, tzinfo=UTC),
             None,
             {
                 "maxResults": 500,
@@ -125,8 +121,8 @@ def test_get_events_method(calendar: Calendar) -> None:
             },
         ),
         (
-            datetime(1996, 4, 20, 12, 30, 45),
-            datetime(1997, 11, 15, 12, 30, 45),
+            datetime(1996, 4, 20, 12, 30, 45, tzinfo=UTC),
+            datetime(1997, 11, 15, 12, 30, 45, tzinfo=UTC),
             14,
             {
                 "maxResults": 500,
@@ -137,7 +133,7 @@ def test_get_events_method(calendar: Calendar) -> None:
             },
         ),
         (
-            datetime(1996, 4, 20, 12, 30, 45),
+            datetime(1996, 4, 20, 12, 30, 45, tzinfo=UTC),
             None,
             14,
             {
@@ -150,7 +146,7 @@ def test_get_events_method(calendar: Calendar) -> None:
         ),
         (
             None,
-            datetime(1997, 11, 15, 12, 30, 45),
+            datetime(1997, 11, 15, 12, 30, 45, tzinfo=UTC),
             14,
             {
                 "maxResults": 500,
@@ -182,7 +178,6 @@ def test_get_events_datetime_parameters(
     expected_params: dict[str, str],
 ) -> None:
     """Test that various to/from datetime parameters are handled correctly."""
-
     with freeze_time("2022-01-01T00:00:00"), patch.object(
         calendar.google_client,
         "get_items",
@@ -201,5 +196,4 @@ def test_get_events_datetime_parameters(
 
 def test_str_method(calendar: Calendar) -> None:
     """Test that the `__str__` method returns a string repr of the calendar."""
-
     assert str(calendar) == calendar.summary

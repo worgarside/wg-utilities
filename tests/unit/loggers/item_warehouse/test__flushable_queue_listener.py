@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 
 def test_flush_and_stop() -> None:
     """Test the flush_and_stop method of the FlushableQueueListener class."""
-
     log_queue = MagicMock()
 
     empty_call_count = 0
@@ -50,7 +49,6 @@ def test_flush_and_stop_timeout(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test the flush_and_stop exits cleanly when it times out."""
-
     log_queue = MagicMock()
 
     log_queue.empty.return_value = False

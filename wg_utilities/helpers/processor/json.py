@@ -318,7 +318,6 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             allow_callback_failures (bool): Whether to allow callback failures. Defaults to False.
             allow_mutation (bool): Whether the callback is allowed to mutate the input object. Defaults to True.
         """
-
         if getattr(callback, "__name__", None) == "<lambda>":
             callback = JSONProcessor.callback(allow_mutation=allow_mutation)(callback)
 
@@ -375,7 +374,6 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         subclass will be returned. Otherwise, the getter or iterator for the exact type will be
         returned.
         """
-
         if (exact_match := mapping.get(typ)) or not self.config.process_subclasses:
             return exact_match
 
@@ -405,7 +403,8 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         with suppress(*self.config.ignored_loc_lookup_errors):
             try:
                 if custom_getter := self._get_getter_or_iterator_factory(
-                    type(obj), self.getter_mapping
+                    type(obj),
+                    self.getter_mapping,
                 ):
                     return custom_getter(obj, loc)
 
@@ -460,7 +459,8 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
         obj: Mapping[K, Any] | Sequence[Any] | BaseModel,
     ) -> Iterator[K] | Iterator[int] | Iterator[str] | Sentinel:
         if custom_iter := self._get_getter_or_iterator_factory(
-            type(obj), self.iterator_factory_mapping
+            type(obj),
+            self.iterator_factory_mapping,
         ):
             return custom_iter(obj)
 
@@ -647,7 +647,6 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
             obj: The JSON object to process.
             kwargs: Any additional keyword arguments to pass to the callback(s).
         """
-
         for loc in self._iterate(obj):
             try:
                 self._process_loc(
@@ -824,7 +823,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
     ) -> Callable[[Callable[P, R]], Callback[P, R | Sentinel]]: ...
 
     @classmethod
-    def callback(
+    def callback(  # noqa: C901
         cls,
         *,
         allow_mutation: bool = True,
@@ -843,7 +842,6 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
 
         def _decorator(func: Callable[P, R]) -> Callback[P, R | Sentinel]:
             """Decorator to mark a function as a callback for use with the JSONProcessor."""
-
             if isinstance(func, classmethod):
                 raise InvalidCallbackError(
                     "@JSONProcessor.callback must be used _after_ @classmethod",

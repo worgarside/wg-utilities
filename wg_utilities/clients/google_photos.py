@@ -91,7 +91,6 @@ class GooglePhotosEntity(BaseModelWithConfig):
         google_client: GooglePhotosClient,
     ) -> Self:
         """Create an entity from a JSON response."""
-
         value_data: dict[str, Any] = {
             "google_client": google_client,
             **value,
@@ -127,7 +126,6 @@ class Album(GooglePhotosEntity):
     @classmethod
     def _validate_title(cls, value: str) -> str:
         """Validate the title of the album."""
-
         if not value:
             raise ValueError("Album title cannot be empty.")
 
@@ -141,7 +139,6 @@ class Album(GooglePhotosEntity):
         Returns:
             list: a list of MediaItem instances, representing the contents of the album
         """
-
         if not hasattr(self, "_media_items"):
             self._media_items = [
                 MediaItem.from_json_response(item, google_client=self.google_client)
@@ -157,7 +154,6 @@ class Album(GooglePhotosEntity):
 
     def __contains__(self, item: MediaItem) -> bool:
         """Check if the album contains the given media item."""
-
         return item.id in [media_item.id for media_item in self.media_items]
 
 
@@ -225,7 +221,6 @@ class MediaItem(GooglePhotosEntity):
         Returns:
                 str: the path to the downloaded file (self.local_path)
         """
-
         if isinstance(target_directory, str):
             target_directory = (
                 Path.cwd() if target_directory == "" else Path(target_directory)
@@ -355,7 +350,6 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
         Returns:
             Album: the album with the given ID
         """
-
         if hasattr(self, "_albums"):
             for album in self._albums:
                 if album.id == album_id:
@@ -385,7 +379,6 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
         Raises:
             FileNotFoundError: if the client can't find an album with the correct name
         """
-
         LOGGER.info("Getting metadata for album `%s`", album_name)
         for album in self.albums:
             if album.title == album_name:
@@ -400,7 +393,6 @@ class GooglePhotosClient(GoogleClient[GooglePhotosEntityJson]):
         Returns:
             list: a list of Album instances
         """
-
         if not hasattr(self, "_albums"):
             self._albums = [
                 Album.from_json_response(item, google_client=self)

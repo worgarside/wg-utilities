@@ -63,7 +63,6 @@ def test_get_method_with_sample_responses(
     live_jwt_token: str,
 ) -> None:
     """Test the `_get` method processes a request and its response correctly."""
-
     endpoint = (
         f"/{file_path.relative_to(FLAT_FILES_DIR / 'json/spotify/v1').with_suffix('')}"
     )
@@ -125,7 +124,6 @@ def test_get_method_without_leading_slash(
     live_jwt_token: str,
 ) -> None:
     """Test the `_get` method processes a request and its response correctly."""
-
     endpoint = (
         f"/{file_path.relative_to(FLAT_FILES_DIR / 'json/spotify/v1').with_suffix('')}"
     )
@@ -220,7 +218,6 @@ def test_get_items_from_url_no_pagination(
     mock_requests: Mocker,
 ) -> None:
     """Test that the `get_items_from_url` method processes a single page correctly."""
-
     items = spotify_client.get_items(
         url=f"{SpotifyClient.BASE_URL}/artists/1ma3pjzpirayypnrkp3suf/albums",
     )
@@ -235,7 +232,6 @@ def test_get_items_from_url_with_pagination(
     mock_requests: Mocker,
 ) -> None:
     """Test that the `get_items_from_url` method processes multiple pages correctly."""
-
     items = spotify_client.get_items(
         url=f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
     )
@@ -260,7 +256,6 @@ def test_get_items_from_url_handles_params_correctly(
     live_jwt_token: str,
 ) -> None:
     """Test that the `params` dict are turned into a query string correctly."""
-
     mock_requests.get(
         f"{SpotifyClient.BASE_URL}/foo?key=value&query=string&limit=50",
         status_code=HTTPStatus.OK,
@@ -290,7 +285,6 @@ def test_get_items_from_url_hard_limit(
     live_jwt_token: str,
 ) -> None:
     """Test the `hard_limit` argument works correctly."""
-
     items = spotify_client.get_items(
         url=f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
         hard_limit=75,
@@ -329,7 +323,6 @@ def test_get_items_from_url_limit_func(
     live_jwt_token: str,
 ) -> None:
     """Test that a limit function can be passed to `get_items_from_url`."""
-
     items = spotify_client.get_items(
         url=f"{SpotifyClient.BASE_URL}/playlists/2lmx8fu0seq7ea5kcmlnpx/tracks",
         limit_func=lambda item: datetime.strptime(
@@ -435,7 +428,6 @@ def test_get_items_from_url_limit_func(
 
 def test_get_items_from_url_different_list_key(spotify_client: SpotifyClient) -> None:
     """Test items under a different key are correctly extracted."""
-
     items = spotify_client.get_items("/me/player/devices")
 
     assert not items
@@ -447,7 +439,6 @@ def test_get_items_from_url_different_list_key(spotify_client: SpotifyClient) ->
 
 def test_get_items_from_url_with_top_level_key(spotify_client: SpotifyClient) -> None:
     """Test items under a top level key *and* and list key are correctly extracted."""
-
     items = spotify_client.get_items(
         "/me/following",
         params={
@@ -473,7 +464,6 @@ def test_get_json_response_returns_json(
     mock_requests: Mocker,
 ) -> None:
     """Test that the JSON content of the response is returned as a dict."""
-
     assert isinstance(spotify_client.get_json_response("/me"), dict)
 
     # Test when no (valid) JSON is returned
@@ -554,7 +544,6 @@ def test_search_method_get_best_match_only(
     live_jwt_token: str,
 ) -> None:
     """Test the `search` method processes the request and response correctly."""
-
     search_result = spotify_client.search(
         search_term,
         entity_types=[entity_type_str],
@@ -587,7 +576,6 @@ def test_search_method_get_best_match_only_multiple_entity_types_throws_error(
     mock_requests: Mocker,
 ) -> None:
     """Test the `search` method returns `None` when no results are found."""
-
     with pytest.raises(ValueError) as exc_info:
         spotify_client.search(
             "Mirrors",
@@ -616,7 +604,6 @@ def test_search_method_get_best_match_only_multiple_entity_types_throws_error(
 
 def test_search_method_invalid_entity_type(spotify_client: SpotifyClient) -> None:
     """Test that an exception is thrown when an invalid entity type is requested."""
-
     with pytest.raises(ValueError) as exc_info:
         spotify_client.search(
             "Mirrors",
@@ -635,7 +622,6 @@ def test_search_method_with_pagination(
     live_jwt_token: str,
 ) -> None:
     """Test that when >50 results are returned, they paginate correctly."""
-
     # An uncommon search, so I don't have to manually reduce the number of files
     results: ParsedSearchResponse = spotify_client.search(
         "uncommon search",
@@ -690,7 +676,6 @@ def test_search_method_with_pagination(
 
 def test_search_no_results(spotify_client: SpotifyClient) -> None:
     """Test that when no results are returned, an empty dict is returned."""
-
     assert (
         spotify_client.search(
             "S6aoG9N@zsyeCr@3m@WhtgB$2LL%XYIA6r0yWmt0ZECc1MoRx%zCB$BW6lKTZHaMe6XBMQiiyenkPt!jpnLvoV4sUq35X9u7!uA",
@@ -714,7 +699,6 @@ def test_access_token_property(
     live_jwt_token: str,
 ) -> None:
     """Test that the `access_token` leverages the SpotifyOAuth instance."""
-
     assert spotify_client.access_token == live_jwt_token
 
 
@@ -725,7 +709,6 @@ def test_current_user_property(
     live_jwt_token: str,
 ) -> None:
     """Test that the `current_user` property returns the correct data."""
-
     assert not hasattr(spotify_client, "_current_user")
     assert spotify_client.current_user == spotify_user
     assert hasattr(spotify_client, "_current_user")
@@ -756,7 +739,6 @@ def test_add_tracks_to_playlist(
     live_jwt_token: str,
 ) -> None:
     """Test `add_tracks_to_playlist` makes the correct requests."""
-
     playlist_to_add_to = spotify_client.get_playlist_by_id("4Vv023MaZsc8NTWZ4WJvIL")
     new_tracks_to_add = [
         track for track in spotify_playlist.tracks if track not in playlist_to_add_to
@@ -814,7 +796,6 @@ def test_add_tracks_to_playlist_ignores_tracks_already_in_playlist(
     live_jwt_token: str,
 ) -> None:
     """Test that tracks which are already in the playlist are ignored."""
-
     playlist_to_add_to = spotify_client.get_playlist_by_id("4Vv023MaZsc8NTWZ4WJvIL")
     tracks_to_add = playlist_to_add_to.tracks
 
@@ -856,7 +837,6 @@ def test_create_playlist_method(
     collaborative: bool,
 ) -> None:
     """Test that the `create_playlist` method makes the correct requests."""
-
     new_playlist = spotify_client.create_playlist(
         name="Test Playlist",
         description="This is a test playlist.",
@@ -881,7 +861,6 @@ def test_get_album_by_id_method(
     live_jwt_token: str,
 ) -> None:
     """Test that the correct Album instance is returned."""
-
     result = spotify_client.get_album_by_id(album_id)
 
     assert isinstance(result, Album)
@@ -913,7 +892,6 @@ def test_get_artist_by_id_method(
     live_jwt_token: str,
 ) -> None:
     """Test that the correct Artist instance is returned."""
-
     result = spotify_client.get_artist_by_id(artist_id)
 
     assert isinstance(result, Artist)
@@ -950,7 +928,6 @@ def test_get_playlist_by_id_method(
     live_jwt_token: str,
 ) -> None:
     """Test that the correct Playlist instance is returned."""
-
     result = spotify_client.get_playlist_by_id(playlist_id)
 
     assert isinstance(result, Playlist)
@@ -981,7 +958,6 @@ def test_get_playlist_by_id_after_property_accessed(
     mock_requests: Mocker,
 ) -> None:
     """Test that the correct Playlist instance is returned."""
-
     _ = spotify_client.current_user.playlists
 
     mock_requests.reset()
@@ -1011,7 +987,6 @@ def test_get_track_by_id_method(
     live_jwt_token: str,
 ) -> None:
     """Test that the correct Track instance is returned."""
-
     result = spotify_client.get_track_by_id(track_id)
 
     assert isinstance(result, Track)
@@ -1039,7 +1014,6 @@ def test_remove_tracks_from_playlist(
     live_jwt_token: str,
 ) -> None:
     """Test `remove_tracks_from_playlist` makes the correct requests."""
-
     playlist_to_remove_from = spotify_client.get_playlist_by_id("4Vv023MaZsc8NTWZ4WJvIL")
     tracks_to_remove = playlist_to_remove_from.tracks[:5]  # Remove first 5 tracks
     assert all(track in playlist_to_remove_from for track in tracks_to_remove)
@@ -1070,7 +1044,7 @@ def test_remove_tracks_from_playlist(
     assert len(caplog.records) == 1
     assert caplog.records[0].levelname == "INFO"
     assert caplog.records[0].message == dumps(
-        {"snapshot_id": "MTAsZDVmZjMjJhZTVmZjcxOGNlMA=="}
+        {"snapshot_id": "MTAsZDVmZjMjJhZTVmZjcxOGNlMA=="},
     )
 
     assert all(track not in playlist_to_remove_from.tracks for track in tracks_to_remove)

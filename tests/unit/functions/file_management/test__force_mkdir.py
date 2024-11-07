@@ -13,7 +13,6 @@ from wg_utilities.functions.file_management import force_mkdir
 @pytest.mark.xdist_group("force_mkdir")
 def test_directories_created_correctly() -> None:
     """Test that the directories are created correctly."""
-
     target_path = (remove_me := Path(__file__).parent / "one") / "two" / "three"
 
     assert not remove_me.exists()
@@ -33,7 +32,6 @@ def test_directories_created_correctly() -> None:
 @pytest.mark.xdist_group("force_mkdir")
 def test_directories_created_correctly_with_path_is_file() -> None:
     """Test that the directories are created correctly."""
-
     target_path = (
         (remove_me := Path(__file__).parent / "one") / "two" / "three" / "four.txt"
     )

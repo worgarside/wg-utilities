@@ -18,7 +18,6 @@ def test_vanilla_handler_is_applied_to_logger_correctly(
     logger: Logger,
 ) -> None:
     """Test that the handler is applied to the logger correctly."""
-
     add_warehouse_handler(logger, warehouse_host=IWH_DOT_COM, disable_queue=True)
 
     assert len(logger.handlers) == 1
@@ -37,7 +36,6 @@ def test_queue_handler_is_applied_to_logger_correctly(
     logger: Logger,
 ) -> None:
     """Test that the handler is applied to the logger correctly."""
-
     with patch(
         "wg_utilities.loggers.item_warehouse.warehouse_handler.FlushableQueueListener",
     ) as mock_flushable_queue_listener, patch(
@@ -88,7 +86,6 @@ def test_log_level_is_set_correctly(
     logger: Logger,
 ) -> None:
     """Test that the log level is set correctly."""
-
     add_warehouse_handler(
         logger,
         level=level,
@@ -114,7 +111,6 @@ def test_handler_only_added_once(
     disable_queue: bool,
 ) -> None:
     """Test that a WarehouseHandler can only be added to a Logger once."""
-
     caplog.set_level(WARNING)
 
     assert len(logger.handlers) == 0

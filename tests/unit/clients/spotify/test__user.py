@@ -27,7 +27,6 @@ if TYPE_CHECKING:
 
 def test_instantiation(spotify_client: SpotifyClient) -> None:
     """Test instantiation of User class."""
-
     user = User.from_json_response(
         {  # type: ignore[arg-type]
             "country": "GB",
@@ -88,7 +87,6 @@ def test_get_playlists_by_name_unique_names(
     spotify_playlist: Playlist,
 ) -> None:
     """Test that the `get_playlists_by_name` searches the User's playlists correctly."""
-
     result = spotify_user.get_playlists_by_name("Chill Electronica", return_all=False)
 
     assert result == spotify_playlist
@@ -104,7 +102,6 @@ def test_get_playlists_by_name_duplicate_names(
     easiest way to do that is to patch the `playlists` property to return the usual
     result, but doubled.
     """
-
     user_playlists = spotify_user.playlists
     spotify_user._playlists = user_playlists + user_playlists
 
@@ -118,7 +115,6 @@ def test_get_playlists_by_name_duplicate_names(
 
 def test_get_playlists_by_name_no_matches(spotify_user: User) -> None:
     """Test that `get_playlists_by_name` returns None if no matches are found."""
-
     assert spotify_user.get_playlists_by_name("Bad Music", return_all=False) is None
     assert spotify_user.get_playlists_by_name("Bad Music", return_all=True) == []
 
@@ -169,7 +165,6 @@ def test_get_recently_liked_tracks_day_limit(
     live_jwt_token: str,
 ) -> None:
     """Test that the expected number of tracks are returned by the method."""
-
     result = spotify_user.get_recently_liked_tracks(day_limit=7)
 
     assert result
@@ -267,7 +262,6 @@ def test_save_unsave_methods(
 
 def test_save_unsave_methods_with_invalid_type(spotify_user: User) -> None:
     """Test that `save` method raises an error if an invalid entity type is passed."""
-
     device = Device.model_validate(
         read_json_file("spotify/v1/me/player/devices/limit=50.json")["devices"][
             0  # type: ignore[index]
@@ -297,7 +291,6 @@ def test_albums_property(
     live_jwt_token: str,
 ) -> None:
     """Test that `albums` property makes the expected request."""
-
     assert not hasattr(spotify_user, "_albums")
     assert all(
         isinstance(album, Album) and album.spotify_client == spotify_user.spotify_client
@@ -335,7 +328,6 @@ def test_artists_property(
     live_jwt_token: str,
 ) -> None:
     """Test that `artists` property makes the expected request."""
-
     prefix = "spotify/v1/me/following/type=artist&"
 
     assert spotify_user.artists == [
@@ -387,7 +379,6 @@ def test_current_track_property(
     live_jwt_token: str,
 ) -> None:
     """Test that `current_track` property makes the expected request."""
-
     assert spotify_user.current_track == Track.from_json_response(
         read_json_file(  # type: ignore[arg-type]
             "spotify/v1/tracks/6zJUp1ihdid6Kn3Ndgcy82.json",
@@ -477,7 +468,6 @@ def test_devices_property(
     live_jwt_token: str,
 ) -> None:
     """Test that `devices` property makes the expected request."""
-
     assert spotify_user.devices == [
         Device.model_validate(device_json)
         for device_json in read_json_file("spotify/v1/me/player/devices/limit=50.json")[  # type: ignore[union-attr]
@@ -737,7 +727,6 @@ def test_reset_properties(
     mock_requests: Mocker,
 ) -> None:
     """Test that `reset_properties` resets the properties of the user."""
-
     attr_names = (
         "_albums",
         "_artists",
@@ -782,7 +771,6 @@ def test_reset_properties(
 
 def test_playlist_refresh_time(spotify_user: User, mock_requests: Mocker) -> None:
     """Test that `playlist` property refreshes after 15 minutes."""
-
     assert not mock_requests.request_history
 
     with freeze_time(frozen_time := datetime.now(UTC)):

@@ -19,7 +19,6 @@ from wg_utilities.loggers.item_warehouse.base_handler import (
 
 def test_instantiation() -> None:
     """Test that the BaseWarehouseHandler class can be instantiated."""
-
     bwh_handler = BaseWarehouseHandler()
 
     assert isinstance(bwh_handler, BaseWarehouseHandler)
@@ -65,13 +64,11 @@ def test_instantiation() -> None:
 )
 def test_get_log_hash(log_record: LogRecord, expected_hash: str) -> None:
     """Test that the get_log_hash method returns consistent results."""
-
     assert BaseWarehouseHandler.get_log_hash(log_record) == expected_hash
 
 
 def test_emit() -> None:
     """Test that the emit method raises a NotImplementedError."""
-
     with pytest.raises(NotImplementedError):
         BaseWarehouseHandler(
             warehouse_host="item-warehouse.com",
@@ -91,7 +88,6 @@ def test_emit() -> None:
 )
 def test_get_base_url(host: str | None, port: int | None, expected_url: str) -> None:
     """Test that the get_base_url method returns the expected value."""
-
     assert BaseWarehouseHandler.get_base_url(host, port) == expected_url
 
 
@@ -144,14 +140,12 @@ def test_get_log_payload(
     expected_payload: LogPayload | None,
 ) -> None:
     """Test that the get_log_payload method returns the expected value."""
-
     if expected_payload:
         assert BaseWarehouseHandler.get_log_payload(log_record) == expected_payload
 
 
 def test_get_log_payload_exception() -> None:
     """Test an exception log is processed correctly."""
-
     exc = TestError("Test error message")
 
     log_record = LogRecord(

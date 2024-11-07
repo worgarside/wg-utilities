@@ -53,7 +53,6 @@ class WarehouseHandler(BaseWarehouseHandler):
         initialize_warehouse: bool = False,
     ) -> None:
         """Initialize the handler and Log Warehouse."""
-
         super().__init__(
             level=level,
             warehouse_host=warehouse_host,
@@ -69,7 +68,6 @@ class WarehouseHandler(BaseWarehouseHandler):
         Args:
             record (LogRecord): the new log record being "emitted"
         """
-
         log_payload = self.get_log_payload(record)
 
         self.post_with_backoff(log_payload)
@@ -126,7 +124,6 @@ class WarehouseHandler(BaseWarehouseHandler):
     )
     def post_with_backoff(self, log_payload: LogPayload, /) -> None:
         """Post a JSON response to the warehouse, with backoff applied."""
-
         res = post(
             f"{self.base_url}{self.ITEM_ENDPOINT}",
             timeout=60,
@@ -186,7 +183,6 @@ def add_warehouse_handler(
     Returns:
         WarehouseHandler: the WarehouseHandler that was added to the logger
     """
-
     wh_handler = WarehouseHandler(
         level=level,
         warehouse_host=warehouse_host,

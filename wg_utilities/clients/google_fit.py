@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, ClassVar, Literal
 
 from typing_extensions import TypedDict
@@ -97,12 +97,11 @@ class DataSource:
         Returns:
             int: a sum of data points in the given range
         """
-
         from_nano = int(
             int(from_datetime.timestamp() * 1000000000)
             if from_datetime
             else int(
-                datetime.today()
+                datetime.now(UTC)
                 .replace(hour=0, minute=0, second=0, microsecond=0)
                 .timestamp()
                 / DFUnit.NANOSECOND.value,
@@ -167,7 +166,6 @@ class DataSource:
         Returns:
             str: the key to use when extracting data from a data point
         """
-
         return self.DP_VALUE_KEY_LOOKUP[self.data_type_field_format]
 
 
@@ -200,7 +198,6 @@ class GoogleFitClient(GoogleClient[Any]):
         Returns:
             DataSource: an instance, ready to use!
         """
-
         if (data_source := self.data_sources.get(data_source_id)) is None:
             data_source = DataSource(data_source_id=data_source_id, google_client=self)
             self.data_sources[data_source_id] = data_source

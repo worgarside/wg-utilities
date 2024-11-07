@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
 def test_instantiation(google_fit_client: GoogleFitClient) -> None:
     """Test that the `DataSource` class can be instantiated."""
-
     data_source = DataSource(
         data_source_id="derived:com.google.step_count.delta:com.google.android.gms:estimated_steps",
         google_client=google_fit_client,
@@ -32,7 +31,6 @@ def test_instantiation(google_fit_client: GoogleFitClient) -> None:
 
 def test_description_property(data_source: DataSource) -> None:
     """Test that the `description` property returns the data source's description."""
-
     assert not hasattr(data_source, "_description")
 
     with patch.object(
@@ -90,7 +88,6 @@ def test_sum_data_points_in_range(
     expected_count: int,
 ) -> None:
     """Test `sum_data_points_in_range` sums data points in a given range correctly."""
-
     with patch.object(
         data_source.google_client,
         "get_items",
@@ -112,7 +109,6 @@ def test_sum_data_points_in_range(
 
 def test_data_type_field_format_property(data_source: DataSource) -> None:
     """Test that the `data_type_field_format` property returns the correct value."""
-
     with patch.object(
         data_source.google_client,
         "get_json_response",
@@ -131,7 +127,6 @@ def test_test_data_type_field_format_property_invalid_description(
     data_source: DataSource,
 ) -> None:
     """Test that `data_type_field_format` property raises an exception."""
-
     with patch.object(
         data_source.google_client,
         "get_json_response",

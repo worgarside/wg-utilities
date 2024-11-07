@@ -31,7 +31,6 @@ def test_download_method_image(
     temp_dir: Path,
 ) -> None:
     """Test the download method."""
-
     assert media_item_image.local_path == Path("undefined")
 
     media_item_image.download(target_directory=temp_dir)
@@ -53,7 +52,6 @@ def test_download_method_video(
     temp_dir: Path,
 ) -> None:
     """Test the download method."""
-
     assert media_item_video.local_path == Path("undefined")
 
     media_item_video.download(target_directory=str(temp_dir))
@@ -76,7 +74,6 @@ def test_download_method_no_force(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """Test `download` behaves as expected with the `force_download` argument."""
-
     media_item_image.download(target_directory=temp_dir)
 
     original_path = media_item_image.local_path
@@ -108,7 +105,6 @@ def test_binary_content_property(
     media_item_image: MediaItem,
 ) -> None:
     """Test the binary_content property."""
-
     assert media_item_image.local_path == Path("undefined")
 
     # The binary_content property downloads the file if it doesn't exist, causing the
@@ -123,7 +119,6 @@ def test_is_downloaded_property(
     temp_dir: Path,
 ) -> None:
     """Test the is_downloaded property."""
-
     assert media_item_image.local_path == Path("undefined")
     assert not media_item_image.is_downloaded
 
@@ -251,7 +246,6 @@ def test_media_type_property(
     google_photos_client: GooglePhotosClient,
 ) -> None:
     """Test the media_type property."""
-
     media_item_json = read_json_file(
         ":search/pagesize=100&albumid=aeaj_ygjq7orbkhxtxqtvky_nf_thtkex5ygvq6m1-qcy0wwmoosefqrmt5el2hakuossonw3jll.json",
         host_name="google/photos/v1/mediaitems",

@@ -46,7 +46,7 @@ class BaseModelWithConfig(BaseModel):
     def model_dump(  # noqa: PLR0913
         self,
         *,
-        mode: Literal["json", "python"] | str = "python",
+        mode: Literal["json", "python"] | str = "python",  # noqa: PYI051
         include: IncEx | None = None,
         exclude: IncEx | None = None,
         context: dict[str, Any] | None = None,
@@ -71,7 +71,6 @@ class BaseModelWithConfig(BaseModel):
             by_alias: False -> True
             exclude_unset: False -> True
         """
-
         return super().model_dump(
             mode=mode,
             include=include,
@@ -114,7 +113,6 @@ class BaseModelWithConfig(BaseModel):
             by_alias: False -> True
             exclude_unset: False -> True
         """
-
         return super().model_dump_json(
             indent=indent,
             include=include,
@@ -179,7 +177,6 @@ class OAuthCredentials(BaseModelWithConfig):
         Raises:
             ValueError: if `expiry` and `expiry_epoch` aren't the same
         """
-
         # Calculate the expiry time of the access token
         try:
             # Try to decode it if it's a valid JWT (with expiry)
@@ -360,7 +357,6 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
 
     def refresh_access_token(self) -> None:
         """Refresh access token."""
-
         if not hasattr(self, "_credentials") and not self._load_local_credentials():
             # If we don't have any credentials, we can't refresh the access token -
             # perform first time login and leave it at that
@@ -404,7 +400,6 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
             ValueError: if the state token returned by the OAuth provider does not
                 match
         """
-
         if self.use_existing_credentials_only:
             raise RuntimeError(
                 "No existing credentials found, and `use_existing_credentials_only` "
@@ -501,7 +496,6 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
 
         Overridable in subclasses.
         """
-
         try:
             client_id = self._client_id or self._credentials.client_id
         except AttributeError:
@@ -543,7 +537,6 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         Returns:
             str: the current client ID
         """
-
         return self._client_id or self.credentials.client_id
 
     @property
@@ -553,7 +546,6 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
         Returns:
             str: the current client secret
         """
-
         return self._client_secret or self.credentials.client_secret
 
     @property
@@ -575,7 +567,6 @@ class OAuthClient(JsonApiClient[GetJsonResponse]):
     @credentials.setter
     def credentials(self, value: OAuthCredentials) -> None:
         """Set the client's credentials, and write to the local cache file."""
-
         self._credentials = value
 
         self.creds_cache_path.write_text(

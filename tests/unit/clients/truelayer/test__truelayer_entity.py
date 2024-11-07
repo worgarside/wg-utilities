@@ -25,7 +25,6 @@ if TYPE_CHECKING:
 
 def test_from_json_response_instantiation(truelayer_client: TrueLayerClient) -> None:
     """Test that a TrueLayerEntity can be instantiated."""
-
     tle = TrueLayerEntity.from_json_response(
         {  # type: ignore[arg-type]
             "account_id": "w93af48b27r7s0u2s4y811w6929l616x",
@@ -61,7 +60,6 @@ def test_get_transactions(
     to_datetime: datetime | None,
 ) -> None:
     """Test that `get_transactions` returns a list of `Transaction` objects."""
-
     transactions = account.get_transactions(
         from_datetime=from_datetime,
         to_datetime=to_datetime,
@@ -80,7 +78,6 @@ def test_get_transactions(
 
 def test_update_balance_values(account: Account) -> None:
     """Test that `TrueLayerEntity.update_balance_values` updates the balance values."""
-
     assert not hasattr(account, "_available_balance")
     assert not hasattr(account, "_current_balance")
     assert not hasattr(account, "_overdraft")
@@ -101,7 +98,6 @@ def test_update_balance_values_multiple_results(
     mock_requests: Mocker,
 ) -> None:
     """Test that a `ValueError` is raised if the response has two result entries."""
-
     response_json = read_json_file(
         "data/v1/accounts/74i84q4696c886tr0ic9z4376ql2j316/balance.json",
         host_name="truelayer",
@@ -147,10 +143,9 @@ def test_get_balance_property_account(
         "payment_due",
         "payment_due_date",
     ],
-    expected_value: str | float | int | None,
+    expected_value: str | float | None,
 ) -> None:
     """Test that `TrueLayerEntity.get_balance` returns the correct balance value."""
-
     with patch.object(
         TrueLayerEntity,
         "update_balance_values",
@@ -199,10 +194,9 @@ def test_get_balance_property_card(
         "payment_due",
         "payment_due_date",
     ],
-    expected_value: str | float | int | None,
+    expected_value: str | float | None,
 ) -> None:
     """Test that `TrueLayerEntity.get_balance` returns the correct balance value."""
-
     with patch.object(
         TrueLayerEntity,
         "update_balance_values",
@@ -243,7 +237,6 @@ def test_account_balance_property(
     ],
 ) -> None:
     """Test that all balance properties call `_get_balance_property` correctly."""
-
     with patch.object(
         TrueLayerEntity,
         "_get_balance_property",
@@ -270,7 +263,6 @@ def test_card_balance_property(
     ],
 ) -> None:
     """Test that all balance properties call `_get_balance_property` correctly."""
-
     with patch.object(
         TrueLayerEntity,
         "_get_balance_property",
@@ -286,7 +278,6 @@ def test_balance_property(
     account: Account,
 ) -> None:
     """Test the `balance` property works correctly."""
-
     with patch.object(
         TrueLayerEntity,
         "_get_balance_property",

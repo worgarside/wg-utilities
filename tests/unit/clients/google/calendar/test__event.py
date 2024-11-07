@@ -30,7 +30,6 @@ def test_instantiation(
     calendar: Calendar,
 ) -> None:
     """Test that the `Event` class can be instantiated."""
-
     event_json = read_json_file(
         "v3/calendars/google-user@gmail.com/events/jt171go86rkonwwkyd5q7m84mm.json",
         host_name="google/calendar",
@@ -62,7 +61,6 @@ def test_delete_method(
     mock_requests: Mocker,
 ) -> None:
     """Test that the `delete` method sends the correct request."""
-
     mock_requests.delete(
         f"{google_calendar_client.base_url}/calendars/{calendar.id}/events/{event.id}",
         status_code=HTTPStatus.NO_CONTENT,
@@ -167,7 +165,6 @@ def test_response_status_property(
     expected_response_status: ResponseStatus,
 ) -> None:
     """Test that the `response_status` property returns the correct value."""
-
     updates: dict[str, list[_Attendee] | _Creator] = {
         "attendees": attendees,
     }
@@ -182,7 +179,6 @@ def test_response_status_property(
 
 def test_gt_method(event: Event) -> None:
     """Test that the `__gt__` method returns the correct value."""
-
     # Starts and ends a day later
     before_first = event.model_copy(
         update={
@@ -228,7 +224,6 @@ def test_gt_method(event: Event) -> None:
 
 def test_lt_method(event: Event) -> None:
     """Test that the `__lt__` method returns the correct value."""
-
     # Starts a day earlier
     before_first = event.model_copy(
         update={
@@ -268,7 +263,6 @@ def test_lt_method(event: Event) -> None:
 
 def test_str_method(event: Event) -> None:
     """Test that the `__str__` method returns a string repr of the event."""
-
     assert str(event) == (
         f"{event.summary} ("
         f"{event.start.datetime.isoformat()} - "

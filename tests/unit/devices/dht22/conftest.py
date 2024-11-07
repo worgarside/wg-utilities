@@ -17,14 +17,12 @@ if TYPE_CHECKING:
 @pytest.fixture(name="dht22_sensor")
 def dht22_sensor_(pigpio_pi: MagicMock) -> DHT22Sensor:
     """Fixture for DHT22 sensor."""
-
     return DHT22Sensor(pigpio_pi, gpio=4)
 
 
 @pytest.fixture(name="pigpio_pi")
 def pigpio_pi_() -> YieldFixture[MagicMock]:
     """Fixture for creating a `pigpio.pi` instance."""
-
     pi = MagicMock()
 
     pi.INPUT = 0

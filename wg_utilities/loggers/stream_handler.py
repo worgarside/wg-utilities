@@ -30,7 +30,6 @@ def add_stream_handler(
         Logger: the logger instance, returned for use in one-liners:
             `logger = add_stream_handler(logging.getLogger(__name__))`
     """
-
     s_handler = StreamHandler(stdout)
     s_handler.setFormatter(formatter)
     s_handler.setLevel(level)

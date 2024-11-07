@@ -32,7 +32,6 @@ def run_cmd(
     Raises:
         RuntimeError: if the command has a non-zero exit code
     """
-
     LOGGER.debug("Running command `%s`", cmd)
 
     popen_input = cmd if shell else COMMAND_PATTERN.split(cmd)[1::2]

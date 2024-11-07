@@ -39,7 +39,6 @@ def set_nested_value(
         target_value (Any): the value to set at the given location/path
         final_key (str): the final key, the value of which we're actually setting
     """
-
     final_key = final_key or keys.pop()
 
     if len(keys) > 0:
@@ -125,7 +124,7 @@ def process_list(
             )
 
 
-def traverse_dict(  # noqa: PLR0912
+def traverse_dict(  # noqa: C901, PLR0912
     obj: JSONObj,
     /,
     *,
@@ -271,7 +270,6 @@ def process_json_object(
     Raises:
         InvalidJsonObjectError: if an invalid JSON object/array is passed
     """
-
     if isinstance(obj, dict):
         traverse_dict(
             obj,

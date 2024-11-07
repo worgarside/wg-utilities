@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
 def test_instantiation(fake_oauth_credentials: OAuthCredentials) -> None:
     """Test that the `GooglePhotosClient` class can be instantiated."""
-
     client = GooglePhotosClient(
         client_id=fake_oauth_credentials.client_id,
         client_secret=fake_oauth_credentials.client_secret,
@@ -32,7 +31,6 @@ def test_get_album_by_id_no_albums(
     mock_requests: Mocker,
 ) -> None:
     """Test the `get_album_by_id` method with no known albums."""
-
     album = google_photos_client.get_album_by_id(album_id=google_photos_album.id)
 
     assert album == google_photos_album
@@ -50,7 +48,6 @@ def test_get_album_by_id_known_album(
     mock_requests: Mocker,
 ) -> None:
     """Test the `get_album_by_id` method with a known album."""
-
     # Populate the `_albums` property
     assert len(google_photos_client.albums) == 55
 
@@ -71,7 +68,6 @@ def test_get_album_by_id_unknown_album(
     mock_requests: Mocker,
 ) -> None:
     """Test the `get_album_by_id` method with an album not in the cached list."""
-
     # Populate the `_albums` property
     assert len(google_photos_client.albums) == 55
 
@@ -100,7 +96,6 @@ def test_get_album_by_name(
     mock_requests: Mocker,
 ) -> None:
     """Test the `get_album_by_name` method."""
-
     album = google_photos_client.get_album_by_name(album_name="Projects")
 
     assert album == google_photos_album
@@ -113,7 +108,6 @@ def test_get_album_by_name_bad_name(
     google_photos_client: GooglePhotosClient,
 ) -> None:
     """Test the `get_album_by_name` method with a bad album name."""
-
     with pytest.raises(FileNotFoundError) as exc_info:
         google_photos_client.get_album_by_name(album_name="Naughty Pics of My Cat")
 
@@ -128,7 +122,6 @@ def test_albums_property_no_known_albums(
     mock_requests: Mocker,
 ) -> None:
     """Test the `albums` property."""
-
     assert not hasattr(google_photos_client, "_albums")
     assert not hasattr(google_photos_client, "_album_count")
 
@@ -149,7 +142,6 @@ def test_albums_property_some_known_albums(
     mock_requests: Mocker,
 ) -> None:
     """Test the `albums` property with some known albums."""
-
     assert not hasattr(google_photos_client, "_albums")
     assert not hasattr(google_photos_client, "_album_count")
 

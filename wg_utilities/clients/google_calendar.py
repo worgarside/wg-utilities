@@ -112,7 +112,6 @@ class _StartEndDatetime(BaseModelWithConfig):
         values: dict[str, Any],
     ) -> dict[str, Any]:
         """Validate that either `datetime` or `date` is provided."""
-
         values["timeZone"] = (
             ZoneInfo(values["timeZone"]) if "timeZone" in values else get_localzone()
         )
@@ -141,7 +140,6 @@ class _StartEndDatetime(BaseModelWithConfig):
     @field_serializer("timezone", mode="plain", when_used="json", check_fields=True)
     def serialize_timezone(self, tz: tzinfo) -> str:
         """Serialize the timezone to a string."""
-
         return str(tz)
 
 
@@ -181,7 +179,6 @@ class GoogleCalendarEntity(BaseModelWithConfig):
         calendar: Calendar | None = None,
     ) -> Self:
         """Create a Calendar/Event from a JSON response."""
-
         value_data: dict[str, Any] = {
             "google_client": google_client,
             **value,
@@ -192,7 +189,7 @@ class GoogleCalendarEntity(BaseModelWithConfig):
 
         return cls.model_validate(value_data)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Compare two GoogleCalendarEntity objects by ID."""
         if not isinstance(other, type(self)):
             return NotImplemented
@@ -268,7 +265,6 @@ class Calendar(GoogleCalendarEntity):
     @field_serializer("timezone", mode="plain", when_used="json", check_fields=True)
     def serialize_timezone(self, tz: tzinfo) -> str:
         """Serialize the timezone to a string."""
-
         return str(tz)
 
     def get_event_by_id(self, event_id: str) -> Event:
@@ -280,7 +276,6 @@ class Calendar(GoogleCalendarEntity):
         Returns:
             Event: Event object
         """
-
         return self.google_client.get_event_by_id(event_id, calendar=self)
 
     def get_events(
@@ -320,7 +315,7 @@ class Calendar(GoogleCalendarEntity):
             "singleEvents": str(not combine_recurring_events),
         }
         if from_datetime or to_datetime or day_limit:
-            to_datetime = to_datetime or datetime_.utcnow()
+            to_datetime = to_datetime or datetime_.now(UTC)
             from_datetime = from_datetime or to_datetime - timedelta(days=day_limit or 90)
 
             if day_limit is not None:
@@ -470,7 +465,6 @@ class Event(GoogleCalendarEntity):
 
     def __gt__(self, other: Event) -> bool:
         """Compare two events by their start time, end time, or name."""
-
         if not isinstance(other, Event):
             return NotImplemented
 
@@ -482,7 +476,6 @@ class Event(GoogleCalendarEntity):
 
     def __lt__(self, other: Event) -> bool:
         """Compare two events by their start time, end time, or name."""
-
         if not isinstance(other, Event):
             return NotImplemented
 
@@ -547,7 +540,6 @@ class GoogleCalendarClient(GoogleClient[GoogleCalendarEntityJson]):
         Raises:
             TypeError: if the start/end datetime params are not the correct type
         """
-
         calendar = calendar or self.primary_calendar
         tz = tz or str(get_localzone())
 

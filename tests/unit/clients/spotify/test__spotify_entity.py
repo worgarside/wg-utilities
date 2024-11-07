@@ -75,7 +75,6 @@ def test_from_json_response_instantiation(spotify_client: SpotifyClient) -> None
 
 def test_url_property(spotify_entity: SpotifyEntity[SpotifyBaseEntityJson]) -> None:
     """Test the url property of the SpotifyEntity class."""
-
     assert spotify_entity.url == "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt"
 
     del spotify_entity.external_urls["spotify"]
@@ -90,7 +89,6 @@ def test_eq(
     spotify_client: SpotifyClient,
 ) -> None:
     """Test the __eq__ method of the SpotifyEntity class."""
-
     assert spotify_entity == spotify_entity
     assert spotify_entity == SpotifyEntity[SpotifyBaseEntityJson].model_validate(
         {
@@ -116,7 +114,6 @@ def test_gt(
     spotify_entity: SpotifyEntity[SpotifyBaseEntityJson],
 ) -> None:
     """Test the __gt__ method of the SpotifyEntity class."""
-
     new_entity = SpotifyEntity[SpotifyBaseEntityJson](
         id="12345",
         href="",
@@ -139,7 +136,6 @@ def test_gt(
 
 def test_hash(spotify_entity: SpotifyEntity[SpotifyBaseEntityJson]) -> None:
     """Test the __hash__ method of the SpotifyEntity class."""
-
     assert hash(spotify_entity) == hash(
         'SpotifyEntity(id="0gxyHStUsqpMadRV0Di1Qt", name="")',
     )
@@ -147,7 +143,6 @@ def test_hash(spotify_entity: SpotifyEntity[SpotifyBaseEntityJson]) -> None:
 
 def test_lt(spotify_entity: SpotifyEntity[SpotifyBaseEntityJson]) -> None:
     """Test the __lt__ method of the SpotifyEntity class."""
-
     new_entity = SpotifyEntity[SpotifyBaseEntityJson](
         id="12345",
         href="",
@@ -170,11 +165,9 @@ def test_lt(spotify_entity: SpotifyEntity[SpotifyBaseEntityJson]) -> None:
 
 def test_repr(spotify_entity: SpotifyEntity[SpotifyBaseEntityJson]) -> None:
     """Test the __repr__ method of the SpotifyEntity class."""
-
     assert repr(spotify_entity) == 'SpotifyEntity(id="0gxyHStUsqpMadRV0Di1Qt", name="")'
 
 
 def test_str(spotify_entity: SpotifyEntity[SpotifyBaseEntityJson]) -> None:
     """Test the __str__ method of the SpotifyEntity class."""
-
     assert str(spotify_entity) == "SpotifyEntity (0gxyHStUsqpMadRV0Di1Qt)"

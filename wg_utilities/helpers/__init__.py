@@ -15,7 +15,7 @@ class Sentinel:
     def __call__(self, *_: Any, **__: Any) -> None:
         """Do nothing when called."""
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Return True if the other value is also a Sentinel."""
         return isinstance(other, Sentinel)
 
@@ -27,7 +27,7 @@ class Sentinel:
         """Return an iterator that will always raise StopIteration."""
         return self.Iterator()
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         """Return False if the other value is also a Sentinel."""
         return not isinstance(other, Sentinel)
 
