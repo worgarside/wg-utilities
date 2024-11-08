@@ -1315,13 +1315,13 @@ dev = ["build", "click", "mkdocs", "mkdocs-charts-plugin", "mkdocs-git-revision-
 
 [[package]]
 name = "mkdocstrings"
-version = "0.26.1"
+version = "0.27.0"
 description = "Automatic documentation from sources, for MkDocs."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "mkdocstrings-0.26.1-py3-none-any.whl", hash = "sha256:29738bfb72b4608e8e55cc50fb8a54f325dc7ebd2014e4e3881a49892d5983cf"},
-    {file = "mkdocstrings-0.26.1.tar.gz", hash = "sha256:bb8b8854d6713d5348ad05b069a09f3b79edbc6a0f33a34c6821141adb03fe33"},
+    {file = "mkdocstrings-0.27.0-py3-none-any.whl", hash = "sha256:6ceaa7ea830770959b55a16203ac63da24badd71325b96af950e59fd37366332"},
+    {file = "mkdocstrings-0.27.0.tar.gz", hash = "sha256:16adca6d6b0a1f9e0c07ff0b02ced8e16f228a9d65a37c063ec4c14d7b76a657"},
 ]
 
 [package.dependencies]
@@ -2643,4 +2643,4 @@ testing = ["botocore"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "d82111fe4dcd39f4414eeeae80985b2b36d9f57f2a1b2e9c8923ffb705cea3ee"
+content-hash = "d9f594fd48a64d979cc3f95a453ba5e19baf7af0d58e5cf0189ad26a69fdafbb"
