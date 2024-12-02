@@ -8,12 +8,12 @@ from datetime import date as date_
 from datetime import datetime as datetime_
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, TypeAlias
+from zoneinfo import ZoneInfo
 
 from pydantic import Field, field_serializer, field_validator, model_validator
 from requests import delete
 from typing_extensions import NotRequired, TypedDict
 from tzlocal import get_localzone
-from zoneinfo import ZoneInfo
 
 from wg_utilities.clients._google import GoogleClient
 from wg_utilities.clients.oauth_client import BaseModelWithConfig
