@@ -7,7 +7,7 @@ repos:
         language_version: python3.12
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.2
+    rev: v0.8.1
     hooks:
       - id: ruff-format
       - id: ruff
@@ -112,6 +112,6 @@ repos:
       - id: vulture
 
   - repo: https://github.com/fredrikaverpil/creosote
-    rev: v3.1.0
+    rev: v3.2.0
     hooks:
       - id: creosote
