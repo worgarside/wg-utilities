@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
 import pytest
 from pydantic import ValidationError
-from zoneinfo import ZoneInfo
 
 from wg_utilities.clients.google_calendar import _StartEndDatetime
 
