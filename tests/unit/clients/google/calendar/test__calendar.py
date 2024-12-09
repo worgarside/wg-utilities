@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, tzinfo
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 import pytest
 from freezegun import freeze_time
-from zoneinfo import ZoneInfo
 
 from tests.conftest import read_json_file
 from wg_utilities.clients.google_calendar import Calendar, Event, GoogleCalendarClient
@@ -178,10 +178,13 @@ def test_get_events_datetime_parameters(
     expected_params: dict[str, str],
 ) -> None:
     """Test that various to/from datetime parameters are handled correctly."""
-    with freeze_time("2022-01-01T00:00:00"), patch.object(
-        calendar.google_client,
-        "get_items",
-    ) as mock_get_items:
+    with (
+        freeze_time("2022-01-01T00:00:00"),
+        patch.object(
+            calendar.google_client,
+            "get_items",
+        ) as mock_get_items,
+    ):
         calendar.get_events(
             from_datetime=from_datetime,
             to_datetime=to_datetime,
