@@ -33,4 +33,4 @@ class PostInitMeta(type):
         return obj
 
 
-__all__ = ["PostInitMeta", "MissingPostInitMethodError"]
+__all__ = ["MissingPostInitMethodError", "PostInitMeta"]
