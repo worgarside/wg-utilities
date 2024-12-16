@@ -35,9 +35,12 @@ def test_flush_and_stop() -> None:
 
     listener = FlushableQueueListener(log_queue, NullHandler())
 
-    with patch(
-        "wg_utilities.loggers.item_warehouse.flushable_queue_listener.sleep",
-    ) as mock_sleep, patch.object(listener, "stop") as mock_stop:
+    with (
+        patch(
+            "wg_utilities.loggers.item_warehouse.flushable_queue_listener.sleep",
+        ) as mock_sleep,
+        patch.object(listener, "stop") as mock_stop,
+    ):
         listener.flush_and_stop()
 
     assert mock_sleep.call_count == 5
@@ -56,10 +59,13 @@ def test_flush_and_stop_timeout(
 
     listener = FlushableQueueListener(log_queue, NullHandler())
 
-    with patch(
-        "wg_utilities.loggers.item_warehouse.flushable_queue_listener.sleep",
-        wraps=sleep,
-    ) as mock_sleep, patch.object(listener, "stop") as mock_stop:
+    with (
+        patch(
+            "wg_utilities.loggers.item_warehouse.flushable_queue_listener.sleep",
+            wraps=sleep,
+        ) as mock_sleep,
+        patch.object(listener, "stop") as mock_stop,
+    ):
         listener.flush_and_stop(timeout=2)
 
     assert mock_sleep.call_count == 2

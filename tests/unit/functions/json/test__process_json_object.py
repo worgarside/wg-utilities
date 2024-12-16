@@ -22,9 +22,12 @@ def target_proc_func(  # pragma: no cover
 
 def test_dict() -> None:
     """Test that a dictionary is processed correctly."""
-    with patch("wg_utilities.functions.json.traverse_dict") as mock_traverse_dict, patch(
-        "wg_utilities.functions.json.process_list",
-    ) as mock_process_list:
+    with (
+        patch("wg_utilities.functions.json.traverse_dict") as mock_traverse_dict,
+        patch(
+            "wg_utilities.functions.json.process_list",
+        ) as mock_process_list,
+    ):
         process_json_object(
             {"key": "value"},
             target_type=str,
@@ -47,9 +50,12 @@ def test_dict() -> None:
 
 def test_list() -> None:
     """Test that a list is processed correctly."""
-    with patch("wg_utilities.functions.json.traverse_dict") as mock_traverse_dict, patch(
-        "wg_utilities.functions.json.process_list",
-    ) as mock_process_list:
+    with (
+        patch("wg_utilities.functions.json.traverse_dict") as mock_traverse_dict,
+        patch(
+            "wg_utilities.functions.json.process_list",
+        ) as mock_process_list,
+    ):
         process_json_object(
             ["value"],
             target_type=str,
