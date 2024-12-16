@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TCH003
+from datetime import datetime  # noqa: TC003
 from enum import Enum
 from logging import DEBUG, getLogger
 from pathlib import Path

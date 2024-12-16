@@ -199,14 +199,17 @@ def test_emit(level: int, message: str, logger: Logger, record: LogRecord) -> No
         "thread": "MainThread",
     }
 
-    with patch.object(
-        WarehouseHandler,
-        "get_log_payload",
-        return_value=log_payload,
-    ) as mock_get_log_payload, patch.object(
-        WarehouseHandler,
-        "post_with_backoff",
-    ) as mock_post_with_backoff:
+    with (
+        patch.object(
+            WarehouseHandler,
+            "get_log_payload",
+            return_value=log_payload,
+        ) as mock_get_log_payload,
+        patch.object(
+            WarehouseHandler,
+            "post_with_backoff",
+        ) as mock_post_with_backoff,
+    ):
         logger.log(level, message)
 
     mock_get_log_payload.assert_called_once()
@@ -302,9 +305,12 @@ def test_post_with_backoff_permanent_failure(
     response_status: HTTPStatus,
 ) -> None:
     """Test that 4XX status codes aren't backed off."""
-    with patch(
-        "wg_utilities.loggers.item_warehouse.warehouse_handler.post",
-    ) as mock_post, caplog.at_level("ERROR"):
+    with (
+        patch(
+            "wg_utilities.loggers.item_warehouse.warehouse_handler.post",
+        ) as mock_post,
+        caplog.at_level("ERROR"),
+    ):
         mock_post.return_value.status_code = response_status
         mock_post.return_value.reason = response_status.phrase
         mock_post.return_value.text = "!!!"

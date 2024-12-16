@@ -46,12 +46,12 @@ except ImportError as exc:  # pragma: no cover
 
 
 __all__ = [
+    "IMR",
     "GoogleCalendarClient",
     "GoogleDriveClient",
     "GoogleFitClient",
     "GooglePhotosClient",
     "ItemMetadataRetrieval",
-    "IMR",
     "JsonApiClient",
     "MonzoClient",
     "OAuthClient",

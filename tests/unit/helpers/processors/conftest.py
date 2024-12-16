@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Generator
+from collections.abc import Generator
+from typing import TYPE_CHECKING, Any, Callable
 
 import pytest
 
@@ -114,4 +115,4 @@ def _modify_base_model_config() -> Generator[None, None, None]:
 
 
 # Keeps them imported for the Pydantic-based tests
-__all__ = ["spotify_user_", "spotify_client_", "mock_requests_"]
+__all__ = ["mock_requests_", "spotify_client_", "spotify_user_"]
