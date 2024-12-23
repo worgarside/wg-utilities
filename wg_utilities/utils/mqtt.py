@@ -67,4 +67,4 @@ def backoff_reconnect() -> None:
     CLIENT.reconnect()
 
 
-__all__ = ["CLIENT", "HOSTNAME", "MQTT_HOST", "MQTT_USERNAME", "MQTT_PASSWORD"]
+__all__ = ["CLIENT", "HOSTNAME", "MQTT_HOST", "MQTT_PASSWORD", "MQTT_USERNAME"]

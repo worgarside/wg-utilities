@@ -53,7 +53,7 @@ def utcnow(unit: DatetimeFixedUnit | None = None) -> datetime | int:
 
 
 __all__ = [
-    "DatetimeFixedUnit",
     "DTU",
+    "DatetimeFixedUnit",
     "utcnow",
 ]
