@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from datetime import date, datetime  # noqa: TCH003
+from datetime import date, datetime  # noqa: TC003
 from enum import StrEnum
 from re import sub
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, TypeVar

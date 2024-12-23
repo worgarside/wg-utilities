@@ -4,4 +4,4 @@ from .json import JSONProcessor
 
 JProc = JSONProcessor
 
-__all__ = ["JSONProcessor", "JProc"]
+__all__ = ["JProc", "JSONProcessor"]

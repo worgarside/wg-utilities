@@ -56,11 +56,14 @@ def test_getattr_override_on_demand_retrieval(
     # Can't directly access the attribute because that's what I'm testing
     assert simple_file.__dict__["size"] is None
 
-    with patch.object(File, "describe") as mock_describe, patch.object(
-        simple_file.google_client,
-        "get_json_response",
-        wraps=simple_file.google_client.get_json_response,
-    ) as mock_get_json_response:
+    with (
+        patch.object(File, "describe") as mock_describe,
+        patch.object(
+            simple_file.google_client,
+            "get_json_response",
+            wraps=simple_file.google_client.get_json_response,
+        ) as mock_get_json_response,
+    ):
         assert simple_file.size == 1024
 
     assert simple_file.__dict__["size"] == 1024
@@ -82,15 +85,18 @@ def test_getattr_override_on_first_request_retrieval(
     # Can't directly access the attribute because that's what I'm testing
     assert simple_file.__dict__["size"] is None
 
-    with patch.object(
-        File,
-        "describe",
-        wraps=simple_file.describe,
-    ) as mock_describe, patch.object(
-        simple_file.google_client,
-        "get_json_response",
-        wraps=simple_file.google_client.get_json_response,
-    ) as mock_get_json_response:
+    with (
+        patch.object(
+            File,
+            "describe",
+            wraps=simple_file.describe,
+        ) as mock_describe,
+        patch.object(
+            simple_file.google_client,
+            "get_json_response",
+            wraps=simple_file.google_client.get_json_response,
+        ) as mock_get_json_response,
+    ):
         assert simple_file.size == simple_file.__dict__["size"] == 1024
         assert (
             simple_file.created_time
