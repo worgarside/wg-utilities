@@ -5,7 +5,15 @@ from __future__ import annotations
 import inspect
 import re
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import (
+    Callable,
+    Collection,
+    Generator,
+    Iterable,
+    Iterator,
+    Mapping,
+    Sequence,
+)
 from contextlib import suppress
 from dataclasses import dataclass
 from functools import wraps
@@ -13,17 +21,11 @@ from itertools import chain
 from typing import (
     Any,
     ClassVar,
-    Collection,
     Final,
-    Generator,
-    Iterable,
-    Iterator,
     Literal,
-    Mapping,
     NamedTuple,
     ParamSpec,
     Protocol,
-    Sequence,
     TypeVar,
     overload,
 )

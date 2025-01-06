@@ -116,15 +116,18 @@ def test_add_child_method_file(
     file: File,
 ) -> None:
     """Test that `add_child` adds a File to the correct attribute."""
-    with patch.object(
-        _CanHaveChildren,
-        "_add_directory",
-        wraps=drive._add_directory,
-    ) as mock_add_directory, patch.object(
-        _CanHaveChildren,
-        "_add_file",
-        wraps=drive._add_file,
-    ) as mock_add_file:
+    with (
+        patch.object(
+            _CanHaveChildren,
+            "_add_directory",
+            wraps=drive._add_directory,
+        ) as mock_add_directory,
+        patch.object(
+            _CanHaveChildren,
+            "_add_file",
+            wraps=drive._add_file,
+        ) as mock_add_file,
+    ):
         drive.add_child(file)
         mock_add_directory.assert_not_called()
         mock_add_file.assert_called_once_with(file)
@@ -132,15 +135,18 @@ def test_add_child_method_file(
 
 def test_add_child_method_directory(drive: Drive, directory: Directory) -> None:
     """Test that `add_child` adds a Directory to the correct attribute."""
-    with patch.object(
-        _CanHaveChildren,
-        "_add_directory",
-        wraps=drive._add_directory,
-    ) as mock_add_directory, patch.object(
-        _CanHaveChildren,
-        "_add_file",
-        wraps=drive._add_file,
-    ) as mock_add_file:
+    with (
+        patch.object(
+            _CanHaveChildren,
+            "_add_directory",
+            wraps=drive._add_directory,
+        ) as mock_add_directory,
+        patch.object(
+            _CanHaveChildren,
+            "_add_file",
+            wraps=drive._add_file,
+        ) as mock_add_file,
+    ):
         drive.add_child(directory)
         mock_add_directory.assert_called_once_with(directory)
         mock_add_file.assert_not_called()
@@ -470,20 +476,24 @@ def test_children_property(
     drive_comparison_entity_lookup: dict[str, _GoogleDriveEntity],
 ) -> None:
     """Test that the `children` property behaves as expected."""
-    with patch.object(
-        _CanHaveChildren,
-        "reset_known_children",
-    ) as mock_reset_known_children, patch.object(
-        _CanHaveChildren,
-        "files",
-        [
-            drive_comparison_entity_lookup["128GB SD Card - Old MacBook.zip"],
-            drive_comparison_entity_lookup["Archive Log"],
-        ],
-    ), patch.object(
-        _CanHaveChildren,
-        "directories",
-        [drive_comparison_entity_lookup["MacBook Clones"]],
+    with (
+        patch.object(
+            _CanHaveChildren,
+            "reset_known_children",
+        ) as mock_reset_known_children,
+        patch.object(
+            _CanHaveChildren,
+            "files",
+            [
+                drive_comparison_entity_lookup["128GB SD Card - Old MacBook.zip"],
+                drive_comparison_entity_lookup["Archive Log"],
+            ],
+        ),
+        patch.object(
+            _CanHaveChildren,
+            "directories",
+            [drive_comparison_entity_lookup["MacBook Clones"]],
+        ),
     ):
         assert directory.children == [
             drive_comparison_entity_lookup["128GB SD Card - Old MacBook.zip"],

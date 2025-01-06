@@ -5,9 +5,9 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from http import HTTPStatus
 from typing import TYPE_CHECKING
+from zoneinfo import ZoneInfo
 
 import pytest
-from zoneinfo import ZoneInfo
 
 from tests.conftest import read_json_file
 from wg_utilities.clients.google_calendar import (
