@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Generator
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Generator
 
 
 def subclasses_recursive(

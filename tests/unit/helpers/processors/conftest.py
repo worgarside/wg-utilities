@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Generator
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -17,6 +16,8 @@ from wg_utilities.functions.subclasses import subclasses_recursive
 from wg_utilities.helpers.processor import JProc
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Generator
+
     from wg_utilities.helpers.processor.json import Callback
 
 

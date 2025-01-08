@@ -177,6 +177,7 @@ def test_initialize_warehouse_exception(
         for ((level, message), record) in zip(
             SAMPLE_LOG_RECORD_MESSAGES_WITH_LEVEL,
             SAMPLE_LOG_RECORDS,
+            strict=False,
         )
     ],
 )

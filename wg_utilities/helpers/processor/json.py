@@ -729,7 +729,7 @@ class JSONProcessor(mixin.InstanceCache, cache_id_attr="identifier"):
                     )
                 elif isinstance(item, Mapping | Sequence) and not isinstance(
                     item,
-                    (str, bytes),
+                    str | bytes,
                 ):
                     self.process(
                         item,

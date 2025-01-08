@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from copy import deepcopy
 from json import dumps, loads
-from typing import Any, Callable, Never
+from typing import Any, Never
 from unittest.mock import call, patch
 
 import pytest
