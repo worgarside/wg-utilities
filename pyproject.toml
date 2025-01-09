@@ -1,16 +1,20 @@
-[tool.poetry]
+[project]
 name = "wg-utilities"
 version = "5.17.1"
 description = "Loads of useful stuff for the things I do :)"
-
-authors = ["Will Garside <worgarside@gmail.com>"]
+dynamic = ["version", "dependencies"]
+authors = [
+  { name = "Will Garside", email = "worgarside@gmail.com" }
+]
 include = ["wg_utilities/py.typed"]
 license = "MIT"
-maintainers = ["Will Garside <worgarside@gmail.com>"]
+maintainers = [
+  { name = "Will Garside", email = "worgarside@gmail.com" }
+]
 packages = [{ include = "wg_utilities" }]
 readme = "README.md"
 repository = "https://github.com/worgarside/wg-utilities"
-
+requires-python = ">=3.11"
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
@@ -69,7 +73,7 @@ mkdocs-material = "^9.5.11"
 mkdocs-print-site-plugin = "^2.3.6"
 mkdocs-exporter = ">=5.3,<7.0"
 
-[tool.poetry.extras]
+[project.optional-dependencies]
 clients = ["flask", "pyjwt", "requests", "tzlocal", "pydantic"]
 "devices.epd" = ["spidev", "rpi.gpio", "Pillow"]
 "devices.dht22" = ["pigpio"]
@@ -162,7 +166,6 @@ fix = true
 line-length = 90
 lint.select = ["ALL"]
 lint.ignore = [
-  "ANN101", # https://docs.astral.sh/ruff/rules/missing-type-function-argument/
   "D107",   # https://docs.astral.sh/ruff/rules/undocumented-public-init/
   "S314",   # https://docs.astral.sh/ruff/rules/suspicious-xml-element-tree-usage/
   "TRY003", # https://docs.astral.sh/ruff/rules/raise-vanilla-args/
@@ -228,27 +231,3 @@ docstring-code-line-length = "dynamic"
 min_confidence = 70
 paths = ["tests", "wg_utilities"]
 sort_by_size = true
-
-[tool.creosote]
-paths = ["tests", "wg_utilities"]
-deps-file = "pyproject.toml"
-sections = [
-  "tool.poetry.dependencies",
-  # "tool.poetry.group.dev.dependencies",
-  "tool.poetry.group.test.dependencies",
-  # "tool.poetry.group.docs.dependencies",
-]
-exclude-deps = [
-  "coverage",
-  "pyjwt",
-  "rpi.gpio",
-  "spidev",
-  "pillow",
-  "pytest-asyncio",
-  "pytest-aws-config",
-  "pytest-cov",
-  "pytest-env",
-  "pytest-randomly",
-  "pytest-xdist",
-  "paho-mqtt",
-]

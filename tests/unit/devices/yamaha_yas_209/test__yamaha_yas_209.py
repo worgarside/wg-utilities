@@ -353,10 +353,13 @@ def test_listen_reraises_exception_from_subscribe_worker(
 
         raise TEST_EXCEPTION
 
-    with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.YamahaYas209._subscribe",
-        _mock_async_function,
-    ), pytest.raises(TestError) as exc_info:
+    with (
+        patch(
+            "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.YamahaYas209._subscribe",
+            _mock_async_function,
+        ),
+        pytest.raises(TestError) as exc_info,
+    ):
         yamaha_yas_209.listen()
 
     assert call_count == 1
@@ -840,10 +843,13 @@ def test_play_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None
 
 def test_play_pause_calls_correct_service_action(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the play_pause method calls the correct service action."""
-    with patch.object(yamaha_yas_209, "pause") as mock_pause, patch.object(
-        yamaha_yas_209,
-        "play",
-    ) as mock_play:
+    with (
+        patch.object(yamaha_yas_209, "pause") as mock_pause,
+        patch.object(
+            yamaha_yas_209,
+            "play",
+        ) as mock_play,
+    ):
         yamaha_yas_209.play_pause()
 
         assert yamaha_yas_209.state == Yas209State.UNKNOWN
@@ -913,10 +919,14 @@ def test_set_state_sets_local_state(yamaha_yas_209: YamahaYas209) -> None:
 
     assert yamaha_yas_209.state == Yas209State.PLAYING
 
-    with patch.object(yamaha_yas_209, "play") as mock_play, patch.object(
-        yamaha_yas_209,
-        "pause",
-    ) as mock_pause, patch.object(yamaha_yas_209, "stop") as mock_stop:
+    with (
+        patch.object(yamaha_yas_209, "play") as mock_play,
+        patch.object(
+            yamaha_yas_209,
+            "pause",
+        ) as mock_pause,
+        patch.object(yamaha_yas_209, "stop") as mock_stop,
+    ):
         yamaha_yas_209.set_state(Yas209State.PLAYING, local_only=True)
 
         mock_play.assert_not_called()
@@ -932,10 +942,14 @@ def test_set_state_sets_local_state(yamaha_yas_209: YamahaYas209) -> None:
 
 def test_set_state_sets_correct_state_property(yamaha_yas_209: YamahaYas209) -> None:
     """Test that the set_state method sets the correct state property."""
-    with patch.object(yamaha_yas_209, "play") as mock_play, patch.object(
-        yamaha_yas_209,
-        "pause",
-    ) as mock_pause, patch.object(yamaha_yas_209, "stop") as mock_stop:
+    with (
+        patch.object(yamaha_yas_209, "play") as mock_play,
+        patch.object(
+            yamaha_yas_209,
+            "pause",
+        ) as mock_pause,
+        patch.object(yamaha_yas_209, "stop") as mock_stop,
+    ):
         yamaha_yas_209.set_state(Yas209State.PLAYING, local_only=False)
 
         assert yamaha_yas_209.state == Yas209State.PLAYING
@@ -1391,12 +1405,15 @@ def test_subscribe_creates_notify_server_with_correct_subscriptions(
 
     local_ip = get_local_ip("")
 
-    with patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
-        side_effect=_fake_server,
-    ) as mock_aiohttp_notify_server, patch(
-        "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
-        side_effect=_sleep_side_effect,
+    with (
+        patch(
+            "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.AiohttpNotifyServer",
+            side_effect=_fake_server,
+        ) as mock_aiohttp_notify_server,
+        patch(
+            "wg_utilities.devices.yamaha_yas_209.yamaha_yas_209.async_sleep",
+            side_effect=_sleep_side_effect,
+        ),
     ):
         caplog.clear()
         new_event_loop().run_until_complete(yamaha_yas_209._subscribe())

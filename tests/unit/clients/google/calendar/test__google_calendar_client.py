@@ -7,10 +7,10 @@ from http import HTTPStatus
 from json import loads
 from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 import pytest
 from requests import HTTPError
-from zoneinfo import ZoneInfo
 
 from wg_utilities.clients import GoogleCalendarClient
 from wg_utilities.clients.google_calendar import Calendar, Event, _StartEndDatetime
