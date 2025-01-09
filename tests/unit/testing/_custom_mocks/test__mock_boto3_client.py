@@ -343,10 +343,13 @@ def test_non_mocked_calls_still_go_to_aws(
     s3_client: S3Client,
 ) -> None:
     """Test that non-mocked calls still go to AWS."""
-    with patch(
-        MockBoto3Client.PATCH_METHOD,
-        mb3c.build_api_call(),
-    ), freeze_time(frozen_time := datetime.now(UTC).replace(microsecond=0)):
+    with (
+        patch(
+            MockBoto3Client.PATCH_METHOD,
+            mb3c.build_api_call(),
+        ),
+        freeze_time(frozen_time := datetime.now(UTC).replace(microsecond=0)),
+    ):
         s3_client.create_bucket(
             Bucket="test-bucket",
             CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},

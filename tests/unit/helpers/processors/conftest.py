@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Generator
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -16,6 +16,8 @@ from wg_utilities.functions.subclasses import subclasses_recursive
 from wg_utilities.helpers.processor import JProc
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Generator
+
     from wg_utilities.helpers.processor.json import Callback
 
 
@@ -114,4 +116,4 @@ def _modify_base_model_config() -> Generator[None, None, None]:
 
 
 # Keeps them imported for the Pydantic-based tests
-__all__ = ["spotify_user_", "spotify_client_", "mock_requests_"]
+__all__ = ["mock_requests_", "spotify_client_", "spotify_user_"]
