@@ -88,11 +88,14 @@ def test_sum_data_points_in_range(
     expected_count: int,
 ) -> None:
     """Test `sum_data_points_in_range` sums data points in a given range correctly."""
-    with patch.object(
-        data_source.google_client,
-        "get_items",
-        wraps=data_source.google_client.get_items,
-    ) as mock_get_items, freeze_time("2023-01-10 16:20:00"):
+    with (
+        patch.object(
+            data_source.google_client,
+            "get_items",
+            wraps=data_source.google_client.get_items,
+        ) as mock_get_items,
+        freeze_time("2023-01-10 16:20:00"),
+    ):
         count = data_source.sum_data_points_in_range(
             from_datetime=from_datetime,
             to_datetime=to_datetime,

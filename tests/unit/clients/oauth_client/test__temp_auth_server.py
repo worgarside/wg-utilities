@@ -273,10 +273,13 @@ def test_port_allocation_fails(temp_auth_server: TempAuthServer) -> None:
     """Test that `start_server` raises an exception if it cannot allocate a port."""
     assert not temp_auth_server.is_running
 
-    with patch(
-        "wg_utilities.api.temp_auth_server.make_server",
-        side_effect=OSError("Address already in use"),
-    ), pytest.raises(OSError) as exc_info:
+    with (
+        patch(
+            "wg_utilities.api.temp_auth_server.make_server",
+            side_effect=OSError("Address already in use"),
+        ),
+        pytest.raises(OSError) as exc_info,
+    ):
         temp_auth_server.start_server()
 
     assert str(exc_info.value) == "No available ports in range 5000-5020"
@@ -295,10 +298,13 @@ def test_hard_port_allocation(temp_auth_server: TempAuthServer) -> None:
 
         return make_server(host, port, app)  # type: ignore[no-any-return]
 
-    with patch(
-        "wg_utilities.api.temp_auth_server.make_server",
-        side_effect=make_server_side_effect,
-    ), pytest.raises(OSError) as exc_info:
+    with (
+        patch(
+            "wg_utilities.api.temp_auth_server.make_server",
+            side_effect=make_server_side_effect,
+        ),
+        pytest.raises(OSError) as exc_info,
+    ):
         temp_auth_server.start_server()
 
     assert str(exc_info.value) == "Address already in use"

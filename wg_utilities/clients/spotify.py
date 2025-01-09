@@ -14,6 +14,7 @@ from typing import (
     ClassVar,
     Generic,
     Literal,
+    NotRequired,
     Self,
     TypeAlias,
     TypeVar,
@@ -24,7 +25,7 @@ from urllib.parse import urlencode
 
 from pydantic import Field, ValidationInfo, field_validator, model_validator
 from requests import HTTPError, delete, put
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import TypedDict
 
 from wg_utilities.clients._spotify_types import (
     AlbumSummaryJson,
