@@ -86,7 +86,7 @@ def backoff(
             while True:
                 try:
                     return func(*args, **kwargs)
-                except exceptions as exc:  # noqa: PERF203
+                except exceptions as exc:
                     if logger is not None:
                         logger.warning(
                             "Exception caught in backoff decorator (attempt %i/%i, waiting for %fs): %s %s",

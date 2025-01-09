@@ -11,6 +11,7 @@ from typing import (
     Any,
     ClassVar,
     Literal,
+    NotRequired,
     Self,
     TypeAlias,
     TypeVar,
@@ -19,7 +20,7 @@ from typing import (
 
 from pydantic import Field, field_validator
 from requests import HTTPError
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import TypedDict
 
 from wg_utilities.clients.oauth_client import BaseModelWithConfig, OAuthClient
 

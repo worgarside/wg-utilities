@@ -47,4 +47,4 @@ class Sentinel:
             raise StopIteration
 
 
-__all__ = ["mixin", "Sentinel"]
+__all__ = ["Sentinel", "mixin"]

@@ -9,9 +9,9 @@ from __future__ import annotations
 
 from enum import StrEnum
 from logging import DEBUG, getLogger
-from typing import TYPE_CHECKING, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Literal, NotRequired, Self, TypeAlias, final
 
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from datetime import date

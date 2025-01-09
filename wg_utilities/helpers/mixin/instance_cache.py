@@ -175,8 +175,8 @@ def cache_id(obj: InstanceCacheMixin, /) -> CacheIdType:
 
 
 __all__ = [
-    "InstanceCacheIdError",
     "InstanceCacheDuplicateError",
+    "InstanceCacheIdError",
     "InstanceCacheMixin",
     "cache_id",
 ]

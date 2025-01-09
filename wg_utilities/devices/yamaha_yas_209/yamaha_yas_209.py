@@ -807,7 +807,7 @@ class YamahaYas209:
                     await server.event_handler.async_subscribe(service)
                     self._active_service_ids.append(service.service_id)
                     services_to_remove.append(service)
-                except UpnpCommunicationError as exc:  # noqa: PERF203
+                except UpnpCommunicationError as exc:
                     log_message = (
                         f"Still unable to subscribe to {service.service_id}: {exc!r}"
                     )

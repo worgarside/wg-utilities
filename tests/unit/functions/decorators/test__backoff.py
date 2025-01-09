@@ -24,9 +24,12 @@ def test_default_call_permanent_failure() -> None:
 
         raise ValueError
 
-    with pytest.raises(ValueError), patch(
-        "wg_utilities.functions.decorators.sleep",
-    ) as mock_sleep:
+    with (
+        pytest.raises(ValueError),
+        patch(
+            "wg_utilities.functions.decorators.sleep",
+        ) as mock_sleep,
+    ):
         test_func()
 
     assert mock_sleep.call_count == 9  # 10 tries total
@@ -72,9 +75,12 @@ def test_custom_call_correct_exception() -> None:
 
         raise ValueError
 
-    with pytest.raises(ValueError), patch(
-        "wg_utilities.functions.decorators.sleep",
-    ) as mock_sleep:
+    with (
+        pytest.raises(ValueError),
+        patch(
+            "wg_utilities.functions.decorators.sleep",
+        ) as mock_sleep,
+    ):
         test_func()
 
     assert mock_sleep.call_count == 4  # 5 tries total
@@ -101,9 +107,12 @@ def test_custom_call_incorrect_exception() -> None:
 
         raise RuntimeError
 
-    with pytest.raises(RuntimeError), patch(
-        "wg_utilities.functions.decorators.sleep",
-    ) as mock_sleep:
+    with (
+        pytest.raises(RuntimeError),
+        patch(
+            "wg_utilities.functions.decorators.sleep",
+        ) as mock_sleep,
+    ):
         test_func()
 
     assert mock_sleep.call_count == 0
