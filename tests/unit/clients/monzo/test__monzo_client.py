@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from http import HTTPStatus
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode
@@ -122,7 +122,7 @@ def test_list_accounts_method(
     for acc in expected_accounts:
         acc["created"] = datetime.fromisoformat(  # type: ignore[typeddict-item]
             acc["created"].rstrip("Z"),
-        ).replace(tzinfo=timezone.utc)
+        ).replace(tzinfo=UTC)
 
     assert [
         acc.model_dump(exclude_none=True)

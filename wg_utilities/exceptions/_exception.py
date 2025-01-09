@@ -28,4 +28,4 @@ class NotFoundError(WGUtilitiesError):
     """Raised when something is not found."""
 
 
-__all__ = ["WGUtilitiesError", "BadDefinitionError", "BadUsageError", "NotFoundError"]
+__all__ = ["BadDefinitionError", "BadUsageError", "NotFoundError", "WGUtilitiesError"]

@@ -36,11 +36,14 @@ def test_queue_handler_is_applied_to_logger_correctly(
     logger: Logger,
 ) -> None:
     """Test that the handler is applied to the logger correctly."""
-    with patch(
-        "wg_utilities.loggers.item_warehouse.warehouse_handler.FlushableQueueListener",
-    ) as mock_flushable_queue_listener, patch(
-        "wg_utilities.loggers.item_warehouse.warehouse_handler.atexit",
-    ) as mock_atexit:
+    with (
+        patch(
+            "wg_utilities.loggers.item_warehouse.warehouse_handler.FlushableQueueListener",
+        ) as mock_flushable_queue_listener,
+        patch(
+            "wg_utilities.loggers.item_warehouse.warehouse_handler.atexit",
+        ) as mock_atexit,
+    ):
         wh_handler = add_warehouse_handler(
             logger,
             warehouse_host=IWH_DOT_COM,
