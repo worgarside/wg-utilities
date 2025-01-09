@@ -1810,6 +1810,7 @@ version = "0.2.1"
 description = "Accelerated property cache"
 optional = false
 python-versions = ">=3.9"
+groups = ["main", "test"]
 files = [
     {file = "propcache-0.2.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:6b3f39a85d671436ee3d12c017f8fdea38509e4f25b28eb25877293c98c243f6"},
     {file = "propcache-0.2.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:39d51fbe4285d5db5d92a929e3e21536ea3dd43732c5b177c7ef03f918dff9f2"},
@@ -2741,6 +2742,7 @@ version = "1.18.3"
 description = "Yet another URL library"
 optional = false
 python-versions = ">=3.9"
+groups = ["main", "test"]
 files = [
     {file = "yarl-1.18.3-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:7df647e8edd71f000a5208fe6ff8c382a1de8edfbccdbbfe649d263de07d8c34"},
     {file = "yarl-1.18.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:c69697d3adff5aa4f874b19c0e4ed65180ceed6318ec856ebc423aa5850d84f7"},
@@ -2846,4 +2848,4 @@ testing = ["botocore"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "f1efd8ff6d614d99d5810a817e52a8914d92fc9f28f09f7ad6511821969dd9af"
+content-hash = "24f5a7627581641343d987abaf49e111cdd1e8f4d733c21580d5ac94b7e2b35b"
