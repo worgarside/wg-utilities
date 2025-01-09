@@ -84,6 +84,7 @@ TransactionCategory = Literal[
     "charity",
     "eating_out",
     "entertainment",
+    "expenses",
     "general",
     "gifts",
     "groceries",
@@ -159,10 +160,7 @@ class Transaction(BaseModelWithConfig):
     can_be_made_subscription: bool
     can_match_transactions_in_categorization: bool
     can_split_the_bill: bool
-    categories: dict[
-        TransactionCategory,
-        int,
-    ]
+    categories: dict[TransactionCategory, int]
     category: TransactionCategory
     counterparty: dict[str, str]
     created: datetime
