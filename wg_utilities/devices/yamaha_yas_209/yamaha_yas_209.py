@@ -800,8 +800,7 @@ class YamahaYas209:
                 try:
                     if self._logging:
                         LOGGER.debug(
-                            "Attempting to create originally failed subscription for"
-                            " %s",
+                            "Attempting to create originally failed subscription for %s",
                             service.service_id,
                         )
                     await server.event_handler.async_subscribe(service)
