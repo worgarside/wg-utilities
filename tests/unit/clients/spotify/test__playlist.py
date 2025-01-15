@@ -72,7 +72,7 @@ def test_tracks_property(
 
     expected_requests = [
         {
-            "url": f"{SpotifyClient.BASE_URL}/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks?offset={(i+1)*50}&limit=50",
+            "url": f"{SpotifyClient.BASE_URL}/playlists/2lMx8FU0SeQ7eA5kcMlNpX/tracks?offset={(i + 1) * 50}&limit=50",  # noqa: E501
             "method": "GET",
             "headers": {"Authorization": f"Bearer {live_jwt_token}"},
         }
@@ -268,7 +268,7 @@ def test_tracks_property_updates_snapshot_id(
     track_requests.extend(
         [
             {
-                "url": f"{SpotifyClient.BASE_URL}/playlists/{spotify_playlist_alt.id}/tracks?offset={(i+1)*50}&limit=50",  # noqa: E501
+                "url": f"{SpotifyClient.BASE_URL}/playlists/{spotify_playlist_alt.id}/tracks?offset={(i + 1) * 50}&limit=50",  # noqa: E501
                 "method": "GET",
                 "headers": {"Authorization": f"Bearer {live_jwt_token}"},
             }

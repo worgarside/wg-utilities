@@ -7,7 +7,7 @@ repos:
         language_version: python3.12
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.6
+    rev: v0.9.1
     hooks:
       - id: ruff-format
       - id: ruff
@@ -43,7 +43,7 @@ repos:
           - paho-mqtt==2.1.0
 
   - repo: https://github.com/python-poetry/poetry
-    rev: 2.0.0
+    rev: 2.0.1
     hooks:
       - id: poetry-check
         always_run: true
