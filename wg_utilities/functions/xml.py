@@ -1,4 +1,4 @@
-"""Helper functions specifically for parsing/manipulating XML."""
+"""Helper functions specifically for parsing/manipulating XML."""  # noqa: A005
 
 from __future__ import annotations
 
