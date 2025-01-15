@@ -335,9 +335,9 @@ class SpotifyClient(OAuthClient[SpotifyEntityJson]):
 
             res: SearchResponse | AnyPaginatedResponse = self.get_json_response(next_url)  # type: ignore[assignment]
             page = (
-                cast(SearchResponse, res)[top_level_key]
+                cast("SearchResponse", res)[top_level_key]
                 if top_level_key
-                else cast(AnyPaginatedResponse, res)
+                else cast("AnyPaginatedResponse", res)
             )
 
             page_items: (
@@ -705,7 +705,7 @@ class Album(SpotifyEntity[AlbumSummaryJson]):
     popularity: int | None = None
     release_date_precision: Literal["year", "month", "day"] | None = None
     release_date: date
-    restrictions: dict[str, str] | None = None
+    restrictions: dict[str, str] | str | None = None
     total_tracks: int
     tracks_json: PaginatedResponseTracks = Field(alias="tracks", default_factory=dict)  # type: ignore[assignment]
     type: Literal["album"]
@@ -867,7 +867,7 @@ class Track(SpotifyEntity[TrackFullJson]):
     linked_from: TrackFullJson | None = None
     popularity: int | None = None
     preview_url: str | None = None
-    restrictions: str | None = None
+    restrictions: dict[str, str] | str | None = None
     track: bool | None = None
     track_number: int
     type: Literal["track"]
@@ -1064,7 +1064,7 @@ class Playlist(SpotifyEntity[PlaylistSummaryJson]):
                     spotify_client=self.spotify_client,
                 )
                 for item in cast(
-                    list[PlaylistFullJsonTracks],
+                    "list[PlaylistFullJsonTracks]",
                     self.spotify_client.get_items(f"/playlists/{self.id}/tracks"),
                 )
                 if item.get("track") is not None and item["is_local"] is False
@@ -1260,7 +1260,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                 },
             )
             for item in cast(
-                list[SavedItem],
+                "list[SavedItem]",
                 self.spotify_client.get_items(
                     "/me/tracks",
                     hard_limit=track_limit,
@@ -1384,7 +1384,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                     spotify_client=self.spotify_client,
                 )
                 for item in cast(
-                    list[SavedItem],
+                    "list[SavedItem]",
                     self.spotify_client.get_items("/me/albums"),
                 )
             ]
@@ -1427,7 +1427,7 @@ class User(SpotifyEntity[UserSummaryJson]):
             Track: the track currently being listened to
         """
         res = cast(
-            SavedItem,
+            "SavedItem",
             self.spotify_client.get_json_response("/me/player/currently-playing"),
         )
 
@@ -1490,7 +1490,7 @@ class User(SpotifyEntity[UserSummaryJson]):
         self._playlist_refresh_time = datetime.now(UTC)
 
         all_playlist_json = cast(
-            list[PlaylistSummaryJson],
+            "list[PlaylistSummaryJson]",
             self.spotify_client.get_items("/me/playlists"),
         )
 
@@ -1579,7 +1579,7 @@ class User(SpotifyEntity[UserSummaryJson]):
                     },
                 )
                 for item in cast(
-                    list[SavedItem],
+                    "list[SavedItem]",
                     self.spotify_client.get_items("/me/tracks"),
                 )
             ]
