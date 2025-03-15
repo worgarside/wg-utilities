@@ -50,7 +50,7 @@ class RaspberryPi:
     # noinspection PyUnresolvedReferences,PyPackageRequirements
 
     def __init__(self) -> None:
-        from RPi import GPIO  # type: ignore[import-not-found]
+        from RPi import GPIO  # type: ignore[import-untyped]
         from spidev import SpiDev  # type: ignore[import-not-found]
 
         self.gpio = GPIO
