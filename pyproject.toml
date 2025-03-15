@@ -1,6 +1,6 @@
 [project]
 name = "wg-utilities"
-version = "5.17.3"
+version = "5.17.4"
 description = "Loads of useful stuff for the things I do :)"
 dynamic = ["version", "dependencies"]
 authors = [
