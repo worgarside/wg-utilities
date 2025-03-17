@@ -217,7 +217,7 @@ def read_json_file(
     else:
         file_path /= rel_file_path.lstrip("/").lower()
 
-    return cast(JSONObj, loads(file_path.read_text()))
+    return cast("JSONObj", loads(file_path.read_text()))
 
 
 def get_flat_file_from_url(

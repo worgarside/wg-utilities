@@ -1,4 +1,4 @@
-"""Helper functions specifically for parsing/manipulating XML."""  # noqa: A005
+"""Helper functions specifically for parsing/manipulating XML."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ def get_nsmap(
         if xml_doc is None:
             raise ValueError("One of `root` or `xml_doc` should be non-null")
 
-        root = etree.fromstring(xml_doc.encode())  # noqa: S320
+        root = etree.fromstring(xml_doc.encode())
 
     nsmap = {}
     default_count = 0

@@ -1,4 +1,4 @@
-"""Useful functions for working with JSON/dictionaries."""  # noqa: A005
+"""Useful functions for working with JSON/dictionaries."""
 
 from __future__ import annotations
 
@@ -103,7 +103,7 @@ def process_list(
     for i, elem in enumerate(lst):
         if isinstance(elem, target_type):
             try:
-                lst[i] = target_processor_func(cast(V, elem), list_index=i)
+                lst[i] = target_processor_func(cast("V", elem), list_index=i)
             except Exception:
                 if log_op_func_failures:
                     LOGGER.exception("Unable to process item at index %i", i)
@@ -162,14 +162,14 @@ def traverse_dict(  # noqa: C901, PLR0912
     for k, v in obj.items():
         if isinstance(v, target_type):
             try:
-                obj.update({k: target_processor_func(cast(V, v), dict_key=k)})
+                obj.update({k: target_processor_func(cast("V", v), dict_key=k)})
                 if isinstance(obj[k], dict):
                     traverse_dict(
                         # If a dict has been created from a non-dict type (e.g. `loads("{...}")`,
                         # then we need to traverse the current object again, as the new dict may
                         # contain more instances of `target_type`. Otherwise, traverse
                         # the dict (that already existed).
-                        obj if target_type is not dict else cast(JSONObj, obj[k]),
+                        obj if target_type is not dict else cast("JSONObj", obj[k]),
                         target_type=target_type,
                         target_processor_func=target_processor_func,
                         pass_on_fail=pass_on_fail,
@@ -194,7 +194,7 @@ def traverse_dict(  # noqa: C901, PLR0912
                 matched_single_key = True
                 if isinstance(value := v.get(only_key), target_type):
                     try:
-                        value = target_processor_func(cast(V, value), dict_key=only_key)
+                        value = target_processor_func(cast("V", value), dict_key=only_key)
                     except Exception:
                         if log_op_func_failures:
                             LOGGER.exception(

@@ -71,7 +71,7 @@ def fix_colon_keys(json_obj: JSONObj | SpotifyEntityJson) -> JSONObj:
     ):
         json_str = json_str.replace(key, key.replace("_", ":"))
 
-    return cast(JSONObj, loads(json_str))
+    return cast("JSONObj", loads(json_str))
 
 
 def yamaha_yas_209_get_media_info_responses(
@@ -112,7 +112,7 @@ def yamaha_yas_209_last_change_av_transport_events(
         ),
     ):
         json_obj = cast(
-            JSONObj,
+            "JSONObj",
             fix_colon_keys(
                 read_json_file(f"yamaha_yas_209/event_payloads/av_transport/{file}"),
             )["last_change"],
@@ -147,7 +147,7 @@ def yamaha_yas_209_last_change_rendering_control_events() -> YieldFixture[JSONOb
         ),
     ):
         json_obj = cast(
-            JSONObj,
+            "JSONObj",
             fix_colon_keys(
                 read_json_file(f"yamaha_yas_209/event_payloads/rendering_control/{file}"),
             )["last_change"],
