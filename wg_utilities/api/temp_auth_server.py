@@ -98,7 +98,7 @@ class TempAuthServer:
             self._request_args[request.path] = request.args
 
             return cast(
-                Response,
+                "Response",
                 self.app.response_class(
                     response=dedent(
                         """

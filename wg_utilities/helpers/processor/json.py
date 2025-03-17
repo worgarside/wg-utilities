@@ -1,4 +1,4 @@
-"""Useful functions for working with JSON/dictionaries."""  # noqa: A005
+"""Useful functions for working with JSON/dictionaries."""
 
 from __future__ import annotations
 
